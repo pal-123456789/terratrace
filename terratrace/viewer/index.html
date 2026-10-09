@@ -104,12 +104,13 @@ tested scenarios. High values mean the result is assumption-sensitive.</p></sect
 <li><strong>Earth:</strong> ESA Copernicus GLO-30 Digital Elevation Model, distributed by OpenTopography. (c) ESA. Attribution required. <em>Copernicus data; free use with attribution; see OpenTopography terms.</em></li>
 </ul></section>
 
-
+<section><h2>UNCERTAINTY (BOOTSTRAP, n=300)</h2><p class='sub'>Feature distributions resampled with replacement. Non-domination frequency is how often each unit is Pareto non-dominated across resamples; a single clear winner appears in 0% of resamples. Slope-distance shown as median [95% CI].</p><table><thead><tr><th scope='col'>unit</th><th scope='col'>non-dominated</th><th scope='col'>clear winner</th><th scope='col'>slope distance</th></tr></thead><tbody><tr><th scope='row'>earth_candidate_a</th><td>100%</td><td>0%</td><td>1.34 <span style='color:#7f9398'>[1.28–1.42]</span></td></tr>
+<tr><th scope='row'>earth_candidate_b</th><td>100%</td><td>0%</td><td>0.73 <span style='color:#7f9398'>[0.69–0.77]</span></td></tr></tbody></table></section>
 
 <section><h2>PROVENANCE</h2>
 <p class="sub">Every value derives from the <strong>real_dem_aeqd</strong> source through a recorded
 transformation and resolves in the evidence graph. Package hash:</p>
-<p class="hash">106a83635fe3052fa3df6e8561350056f2cdbde2b2a090acf64683dd82c9c927</p></section>
+<p class="hash">bf7caf19fa53e7b0ed2e69b8eab4c0d71c2ebbaa08fb39ed1bda1dbccf6daa6b</p></section>
 
 <details><summary>Raw study package (JSON)</summary>
 <pre class="hash">{
@@ -130,6 +131,65 @@ transformation and resolves in the evidence graph. Package hash:</p>
       0.42086360961159064,
       0.3449329097031952
     ]
+  },
+  &quot;bootstrap&quot;: {
+    &quot;decisive_freq&quot;: 0.0,
+    &quot;n_boot&quot;: 300,
+    &quot;seed&quot;: 0,
+    &quot;units&quot;: {
+      &quot;earth_candidate_a&quot;: {
+        &quot;clear_winner_freq&quot;: 0.0,
+        &quot;distance_ci&quot;: {
+          &quot;connectivity&quot;: [
+            0.024410487057729274,
+            0.024410487057729274,
+            0.024410487057729274
+          ],
+          &quot;relief&quot;: [
+            1.2602411130821034,
+            1.3187615401131787,
+            1.373325857113907
+          ],
+          &quot;ruggedness&quot;: [
+            1.2435137772468199,
+            1.3495311679451687,
+            1.4430993933833691
+          ],
+          &quot;slope&quot;: [
+            1.2750290255086747,
+            1.3406486774808126,
+            1.415693472184324
+          ]
+        },
+        &quot;nondominated_freq&quot;: 1.0
+      },
+      &quot;earth_candidate_b&quot;: {
+        &quot;clear_winner_freq&quot;: 0.0,
+        &quot;distance_ci&quot;: {
+          &quot;connectivity&quot;: [
+            0.01609837786316664,
+            0.01609837786316664,
+            0.01609837786316664
+          ],
+          &quot;relief&quot;: [
+            0.7578921856844656,
+            0.7869433368653376,
+            0.8129057558354341
+          ],
+          &quot;ruggedness&quot;: [
+            0.7217613206613801,
+            0.7629223171984152,
+            0.7963170447770204
+          ],
+          &quot;slope&quot;: [
+            0.6899945359785079,
+            0.730540687585397,
+            0.7696699308261937
+          ]
+        },
+        &quot;nondominated_freq&quot;: 1.0
+      }
+    }
   },
   &quot;draft_protocol&quot;: {
     &quot;acceptance_criteria&quot;: [
@@ -389,7 +449,7 @@ transformation and resolves in the evidence graph. Package hash:</p>
       &quot;hypsometric_integral&quot;: 0.5327864414403096
     }
   },
-  &quot;package_hash&quot;: &quot;106a83635fe3052fa3df6e8561350056f2cdbde2b2a090acf64683dd82c9c927&quot;,
+  &quot;package_hash&quot;: &quot;bf7caf19fa53e7b0ed2e69b8eab4c0d71c2ebbaa08fb39ed1bda1dbccf6daa6b&quot;,
   &quot;pairwise_flip_matrix&quot;: {
     &quot;earth_candidate_a|earth_candidate_b&quot;: 0.041666666666666664
   },

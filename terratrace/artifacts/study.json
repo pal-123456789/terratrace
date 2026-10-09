@@ -17,6 +17,65 @@
       0.3449329097031952
     ]
   },
+  "bootstrap": {
+    "decisive_freq": 0.0,
+    "n_boot": 300,
+    "seed": 0,
+    "units": {
+      "earth_candidate_a": {
+        "clear_winner_freq": 0.0,
+        "distance_ci": {
+          "connectivity": [
+            0.024410487057729274,
+            0.024410487057729274,
+            0.024410487057729274
+          ],
+          "relief": [
+            1.2602411130821034,
+            1.3187615401131787,
+            1.373325857113907
+          ],
+          "ruggedness": [
+            1.2435137772468199,
+            1.3495311679451687,
+            1.4430993933833691
+          ],
+          "slope": [
+            1.2750290255086747,
+            1.3406486774808126,
+            1.415693472184324
+          ]
+        },
+        "nondominated_freq": 1.0
+      },
+      "earth_candidate_b": {
+        "clear_winner_freq": 0.0,
+        "distance_ci": {
+          "connectivity": [
+            0.01609837786316664,
+            0.01609837786316664,
+            0.01609837786316664
+          ],
+          "relief": [
+            0.7578921856844656,
+            0.7869433368653376,
+            0.8129057558354341
+          ],
+          "ruggedness": [
+            0.7217613206613801,
+            0.7629223171984152,
+            0.7963170447770204
+          ],
+          "slope": [
+            0.6899945359785079,
+            0.730540687585397,
+            0.7696699308261937
+          ]
+        },
+        "nondominated_freq": 1.0
+      }
+    }
+  },
   "draft_protocol": {
     "acceptance_criteria": [
       "feature distributions within predeclared tolerance at common support",
@@ -275,7 +334,7 @@
       "hypsometric_integral": 0.5327864414403096
     }
   },
-  "package_hash": "106a83635fe3052fa3df6e8561350056f2cdbde2b2a090acf64683dd82c9c927",
+  "package_hash": "bf7caf19fa53e7b0ed2e69b8eab4c0d71c2ebbaa08fb39ed1bda1dbccf6daa6b",
   "pairwise_flip_matrix": {
     "earth_candidate_a|earth_candidate_b": 0.041666666666666664
   },
