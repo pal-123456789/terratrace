@@ -24,11 +24,13 @@ def main():
     import rasterio
     from rasterio.windows import from_bounds
     from rasterio.warp import transform_bounds
+    from terratrace.reproject import geographic_crs
 
     cfg = yaml.safe_load(open(args.config, encoding="utf-8"))
     ref = cfg["reference"]
     src_path = ref["path"]
     bbox = ref.get("bbox")
+    body = ref.get("body", "mars")
     if not os.path.exists(src_path):
         sys.exit(f"Missing {src_path} — download the global MOLA 463 m DEM first "
                  "(see data/mars/README.md).")
@@ -36,9 +38,10 @@ def main():
         sys.exit("reference.bbox is required in the config to crop a sample.")
 
     with rasterio.open(src_path) as ds:
-        west, south, east, north = bbox  # degrees on Mars
-        sw, ss, se, sn = transform_bounds("EPSG:4326", ds.crs, west, south, east, north) \
-            if ds.crs and ds.crs.is_geographic is False else (west, south, east, north)
+        if ds.crs is None:
+            sys.exit(f"{src_path} has no CRS; cannot crop safely.")
+        west, south, east, north = bbox  # degrees on the body
+        sw, ss, se, sn = transform_bounds(geographic_crs(body), ds.crs, west, south, east, north)
         win = from_bounds(sw, ss, se, sn, ds.transform)
         data = ds.read(1, window=win)
         prof = ds.profile.copy()
