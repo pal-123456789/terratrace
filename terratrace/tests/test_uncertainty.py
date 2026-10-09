@@ -44,3 +44,17 @@ def test_decisive_freq_in_range():
     b = _feats(26, 5, 40, 12, 0.08, 3)
     out = uncertainty.bootstrap_pareto(ref, {"a": a, "b": b}, n_boot=100, seed=0)
     assert 0.0 <= out["decisive_freq"] <= 1.0
+
+
+def test_extra_dims_can_flip_a_core_winner_into_a_tie():
+    ref = _feats(10, 2, 20, 5, 0.30, 1)
+    # 'b' dominates 'a' on the 4 core axes...
+    a = _feats(20, 4, 34, 10, 0.14, 2)
+    b = _feats(10, 2, 20, 5, 0.30, 3)
+    core = uncertainty.bootstrap_pareto(ref, {"a": a, "b": b}, n_boot=120, seed=0)
+    assert core["units"]["b"]["nondominated_freq"] > core["units"]["a"]["nondominated_freq"]
+    # ...but a strong extra dimension favouring 'a' makes neither dominate -> both non-dominated
+    extra = {"a": (0.0,), "b": (5.0,)}
+    ext = uncertainty.bootstrap_pareto(ref, {"a": a, "b": b}, n_boot=120, seed=0, extra_dims=extra)
+    assert ext["units"]["a"]["nondominated_freq"] == 1.0
+    assert ext["units"]["b"]["nondominated_freq"] == 1.0

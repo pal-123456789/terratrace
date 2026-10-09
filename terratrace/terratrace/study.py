@@ -156,8 +156,11 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
     }
     if n_boot and baseline_vectors and ref_feats_base is not None:
         from . import uncertainty
+        extra = None
+        if decision_metrics == "extended":
+            extra = {cid: _extended_dims(extended, cid, reference_id) for cid in cand_feats_base}
         package["bootstrap"] = uncertainty.bootstrap_pareto(
-            ref_feats_base, cand_feats_base, n_boot=n_boot, seed=0)
+            ref_feats_base, cand_feats_base, n_boot=n_boot, seed=0, extra_dims=extra)
     package["package_hash"] = provenance.sha256_json(
         {k: v for k, v in package.items() if k != "package_hash"})
     return package

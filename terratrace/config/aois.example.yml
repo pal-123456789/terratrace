@@ -14,7 +14,7 @@ reproject: true
 decision_metrics: extended
 # Bootstrap resamples for distance confidence intervals + non-domination
 # frequency (0 = off). 300 is a good value for a real run.
-n_boot: 0
+n_boot: 300
 
 # Reference: a bounded Mars window from the MOLA 463 m DEM you downloaded.
 reference:
