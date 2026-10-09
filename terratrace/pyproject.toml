@@ -16,6 +16,7 @@ real = ["rasterio>=1.3", "requests>=2.31", "PyYAML>=6.0"]
 
 [project.scripts]
 terratrace = "terratrace.cli:main"
+terratrace-api = "terratrace.api:main"
 
 [tool.setuptools]
 packages = ["terratrace"]

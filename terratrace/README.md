@@ -56,6 +56,20 @@ PYTHONPATH=. python3 tests/run_tests.py              # 24 tests
 
 Open `viewer/index.html` in any browser — it is self-contained and works offline.
 
+## HTTP API (stdlib, no extra deps)
+
+```bash
+PYTHONPATH=. python3 -m terratrace.api --port 8000     # localhost only
+curl http://127.0.0.1:8000/health
+curl -X POST http://127.0.0.1:8000/compare -H "content-type: application/json" \
+     -d '{"n_boot": 300}'
+```
+
+Endpoints: `GET /health`, `GET /study`, `POST /compare` (body
+`{"target_support_m", "n_boot"}`, inputs validated/clamped). The server is
+**unauthenticated and binds to 127.0.0.1 by default** — put auth and rate limiting
+in front of it before exposing it to a network.
+
 ## Run with REAL data
 
 See [REAL-DATA-RUNBOOK.md](REAL-DATA-RUNBOOK.md). Minimal real stack:
