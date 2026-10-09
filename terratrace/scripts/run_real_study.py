@@ -34,6 +34,7 @@ def main():
         min_valid=cfg.get("min_valid_fraction", 0.5),
         reproject=cfg.get("reproject", True),
         decision_metrics=cfg.get("decision_metrics", "core"),
+        n_boot=cfg.get("n_boot", 0),
     )
 
     os.makedirs(args.out, exist_ok=True)

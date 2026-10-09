@@ -54,6 +54,13 @@ def main(argv=None):
             print(f"{uid:<20}{ad_s:<14}{hi_s}")
     print("-" * 60)
     print("pairwise rank-flip:", pkg.get("pairwise_flip_matrix") or "n/a")
+    boot = pkg.get("bootstrap")
+    if boot:
+        print("-" * 60)
+        print(f"bootstrap (n={boot['n_boot']}): decisive in {boot['decisive_freq']*100:.0f}% of resamples")
+        print(f"{'unit':<20}{'non-dom %':<12}{'winner %'}")
+        for uid, u in boot["units"].items():
+            print(f"{uid:<20}{u['nondominated_freq']*100:<12.0f}{u['clear_winner_freq']*100:.0f}")
     print(f"evidence nodes   : {len(pkg['evidence_graph']['nodes'])}")
 
     if warnings:

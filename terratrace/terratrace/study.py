@@ -73,7 +73,7 @@ def _extended_dims(extended, cid, reference_id):
 
 def compare_units(raw_units, rights, native_posting_m, reference_id="mars_reference",
                   target_support_m=100.0, min_valid=0.5, source_label="synthetic",
-                  decision_metrics="core"):
+                  decision_metrics="core", n_boot=0):
     """Run the full comparison on a dict of elevation arrays.
 
     raw_units: {unit_id: 2-D elevation array}
@@ -103,6 +103,7 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
         }
     candidate_ids = [u for u in agg if u != reference_id]
     scenario_vectors, baseline_vectors = [], {}
+    ref_feats_base, cand_feats_base = None, {}
     for cfg in SCENARIOS:
         ref_f = _feature_distributions(agg[reference_id], dx, cfg["slope_threshold"], cfg["relief_alpha"])
         vecs = {}
@@ -115,9 +116,12 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
             if decision_metrics == "extended":
                 vec = vec + _extended_dims(extended, cid, reference_id)
             vecs[cid] = vec
+            if cfg["name"] == "baseline":
+                cand_feats_base[cid] = cand_f
         scenario_vectors.append(vecs)
         if cfg["name"] == "baseline":
             baseline_vectors = vecs
+            ref_feats_base = ref_f
 
     elig_map = {u: decision.eligibility(meta[u]) for u in agg}
     if not baseline_vectors and candidate_ids:
@@ -150,22 +154,26 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
         "transfer_gap_ledger": gap_ledger, "draft_protocol": proto,
         "prohibited_claims": gaps.prohibited_claims(), "evidence_graph": graph.to_dict(),
     }
+    if n_boot and baseline_vectors and ref_feats_base is not None:
+        from . import uncertainty
+        package["bootstrap"] = uncertainty.bootstrap_pareto(
+            ref_feats_base, cand_feats_base, n_boot=n_boot, seed=0)
     package["package_hash"] = provenance.sha256_json(
         {k: v for k, v in package.items() if k != "package_hash"})
     return package
 
 
-def run_study(target_support_m=100.0, native_posting_m=25.0, min_valid=0.5):
+def run_study(target_support_m=100.0, native_posting_m=25.0, min_valid=0.5, n_boot=0):
     raw = {"mars_reference": _unit_grid("reference"), "earth_close": _unit_grid("earth_close"),
            "earth_far": _unit_grid("earth_far"), "earth_blocked": _unit_grid("earth_blocked")}
     rights = {"mars_reference": "verified_allowed", "earth_close": "verified_allowed",
               "earth_far": "verified_allowed", "earth_blocked": "unknown"}
     return compare_units(raw, rights, native_posting_m, target_support_m=target_support_m,
-                         min_valid=min_valid, source_label="synthetic")
+                         min_valid=min_valid, source_label="synthetic", n_boot=n_boot)
 
 
 def run_real_study(units, target_support_m=1000.0, min_valid=0.5, reproject=True,
-                   decision_metrics="core"):
+                   decision_metrics="core", n_boot=0):
     """Compare REAL DEMs.
 
     units: list of dicts with keys: id, path, native_posting_m, rights_status,
@@ -205,7 +213,7 @@ def run_real_study(units, target_support_m=1000.0, min_valid=0.5, reproject=True
     label = "real_dem_aeqd" if reproject else "real_dem"
     return compare_units(raw, rights, native, reference_id=reference_id,
                          target_support_m=target_support_m, min_valid=min_valid,
-                         source_label=label, decision_metrics=decision_metrics)
+                         source_label=label, decision_metrics=decision_metrics, n_boot=n_boot)
 
 
 def _build_graph(meta, vectors, state, recommended, source_label, elig_map, flips):
