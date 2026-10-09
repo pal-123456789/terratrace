@@ -4,6 +4,6 @@
   "trailingSlash": false,
   "rewrites": [
     { "source": "/", "destination": "/site/index.html" },
-    { "source": "/study", "destination": "/terratrace/viewer/index.html" }
+    { "source": "/study", "destination": "/site/study/index.html" }
   ]
 }
