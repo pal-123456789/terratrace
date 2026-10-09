@@ -1,0 +1,80 @@
+schema_version: 0.1.0
+target_support_m: 1000.0
+reproject: true
+sources:
+- id: mars_reference
+  path: data/mars/mola_463m.tif
+  body: mars
+  exists: true
+  sha256: 38a4eb0b4452855b8dabfac40a367b458555ab4c01b31235807ad0a53c031f4c
+  bytes: 2125771142
+  native_posting_m: 463.0
+  rights_status: verified_allowed
+  access_status: unknown
+  citation: Smith, D. E., et al. Mars Global Surveyor MOLA Mission Experiment Gridded
+    Data Record (MEGDR); USGS Astrogeology 'Mars MGS MOLA DEM 463m'. NASA PDS Geosciences
+    Node.
+  terms: NASA PDS / USGS public data; attribution required; cite product + version.
+  geo:
+    crs: PROJCS["Equirectangular Mars",GEOGCS["GCS_Mars",DATUM["D_Mars",SPHEROID["Mars_localRadius",3396190,0]],PRIMEM["Reference_Meridian",0],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]]],PROJECTION["Equirectangular"],PARAMETER["standard_parallel_1",0],PARAMETER["central_meridian",0],PARAMETER["false_easting",0],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["Easting",EAST],AXIS["Northing",NORTH]]
+    width: 46080
+    height: 23040
+    nodata: -32768.0
+    bounds:
+    - -10669675.197320545
+    - -5334837.598660273
+    - 10669675.197320545
+    - 5334837.598660273
+    res:
+    - 463.0935415503709
+    - 463.0935415503709
+- id: earth_candidate_a
+  path: data/earth/candidate_a_cop30.tif
+  body: earth
+  exists: true
+  sha256: feef190f34733a14aade5e06c0a18aff2bfd7a71df67c8dbfcc91c7123270e43
+  bytes: 8540276
+  native_posting_m: 30.0
+  rights_status: verified_allowed
+  access_status: unknown
+  citation: ESA Copernicus GLO-30 Digital Elevation Model, distributed by OpenTopography.
+    (c) ESA. Attribution required.
+  terms: Copernicus data; free use with attribution; see OpenTopography terms.
+  geo:
+    crs: EPSG:4326
+    width: 1440
+    height: 1440
+    nodata: null
+    bounds:
+    - -115.8001389
+    - 36.000138899999996
+    - -115.40013889999999
+    - 36.400138899999995
+    res:
+    - 0.0002777777777777778
+    - 0.0002777777777777778
+- id: earth_candidate_b
+  path: data/earth/candidate_b_cop30.tif
+  body: earth
+  exists: true
+  sha256: d7cc1edbefc197d14d194f4a681862a96e8bd18bd2f41716db2bd8f577c22b73
+  bytes: 4142493
+  native_posting_m: 30.0
+  rights_status: verified_allowed
+  access_status: unknown
+  citation: ESA Copernicus GLO-30 Digital Elevation Model, distributed by OpenTopography.
+    (c) ESA. Attribution required.
+  terms: Copernicus data; free use with attribution; see OpenTopography terms.
+  geo:
+    crs: EPSG:4326
+    width: 1080
+    height: 1080
+    nodata: null
+    bounds:
+    - -113.60013889999999
+    - 43.3001389
+    - -113.3001389
+    - 43.6001389
+    res:
+    - 0.0002777777777777778
+    - 0.0002777777777777778

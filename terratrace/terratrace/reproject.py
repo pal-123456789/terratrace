@@ -1,0 +1,114 @@
+"""Equal-area reprojection to a local metric grid.
+
+Mars MOLA and Earth Copernicus/USGS DEMs live in different coordinate
+systems on different bodies (Mars sphere R=3,396,190 m vs Earth WGS84).
+Computing slope/relief in "metres" directly on a degrees grid, or sharing
+one dx across bodies, is wrong because degree spacing varies with latitude
+and body radius.
+
+This module warps each AOI onto its own **local azimuthal-equidistant**
+metric grid at a chosen resolution, using the correct body. Feature
+statistics are then computed on true metres.
+
+The warp needs rasterio+GDAL (optional). The pure helpers below
+(CRS strings, centroid, grid sizing) are dependency-free and unit-tested.
+"""
+from __future__ import annotations
+
+import math
+
+MARS_RADIUS_M = 3396190.0  # IAU mean radius
+
+
+def geographic_crs(body):
+    """Geographic (lon/lat) CRS for the body."""
+    b = body.lower()
+    if b == "earth":
+        return "EPSG:4326"
+    if b == "mars":
+        return f"+proj=longlat +a={MARS_RADIUS_M} +b={MARS_RADIUS_M} +no_defs"
+    raise ValueError(f"unknown body {body!r}")
+
+
+def local_aeqd(lat0, lon0, body):
+    """Local azimuthal-equidistant metric CRS centred on (lat0, lon0)."""
+    b = body.lower()
+    if b == "earth":
+        return (f"+proj=aeqd +lat_0={lat0} +lon_0={lon0} "
+                f"+datum=WGS84 +units=m +no_defs")
+    if b == "mars":
+        return (f"+proj=aeqd +lat_0={lat0} +lon_0={lon0} "
+                f"+a={MARS_RADIUS_M} +b={MARS_RADIUS_M} +units=m +no_defs")
+    raise ValueError(f"unknown body {body!r}")
+
+
+def centroid(bbox):
+    """Centre (lon0, lat0) of a (west, south, east, north) degree bbox."""
+    west, south, east, north = bbox
+    return (0.5 * (west + east), 0.5 * (south + north))
+
+
+def grid_size(xmin, ymin, xmax, ymax, resolution_m):
+    """Destination grid (width, height) in pixels for a metric bbox."""
+    if resolution_m <= 0:
+        raise ValueError("resolution_m must be positive")
+    width = max(int(math.ceil((xmax - xmin) / resolution_m)), 1)
+    height = max(int(math.ceil((ymax - ymin) / resolution_m)), 1)
+    return width, height
+
+
+def read_aoi_metric(path, bbox_lonlat, resolution_m, body, resampling="bilinear",
+                    mask_below=None, mask_values=None, mask_above=None):
+    """Read a DEM AOI and warp it to a local metric grid.
+
+    bbox_lonlat = (west, south, east, north) in degrees on the body.
+    Optional masks (applied in the source CRS before warping) convert
+    sentinels such as Copernicus 0 m ocean to NaN so flat water does not
+    contaminate morphology. Returns (elevation_array_with_nan, resolution_m).
+    Requires rasterio.
+    """
+    import numpy as np
+    from . import masks as _masks
+    try:
+        import rasterio
+        from rasterio.warp import reproject, transform_bounds, Resampling
+        from affine import Affine
+    except Exception as exc:  # pragma: no cover
+        raise RuntimeError("pip install rasterio  (needed for reprojection)") from exc
+
+    geo = geographic_crs(body)
+    lon0, lat0 = centroid(bbox_lonlat)
+    dst_crs = local_aeqd(lat0, lon0, body)
+    resamp = getattr(Resampling, resampling)
+
+    with rasterio.open(path) as ds:
+        if ds.crs is None:
+            raise RuntimeError(f"{path} has no CRS; cannot reproject safely")
+        # 1) crop in source CRS by converting the lon/lat bbox into it.
+        west, south, east, north = bbox_lonlat
+        src_w, src_s, src_e, src_n = transform_bounds(geo, ds.crs, west, south, east, north)
+        from rasterio.windows import from_bounds
+        win = from_bounds(src_w, src_s, src_e, src_n, ds.transform)
+        src = ds.read(1, window=win, boundless=True, masked=True)
+        src_arr = src.astype("float64").filled(np.nan)
+        src_arr = _masks.apply_masks(src_arr, mask_below=mask_below,
+                                     mask_values=mask_values, mask_above=mask_above)
+        src_transform = ds.window_transform(win)
+        src_crs = ds.crs
+        src_nodata = ds.nodata
+
+    # 2) destination metric grid covering the AOI in the local aeqd CRS.
+    from rasterio.warp import transform_bounds as _tb
+    dxmin, dymin, dxmax, dymax = _tb(geo, dst_crs, *bbox_lonlat)
+    width, height = grid_size(dxmin, dymin, dxmax, dymax, resolution_m)
+    dst_transform = Affine(resolution_m, 0, dxmin, 0, -resolution_m, dymax)
+    dst = np.full((height, width), np.nan, dtype="float64")
+
+    reproject(
+        source=src_arr, destination=dst,
+        src_transform=src_transform, src_crs=src_crs,
+        dst_transform=dst_transform, dst_crs=dst_crs,
+        src_nodata=src_nodata, dst_nodata=np.nan,
+        resampling=resamp,
+    )
+    return dst, float(resolution_m)

@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TerraTrace — Planetary Analog OS</title>
+<meta name="description" content="Mars-to-Earth map-scale terrain-morphology transfer intelligence. Morphology screening only; not a mission-readiness tool.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#0B0F14; --void2:#0E141B; --regolith:#ECE6DA; --oxide:#C0603A;
+  --cyan:#4FD4E4; --slate:#5A6A72; --line:#1b2730;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--void);color:var(--regolith);
+  font-family:"IBM Plex Sans",system-ui,sans-serif;line-height:1.6;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+canvas#scene{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;display:block}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(130% 90% at 50% 10%,transparent 40%,rgba(5,8,11,.65) 100%)}
+main{position:relative;z-index:2}
+section{min-height:100vh;display:flex;flex-direction:column;justify-content:center;
+  padding:12vh 8vw;max-width:1200px}
+.mono{font-family:"IBM Plex Mono",monospace;letter-spacing:.04em}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:.8rem;letter-spacing:.32em;
+  text-transform:uppercase;color:var(--cyan)}
+h1{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:clamp(2.6rem,8vw,6.2rem);
+  line-height:.98;letter-spacing:-.02em;margin:.3em 0}
+h2{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:clamp(1.8rem,4.5vw,3.4rem);
+  line-height:1.03;letter-spacing:-.015em;margin:.2em 0 .5em}
+p.lead{font-size:clamp(1.05rem,1.7vw,1.35rem);max-width:60ch;color:#cdd6d9}
+p.sub{max-width:62ch;color:#9fb0b5}
+.oxide{color:var(--oxide)} .cy{color:var(--cyan)}
+.nav{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;justify-content:space-between;
+  align-items:center;padding:18px 6vw;mix-blend-mode:difference}
+.nav .brand{font-family:"Space Grotesk";font-weight:700;letter-spacing:.02em}
+.nav a{color:var(--regolith);text-decoration:none;font-size:.85rem}
+.nav .links a{margin-left:22px;opacity:.85}
+.scope{display:inline-block;margin-top:28px;padding:10px 16px;border:1px solid var(--line);
+  border-left:3px solid var(--oxide);background:rgba(14,20,27,.6);backdrop-filter:blur(4px);
+  color:#d7cfc2;font-size:.9rem;max-width:60ch}
+.btnrow{display:flex;gap:14px;flex-wrap:wrap;margin-top:34px}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:2px;
+  font-family:"IBM Plex Mono";font-size:.9rem;text-decoration:none;border:1px solid var(--cyan);
+  color:var(--void);background:var(--cyan)}
+.btn.ghost{background:transparent;color:var(--cyan)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);margin-top:36px}
+.cell{background:var(--void2);padding:22px}
+.cell h3{font-family:"Space Grotesk";font-weight:600;font-size:1.05rem;margin-bottom:6px}
+.cell p{font-size:.92rem;color:#9fb0b5}
+.cell .k{font-family:"IBM Plex Mono";color:var(--cyan);font-size:.78rem;letter-spacing:.1em}
+table.cmp{width:100%;border-collapse:collapse;margin-top:30px;font-family:"IBM Plex Mono";font-size:.84rem}
+table.cmp th,table.cmp td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+table.cmp th{color:#9fb0b5;font-weight:500}
+table.cmp td.win{color:var(--cyan)} table.cmp td.lose{color:var(--oxide)}
+.verdict{font-family:"Space Grotesk";font-weight:700;font-size:clamp(2rem,6vw,4rem);
+  letter-spacing:-.02em;margin-top:18px}
+.foot{position:relative;z-index:2;padding:8vh 8vw;border-top:1px solid var(--line);
+  color:var(--slate);font-size:.85rem;background:var(--void)}
+.reveal{opacity:0;transform:translateY(16px)}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}}
+@media(max-width:720px){.nav .links{display:none}section{padding:14vh 7vw}}
+</style>
+</head>
+<body>
+<canvas id="scene" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+
+<nav class="nav">
+  <a class="brand" href="#top">TerraTrace</a>
+  <div class="links">
+    <a href="#method">Method</a>
+    <a href="/study">Study viewer</a>
+    <a href="#data">Data</a>
+    <a href="#open">Open</a>
+  </div>
+</nav>
+
+<main id="top">
+  <section>
+    <span class="eyebrow">Planetary Analog OS</span>
+    <h1>Which Earth<br>is <span class="oxide">Mars</span>, and<br>what it <span class="cy">proves</span>.</h1>
+    <p class="lead">A provenance-first instrument that compares Mars and Earth terrain at a
+      shared metric scale, exposes what cannot transfer, and refuses to fake a winner.</p>
+    <div class="scope">Morphology screening only. Not rover traversability, autonomy,
+      geologic equivalence, site access, or mission readiness. Not NASA-endorsed.</div>
+    <div class="btnrow">
+      <a class="btn" href="/study">Launch the study viewer</a>
+      <a class="btn ghost" href="#method">How it works</a>
+    </div>
+  </section>
+
+  <section class="reveal">
+    <span class="eyebrow">The problem</span>
+    <h2>Resemblance is easy.<br>Transfer is hard.</h2>
+    <p class="lead">Finding a landscape that <em>looks</em> like Mars takes a search box.
+      Designing a terrestrial test whose result legitimately transfers to a Mars decision
+      takes measurable requirements, a shared spatial support, and an honest account of
+      every gap. TerraTrace is built for the second problem.</p>
+  </section>
+  <section id="method" class="reveal">
+    <span class="eyebrow">The method</span>
+    <h2>One scale. Both worlds.<br>No single score.</h2>
+    <p class="sub">Each area of interest is warped to its own local azimuthal-equidistant
+      metric grid — Mars on a 3,396,190 m sphere, Earth on WGS84 — so slope and relief are
+      measured in true, comparable metres. Candidates are ranked by Pareto dominance; a
+      tie is a valid, honest result.</p>
+    <div class="grid">
+      <div class="cell"><div class="k">01 · INGEST</div><h3>Real NASA + ESA data</h3>
+        <p>MOLA MEGDR for Mars; Copernicus GLO-30 / USGS 3DEP for Earth.</p></div>
+      <div class="cell"><div class="k">02 · REPROJECT</div><h3>Per-body metric grid</h3>
+        <p>Correct ellipsoid, correct metres — not a shared degree hack.</p></div>
+      <div class="cell"><div class="k">03 · GATE</div><h3>Refuses bad data</h3>
+        <p>Water/sentinel masking; blocks units that are mostly flat zero.</p></div>
+      <div class="cell"><div class="k">04 · DECIDE</div><h3>Pareto, not a score</h3>
+        <p>Six descriptors; tie / indeterminate / blocked are first-class.</p></div>
+    </div>
+  </section>
+
+  <section id="data" class="reveal">
+    <span class="eyebrow">The six descriptors</span>
+    <h2>What "terrain" actually means<br>at map scale.</h2>
+    <p class="sub">slope distribution · local relief · detrended ruggedness ·
+      low-slope connectivity · aspect dispersion · hypsometric integral. Each is defined,
+      unit-bearing, and traceable to a source through the evidence graph.</p>
+  </section>
+
+  <section class="reveal">
+    <span class="eyebrow">The finding — real data</span>
+    <h2>The answer changed when<br>we asked more honestly.</h2>
+    <table class="cmp" aria-label="core versus extended decision">
+      <tr><th>decision axes</th><th>result</th><th>why</th></tr>
+      <tr><td>core (4 roughness metrics)</td><td class="win">recommend Craters of the Moon</td>
+        <td>dominates every bulk-roughness axis</td></tr>
+      <tr><td>extended (+ aspect, hypsometry)</td><td class="oxide">TIE — no winner</td>
+        <td>desert is far closer in slope direction</td></tr>
+    </table>
+    <div class="verdict">A tie is the <span class="cy">honest</span> answer.</div>
+    <p class="sub">The "best analog" depends on what you intend to test. TerraTrace reports
+      that tension instead of hiding it inside one number.</p>
+  </section>
+  <section id="open" class="reveal">
+    <span class="eyebrow">Open &amp; reproducible</span>
+    <h2>Every number has a receipt.</h2>
+    <p class="sub">46 fixture tests, deterministic study hashes, a source-lock with SHA-256
+      and citations, and an evidence graph from source to claim. Open the live study, read
+      the method, or clone the repository.</p>
+    <div class="btnrow">
+      <a class="btn" href="/study">Open the study viewer</a>
+      <a class="btn ghost" href="https://github.com/pal-123456789" id="repo">View the repository</a>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <p><strong>TerraTrace — Planetary Analog OS.</strong> Map-scale terrain-morphology
+  screening. It does not estimate rover traversability, validate autonomy, establish
+  geologic equivalence, certify site access, or certify mission readiness. Not
+  NASA-endorsed. Data: NASA PDS/MOLA, ESA Copernicus (via OpenTopography), USGS — each
+  under its own terms. MIT-licensed code.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // Reveal sections (opacity only; the planet morph is the hero motion).
+  if (window.gsap && window.ScrollTrigger) {
+    gsap.registerPlugin(ScrollTrigger);
+    document.querySelectorAll(".reveal").forEach(function(el){
+      gsap.to(el,{opacity:1,y:0,duration:.8,ease:"power2.out",
+        scrollTrigger:{trigger:el,start:"top 78%"}});
+    });
+  } else {
+    document.querySelectorAll(".reveal").forEach(function(el){el.style.opacity=1;el.style.transform="none";});
+  }
+  if (!window.THREE) return;  // graceful: content still readable
+
+  var canvas = document.getElementById("scene");
+  var renderer = new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 100);
+  camera.position.set(0,0,4.4);
+
+  // Starfield
+  var starGeo = new THREE.BufferGeometry();
+  var N=1400, pos=new Float32Array(N*3);
+  for (var i=0;i<N;i++){ var r=18+Math.random()*22, t=Math.random()*6.283, u=Math.random()*2-1, s=Math.sqrt(1-u*u);
+    pos[i*3]=r*s*Math.cos(t); pos[i*3+1]=r*u; pos[i*3+2]=r*s*Math.sin(t); }
+  starGeo.setAttribute("position", new THREE.BufferAttribute(pos,3));
+  scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({color:0x9fb0b5,size:0.06,sizeAttenuation:true})));
+
+  // Planet with static procedural displacement (terrain feel)
+  var geo = new THREE.IcosahedronGeometry(1.5, 5);
+  var p = geo.attributes.position, base = p.array.slice();
+  function noise(x,y,z){ return (Math.sin(x*1.7+y*0.6)+Math.sin(y*1.9+z*0.7)+Math.sin(z*2.3+x*0.5))/3; }
+  var disp=new Float32Array(p.count);
+  for (var v=0; v<p.count; v++){ var x=base[v*3],y=base[v*3+1],z=base[v*3+2];
+    disp[v]=0.5*noise(x*2.1,y*2.1,z*2.1)+0.25*noise(x*4.3,y*4.3,z*4.3)+0.12*noise(x*8.1,y*8.1,z*8.1); }
+  var AMP = 0.34;
+  for (var w=0; w<p.count; w++){
+    var bx=base[w*3], by=base[w*3+1], bz=base[w*3+2];
+    var f=1+(disp[w]*AMP)/1.5;
+    p.array[w*3]=bx*f; p.array[w*3+1]=by*f; p.array[w*3+2]=bz*f;
+  }
+  p.needsUpdate=true; geo.computeVertexNormals();
+
+  var mars=new THREE.Color(0xC0603A), earth=new THREE.Color(0x2E7E8C);
+  var mat=new THREE.MeshStandardMaterial({color:mars.clone(),flatShading:true,metalness:0.08,roughness:0.92});
+  var group=new THREE.Group();
+  group.add(new THREE.Mesh(geo,mat));
+  var wire=new THREE.LineSegments(new THREE.WireframeGeometry(geo),
+     new THREE.LineBasicMaterial({color:0x4FD4E4,transparent:true,opacity:0.10}));
+  group.add(wire); scene.add(group);
+
+  scene.add(new THREE.AmbientLight(0x30424c, 1.1));
+  var key=new THREE.DirectionalLight(0xffe7d2, 1.4); key.position.set(3,2,4); scene.add(key);
+  var rim=new THREE.DirectionalLight(0x4FD4E4, 0.6); rim.position.set(-4,-1,-2); scene.add(rim);
+
+  var prog=0, target=0;
+  if (!reduce && window.ScrollTrigger){
+    ScrollTrigger.create({trigger:"main",start:"top top",end:"bottom bottom",scrub:true,
+      onUpdate:function(self){ target=self.progress; }});
+  }
+  var t0=performance.now();
+  function tick(now){
+    var dt=(now-t0)/1000; t0=now;
+    prog += (target-prog)*0.08;
+    if(!reduce) group.rotation.y += 0.0016;
+    group.rotation.x = 0.25*prog;
+    mat.color.copy(mars).lerp(earth, prog);
+    wire.material.opacity = 0.10 + 0.10*prog;
+    var breathe = reduce?1:(1+0.015*Math.sin(now/900));
+    group.scale.setScalar(breathe);
+    camera.position.z = 4.4 - 1.1*prog;
+    renderer.render(scene,camera);
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  addEventListener("resize", function(){
+    camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }, {passive:true});
+})();
+</script>
+</body>
+</html>

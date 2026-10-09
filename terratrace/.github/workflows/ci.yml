@@ -1,0 +1,27 @@
+name: ci
+on:
+  push:
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install core deps
+        run: pip install -r requirements.txt
+      - name: Run tests (no network, no GDAL)
+        run: PYTHONPATH=. python3 tests/run_tests.py
+      - name: Build study package + viewer
+        run: |
+          PYTHONPATH=. python3 -m terratrace.cli --out artifacts
+          PYTHONPATH=. python3 -m terratrace.build_viewer
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: terratrace-study
+          path: |
+            artifacts/
+            viewer/index.html

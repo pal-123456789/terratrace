@@ -1,0 +1,23 @@
+# Large source DEMs (multi-GB) — never commit; regenerate with scripts/fetch_real_dems.py
+terratrace/data/
+
+# Python caches and environments
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.pytest_cache/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Node (if a build is added later)
+node_modules/
+
+# Vercel
+.vercel/

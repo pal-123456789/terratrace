@@ -1,0 +1,43 @@
+{
+  "acceptance_criteria": [
+    "feature distributions within predeclared tolerance at common support",
+    "result stable across declared sensitivity scenarios",
+    "no eligibility blocker (data, rights, ecology, safety)"
+  ],
+  "authorization": "NOT_AUTHORIZED: access, ecology, and safety unverified",
+  "hypothesis": "At the declared common support, candidate terrain reproduces the reference slope/relief/ruggedness/connectivity distributions within stated tolerances.",
+  "measurements_required_next": [
+    "higher-resolution terrain survey to assess sub-support structure",
+    "surface material/geotechnical characterization (separate study)",
+    "illumination and visibility modelling (separate study)",
+    "field access, ecological, and community authorization review"
+  ],
+  "objective": "Design a map-scale terrain follow-up study at the recommended candidate unit to investigate the declared morphology hypothesis.",
+  "profile": {
+    "claim_maturity": "prototype_morphology_only",
+    "metrics": [
+      "slope",
+      "relief",
+      "ruggedness",
+      "connectivity"
+    ],
+    "source_label": "synthetic",
+    "target_body": "mars",
+    "target_support_m": 100.0,
+    "task": "map_scale_terrain_route_study"
+  },
+  "recommended_unit": "earth_close",
+  "rejection_criteria": [
+    "ranking reverses under reasonable support/threshold changes",
+    "valid-data fraction below declared minimum",
+    "access or governance status cannot be verified"
+  ],
+  "result_state": "RECOMMEND_FOLLOW_UP",
+  "status": "draft",
+  "stop_conditions": [
+    "permission not granted",
+    "protected-area or community constraint",
+    "safety or environmental risk"
+  ],
+  "transfer_boundary": "Morphology comparison only. The following conditions are not established by this result and bound every downstream claim."
+}

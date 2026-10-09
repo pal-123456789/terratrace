@@ -1,0 +1,72 @@
+{
+  "gaps": [
+    {
+      "category": "topographic_morphology",
+      "class": "T0",
+      "prohibited": "Do not infer rock-scale obstacles or wheel-scale hazards.",
+      "statement": "Map-scale slope/relief/ruggedness comparable at declared support."
+    },
+    {
+      "category": "low_slope_connectivity",
+      "class": "T1",
+      "prohibited": "Not a traversable route or path guarantee.",
+      "statement": "Broad corridor structure is comparable at declared support."
+    },
+    {
+      "category": "gravity",
+      "class": "T2",
+      "prohibited": "Do not infer mobility, slip, or stability transfer.",
+      "statement": "Mars surface gravity (~0.38 g) is not reproduced on Earth."
+    },
+    {
+      "category": "atmosphere_pressure",
+      "class": "T2",
+      "prohibited": "Do not infer dust lofting, aero-thermal, or EDL behaviour.",
+      "statement": "Mars atmospheric density/pressure is not reproduced."
+    },
+    {
+      "category": "regolith_mechanics",
+      "class": "T3",
+      "prohibited": "Do not claim traction, sinkage, or bearing equivalence.",
+      "statement": "Mechanical soil behaviour is not inferred from a DEM."
+    },
+    {
+      "category": "radiation",
+      "class": "T2",
+      "prohibited": "Do not infer radiation effects from terrain.",
+      "statement": "Surface radiation environment is not reproduced."
+    },
+    {
+      "category": "thermal_cycle",
+      "class": "T3",
+      "prohibited": "Do not infer thermal survival.",
+      "statement": "Diurnal/seasonal thermal regime is not inferred from terrain."
+    },
+    {
+      "category": "illumination",
+      "class": "T3",
+      "prohibited": "Do not infer power or imaging performance.",
+      "statement": "Illumination geometry is context only unless modelled."
+    },
+    {
+      "category": "communications",
+      "class": "T3",
+      "prohibited": "Do not infer link availability.",
+      "statement": "Relay/line-of-sight geometry is not inferred from terrain."
+    },
+    {
+      "category": "site_access",
+      "class": "T4",
+      "prohibited": "Do not present as an authorized test site.",
+      "statement": "Field access/permission is not implied by public data."
+    },
+    {
+      "category": "ecology_community",
+      "class": "T4",
+      "prohibited": "Do not plan field work without authorization.",
+      "statement": "Ecological and community governance must be verified."
+    }
+  ],
+  "note": "Morphology comparison only. The following conditions are not established by this result and bound every downstream claim.",
+  "result_state": "RECOMMEND_FOLLOW_UP"
+}

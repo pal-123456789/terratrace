@@ -1,0 +1,516 @@
+{
+  "baseline_vectors": {
+    "earth_candidate_a": [
+      1.3439470097037272,
+      1.318509363200297,
+      1.3514804286884192,
+      0.024410487057729274,
+      0.006676703982464449,
+      0.1704020152290363
+    ],
+    "earth_candidate_b": [
+      0.7315461561697126,
+      0.7863712526800027,
+      0.7604634005512758,
+      0.01609837786316664,
+      0.42086360961159064,
+      0.3449329097031952
+    ]
+  },
+  "draft_protocol": {
+    "acceptance_criteria": [
+      "feature distributions within predeclared tolerance at common support",
+      "result stable across declared sensitivity scenarios",
+      "no eligibility blocker (data, rights, ecology, safety)"
+    ],
+    "authorization": "NOT_AUTHORIZED: access, ecology, and safety unverified",
+    "hypothesis": "At the declared common support, candidate terrain reproduces the reference slope/relief/ruggedness/connectivity distributions within stated tolerances.",
+    "measurements_required_next": [
+      "higher-resolution terrain survey to assess sub-support structure",
+      "surface material/geotechnical characterization (separate study)",
+      "illumination and visibility modelling (separate study)",
+      "field access, ecological, and community authorization review"
+    ],
+    "objective": "Collect discriminating data because current evidence does not separate the candidate units.",
+    "profile": {
+      "claim_maturity": "prototype_morphology_only",
+      "decision_metrics": "extended",
+      "metrics": [
+        "slope",
+        "relief",
+        "ruggedness",
+        "connectivity",
+        "aspect_dispersion",
+        "hypsometric_integral"
+      ],
+      "source_label": "real_dem_aeqd",
+      "target_body": "mars",
+      "target_support_m": 1000.0,
+      "task": "map_scale_terrain_route_study"
+    },
+    "recommended_unit": null,
+    "rejection_criteria": [
+      "ranking reverses under reasonable support/threshold changes",
+      "valid-data fraction below declared minimum",
+      "access or governance status cannot be verified"
+    ],
+    "result_state": "TIE",
+    "status": "draft",
+    "stop_conditions": [
+      "permission not granted",
+      "protected-area or community constraint",
+      "safety or environmental risk"
+    ],
+    "transfer_boundary": "Morphology comparison only. The following conditions are not established by this result and bound every downstream claim."
+  },
+  "eligibility": {
+    "earth_candidate_a": {
+      "eligible": true,
+      "reason": "eligible"
+    },
+    "earth_candidate_b": {
+      "eligible": true,
+      "reason": "eligible"
+    },
+    "mars_reference": {
+      "eligible": true,
+      "reason": "eligible"
+    }
+  },
+  "evidence_graph": {
+    "edges": [
+      {
+        "from": "mars_reference",
+        "rel": "represented_by",
+        "to": "src:real_dem_aeqd"
+      },
+      {
+        "from": "earth_candidate_a",
+        "rel": "represented_by",
+        "to": "src:real_dem_aeqd"
+      },
+      {
+        "from": "earth_candidate_b",
+        "rel": "represented_by",
+        "to": "src:real_dem_aeqd"
+      },
+      {
+        "from": "c:elig:mars_reference",
+        "rel": "about",
+        "to": "mars_reference"
+      },
+      {
+        "from": "c:elig:earth_candidate_a",
+        "rel": "about",
+        "to": "earth_candidate_a"
+      },
+      {
+        "from": "c:elig:earth_candidate_b",
+        "rel": "about",
+        "to": "earth_candidate_b"
+      },
+      {
+        "from": "c:earth_candidate_a",
+        "rel": "about",
+        "to": "earth_candidate_a"
+      },
+      {
+        "from": "c:earth_candidate_b",
+        "rel": "about",
+        "to": "earth_candidate_b"
+      }
+    ],
+    "nodes": [
+      {
+        "claim_status": "C3",
+        "id": "src:real_dem_aeqd",
+        "product_id": "real_dem_aeqd",
+        "provider": "TerraTrace real_dem_aeqd",
+        "terms": "see source_lock / dataset terms",
+        "type": "SourceProduct",
+        "version": "0.1.0"
+      },
+      {
+        "id": "tr:common_support",
+        "inputs": [
+          "src:real_dem_aeqd"
+        ],
+        "method": "block_aggregate+features",
+        "params": {
+          "metrics": [
+            "slope",
+            "relief",
+            "ruggedness",
+            "connectivity"
+          ]
+        },
+        "type": "Transformation"
+      },
+      {
+        "claim_status": "C3",
+        "id": "c:elig:mars_reference",
+        "supported_by": [
+          "src:real_dem_aeqd"
+        ],
+        "text": "mars_reference eligibility=True: eligible",
+        "type": "Claim"
+      },
+      {
+        "claim_status": "C3",
+        "id": "c:elig:earth_candidate_a",
+        "supported_by": [
+          "src:real_dem_aeqd"
+        ],
+        "text": "earth_candidate_a eligibility=True: eligible",
+        "type": "Claim"
+      },
+      {
+        "claim_status": "C3",
+        "id": "c:elig:earth_candidate_b",
+        "supported_by": [
+          "src:real_dem_aeqd"
+        ],
+        "text": "earth_candidate_b eligibility=True: eligible",
+        "type": "Claim"
+      },
+      {
+        "feature": "morphology_distance_vector",
+        "generated_by": "tr:common_support",
+        "id": "m:earth_candidate_a",
+        "type": "FeatureMeasurement",
+        "uncertainty": {
+          "valid_fraction": 0.9513513513513514
+        },
+        "unit": "normalized",
+        "value": [
+          1.3439470097037272,
+          1.318509363200297,
+          1.3514804286884192,
+          0.024410487057729274,
+          0.006676703982464449,
+          0.1704020152290363
+        ],
+        "window_m": 1000.0
+      },
+      {
+        "claim_status": "C3",
+        "id": "c:earth_candidate_a",
+        "supported_by": [
+          "m:earth_candidate_a"
+        ],
+        "text": "earth_candidate_a morphology distance to reference at common support",
+        "type": "Claim"
+      },
+      {
+        "feature": "morphology_distance_vector",
+        "generated_by": "tr:common_support",
+        "id": "m:earth_candidate_b",
+        "type": "FeatureMeasurement",
+        "uncertainty": {
+          "valid_fraction": 0.9317647058823529
+        },
+        "unit": "normalized",
+        "value": [
+          0.7315461561697126,
+          0.7863712526800027,
+          0.7604634005512758,
+          0.01609837786316664,
+          0.42086360961159064,
+          0.3449329097031952
+        ],
+        "window_m": 1000.0
+      },
+      {
+        "claim_status": "C3",
+        "id": "c:earth_candidate_b",
+        "supported_by": [
+          "m:earth_candidate_b"
+        ],
+        "text": "earth_candidate_b morphology distance to reference at common support",
+        "type": "Claim"
+      },
+      {
+        "claim_status": "C3",
+        "id": "c:sensitivity",
+        "supported_by": [
+          "c:earth_candidate_a",
+          "c:earth_candidate_b"
+        ],
+        "text": "pairwise rank-flip matrix across scenarios: {'earth_candidate_a|earth_candidate_b': 0.041666666666666664}",
+        "type": "Claim"
+      },
+      {
+        "claim_status": "C3",
+        "id": "c:result",
+        "supported_by": [
+          "c:earth_candidate_a",
+          "c:earth_candidate_b",
+          "c:sensitivity"
+        ],
+        "text": "result=TIE; recommended=None",
+        "type": "Claim"
+      },
+      {
+        "claim_status": "C3",
+        "id": "c:protocol",
+        "supported_by": [
+          "c:result"
+        ],
+        "text": "draft study protocol (not an authorization)",
+        "type": "Claim"
+      }
+    ]
+  },
+  "extended_metrics": {
+    "earth_candidate_a": {
+      "aspect_dispersion": 0.8751961888696869,
+      "hypsometric_integral": 0.3623844262112733
+    },
+    "earth_candidate_b": {
+      "aspect_dispersion": 0.4610092832405607,
+      "hypsometric_integral": 0.18785353173711444
+    },
+    "mars_reference": {
+      "aspect_dispersion": 0.8818728928521513,
+      "hypsometric_integral": 0.5327864414403096
+    }
+  },
+  "package_hash": "106a83635fe3052fa3df6e8561350056f2cdbde2b2a090acf64683dd82c9c927",
+  "pairwise_flip_matrix": {
+    "earth_candidate_a|earth_candidate_b": 0.041666666666666664
+  },
+  "profile": {
+    "claim_maturity": "prototype_morphology_only",
+    "decision_metrics": "extended",
+    "metrics": [
+      "slope",
+      "relief",
+      "ruggedness",
+      "connectivity",
+      "aspect_dispersion",
+      "hypsometric_integral"
+    ],
+    "source_label": "real_dem_aeqd",
+    "target_body": "mars",
+    "target_support_m": 1000.0,
+    "task": "map_scale_terrain_route_study"
+  },
+  "prohibited_claims": [
+    "Do not infer rock-scale obstacles or wheel-scale hazards.",
+    "Not a traversable route or path guarantee.",
+    "Do not infer mobility, slip, or stability transfer.",
+    "Do not infer dust lofting, aero-thermal, or EDL behaviour.",
+    "Do not claim traction, sinkage, or bearing equivalence.",
+    "Do not infer radiation effects from terrain.",
+    "Do not infer thermal survival.",
+    "Do not infer power or imaging performance.",
+    "Do not infer link availability.",
+    "Do not present as an authorized test site.",
+    "Do not plan field work without authorization."
+  ],
+  "recommended_unit": null,
+  "result_state": "TIE",
+  "scenario_names": [
+    "baseline",
+    "stricter_slope",
+    "robust_relief",
+    "lenient"
+  ],
+  "scenario_vectors": [
+    {
+      "earth_candidate_a": [
+        1.3439470097037272,
+        1.318509363200297,
+        1.3514804286884192,
+        0.024410487057729274,
+        0.006676703982464449,
+        0.1704020152290363
+      ],
+      "earth_candidate_b": [
+        0.7315461561697126,
+        0.7863712526800027,
+        0.7604634005512758,
+        0.01609837786316664,
+        0.42086360961159064,
+        0.3449329097031952
+      ]
+    },
+    {
+      "earth_candidate_a": [
+        1.3439470097037272,
+        1.318509363200297,
+        1.3514804286884192,
+        0.1589594372328632,
+        0.006676703982464449,
+        0.1704020152290363
+      ],
+      "earth_candidate_b": [
+        0.7315461561697126,
+        0.7863712526800027,
+        0.7604634005512758,
+        0.05578421382018911,
+        0.42086360961159064,
+        0.3449329097031952
+      ]
+    },
+    {
+      "earth_candidate_a": [
+        1.3439470097037272,
+        1.335882096566543,
+        1.3514804286884192,
+        0.024410487057729274,
+        0.006676703982464449,
+        0.1704020152290363
+      ],
+      "earth_candidate_b": [
+        0.7315461561697126,
+        0.810567189251282,
+        0.7604634005512758,
+        0.01609837786316664,
+        0.42086360961159064,
+        0.3449329097031952
+      ]
+    },
+    {
+      "earth_candidate_a": [
+        1.3439470097037272,
+        1.335882096566543,
+        1.3514804286884192,
+        0.0010781540106084028,
+        0.006676703982464449,
+        0.1704020152290363
+      ],
+      "earth_candidate_b": [
+        0.7315461561697126,
+        0.810567189251282,
+        0.7604634005512758,
+        0.0030776423280530277,
+        0.42086360961159064,
+        0.3449329097031952
+      ]
+    }
+  ],
+  "schema_version": "0.1.0",
+  "transfer_gap_ledger": {
+    "gaps": [
+      {
+        "category": "topographic_morphology",
+        "class": "T0",
+        "prohibited": "Do not infer rock-scale obstacles or wheel-scale hazards.",
+        "statement": "Map-scale slope/relief/ruggedness comparable at declared support."
+      },
+      {
+        "category": "low_slope_connectivity",
+        "class": "T1",
+        "prohibited": "Not a traversable route or path guarantee.",
+        "statement": "Broad corridor structure is comparable at declared support."
+      },
+      {
+        "category": "gravity",
+        "class": "T2",
+        "prohibited": "Do not infer mobility, slip, or stability transfer.",
+        "statement": "Mars surface gravity (~0.38 g) is not reproduced on Earth."
+      },
+      {
+        "category": "atmosphere_pressure",
+        "class": "T2",
+        "prohibited": "Do not infer dust lofting, aero-thermal, or EDL behaviour.",
+        "statement": "Mars atmospheric density/pressure is not reproduced."
+      },
+      {
+        "category": "regolith_mechanics",
+        "class": "T3",
+        "prohibited": "Do not claim traction, sinkage, or bearing equivalence.",
+        "statement": "Mechanical soil behaviour is not inferred from a DEM."
+      },
+      {
+        "category": "radiation",
+        "class": "T2",
+        "prohibited": "Do not infer radiation effects from terrain.",
+        "statement": "Surface radiation environment is not reproduced."
+      },
+      {
+        "category": "thermal_cycle",
+        "class": "T3",
+        "prohibited": "Do not infer thermal survival.",
+        "statement": "Diurnal/seasonal thermal regime is not inferred from terrain."
+      },
+      {
+        "category": "illumination",
+        "class": "T3",
+        "prohibited": "Do not infer power or imaging performance.",
+        "statement": "Illumination geometry is context only unless modelled."
+      },
+      {
+        "category": "communications",
+        "class": "T3",
+        "prohibited": "Do not infer link availability.",
+        "statement": "Relay/line-of-sight geometry is not inferred from terrain."
+      },
+      {
+        "category": "site_access",
+        "class": "T4",
+        "prohibited": "Do not present as an authorized test site.",
+        "statement": "Field access/permission is not implied by public data."
+      },
+      {
+        "category": "ecology_community",
+        "class": "T4",
+        "prohibited": "Do not plan field work without authorization.",
+        "statement": "Ecological and community governance must be verified."
+      }
+    ],
+    "note": "Morphology comparison only. The following conditions are not established by this result and bound every downstream claim.",
+    "result_state": "TIE"
+  },
+  "unit_metadata": {
+    "earth_candidate_a": {
+      "data_present": true,
+      "min_valid_fraction": 0.5,
+      "rights_status": "verified_allowed",
+      "support": {
+        "aggregation": "mean",
+        "factor": 1,
+        "native_posting_m": 1000.0,
+        "target_support_m": 1000.0,
+        "valid_fraction": 0.9513513513513514
+      },
+      "support_valid": true,
+      "valid_fraction": 0.9513513513513514,
+      "zero_fraction": 0.0,
+      "zero_fraction_max": 0.6
+    },
+    "earth_candidate_b": {
+      "data_present": true,
+      "min_valid_fraction": 0.5,
+      "rights_status": "verified_allowed",
+      "support": {
+        "aggregation": "mean",
+        "factor": 1,
+        "native_posting_m": 1000.0,
+        "target_support_m": 1000.0,
+        "valid_fraction": 0.9317647058823529
+      },
+      "support_valid": true,
+      "valid_fraction": 0.9317647058823529,
+      "zero_fraction": 0.0,
+      "zero_fraction_max": 0.6
+    },
+    "mars_reference": {
+      "data_present": true,
+      "min_valid_fraction": 0.5,
+      "rights_status": "verified_allowed",
+      "support": {
+        "aggregation": "mean",
+        "factor": 1,
+        "native_posting_m": 1000.0,
+        "target_support_m": 1000.0,
+        "valid_fraction": 0.9973484138745522
+      },
+      "support_valid": true,
+      "valid_fraction": 0.9973484138745522,
+      "zero_fraction": 0.0,
+      "zero_fraction_max": 0.6
+    }
+  }
+}

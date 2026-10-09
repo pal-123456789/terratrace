@@ -1,0 +1,26 @@
+# 39-day gates
+
+```mermaid
+gantt
+  title Planetary Analog OS readiness and official build
+  dateFormat YYYY-MM-DD
+  axisFormat %b %d
+  section Readiness — no challenge solution development
+  Rules/source/clean-room packet :r1, 2026-10-08, 2d
+  Generic geospatial practice :r2, 2026-10-10, 8d
+  Generic provenance/validation :r3, 2026-10-18, 14d
+  Runbook/release/accessibility rehearsal :r4, 2026-11-01, 13d
+  section Official solution build
+  Source/method/contract :b1, 2026-11-14, 4h
+  Pipeline/artifacts/evidence :b2, after b1, 4h
+  App/gap ledger/protocol :b3, after b2, 4h
+  Validation/docs/release :b4, 2026-11-15, 13h
+```
+
+## Gates
+
+```text
+P0 rules → P1 source path → P2 generic readiness → P3 clean room
+→ G1 actual source contract → G2 observability → G3 vertical slice
+→ G4 scoring audit → G5 claim/usability → G6 reproducibility → G7 submission
+```

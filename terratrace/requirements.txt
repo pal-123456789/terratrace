@@ -1,0 +1,2 @@
+# Core engine only. Pure NumPy; no network, no GDAL.
+numpy>=1.24

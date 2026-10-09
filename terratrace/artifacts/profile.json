@@ -1,0 +1,13 @@
+{
+  "claim_maturity": "prototype_morphology_only",
+  "metrics": [
+    "slope",
+    "relief",
+    "ruggedness",
+    "connectivity"
+  ],
+  "source_label": "synthetic",
+  "target_body": "mars",
+  "target_support_m": 100.0,
+  "task": "map_scale_terrain_route_study"
+}

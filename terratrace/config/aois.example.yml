@@ -1,0 +1,53 @@
+# TerraTrace real-data AOI configuration (example).
+# Choose bounded terrain units, not whole regions. Bring all units to a
+# common support (target_support_m) before comparison. Mars MOLA ~463 m is
+# the limiting support, so a 1000 m common support is a safe default here.
+
+target_support_m: 1000.0
+min_valid_fraction: 0.5
+# Warp each AOI to its own local azimuthal-equidistant metric grid (correct
+# cross-body comparison). Set false to use the simpler same-dx fallback.
+reproject: true
+# Pareto decision axes: "core" = slope/relief/ruggedness/connectivity (default,
+# validated). "extended" also includes aspect dispersion + hypsometric integral
+# -> a built-in robustness ablation (does the winner survive more descriptors?).
+decision_metrics: extended
+
+# Reference: a bounded Mars window from the MOLA 463 m DEM you downloaded.
+reference:
+  id: mars_reference
+  path: data/mars/mola_463m.tif
+  body: mars
+  native_posting_m: 463.0
+  is_reference: true
+  rights_status: verified_allowed      # NASA PDS/USGS public data
+  # Crop the global MOLA file to a bounded Mars window in the FILE's CRS
+  # (MOLA 463m is simple-cylindrical in DEGREES). Adjust to the file's
+  # longitude convention (0..360 east or -180..180). west,south,east,north:
+  bbox: [120.0, -5.0, 130.0, 5.0]      # example: ~10x10 deg equatorial window
+
+# Earth candidates fetched from OpenTopography Copernicus GLO-30 (COP30).
+# bbox is (west, south, east, north) in degrees.
+earth_units:
+  - id: earth_candidate_a
+    path: data/earth/candidate_a_cop30.tif
+    body: earth
+    demtype: COP30
+    bbox: [-115.80, 36.00, -115.40, 36.40]   # example: desert basin-and-range
+    native_posting_m: 30.0
+    rights_status: verified_allowed
+    access_status: unknown                    # must be verified before any fieldwork
+
+  - id: earth_candidate_b
+    path: data/earth/candidate_b_cop30.tif
+    body: earth
+    demtype: COP30
+    # Craters of the Moon basaltic lava field, Idaho - a classic terrestrial
+    # Mars/Moon analog that is entirely on land (no ocean-zero contamination).
+    bbox: [-113.60, 43.30, -113.30, 43.60]
+    native_posting_m: 30.0
+    rights_status: verified_allowed
+    access_status: unknown
+    # For coastal/island AOIs, drop Copernicus sea-level pixels, e.g.:
+    # mask_values: [0.0]      # exact 0 m -> NaN (blunt; prefer land AOIs)
+    # mask_below_m: 0.5       # drop anything below 0.5 m

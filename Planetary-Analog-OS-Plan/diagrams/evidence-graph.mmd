@@ -1,0 +1,22 @@
+# Evidence graph
+
+```mermaid
+erDiagram
+  MISSION_QUESTION ||--|{ REQUIREMENT : contains
+  REQUIREMENT ||--|{ FEATURE : specifies
+  FEATURE }|--|| OBSERVATION : computed_from
+  OBSERVATION }|--|| SOURCE : provided_by
+  OBSERVATION }|--|| TRANSFORM : generated_by
+  EARTH_UNIT ||--|{ OBSERVATION : represents
+  PLANETARY_UNIT ||--|{ OBSERVATION : represents
+  COMPARISON }|--|| EARTH_UNIT : evaluates
+  COMPARISON }|--|| PLANETARY_UNIT : compares_to
+  COMPARISON ||--|{ CLAIM : emits
+  CLAIM ||--|{ TRANSFER_GAP : limited_by
+  MISSION_QUESTION ||--|{ PROTOCOL : produces
+  PROTOCOL ||--o{ OUTCOME : executed_as
+  OUTCOME }o--o{ TRANSFER_GAP : updates
+  GOVERNANCE }|--|| EARTH_UNIT : constrains
+```
+
+A valid released claim must be connected to a source, transformation, requirement, comparison configuration, and limitation record.

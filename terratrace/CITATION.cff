@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use TerraTrace, please cite it and the underlying NASA/ESA/USGS data."
+title: "TerraTrace - Planetary Analog Terrain-Transfer Workbench"
+abstract: "A provenance-first tool that compares a Mars reference terrain unit with
+  Earth terrain units at a common metric support, exposes transfer gaps, and emits a
+  reproducible study package. Morphology screening only; not a mission-readiness tool."
+version: 0.1.0
+date-released: 2026-11-15
+license: MIT
+authors:
+  - family-names: Ghevariya
+    given-names: Pal
+keywords:
+  - planetary analog
+  - Mars
+  - digital elevation model
+  - terrain morphology
+  - NASA Space Apps
+references:
+  - type: data
+    title: "MGS MOLA Mission Experiment Gridded Data Record (MEGDR) / Mars MGS MOLA DEM 463m"
+    authors:
+      - name: "NASA PDS Geosciences Node; USGS Astrogeology"
+  - type: data
+    title: "Copernicus GLO-30 Digital Elevation Model"
+    authors:
+      - name: "ESA Copernicus, distributed by OpenTopography"

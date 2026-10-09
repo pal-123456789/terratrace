@@ -1,0 +1,199 @@
+{
+  "edges": [
+    {
+      "from": "mars_reference",
+      "rel": "represented_by",
+      "to": "src:synthetic"
+    },
+    {
+      "from": "earth_close",
+      "rel": "represented_by",
+      "to": "src:synthetic"
+    },
+    {
+      "from": "earth_far",
+      "rel": "represented_by",
+      "to": "src:synthetic"
+    },
+    {
+      "from": "earth_blocked",
+      "rel": "represented_by",
+      "to": "src:synthetic"
+    },
+    {
+      "from": "c:elig:mars_reference",
+      "rel": "about",
+      "to": "mars_reference"
+    },
+    {
+      "from": "c:elig:earth_close",
+      "rel": "about",
+      "to": "earth_close"
+    },
+    {
+      "from": "c:elig:earth_far",
+      "rel": "about",
+      "to": "earth_far"
+    },
+    {
+      "from": "c:elig:earth_blocked",
+      "rel": "about",
+      "to": "earth_blocked"
+    },
+    {
+      "from": "c:earth_close",
+      "rel": "about",
+      "to": "earth_close"
+    },
+    {
+      "from": "c:earth_far",
+      "rel": "about",
+      "to": "earth_far"
+    }
+  ],
+  "nodes": [
+    {
+      "claim_status": "C3",
+      "id": "src:synthetic",
+      "product_id": "synthetic",
+      "provider": "TerraTrace synthetic",
+      "terms": "see source_lock / dataset terms",
+      "type": "SourceProduct",
+      "version": "0.1.0"
+    },
+    {
+      "id": "tr:common_support",
+      "inputs": [
+        "src:synthetic"
+      ],
+      "method": "block_aggregate+features",
+      "params": {
+        "metrics": [
+          "slope",
+          "relief",
+          "ruggedness",
+          "connectivity"
+        ]
+      },
+      "type": "Transformation"
+    },
+    {
+      "claim_status": "C3",
+      "id": "c:elig:mars_reference",
+      "supported_by": [
+        "src:synthetic"
+      ],
+      "text": "mars_reference eligibility=True: eligible",
+      "type": "Claim"
+    },
+    {
+      "claim_status": "C3",
+      "id": "c:elig:earth_close",
+      "supported_by": [
+        "src:synthetic"
+      ],
+      "text": "earth_close eligibility=True: eligible",
+      "type": "Claim"
+    },
+    {
+      "claim_status": "C3",
+      "id": "c:elig:earth_far",
+      "supported_by": [
+        "src:synthetic"
+      ],
+      "text": "earth_far eligibility=True: eligible",
+      "type": "Claim"
+    },
+    {
+      "claim_status": "C3",
+      "id": "c:elig:earth_blocked",
+      "supported_by": [
+        "src:synthetic"
+      ],
+      "text": "earth_blocked eligibility=False: BLOCKED: insufficient valid data",
+      "type": "Claim"
+    },
+    {
+      "feature": "morphology_distance_vector",
+      "generated_by": "tr:common_support",
+      "id": "m:earth_close",
+      "type": "FeatureMeasurement",
+      "uncertainty": {
+        "valid_fraction": 1.0
+      },
+      "unit": "normalized",
+      "value": [
+        0.10991779623040603,
+        0.0716567751567976,
+        0.5758590263665008,
+        0.0
+      ],
+      "window_m": 100.0
+    },
+    {
+      "claim_status": "C3",
+      "id": "c:earth_close",
+      "supported_by": [
+        "m:earth_close"
+      ],
+      "text": "earth_close morphology distance to reference at common support",
+      "type": "Claim"
+    },
+    {
+      "feature": "morphology_distance_vector",
+      "generated_by": "tr:common_support",
+      "id": "m:earth_far",
+      "type": "FeatureMeasurement",
+      "uncertainty": {
+        "valid_fraction": 1.0
+      },
+      "unit": "normalized",
+      "value": [
+        1.0222945511196184,
+        1.0018867692804345,
+        0.9788924622179799,
+        0.0
+      ],
+      "window_m": 100.0
+    },
+    {
+      "claim_status": "C3",
+      "id": "c:earth_far",
+      "supported_by": [
+        "m:earth_far"
+      ],
+      "text": "earth_far morphology distance to reference at common support",
+      "type": "Claim"
+    },
+    {
+      "claim_status": "C3",
+      "id": "c:sensitivity",
+      "supported_by": [
+        "c:earth_close",
+        "c:earth_far"
+      ],
+      "text": "pairwise rank-flip matrix across scenarios: {'earth_close|earth_far': 0.0}",
+      "type": "Claim"
+    },
+    {
+      "claim_status": "C3",
+      "id": "c:result",
+      "supported_by": [
+        "c:earth_close",
+        "c:earth_far",
+        "c:sensitivity"
+      ],
+      "text": "result=RECOMMEND_FOLLOW_UP; recommended=earth_close",
+      "type": "Claim"
+    },
+    {
+      "claim_status": "C3",
+      "id": "c:protocol",
+      "supported_by": [
+        "c:result"
+      ],
+      "text": "draft study protocol (not an authorization)",
+      "type": "Claim"
+    }
+  ]
+}
