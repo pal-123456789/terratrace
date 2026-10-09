@@ -2,12 +2,11 @@
 
 **Mars ↔ Earth map-scale terrain-morphology transfer intelligence.**
 
-This repository holds three things:
+This repository holds two things:
 
 | Path | What it is |
 |---|---|
 | `terratrace/` | The working engine (Python): real MOLA + Copernicus DEMs → per-body reprojection → morphology features → Pareto decision → transfer-gap ledger → provenance + viewer. 46 tests. |
-| `Planetary-Analog-OS-Plan/` | The 23-module strategy/plan library + diagrams (the long-horizon product thesis). |
 | `site/` | A 3D scroll-animated website telling the project story (deployed on Vercel). |
 
 > **Scope / claim firewall.** TerraTrace screens terrain **morphology** between curated

@@ -25,3 +25,7 @@ node_modules/
 
 # Vercel
 .vercel/
+
+# Internal strategy/plan — kept local, not published to the public repo
+Planetary-Analog-OS-Plan/
+PLANETARY-ANALOG-OS-MASTER-PLAN.md
