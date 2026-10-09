@@ -55,17 +55,17 @@ score is produced; ranking is by Pareto dominance, and a tie is a valid result.<
 <th scope="col">distance vector</th><th scope="col">valid</th>
 <th scope="col">zero</th><th scope="col">eligibility</th>
 </tr></thead><tbody>
-<tr><th scope='row'>earth_candidate_a</th><td class='vec'>[1.344, 1.319, 1.351, 0.024, 0.007, 0.170]</td><td>0.95</td><td>0.00</td><td>eligible</td></tr>
-<tr><th scope='row'>earth_candidate_b</th><td class='vec'>[0.732, 0.786, 0.760, 0.016, 0.421, 0.345]</td><td>0.93</td><td>0.00</td><td>eligible</td></tr>
+<tr><th scope='row'>earth_candidate_a</th><td class='vec'>[1.330, 1.378, 1.454, 0.030, 0.011, 0.142]</td><td>0.99</td><td>0.00</td><td>eligible</td></tr>
+<tr><th scope='row'>earth_candidate_b</th><td class='vec'>[0.746, 0.776, 0.759, 0.018, 0.390, 0.281]</td><td>1.00</td><td>0.00</td><td>eligible</td></tr>
 </tbody></table></section>
 
 <section><h2>EXTENDED MORPHOLOGY DESCRIPTORS</h2>
 <table><thead><tr><th scope="col">unit</th>
 <th scope="col">aspect dispersion</th><th scope="col">hypsometric integral</th>
 </tr></thead><tbody>
-<tr><th scope='row'>earth_candidate_a</th><td>0.875</td><td>0.362</td></tr>
-<tr><th scope='row'>earth_candidate_b</th><td>0.461</td><td>0.188</td></tr>
-<tr><th scope='row'>mars_reference</th><td>0.882</td><td>0.533</td></tr>
+<tr><th scope='row'>earth_candidate_a</th><td>0.885</td><td>0.385</td></tr>
+<tr><th scope='row'>earth_candidate_b</th><td>0.485</td><td>0.246</td></tr>
+<tr><th scope='row'>mars_reference</th><td>0.874</td><td>0.527</td></tr>
 </tbody></table>
 <p class="sub">Aspect dispersion: 0 = one downslope direction, 1 = isotropic.
 Hypsometric integral: elevation-distribution shape (0.5 = symmetric). Reported
@@ -74,7 +74,7 @@ for transparency; included in the decision only when decision axes = extended.</
 <div class="grid">
 <section><h2>SENSITIVITY (pairwise rank-flip fraction)</h2>
 <table><thead><tr><th scope="col">pair</th><th scope="col">flip</th></tr></thead>
-<tbody><tr><th scope='row'>earth_candidate_a|earth_candidate_b</th><td>0.04</td></tr></tbody></table>
+<tbody><tr><th scope='row'>earth_candidate_a|earth_candidate_b</th><td>0.06</td></tr></tbody></table>
 <p class="sub">0.00 means the pairwise comparison never changed sign across the
 tested scenarios. High values mean the result is assumption-sensitive.</p></section>
 
@@ -104,61 +104,57 @@ tested scenarios. High values mean the result is assumption-sensitive.</p></sect
 <li><strong>Earth:</strong> ESA Copernicus GLO-30 Digital Elevation Model, distributed by OpenTopography. (c) ESA. Attribution required. <em>Copernicus data; free use with attribution; see OpenTopography terms.</em></li>
 </ul></section>
 
-<section><h2>UNCERTAINTY (BOOTSTRAP, n=300)</h2><p class='sub'>Feature distributions resampled with replacement. Non-domination frequency is how often each unit is Pareto non-dominated across resamples; a single clear winner appears in 0% of resamples. Slope-distance shown as median [95% CI].</p><table><thead><tr><th scope='col'>unit</th><th scope='col'>non-dominated</th><th scope='col'>clear winner</th><th scope='col'>slope distance</th></tr></thead><tbody><tr><th scope='row'>earth_candidate_a</th><td>100%</td><td>0%</td><td>1.34 <span style='color:#7f9398'>[1.28–1.42]</span></td></tr>
-<tr><th scope='row'>earth_candidate_b</th><td>100%</td><td>0%</td><td>0.73 <span style='color:#7f9398'>[0.69–0.77]</span></td></tr></tbody></table></section>
+<section><h2>UNCERTAINTY (BOOTSTRAP, n=300)</h2><p class='sub'>Feature distributions resampled with replacement. Non-domination frequency is how often each unit is Pareto non-dominated across resamples; a single clear winner appears in 0% of resamples. Slope-distance shown as median [95% CI].</p><table><thead><tr><th scope='col'>unit</th><th scope='col'>non-dominated</th><th scope='col'>clear winner</th><th scope='col'>slope distance</th></tr></thead><tbody><tr><th scope='row'>earth_candidate_a</th><td>100%</td><td>0%</td><td>1.33 <span style='color:#7f9398'>[1.25–1.40]</span></td></tr>
+<tr><th scope='row'>earth_candidate_b</th><td>100%</td><td>0%</td><td>0.75 <span style='color:#7f9398'>[0.71–0.78]</span></td></tr></tbody></table></section>
 
 <section><h2>PROVENANCE</h2>
 <p class="sub">Every value derives from the <strong>real_dem_aeqd</strong> source through a recorded
 transformation and resolves in the evidence graph. Package hash:</p>
-<p class="hash">bf7caf19fa53e7b0ed2e69b8eab4c0d71c2ebbaa08fb39ed1bda1dbccf6daa6b</p></section>
+<p class="hash">577a7041a04091a950f2ae319c302b45576722c2a014a6d8dce4e95ddcdc6e60</p></section>
 
 <details><summary>Raw study package (JSON)</summary>
 <pre class="hash">{
   &quot;baseline_vectors&quot;: {
     &quot;earth_candidate_a&quot;: [
-      1.3439470097037272,
-      1.318509363200297,
-      1.3514804286884192,
-      0.024410487057729274,
-      0.006676703982464449,
-      0.1704020152290363
+      1.3301819691374828,
+      1.3781920971237565,
+      1.4540619222913125,
+      0.029584445088408257,
+      0.011167686139968325,
+      0.14166930568496394
     ],
     &quot;earth_candidate_b&quot;: [
-      0.7315461561697126,
-      0.7863712526800027,
-      0.7604634005512758,
-      0.01609837786316664,
-      0.42086360961159064,
-      0.3449329097031952
+      0.745934518862815,
+      0.7756599864495671,
+      0.7592894864610598,
+      0.017631627148054326,
+      0.3895190264738422,
+      0.2809340868772813
     ]
   },
   &quot;bootstrap&quot;: {
     &quot;decisive_freq&quot;: 0.0,
     &quot;n_boot&quot;: 300,
+    &quot;note&quot;: &quot;CIs assume independent pixels; spatial autocorrelation makes them optimistic.&quot;,
     &quot;seed&quot;: 0,
     &quot;units&quot;: {
       &quot;earth_candidate_a&quot;: {
         &quot;clear_winner_freq&quot;: 0.0,
         &quot;distance_ci&quot;: {
-          &quot;connectivity&quot;: [
-            0.024410487057729274,
-            0.024410487057729274,
-            0.024410487057729274
-          ],
           &quot;relief&quot;: [
-            1.2602411130821034,
-            1.3187615401131787,
-            1.373325857113907
+            1.3201247518249393,
+            1.3779842094467631,
+            1.4268355784053537
           ],
           &quot;ruggedness&quot;: [
-            1.2435137772468199,
-            1.3495311679451687,
-            1.4430993933833691
+            1.3712296736422735,
+            1.45826315662497,
+            1.5396096481389627
           ],
           &quot;slope&quot;: [
-            1.2750290255086747,
-            1.3406486774808126,
-            1.415693472184324
+            1.2511972245949887,
+            1.3309072280453262,
+            1.4026700184421432
           ]
         },
         &quot;nondominated_freq&quot;: 1.0
@@ -166,25 +162,20 @@ transformation and resolves in the evidence graph. Package hash:</p>
       &quot;earth_candidate_b&quot;: {
         &quot;clear_winner_freq&quot;: 0.0,
         &quot;distance_ci&quot;: {
-          &quot;connectivity&quot;: [
-            0.01609837786316664,
-            0.01609837786316664,
-            0.01609837786316664
-          ],
           &quot;relief&quot;: [
-            0.7578921856844656,
-            0.7869433368653376,
-            0.8129057558354341
+            0.7476751805183154,
+            0.7764404965920995,
+            0.8020613580566384
           ],
           &quot;ruggedness&quot;: [
-            0.7217613206613801,
-            0.7629223171984152,
-            0.7963170447770204
+            0.7238551159788048,
+            0.7603240900675199,
+            0.7906987025736079
           ],
           &quot;slope&quot;: [
-            0.6899945359785079,
-            0.730540687585397,
-            0.7696699308261937
+            0.7112412001057482,
+            0.745605976538253,
+            0.7798641192449766
           ]
         },
         &quot;nondominated_freq&quot;: 1.0
@@ -353,16 +344,16 @@ transformation and resolves in the evidence graph. Package hash:</p>
         &quot;id&quot;: &quot;m:earth_candidate_a&quot;,
         &quot;type&quot;: &quot;FeatureMeasurement&quot;,
         &quot;uncertainty&quot;: {
-          &quot;valid_fraction&quot;: 0.9513513513513514
+          &quot;valid_fraction&quot;: 0.9921921921921922
         },
         &quot;unit&quot;: &quot;normalized&quot;,
         &quot;value&quot;: [
-          1.3439470097037272,
-          1.318509363200297,
-          1.3514804286884192,
-          0.024410487057729274,
-          0.006676703982464449,
-          0.1704020152290363
+          1.3301819691374828,
+          1.3781920971237565,
+          1.4540619222913125,
+          0.029584445088408257,
+          0.011167686139968325,
+          0.14166930568496394
         ],
         &quot;window_m&quot;: 1000.0
       },
@@ -381,16 +372,16 @@ transformation and resolves in the evidence graph. Package hash:</p>
         &quot;id&quot;: &quot;m:earth_candidate_b&quot;,
         &quot;type&quot;: &quot;FeatureMeasurement&quot;,
         &quot;uncertainty&quot;: {
-          &quot;valid_fraction&quot;: 0.9317647058823529
+          &quot;valid_fraction&quot;: 1.0
         },
         &quot;unit&quot;: &quot;normalized&quot;,
         &quot;value&quot;: [
-          0.7315461561697126,
-          0.7863712526800027,
-          0.7604634005512758,
-          0.01609837786316664,
-          0.42086360961159064,
-          0.3449329097031952
+          0.745934518862815,
+          0.7756599864495671,
+          0.7592894864610598,
+          0.017631627148054326,
+          0.3895190264738422,
+          0.2809340868772813
         ],
         &quot;window_m&quot;: 1000.0
       },
@@ -410,7 +401,7 @@ transformation and resolves in the evidence graph. Package hash:</p>
           &quot;c:earth_candidate_a&quot;,
           &quot;c:earth_candidate_b&quot;
         ],
-        &quot;text&quot;: &quot;pairwise rank-flip matrix across scenarios: {&#x27;earth_candidate_a|earth_candidate_b&#x27;: 0.041666666666666664}&quot;,
+        &quot;text&quot;: &quot;pairwise rank-flip matrix across scenarios: {&#x27;earth_candidate_a|earth_candidate_b&#x27;: 0.05555555555555555}&quot;,
         &quot;type&quot;: &quot;Claim&quot;
       },
       {
@@ -437,21 +428,24 @@ transformation and resolves in the evidence graph. Package hash:</p>
   },
   &quot;extended_metrics&quot;: {
     &quot;earth_candidate_a&quot;: {
-      &quot;aspect_dispersion&quot;: 0.8751961888696869,
-      &quot;hypsometric_integral&quot;: 0.3623844262112733
+      &quot;aspect_dispersion&quot;: 0.8853425418070451,
+      &quot;hypsometric_integral&quot;: 0.3848371225839129,
+      &quot;tpi_dispersion&quot;: 97.24059631315762
     },
     &quot;earth_candidate_b&quot;: {
-      &quot;aspect_dispersion&quot;: 0.4610092832405607,
-      &quot;hypsometric_integral&quot;: 0.18785353173711444
+      &quot;aspect_dispersion&quot;: 0.4846558291932346,
+      &quot;hypsometric_integral&quot;: 0.2455723413915956,
+      &quot;tpi_dispersion&quot;: 16.299588392221175
     },
     &quot;mars_reference&quot;: {
-      &quot;aspect_dispersion&quot;: 0.8818728928521513,
-      &quot;hypsometric_integral&quot;: 0.5327864414403096
+      &quot;aspect_dispersion&quot;: 0.8741748556670768,
+      &quot;hypsometric_integral&quot;: 0.5265064282688768,
+      &quot;tpi_dispersion&quot;: 48.93406477247951
     }
   },
-  &quot;package_hash&quot;: &quot;bf7caf19fa53e7b0ed2e69b8eab4c0d71c2ebbaa08fb39ed1bda1dbccf6daa6b&quot;,
+  &quot;package_hash&quot;: &quot;577a7041a04091a950f2ae319c302b45576722c2a014a6d8dce4e95ddcdc6e60&quot;,
   &quot;pairwise_flip_matrix&quot;: {
-    &quot;earth_candidate_a|earth_candidate_b&quot;: 0.041666666666666664
+    &quot;earth_candidate_a|earth_candidate_b&quot;: 0.05555555555555555
   },
   &quot;profile&quot;: {
     &quot;claim_maturity&quot;: &quot;prototype_morphology_only&quot;,
@@ -493,74 +487,74 @@ transformation and resolves in the evidence graph. Package hash:</p>
   &quot;scenario_vectors&quot;: [
     {
       &quot;earth_candidate_a&quot;: [
-        1.3439470097037272,
-        1.318509363200297,
-        1.3514804286884192,
-        0.024410487057729274,
-        0.006676703982464449,
-        0.1704020152290363
+        1.3301819691374828,
+        1.3781920971237565,
+        1.4540619222913125,
+        0.029584445088408257,
+        0.011167686139968325,
+        0.14166930568496394
       ],
       &quot;earth_candidate_b&quot;: [
-        0.7315461561697126,
-        0.7863712526800027,
-        0.7604634005512758,
-        0.01609837786316664,
-        0.42086360961159064,
-        0.3449329097031952
+        0.745934518862815,
+        0.7756599864495671,
+        0.7592894864610598,
+        0.017631627148054326,
+        0.3895190264738422,
+        0.2809340868772813
       ]
     },
     {
       &quot;earth_candidate_a&quot;: [
-        1.3439470097037272,
-        1.318509363200297,
-        1.3514804286884192,
-        0.1589594372328632,
-        0.006676703982464449,
-        0.1704020152290363
+        1.3301819691374828,
+        1.3781920971237565,
+        1.4540619222913125,
+        0.16986964498256005,
+        0.011167686139968325,
+        0.14166930568496394
       ],
       &quot;earth_candidate_b&quot;: [
-        0.7315461561697126,
-        0.7863712526800027,
-        0.7604634005512758,
-        0.05578421382018911,
-        0.42086360961159064,
-        0.3449329097031952
+        0.745934518862815,
+        0.7756599864495671,
+        0.7592894864610598,
+        0.05938546983795205,
+        0.3895190264738422,
+        0.2809340868772813
       ]
     },
     {
       &quot;earth_candidate_a&quot;: [
-        1.3439470097037272,
-        1.335882096566543,
-        1.3514804286884192,
-        0.024410487057729274,
-        0.006676703982464449,
-        0.1704020152290363
+        1.3301819691374828,
+        1.1276745443016343,
+        1.4540619222913125,
+        0.029584445088408257,
+        0.011167686139968325,
+        0.14166930568496394
       ],
       &quot;earth_candidate_b&quot;: [
-        0.7315461561697126,
-        0.810567189251282,
-        0.7604634005512758,
-        0.01609837786316664,
-        0.42086360961159064,
-        0.3449329097031952
+        0.745934518862815,
+        0.6553825017882614,
+        0.7592894864610598,
+        0.017631627148054326,
+        0.3895190264738422,
+        0.2809340868772813
       ]
     },
     {
       &quot;earth_candidate_a&quot;: [
-        1.3439470097037272,
-        1.335882096566543,
-        1.3514804286884192,
-        0.0010781540106084028,
-        0.006676703982464449,
-        0.1704020152290363
+        1.3301819691374828,
+        1.1276745443016343,
+        1.4540619222913125,
+        0.000734606296849171,
+        0.011167686139968325,
+        0.14166930568496394
       ],
       &quot;earth_candidate_b&quot;: [
-        0.7315461561697126,
-        0.810567189251282,
-        0.7604634005512758,
-        0.0030776423280530277,
-        0.42086360961159064,
-        0.3449329097031952
+        0.745934518862815,
+        0.6553825017882614,
+        0.7592894864610598,
+        0.003798701834201123,
+        0.3895190264738422,
+        0.2809340868772813
       ]
     }
   ],
@@ -647,10 +641,10 @@ transformation and resolves in the evidence graph. Package hash:</p>
         &quot;factor&quot;: 1,
         &quot;native_posting_m&quot;: 1000.0,
         &quot;target_support_m&quot;: 1000.0,
-        &quot;valid_fraction&quot;: 0.9513513513513514
+        &quot;valid_fraction&quot;: 0.9921921921921922
       },
       &quot;support_valid&quot;: true,
-      &quot;valid_fraction&quot;: 0.9513513513513514,
+      &quot;valid_fraction&quot;: 0.9921921921921922,
       &quot;zero_fraction&quot;: 0.0,
       &quot;zero_fraction_max&quot;: 0.6
     },
@@ -663,10 +657,10 @@ transformation and resolves in the evidence graph. Package hash:</p>
         &quot;factor&quot;: 1,
         &quot;native_posting_m&quot;: 1000.0,
         &quot;target_support_m&quot;: 1000.0,
-        &quot;valid_fraction&quot;: 0.9317647058823529
+        &quot;valid_fraction&quot;: 1.0
       },
       &quot;support_valid&quot;: true,
-      &quot;valid_fraction&quot;: 0.9317647058823529,
+      &quot;valid_fraction&quot;: 1.0,
       &quot;zero_fraction&quot;: 0.0,
       &quot;zero_fraction_max&quot;: 0.6
     },
@@ -679,10 +673,10 @@ transformation and resolves in the evidence graph. Package hash:</p>
         &quot;factor&quot;: 1,
         &quot;native_posting_m&quot;: 1000.0,
         &quot;target_support_m&quot;: 1000.0,
-        &quot;valid_fraction&quot;: 0.9973484138745522
+        &quot;valid_fraction&quot;: 1.0
       },
       &quot;support_valid&quot;: true,
-      &quot;valid_fraction&quot;: 0.9973484138745522,
+      &quot;valid_fraction&quot;: 1.0,
       &quot;zero_fraction&quot;: 0.0,
       &quot;zero_fraction_max&quot;: 0.6
     }
