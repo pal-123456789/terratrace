@@ -76,6 +76,30 @@ def _flips(pkg):
     return "\n".join(rows) or "<tr><td colspan='2'>n/a</td></tr>"
 
 
+def _boot_section(pkg):
+    """Render the bootstrap-uncertainty panel, or '' if the study has none."""
+    boot = pkg.get("bootstrap")
+    if not boot:
+        return ""
+    rows = []
+    for uid, u in boot["units"].items():
+        ci = u["distance_ci"].get("slope", [float("nan")] * 3)
+        rows.append(
+            f"<tr><th scope='row'>{html.escape(uid)}</th>"
+            f"<td>{u['nondominated_freq']*100:.0f}%</td>"
+            f"<td>{u['clear_winner_freq']*100:.0f}%</td>"
+            f"<td>{ci[1]:.2f} <span style='color:#7f9398'>[{ci[0]:.2f}–{ci[2]:.2f}]</span></td></tr>")
+    return (
+        "<section><h2>UNCERTAINTY (BOOTSTRAP, n=" + str(boot["n_boot"]) + ")</h2>"
+        "<p class='sub'>Feature distributions resampled with replacement. "
+        "Non-domination frequency is how often each unit is Pareto non-dominated across "
+        "resamples; a single clear winner appears in " + f"{boot['decisive_freq']*100:.0f}%" +
+        " of resamples. Slope-distance shown as median [95% CI].</p>"
+        "<table><thead><tr><th scope='col'>unit</th><th scope='col'>non-dominated</th>"
+        "<th scope='col'>clear winner</th><th scope='col'>slope distance</th></tr></thead>"
+        "<tbody>" + "\n".join(rows) + "</tbody></table></section>")
+
+
 CSS = """
 :root{color-scheme:dark}
 *{box-sizing:border-box}
@@ -171,6 +195,8 @@ tested scenarios. High values mean the result is assumption-sensitive.</p></sect
 {citations}
 </ul></section>
 
+{boot_section}
+
 <section><h2>PROVENANCE</h2>
 <p class="sub">Every value derives from the <strong>{source}</strong> source through a recorded
 transformation and resolves in the evidence graph. Package hash:</p>
@@ -206,6 +232,7 @@ def build_html(pkg):
         citations=_citations(pkg),
         gaps=_gaps(pkg),
         flips=_flips(pkg),
+        boot_section=_boot_section(pkg),
         objective=html.escape(proto["objective"]),
         auth=html.escape(proto["authorization"]),
         phash=html.escape(pkg["package_hash"]),
