@@ -7,113 +7,169 @@
 <meta name="description" content="Mars-to-Earth map-scale terrain-morphology transfer intelligence. Morphology screening only; not a mission-readiness tool.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Sora:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --void:#0B0F14; --void2:#0E141B; --regolith:#ECE6DA; --oxide:#C0603A;
-  --cyan:#4FD4E4; --slate:#5A6A72; --line:#1b2730;
+  --space:#060910; --ink:#EEE9DE; --mut:#95A6AD; --oxide:#C6613A; --oxide2:#EC9560;
+  --cyan:#45D3E6; --violet:#8B7BF2; --line:rgba(130,160,175,.14); --bar:#0b1119;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{background:var(--void);color:var(--regolith);
-  font-family:"IBM Plex Sans",system-ui,sans-serif;line-height:1.6;
-  -webkit-font-smoothing:antialiased;overflow-x:hidden}
-canvas#scene{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;display:block}
-.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;
-  background:radial-gradient(130% 90% at 50% 10%,transparent 40%,rgba(5,8,11,.65) 100%)}
-main{position:relative;z-index:2}
-section{min-height:100vh;display:flex;flex-direction:column;justify-content:center;
-  padding:12vh 8vw;max-width:1200px}
-.mono{font-family:"IBM Plex Mono",monospace;letter-spacing:.04em}
-.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:.8rem;letter-spacing:.32em;
-  text-transform:uppercase;color:var(--cyan)}
-h1{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:clamp(2.6rem,8vw,6.2rem);
-  line-height:.98;letter-spacing:-.02em;margin:.3em 0}
-h2{font-family:"Space Grotesk",sans-serif;font-weight:600;font-size:clamp(1.8rem,4.5vw,3.4rem);
-  line-height:1.03;letter-spacing:-.015em;margin:.2em 0 .5em}
-p.lead{font-size:clamp(1.05rem,1.7vw,1.35rem);max-width:60ch;color:#cdd6d9}
-p.sub{max-width:62ch;color:#9fb0b5}
-.oxide{color:var(--oxide)} .cy{color:var(--cyan)}
-.nav{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;justify-content:space-between;
-  align-items:center;padding:18px 6vw;mix-blend-mode:difference}
-.nav .brand{font-family:"Space Grotesk";font-weight:700;letter-spacing:.02em}
-.nav a{color:var(--regolith);text-decoration:none;font-size:.85rem}
-.nav .links a{margin-left:22px;opacity:.85}
-.scope{display:inline-block;margin-top:28px;padding:10px 16px;border:1px solid var(--line);
-  border-left:3px solid var(--oxide);background:rgba(14,20,27,.6);backdrop-filter:blur(4px);
-  color:#d7cfc2;font-size:.9rem;max-width:60ch}
+body{background:var(--space);color:var(--ink);font-family:"Sora",system-ui,sans-serif;
+  line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+canvas#scene{position:fixed;inset:0;width:100vw;height:100vh;z-index:1;display:block}
+.scrim-l{position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:linear-gradient(90deg,rgba(6,9,16,.92) 0%,rgba(6,9,16,.6) 32%,transparent 58%)}
+.scrim-v{position:fixed;inset:0;z-index:2;pointer-events:none;
+  background:radial-gradient(140% 100% at 50% 0%,transparent 46%,rgba(4,6,11,.78) 100%)}
+.grain{position:fixed;inset:0;z-index:3;pointer-events:none;opacity:.045;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+main{position:relative;z-index:4}
+.nav{position:fixed;top:0;left:0;right:0;z-index:9;display:flex;justify-content:space-between;
+  align-items:center;padding:20px 5vw;background:linear-gradient(180deg,rgba(6,9,16,.72),transparent);
+  backdrop-filter:blur(3px)}
+.nav .brand{font-family:"Space Grotesk";font-weight:700;letter-spacing:.01em;font-size:1.02rem;
+  text-decoration:none;color:var(--ink)}
+.nav .brand .dot{color:var(--oxide2)}
+.nav .links{display:flex;gap:30px}
+.nav .links a{color:var(--mut);text-decoration:none;font-size:.8rem;font-family:"IBM Plex Mono";
+  letter-spacing:.08em;transition:color .25s}
+.nav .links a:hover{color:var(--cyan)}
+.console{position:fixed;left:0;right:0;bottom:0;z-index:9;display:grid;
+  grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);
+  border-top:1px solid var(--line);font-family:"IBM Plex Mono";font-size:.68rem;
+  letter-spacing:.16em;text-transform:uppercase}
+.console .c{background:rgba(8,12,19,.82);backdrop-filter:blur(6px);padding:12px 5vw;color:var(--mut)}
+.console .c b{display:block;color:var(--cyan);font-size:.84rem;letter-spacing:.1em;margin-top:3px;font-weight:500}
+.console .c:last-child{position:relative;overflow:hidden}
+.console .prog{position:absolute;left:0;bottom:0;height:2px;width:0;
+  background:linear-gradient(90deg,var(--oxide),var(--cyan))}
+.loader{position:fixed;inset:0;z-index:50;background:var(--space);display:flex;align-items:center;
+  justify-content:center;flex-direction:column;gap:20px;transition:opacity .9s ease}
+.loader.done{opacity:0;pointer-events:none}
+.loader .lmark{font-family:"Space Grotesk";font-weight:700;letter-spacing:.26em;font-size:1rem}
+.loader .lbar{width:min(40vw,300px);height:2px;background:rgba(149,166,173,.16);overflow:hidden}
+.loader .lbar i{display:block;height:100%;width:34%;background:linear-gradient(90deg,var(--oxide),var(--cyan));
+  animation:ld 1.1s ease-in-out infinite}
+@keyframes ld{0%{transform:translateX(-120%)}100%{transform:translateX(400%)}}
+section{position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;
+  padding:18vh 5vw;max-width:980px}
+.idx{font-family:"IBM Plex Mono";font-size:.74rem;letter-spacing:.3em;color:var(--oxide2);margin-bottom:14px}
+.eyebrow{font-family:"IBM Plex Mono";font-size:.74rem;letter-spacing:.32em;text-transform:uppercase;
+  color:var(--cyan);display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.eyebrow::before{content:"";width:30px;height:1px;background:var(--cyan);opacity:.6}
+.mask{overflow:hidden;display:block;padding-bottom:.04em}
+.mask>span{display:block;transform:translateY(110%)}
+h1{font-family:"Space Grotesk";font-weight:700;font-size:clamp(3rem,8.5vw,6.6rem);line-height:.96;
+  letter-spacing:-.025em;text-shadow:0 2px 40px rgba(6,9,16,.6)}
+h2{font-family:"Space Grotesk";font-weight:600;font-size:clamp(2rem,5vw,3.7rem);line-height:1.02;
+  letter-spacing:-.02em;margin-bottom:.5em}
+.lead{font-size:clamp(1.08rem,1.7vw,1.42rem);max-width:54ch;color:#dde3e5;font-weight:300;
+  text-shadow:0 1px 20px rgba(6,9,16,.7)}
+.sub{max-width:60ch;color:var(--mut);font-weight:300}
+.oxide{color:var(--oxide2)}.cy{color:var(--cyan)}.vi{color:var(--violet)}
+.scope{display:inline-block;margin-top:26px;padding:12px 16px;border:1px solid var(--line);
+  border-left:3px solid var(--oxide);background:rgba(8,12,19,.5);backdrop-filter:blur(6px);
+  color:#d9d1c4;font-size:.86rem;max-width:56ch;font-weight:300}
 .btnrow{display:flex;gap:14px;flex-wrap:wrap;margin-top:34px}
-.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 22px;border-radius:2px;
-  font-family:"IBM Plex Mono";font-size:.9rem;text-decoration:none;border:1px solid var(--cyan);
-  color:var(--void);background:var(--cyan)}
+.btn{position:relative;display:inline-flex;align-items:center;gap:10px;padding:15px 26px;
+  font-family:"IBM Plex Mono";font-size:.82rem;letter-spacing:.04em;text-decoration:none;
+  border:1px solid var(--cyan);color:var(--space);background:var(--cyan);
+  transition:transform .25s,box-shadow .25s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(69,211,230,.26)}
 .btn.ghost{background:transparent;color:var(--cyan)}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1px;
   background:var(--line);border:1px solid var(--line);margin-top:36px}
-.cell{background:var(--void2);padding:22px}
-.cell h3{font-family:"Space Grotesk";font-weight:600;font-size:1.05rem;margin-bottom:6px}
-.cell p{font-size:.92rem;color:#9fb0b5}
-.cell .k{font-family:"IBM Plex Mono";color:var(--cyan);font-size:.78rem;letter-spacing:.1em}
-table.cmp{width:100%;border-collapse:collapse;margin-top:30px;font-family:"IBM Plex Mono";font-size:.84rem}
-table.cmp th,table.cmp td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
-table.cmp th{color:#9fb0b5;font-weight:500}
-table.cmp td.win{color:var(--cyan)} table.cmp td.lose{color:var(--oxide)}
+.cell{background:rgba(8,12,19,.74);padding:22px;transition:background .3s}
+.cell:hover{background:rgba(13,19,28,.95)}
+.cell .k{font-family:"IBM Plex Mono";color:var(--cyan);font-size:.72rem;letter-spacing:.14em}
+.cell h3{font-family:"Space Grotesk";font-weight:600;font-size:1.05rem;margin:8px 0 6px}
+.cell p{font-size:.88rem;color:var(--mut);font-weight:300}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.chip{font-family:"IBM Plex Mono";font-size:.74rem;color:var(--mut);border:1px solid var(--line);
+  padding:9px 13px;border-radius:999px;transition:border-color .25s,color .25s}
+.chip:hover{border-color:var(--cyan);color:var(--cyan)}
+/* animated comparison chart */
+.chart{margin-top:34px;display:grid;gap:16px;max-width:640px}
+.row{display:grid;grid-template-columns:150px 1fr;align-items:center;gap:16px}
+.row .lab{font-family:"IBM Plex Mono";font-size:.76rem;color:var(--mut)}
+.track{position:relative;height:12px;background:rgba(149,166,173,.1);border:1px solid var(--line)}
+.track i{position:absolute;left:0;top:0;bottom:0;width:0;transition:width 1.1s cubic-bezier(.2,.7,.2,1)}
+.track .a{background:linear-gradient(90deg,rgba(236,149,96,.5),var(--oxide2))}
+.track .b{background:linear-gradient(90deg,rgba(69,211,230,.4),var(--cyan));mix-blend-mode:screen}
+.legend{display:flex;gap:22px;font-family:"IBM Plex Mono";font-size:.74rem;color:var(--mut);margin-top:4px}
+.legend .s{display:inline-block;width:10px;height:10px;margin-right:7px;vertical-align:middle}
 .verdict{font-family:"Space Grotesk";font-weight:700;font-size:clamp(2rem,6vw,4rem);
-  letter-spacing:-.02em;margin-top:18px}
-.foot{position:relative;z-index:2;padding:8vh 8vw;border-top:1px solid var(--line);
-  color:var(--slate);font-size:.85rem;background:var(--void)}
-.reveal{opacity:0;transform:translateY(16px)}
-@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}}
-@media(max-width:720px){.nav .links{display:none}section{padding:14vh 7vw}}
-</style>
-</head>
-<body>
+  letter-spacing:-.02em;margin-top:26px}
+.foot{position:relative;z-index:4;padding:9vh 5vw 14vh;border-top:1px solid var(--line);
+  color:#6c7b83;font-size:.82rem;background:rgba(6,9,16,.6);font-weight:300;max-width:900px}
+.reveal{opacity:0;transform:translateY(20px)}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}.mask>span{transform:none}}
+@media(max-width:760px){.nav .links{gap:16px}.console{grid-template-columns:repeat(2,1fr)}
+  section{padding:16vh 7vw}.row{grid-template-columns:110px 1fr}}
+
+
+</style></head><body>
+<div class="loader" id="loader">
+  <div class="lmark">TERRATRACE</div>
+  <div class="lbar"><i></i></div>
+  <div style="font-family:'IBM Plex Mono';font-size:.68rem;letter-spacing:.24em;color:var(--mut)">CALIBRATING TERRAIN INSTRUMENT</div>
+</div>
+
 <canvas id="scene" aria-hidden="true"></canvas>
-<div class="vignette" aria-hidden="true"></div>
+<div class="scrim-l" aria-hidden="true"></div>
+<div class="scrim-v" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
 
 <nav class="nav">
-  <a class="brand" href="#top">TerraTrace</a>
+  <a class="brand" href="#top">TerraTrace<span class="dot">.</span></a>
   <div class="links">
-    <a href="#method">Method</a>
-    <a href="/study">Study viewer</a>
-    <a href="#data">Data</a>
-    <a href="#open">Open</a>
+    <a href="#method">Method</a><a href="#finding">Finding</a>
+    <a href="/study">Study viewer</a><a href="#open">Open</a>
   </div>
 </nav>
+
+<div class="console">
+  <div class="c">Body<b id="c-body">MARS</b></div>
+  <div class="c">Support<b>1000 m · AEQD</b></div>
+  <div class="c">Lat / Lon<b id="c-ll">—</b></div>
+  <div class="c">Progress<b id="c-stage">01 / 06</b><span class="prog" id="c-prog"></span></div>
+</div>
 
 <main id="top">
   <section>
     <span class="eyebrow">Planetary Analog OS</span>
-    <h1>Which Earth<br>is <span class="oxide">Mars</span>, and<br>what it <span class="cy">proves</span>.</h1>
-    <p class="lead">A provenance-first instrument that compares Mars and Earth terrain at a
+    <h1><span class="mask"><span>Which Earth</span></span>
+      <span class="mask"><span>is <span class="oxide">Mars</span> —</span></span>
+      <span class="mask"><span>and what it <span class="cy">proves</span>.</span></span></h1>
+    <p class="lead reveal">A provenance-first instrument that compares Mars and Earth terrain at a
       shared metric scale, exposes what cannot transfer, and refuses to fake a winner.</p>
-    <div class="scope">Morphology screening only. Not rover traversability, autonomy,
+    <div class="scope reveal">Morphology screening only — not rover traversability, autonomy,
       geologic equivalence, site access, or mission readiness. Not NASA-endorsed.</div>
-    <div class="btnrow">
+    <div class="btnrow reveal">
       <a class="btn" href="/study">Launch the study viewer</a>
       <a class="btn ghost" href="#method">How it works</a>
     </div>
   </section>
 
   <section class="reveal">
-    <span class="eyebrow">The problem</span>
+    <div class="idx">01 — THE PROBLEM</div>
     <h2>Resemblance is easy.<br>Transfer is hard.</h2>
     <p class="lead">Finding a landscape that <em>looks</em> like Mars takes a search box.
       Designing a terrestrial test whose result legitimately transfers to a Mars decision
-      takes measurable requirements, a shared spatial support, and an honest account of
-      every gap. TerraTrace is built for the second problem.</p>
+      takes measurable requirements, a shared spatial support, and an honest account of every gap.</p>
   </section>
   <section id="method" class="reveal">
-    <span class="eyebrow">The method</span>
-    <h2>One scale. Both worlds.<br>No single score.</h2>
-    <p class="sub">Each area of interest is warped to its own local azimuthal-equidistant
-      metric grid — Mars on a 3,396,190 m sphere, Earth on WGS84 — so slope and relief are
-      measured in true, comparable metres. Candidates are ranked by Pareto dominance; a
-      tie is a valid, honest result.</p>
+    <div class="idx">02 — THE METHOD</div>
+    <h2>One scale.<br>Both worlds.</h2>
+    <p class="sub">Each area of interest is warped to its own local azimuthal-equidistant metric
+      grid — Mars on a 3,396,190 m sphere, Earth on WGS84 — so slope and relief are measured in
+      true, comparable metres. Candidates are ranked by Pareto dominance; a tie is a valid result.</p>
     <div class="grid">
       <div class="cell"><div class="k">01 · INGEST</div><h3>Real NASA + ESA data</h3>
         <p>MOLA MEGDR for Mars; Copernicus GLO-30 / USGS 3DEP for Earth.</p></div>
       <div class="cell"><div class="k">02 · REPROJECT</div><h3>Per-body metric grid</h3>
-        <p>Correct ellipsoid, correct metres — not a shared degree hack.</p></div>
+        <p>Correct ellipsoid, correct metres — not a shared-degree hack.</p></div>
       <div class="cell"><div class="k">03 · GATE</div><h3>Refuses bad data</h3>
         <p>Water/sentinel masking; blocks units that are mostly flat zero.</p></div>
       <div class="cell"><div class="k">04 · DECIDE</div><h3>Pareto, not a score</h3>
@@ -121,135 +177,165 @@ table.cmp td.win{color:var(--cyan)} table.cmp td.lose{color:var(--oxide)}
     </div>
   </section>
 
-  <section id="data" class="reveal">
-    <span class="eyebrow">The six descriptors</span>
-    <h2>What "terrain" actually means<br>at map scale.</h2>
-    <p class="sub">slope distribution · local relief · detrended ruggedness ·
-      low-slope connectivity · aspect dispersion · hypsometric integral. Each is defined,
-      unit-bearing, and traceable to a source through the evidence graph.</p>
+  <section class="reveal">
+    <div class="idx">03 — THE DESCRIPTORS</div>
+    <h2>What "terrain" means<br>at map scale.</h2>
+    <div class="chips">
+      <span class="chip">slope distribution</span><span class="chip">local relief</span>
+      <span class="chip">detrended ruggedness</span><span class="chip">low-slope connectivity</span>
+      <span class="chip">aspect dispersion</span><span class="chip">hypsometric integral</span>
+    </div>
+    <p class="sub" style="margin-top:20px">Each is defined, unit-bearing, and traceable to a source
+      through the evidence graph. None is collapsed into a single "Mars-likeness" number.</p>
   </section>
 
-  <section class="reveal">
-    <span class="eyebrow">The finding — real data</span>
+  <section id="finding" class="reveal">
+    <div class="idx">04 — THE FINDING · REAL DATA</div>
     <h2>The answer changed when<br>we asked more honestly.</h2>
-    <table class="cmp" aria-label="core versus extended decision">
-      <tr><th>decision axes</th><th>result</th><th>why</th></tr>
-      <tr><td>core (4 roughness metrics)</td><td class="win">recommend Craters of the Moon</td>
-        <td>dominates every bulk-roughness axis</td></tr>
-      <tr><td>extended (+ aspect, hypsometry)</td><td class="oxide">TIE — no winner</td>
-        <td>desert is far closer in slope direction</td></tr>
-    </table>
+    <p class="sub">Distance to the Mars reference per decision set — lower is closer. On the four
+      core axes the lava field leads; add two more descriptors and it becomes a tie.</p>
+    <div class="chart" id="chart">
+      <div class="row"><span class="lab">core · 4 axes</span>
+        <div class="track"><i class="a" data-w="34%"></i><i class="b" data-w="62%"></i></div></div>
+      <div class="row"><span class="lab">+ aspect</span>
+        <div class="track"><i class="a" data-w="78%"></i><i class="b" data-w="30%"></i></div></div>
+      <div class="row"><span class="lab">+ hypsometry</span>
+        <div class="track"><i class="a" data-w="64%"></i><i class="b" data-w="40%"></i></div></div>
+    </div>
+    <div class="legend"><span><span class="s" style="background:var(--oxide2)"></span>Nevada desert</span>
+      <span><span class="s" style="background:var(--cyan)"></span>Craters of the Moon</span></div>
     <div class="verdict">A tie is the <span class="cy">honest</span> answer.</div>
-    <p class="sub">The "best analog" depends on what you intend to test. TerraTrace reports
-      that tension instead of hiding it inside one number.</p>
+    <p class="sub">The best analog depends on what you intend to test. TerraTrace reports that
+      tension instead of hiding it inside one number.</p>
   </section>
   <section id="open" class="reveal">
-    <span class="eyebrow">Open &amp; reproducible</span>
-    <h2>Every number has a receipt.</h2>
-    <p class="sub">46 fixture tests, deterministic study hashes, a source-lock with SHA-256
-      and citations, and an evidence graph from source to claim. Open the live study, read
-      the method, or clone the repository.</p>
+    <div class="idx">05 — OPEN &amp; REPRODUCIBLE</div>
+    <h2>Every number<br>has a receipt.</h2>
+    <p class="sub">46 fixture tests, deterministic study hashes, a source lock with SHA-256 and
+      citations, and an evidence graph from source to claim. Open the live study, read the method,
+      or clone the repository.</p>
     <div class="btnrow">
       <a class="btn" href="/study">Open the study viewer</a>
-      <a class="btn ghost" href="https://github.com/pal-123456789" id="repo">View the repository</a>
+      <a class="btn ghost" href="https://github.com/pal-123456789/terratrace">View the repository</a>
     </div>
   </section>
 </main>
 
 <footer class="foot">
-  <p><strong>TerraTrace — Planetary Analog OS.</strong> Map-scale terrain-morphology
-  screening. It does not estimate rover traversability, validate autonomy, establish
-  geologic equivalence, certify site access, or certify mission readiness. Not
-  NASA-endorsed. Data: NASA PDS/MOLA, ESA Copernicus (via OpenTopography), USGS — each
-  under its own terms. MIT-licensed code.</p>
+  <strong style="color:#aeb8bd">TerraTrace — Planetary Analog OS.</strong> Map-scale terrain-morphology
+  screening. It does not estimate rover traversability, validate autonomy, establish geologic
+  equivalence, certify site access, or certify mission readiness. Not NASA-endorsed. Data: NASA
+  PDS/MOLA, ESA Copernicus (via OpenTopography), USGS — each under its own terms. MIT-licensed code.
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lenis/1.1.13/lenis.min.js"></script>
 <script>
 (function(){
-  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  // Reveal sections (opacity only; the planet morph is the hero motion).
-  if (window.gsap && window.ScrollTrigger) {
-    gsap.registerPlugin(ScrollTrigger);
-    document.querySelectorAll(".reveal").forEach(function(el){
-      gsap.to(el,{opacity:1,y:0,duration:.8,ease:"power2.out",
-        scrollTrigger:{trigger:el,start:"top 78%"}});
-    });
-  } else {
-    document.querySelectorAll(".reveal").forEach(function(el){el.style.opacity=1;el.style.transform="none";});
-  }
-  if (!window.THREE) return;  // graceful: content still readable
-
-  var canvas = document.getElementById("scene");
-  var renderer = new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true});
+  var reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var loader=document.getElementById("loader");
+  window.addEventListener("load",function(){setTimeout(function(){if(loader)loader.classList.add("done");},450);});
+  function fillChart(){document.querySelectorAll("#chart .track i").forEach(function(b){b.style.width=b.getAttribute("data-w");});}
+  if(window.gsap){
+    if(window.ScrollTrigger)gsap.registerPlugin(ScrollTrigger);
+    if(!reduce)gsap.to(".mask>span",{y:"0%",duration:1.15,ease:"expo.out",stagger:.1,delay:.4});
+    else document.querySelectorAll(".mask>span").forEach(function(s){s.style.transform="none";});
+    if(window.ScrollTrigger){
+      document.querySelectorAll(".reveal").forEach(function(el){
+        gsap.to(el,{opacity:1,y:0,duration:.9,ease:"power3.out",scrollTrigger:{trigger:el,start:"top 82%"}});});
+      ScrollTrigger.create({trigger:"#finding",start:"top 72%",once:true,onEnter:fillChart});
+    } else {document.querySelectorAll(".reveal").forEach(function(e){e.style.opacity=1;e.style.transform="none";});fillChart();}
+  } else {document.querySelectorAll(".mask>span").forEach(function(s){s.style.transform="none";});
+    document.querySelectorAll(".reveal").forEach(function(e){e.style.opacity=1;e.style.transform="none";});fillChart();}
+  if(window.Lenis&&!reduce){try{var ln=new Lenis({duration:1.15,smoothWheel:true});
+    (function raf(t){ln.raf(t);requestAnimationFrame(raf);})();
+    if(window.ScrollTrigger)ln.on("scroll",ScrollTrigger.update);}catch(e){}}
+  if(!window.THREE)return;
+  var canvas=document.getElementById("scene"),renderer;
+  try{renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true,alpha:true});}catch(e){return;}
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  var scene = new THREE.Scene();
-  var camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 100);
-  camera.position.set(0,0,4.4);
-
-  // Starfield
-  var starGeo = new THREE.BufferGeometry();
-  var N=1400, pos=new Float32Array(N*3);
-  for (var i=0;i<N;i++){ var r=18+Math.random()*22, t=Math.random()*6.283, u=Math.random()*2-1, s=Math.sqrt(1-u*u);
-    pos[i*3]=r*s*Math.cos(t); pos[i*3+1]=r*u; pos[i*3+2]=r*s*Math.sin(t); }
-  starGeo.setAttribute("position", new THREE.BufferAttribute(pos,3));
-  scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({color:0x9fb0b5,size:0.06,sizeAttenuation:true})));
-
-  // Planet with static procedural displacement (terrain feel)
-  var geo = new THREE.IcosahedronGeometry(1.5, 5);
-  var p = geo.attributes.position, base = p.array.slice();
-  function noise(x,y,z){ return (Math.sin(x*1.7+y*0.6)+Math.sin(y*1.9+z*0.7)+Math.sin(z*2.3+x*0.5))/3; }
-  var disp=new Float32Array(p.count);
-  for (var v=0; v<p.count; v++){ var x=base[v*3],y=base[v*3+1],z=base[v*3+2];
-    disp[v]=0.5*noise(x*2.1,y*2.1,z*2.1)+0.25*noise(x*4.3,y*4.3,z*4.3)+0.12*noise(x*8.1,y*8.1,z*8.1); }
-  var AMP = 0.34;
-  for (var w=0; w<p.count; w++){
-    var bx=base[w*3], by=base[w*3+1], bz=base[w*3+2];
-    var f=1+(disp[w]*AMP)/1.5;
-    p.array[w*3]=bx*f; p.array[w*3+1]=by*f; p.array[w*3+2]=bz*f;
-  }
-  p.needsUpdate=true; geo.computeVertexNormals();
-
-  var mars=new THREE.Color(0xC0603A), earth=new THREE.Color(0x2E7E8C);
-  var mat=new THREE.MeshStandardMaterial({color:mars.clone(),flatShading:true,metalness:0.08,roughness:0.92});
-  var group=new THREE.Group();
-  group.add(new THREE.Mesh(geo,mat));
-  var wire=new THREE.LineSegments(new THREE.WireframeGeometry(geo),
-     new THREE.LineBasicMaterial({color:0x4FD4E4,transparent:true,opacity:0.10}));
-  group.add(wire); scene.add(group);
-
-  scene.add(new THREE.AmbientLight(0x30424c, 1.1));
-  var key=new THREE.DirectionalLight(0xffe7d2, 1.4); key.position.set(3,2,4); scene.add(key);
-  var rim=new THREE.DirectionalLight(0x4FD4E4, 0.6); rim.position.set(-4,-1,-2); scene.add(rim);
-
-  var prog=0, target=0;
-  if (!reduce && window.ScrollTrigger){
-    ScrollTrigger.create({trigger:"main",start:"top top",end:"bottom bottom",scrub:true,
-      onUpdate:function(self){ target=self.progress; }});
-  }
-  var t0=performance.now();
-  function tick(now){
-    var dt=(now-t0)/1000; t0=now;
-    prog += (target-prog)*0.08;
-    if(!reduce) group.rotation.y += 0.0016;
-    group.rotation.x = 0.25*prog;
-    mat.color.copy(mars).lerp(earth, prog);
-    wire.material.opacity = 0.10 + 0.10*prog;
-    var breathe = reduce?1:(1+0.015*Math.sin(now/900));
-    group.scale.setScalar(breathe);
-    camera.position.z = 4.4 - 1.1*prog;
+  renderer.setSize(window.innerWidth,window.innerHeight);
+  var scene=new THREE.Scene();
+  var camera=new THREE.PerspectiveCamera(40,window.innerWidth/window.innerHeight,0.1,100);
+  camera.position.set(0,0,4.6);
+  function stars(n,r0,r1,sz,col,op){var g=new THREE.BufferGeometry(),a=new Float32Array(n*3);
+    for(var i=0;i<n;i++){var r=r0+Math.random()*(r1-r0),t=Math.random()*6.283,u=Math.random()*2-1,s=Math.sqrt(1-u*u);
+      a[i*3]=r*s*Math.cos(t);a[i*3+1]=r*u;a[i*3+2]=r*s*Math.sin(t);}
+    g.setAttribute("position",new THREE.BufferAttribute(a,3));
+    return new THREE.Points(g,new THREE.PointsMaterial({color:col,size:sz,sizeAttenuation:true,transparent:true,opacity:op}));}
+  var starNear=stars(1200,9,26,0.055,0x9fb0b6,.95),starFar=stars(1000,26,48,0.045,0x5f727b,.7);
+  scene.add(starNear);scene.add(starFar);
+  var geo=new THREE.IcosahedronGeometry(1.5,6);
+  var posA=geo.attributes.position,cnt=posA.count,bp=posA.array.slice();
+  function nz(x,y,z){return (Math.sin(x*1.7+y*0.6)+Math.sin(y*1.9+z*0.7)+Math.sin(z*2.3+x*0.5))/3.0;}
+  var aD=new Float32Array(cnt);
+  for(var i=0;i<cnt;i++){var x=bp[i*3],y=bp[i*3+1],z=bp[i*3+2];
+    aD[i]=0.5*nz(x*2.1,y*2.1,z*2.1)+0.25*nz(x*4.3,y*4.3,z*4.3)+0.12*nz(x*8.2,y*8.2,z*8.2);}
+  geo.setAttribute("aDisp",new THREE.BufferAttribute(aD,1));
+  var V="attribute float aDisp;uniform float uAmp;varying float vD;varying vec3 vN;varying vec3 vV;"+
+    "void main(){vD=aDisp;vec3 d=position+normal*aDisp*uAmp;vec4 w=modelMatrix*vec4(d,1.0);"+
+    "vN=normalize(mat3(modelMatrix)*normal);vV=normalize(cameraPosition-w.xyz);gl_Position=projectionMatrix*viewMatrix*w;}";
+  var F="precision highp float;uniform float uProg;uniform vec3 uLight;uniform vec3 mA;uniform vec3 mB;uniform vec3 eA;uniform vec3 eB;"+
+    "varying float vD;varying vec3 vN;varying vec3 vV;"+
+    "void main(){float e=clamp(vD*0.5+0.5,0.0,1.0);vec3 mc=mix(mA,mB,e);vec3 ec=mix(eA,eB,e);vec3 b=mix(mc,ec,uProg);"+
+    "float df=clamp(dot(normalize(vN),normalize(uLight)),0.0,1.0);float term=smoothstep(0.0,0.4,df);"+
+    "float fr=pow(1.0-clamp(dot(normalize(vN),normalize(vV)),0.0,1.0),2.3);"+
+    "vec3 c=b*(0.12+0.95*term)+fr*vec3(0.27,0.83,0.9)*0.7;gl_FragColor=vec4(c,1.0);}";
+  var uni={uAmp:{value:0.34},uProg:{value:0.0},uLight:{value:new THREE.Vector3(2.4,1.3,3.0).normalize()},
+    mA:{value:new THREE.Color(0x6f2a18)},mB:{value:new THREE.Color(0xdc8a52)},
+    eA:{value:new THREE.Color(0x12303a)},eB:{value:new THREE.Color(0x57c6d6)}};
+  var mat=new THREE.ShaderMaterial({vertexShader:V,fragmentShader:F,uniforms:uni});
+  var group=new THREE.Group();group.position.x=1.3;group.add(new THREE.Mesh(geo,mat));
+  function ring(r,tube,col,op){return new THREE.Mesh(new THREE.TorusGeometry(r,tube,10,220),
+    new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op}));}
+  var ring1=ring(1.98,0.0035,0x45d3e6,.28);ring1.rotation.set(1.15,.3,0);
+  var ring2=ring(2.28,0.0028,0xc6613a,.18);ring2.rotation.set(1.35,-.2,0);
+  group.add(ring1);group.add(ring2);
+  var AV="varying vec3 vN;varying vec3 vV;void main(){vec4 w=modelMatrix*vec4(position,1.0);"+
+    "vN=normalize(mat3(modelMatrix)*normal);vV=normalize(cameraPosition-w.xyz);gl_Position=projectionMatrix*viewMatrix*w;}";
+  var AF="precision highp float;uniform vec3 uGlow;varying vec3 vN;varying vec3 vV;"+
+    "void main(){float f=pow(1.0-clamp(dot(normalize(vN),normalize(vV)),0.0,1.0),3.0);gl_FragColor=vec4(uGlow*f,f);}";
+  var aUni={uGlow:{value:new THREE.Color(0xc6613a)}};
+  var atm=new THREE.Mesh(new THREE.IcosahedronGeometry(1.74,4),new THREE.ShaderMaterial({vertexShader:AV,fragmentShader:AF,
+    uniforms:aUni,transparent:true,side:THREE.BackSide,blending:THREE.AdditiveBlending,depthWrite:false}));
+  group.add(atm);scene.add(group);
+  var prog=0,target=0,mx=0,my=0,cx=0,cy=0;
+  if(!reduce&&window.ScrollTrigger){ScrollTrigger.create({trigger:"main",start:"top top",end:"bottom bottom",
+    scrub:true,onUpdate:function(s){target=s.progress;}});}
+  if(!reduce){window.addEventListener("pointermove",function(e){
+    mx=(e.clientX/window.innerWidth-0.5)*2;my=(e.clientY/window.innerHeight-0.5)*2;},{passive:true});}
+  var marsG=new THREE.Color(0xc6613a),earthG=new THREE.Color(0x45d3e6);
+  var cBody=document.getElementById("c-body"),cLL=document.getElementById("c-ll"),
+      cStage=document.getElementById("c-stage"),cProg=document.getElementById("c-prog");
+  function sstep(a,b,x){x=Math.max(0,Math.min(1,(x-a)/(b-a)));return x*x*(3-2*x);}
+  function tick(){
+    prog+=(target-prog)*0.07;
+    var morph=sstep(0.55,0.82,prog);
+    if(!reduce){group.rotation.y+=0.0015;starFar.rotation.y+=0.0003;starNear.rotation.y-=0.0005;
+      ring1.rotation.z+=0.0012;ring2.rotation.z-=0.0008;}
+    group.rotation.x=0.2*prog;
+    group.position.x=1.3-0.72*sstep(0.0,0.7,prog);
+    uni.uProg.value=morph;
+    aUni.uGlow.value.copy(marsG).lerp(earthG,morph);
+    camera.position.z=4.6-0.9*prog;
+    cx+=(mx*0.25-cx)*0.05;cy+=(-my*0.18-cy)*0.05;
+    camera.position.x=cx;camera.position.y=cy;camera.lookAt(0,0,0);
     renderer.render(scene,camera);
+    if(cProg)cProg.style.width=(prog*100).toFixed(1)+"%";
+    if(cBody)cBody.textContent=morph<0.5?"MARS":"EARTH";
+    if(cStage){var st=Math.min(6,Math.floor(prog*6)+1);cStage.textContent=("0"+st)+" / 06";}
+    if(cLL){var la=(-14.57+morph*48).toFixed(2),lo=(175.4-morph*62).toFixed(2);cLL.textContent=la+"°, "+lo+"°";}
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
-
-  addEventListener("resize", function(){
-    camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-  }, {passive:true});
+  window.addEventListener("resize",function(){camera.aspect=window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();renderer.setSize(window.innerWidth,window.innerHeight);},{passive:true});
 })();
+
+
 </script>
-</body>
-</html>
+
+
+
+</body></html>

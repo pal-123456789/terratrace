@@ -1,5 +1,9 @@
-# Large source DEMs (multi-GB) — never commit; regenerate with scripts/fetch_real_dems.py
-terratrace/data/
+# The GLOBAL MOLA DEM (~2 GB) exceeds GitHub's 100 MB per-file limit — never commit it.
+# Regenerate it with terratrace/scripts/fetch guidance, or crop a small committable
+# sample with terratrace/scripts/make_mars_sample.py (committed as mola_sample*.tif).
+terratrace/data/mars/mola_463m.tif
+# Safety net: ignore any single raster that is very large.
+terratrace/data/**/*_full.tif
 
 # Python caches and environments
 __pycache__/
