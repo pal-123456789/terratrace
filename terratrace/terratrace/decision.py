@@ -8,6 +8,7 @@ recommendation only when it survives every declared sensitivity scenario.
 from __future__ import annotations
 
 from itertools import combinations
+import math
 
 STATES = ("RECOMMEND_FOLLOW_UP", "TIE", "INDETERMINATE", "NOT_COMPARABLE", "BLOCKED")
 
@@ -46,8 +47,12 @@ def dominates(a, b):
 
 
 def non_dominated(vectors):
-    """vectors: dict unit_id -> tuple of metric distances. Returns a set."""
-    units = list(vectors)
+    """vectors: dict unit_id -> tuple of metric distances. Returns a set.
+
+    Units with any non-finite distance are excluded (a NaN must not silently
+    collapse the result to a tie by making every comparison False).
+    """
+    units = [u for u in vectors if all(math.isfinite(x) for x in vectors[u])]
     nd = set(units)
     for i, j in combinations(units, 2):
         if dominates(vectors[i], vectors[j]):
@@ -58,21 +63,26 @@ def non_dominated(vectors):
 
 
 def pairwise_flip_matrix(scenarios):
-    """scenarios: list of dict unit->vector. Returns flip fraction per pair.
+    """scenarios: list of dict unit->vector; scenarios[0] is the baseline.
 
-    A flip is a change in the sign of (d_i - d_j) on any metric relative to
-    the first (baseline) scenario.
+    Flip fraction per pair = fraction of NON-baseline scenarios in which the
+    sign of (d_i - d_j) on any metric differs from the baseline. The baseline
+    is the reference, so it is excluded from the denominator.
     """
-    if not scenarios:
+    if not scenarios or len(scenarios) < 2:
         return {}
     units = list(scenarios[0])
     base = scenarios[0]
+    others = scenarios[1:]
     flips = {}
     for i, j in combinations(units, 2):
+        if i not in base or j not in base:
+            continue
         n_metrics = len(base[i])
-        changed = 0
-        comparisons = 0
-        for s in scenarios:
+        changed = comparisons = 0
+        for s in others:
+            if i not in s or j not in s:
+                continue
             for r in range(n_metrics):
                 base_sign = _sign(base[i][r] - base[j][r])
                 cur_sign = _sign(s[i][r] - s[j][r])

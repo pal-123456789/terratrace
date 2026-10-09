@@ -1,4 +1,4 @@
-"""Equal-area reprojection to a local metric grid.
+"""Local metric (azimuthal-equidistant) reprojection to a common support.
 
 Mars MOLA and Earth Copernicus/USGS DEMs live in different coordinate
 systems on different bodies (Mars sphere R=3,396,190 m vs Earth WGS84).
@@ -7,8 +7,10 @@ one dx across bodies, is wrong because degree spacing varies with latitude
 and body radius.
 
 This module warps each AOI onto its own **local azimuthal-equidistant**
-metric grid at a chosen resolution, using the correct body. Feature
-statistics are then computed on true metres.
+metric grid at a chosen resolution, using the correct body, and area-averages
+when downsampling (so coarse support is a true average, not an aliased point
+sample). Distances are true from the AOI centre; scale distorts outward, so
+prefer bounded AOIs. Feature statistics are then computed on true metres.
 
 The warp needs rasterio+GDAL (optional). The pure helpers below
 (CRS strings, centroid, grid sizing) are dependency-free and unit-tested.
@@ -43,9 +45,20 @@ def local_aeqd(lat0, lon0, body):
 
 
 def centroid(bbox):
-    """Centre (lon0, lat0) of a (west, south, east, north) degree bbox."""
+    """Centre (lon0, lat0) of a (west, south, east, north) degree bbox.
+
+    Antimeridian-aware: if the box crosses +/-180 (west > east) the centre
+    longitude is computed on the wrapped interval.
+    """
     west, south, east, north = bbox
-    return (0.5 * (west + east), 0.5 * (south + north))
+    lat0 = 0.5 * (south + north)
+    if west <= east:
+        lon0 = 0.5 * (west + east)
+    else:                                   # crosses the antimeridian
+        lon0 = (0.5 * (west + east + 360.0)) % 360.0
+        if lon0 > 180.0:
+            lon0 -= 360.0
+    return (lon0, lat0)
 
 
 def grid_size(xmin, ymin, xmax, ymax, resolution_m):
@@ -57,15 +70,16 @@ def grid_size(xmin, ymin, xmax, ymax, resolution_m):
     return width, height
 
 
-def read_aoi_metric(path, bbox_lonlat, resolution_m, body, resampling="bilinear",
+def read_aoi_metric(path, bbox_lonlat, resolution_m, body, resampling="average",
                     mask_below=None, mask_values=None, mask_above=None):
     """Read a DEM AOI and warp it to a local metric grid.
 
     bbox_lonlat = (west, south, east, north) in degrees on the body.
-    Optional masks (applied in the source CRS before warping) convert
-    sentinels such as Copernicus 0 m ocean to NaN so flat water does not
-    contaminate morphology. Returns (elevation_array_with_nan, resolution_m).
-    Requires rasterio.
+    `resampling` defaults to area-weighted "average" so downsampling to a coarse
+    common support is a true average, not an aliased point sample. Optional masks
+    (applied in the source CRS before warping) convert sentinels such as
+    Copernicus 0 m ocean to NaN so flat water does not contaminate morphology.
+    Returns (elevation_array_with_nan, resolution_m). Requires rasterio.
     """
     import numpy as np
     from . import masks as _masks
@@ -95,7 +109,7 @@ def read_aoi_metric(path, bbox_lonlat, resolution_m, body, resampling="bilinear"
                                      mask_values=mask_values, mask_above=mask_above)
         src_transform = ds.window_transform(win)
         src_crs = ds.crs
-        src_nodata = ds.nodata
+        src_nodata = np.nan   # NaNs are the nodata sentinel; keep average from bleeding across them
 
     # 2) destination metric grid covering the AOI in the local aeqd CRS.
     from rasterio.warp import transform_bounds as _tb

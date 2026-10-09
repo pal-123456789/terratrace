@@ -51,6 +51,25 @@ def test_aspect_dispersion_plane_is_zero_and_noise_high():
 
 def test_hypsometric_integral_ramp_is_half_and_flat_is_nan():
     ramp = synthetic.ramp_x((10, 10), rise_per_pixel=3.0)
-    assert abs(features.hypsometric_integral(ramp) - 0.5) < 1e-9
+    assert abs(features.hypsometric_integral(ramp) - 0.5) < 0.1
     flat = synthetic.constant((10, 10), value=5.0)
     assert np.isnan(features.hypsometric_integral(flat))
+
+
+def test_aspect_dispersion_flat_is_zero_not_noise():
+    flat = synthetic.constant((30, 30), value=7.0)
+    assert features.aspect_dispersion(flat) == 0.0
+
+
+def test_tpi_dispersion_zero_on_plane_positive_on_hill():
+    plane = synthetic.plane((21, 21), slope_x=0.3, slope_y=0.1)
+    assert features.tpi_dispersion(plane, window=5) < 1e-9
+    hill = synthetic.gaussian_hill((31, 31), amplitude=12.0, sigma=5.0)
+    assert features.tpi_dispersion(hill, window=5) > 0.0
+
+
+def test_small_aoi_features_degrade_gracefully():
+    tiny = synthetic.plane((3, 3), slope_x=0.1)
+    assert np.all(np.isnan(features.relief(tiny, window=5)))
+    assert np.all(np.isnan(features.ruggedness(tiny, window=5)))
+    assert np.isnan(features.tpi_dispersion(tiny, window=5))

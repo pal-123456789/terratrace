@@ -22,9 +22,9 @@ def test_closer_unit_has_higher_nondominated_frequency():
     uf = out["units"]["far"]["nondominated_freq"]
     assert uc > uf, (uc, uf)
     assert uc > 0.8, uc
-    # distance CI exists for all four axes and is ordered lo<=med<=hi
+    # distance CI exists for the 3 distributional axes, ordered lo<=med<=hi
     ci = out["units"]["close"]["distance_ci"]
-    assert set(ci) == {"slope", "relief", "ruggedness", "connectivity"}
+    assert set(ci) == {"slope", "relief", "ruggedness"}
     for nm, (lo, med, hi) in ci.items():
         assert lo <= med <= hi, (nm, lo, med, hi)
 

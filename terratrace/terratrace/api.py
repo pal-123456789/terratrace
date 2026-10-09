@@ -23,6 +23,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from . import __version__, study
 
 MAX_BOOT = 2000
+MAX_BODY = 1 << 16          # 64 KiB cap on request bodies
+LOOPBACK = {"127.0.0.1", "localhost", "::1", "[::1]"}
 ROUTES = ["GET /health", "GET /study", "POST /compare"]
 
 
@@ -43,7 +45,6 @@ class Handler(BaseHTTPRequestHandler):
         body = json.dumps(obj).encode("utf-8")
         self.send_response(code)
         self.send_header("Content-Type", "application/json")
-        self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         if self.command != "HEAD":
@@ -52,28 +53,52 @@ class Handler(BaseHTTPRequestHandler):
     def log_message(self, *args):
         pass  # quiet
 
+    def _host_ok(self):
+        # Defend against DNS-rebinding: only serve requests whose Host is loopback.
+        host = (self.headers.get("Host") or "").rsplit(":", 1)[0]
+        return host in LOOPBACK or host.startswith("127.")
+
     def do_GET(self):
-        if self.path.split("?")[0] == "/health":
-            return self._send(200, {"status": "ok", "service": "terratrace",
-                                    "version": __version__, "routes": ROUTES})
-        if self.path.split("?")[0] == "/study":
-            return self._send(200, study.run_study())
-        return self._send(404, {"error": "not found", "routes": ROUTES})
+        try:
+            if not self._host_ok():
+                return self._send(403, {"error": "forbidden host"})
+            route = self.path.split("?")[0]
+            if route == "/health":
+                return self._send(200, {"status": "ok", "service": "terratrace",
+                                        "version": __version__, "routes": ROUTES})
+            if route == "/study":
+                return self._send(200, study.run_study())
+            return self._send(404, {"error": "not found", "routes": ROUTES})
+        except Exception:
+            return self._send(500, {"error": "internal error"})
 
     def do_POST(self):
-        if self.path.split("?")[0] != "/compare":
-            return self._send(404, {"error": "not found", "routes": ROUTES})
         try:
-            n = int(self.headers.get("Content-Length") or 0)
-            params = json.loads(self.rfile.read(n) or b"{}") if n else {}
-        except Exception as exc:
-            return self._send(400, {"error": "invalid JSON body", "detail": str(exc)})
-        if not isinstance(params, dict):
-            return self._send(400, {"error": "body must be a JSON object"})
-        tsm = _clamp(params.get("target_support_m", 100.0), 1.0, 100000.0, 100.0)
-        nb = int(_clamp(params.get("n_boot", 0), 0, MAX_BOOT, 0))
-        pkg = study.run_study(target_support_m=tsm, n_boot=nb)
-        return self._send(200, {"params": {"target_support_m": tsm, "n_boot": nb}, "result": pkg})
+            if not self._host_ok():
+                return self._send(403, {"error": "forbidden host"})
+            if self.path.split("?")[0] != "/compare":
+                return self._send(404, {"error": "not found", "routes": ROUTES})
+            raw_len = self.headers.get("Content-Length")
+            try:
+                n = int(raw_len) if raw_len is not None else 0
+            except ValueError:
+                return self._send(400, {"error": "invalid Content-Length"})
+            if n < 0:
+                return self._send(400, {"error": "invalid Content-Length"})
+            if n > MAX_BODY:
+                return self._send(413, {"error": f"body too large (max {MAX_BODY} bytes)"})
+            try:
+                params = json.loads(self.rfile.read(n) or b"{}") if n else {}
+            except Exception:
+                return self._send(400, {"error": "invalid JSON body"})
+            if not isinstance(params, dict):
+                return self._send(400, {"error": "body must be a JSON object"})
+            tsm = _clamp(params.get("target_support_m", 100.0), 1.0, 100000.0, 100.0)
+            nb = int(_clamp(params.get("n_boot", 0), 0, MAX_BOOT, 0))
+            pkg = study.run_study(target_support_m=tsm, n_boot=nb)
+            return self._send(200, {"params": {"target_support_m": tsm, "n_boot": nb}, "result": pkg})
+        except Exception:
+            return self._send(500, {"error": "internal error"})
 
 
 def make_server(host="127.0.0.1", port=8000):
@@ -84,10 +109,15 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description="TerraTrace stdlib HTTP API")
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=8000)
+    ap.add_argument("--allow-remote", action="store_true",
+                    help="permit binding a non-loopback host (adds no auth; use behind a proxy)")
     args = ap.parse_args(argv)
+    if args.host not in LOOPBACK and not args.host.startswith("127.") and not args.allow_remote:
+        raise SystemExit("Refusing to bind a non-loopback host without --allow-remote "
+                         "(the server is unauthenticated). Put auth/rate-limiting in front first.")
     srv = make_server(args.host, args.port)
     print(f"TerraTrace API -> http://{args.host}:{args.port}")
-    print("UNAUTHENTICATED, localhost-only by default; add auth before exposing.")
+    print("UNAUTHENTICATED; loopback-only Host allowlist. Add auth before exposing.")
     print("routes:", ", ".join(ROUTES))
     try:
         srv.serve_forever()

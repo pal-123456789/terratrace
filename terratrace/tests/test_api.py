@@ -74,3 +74,59 @@ def test_compare_clamps_bad_input():
         assert r["params"]["target_support_m"] >= 1.0
     finally:
         srv.shutdown()
+
+
+def test_get_study_has_contract_keys():
+    srv, port = _serve()
+    try:
+        r = json.loads(urllib.request.urlopen(f"http://127.0.0.1:{port}/study", timeout=30).read())
+        for k in ("profile", "result_state", "baseline_vectors", "evidence_graph"):
+            assert k in r
+    finally:
+        srv.shutdown()
+
+
+def test_malformed_and_non_object_bodies_400():
+    srv, port = _serve()
+    try:
+        for payload in (b"{not json", b"[1,2,3]"):
+            req = urllib.request.Request(f"http://127.0.0.1:{port}/compare",
+                                         data=payload, method="POST")
+            code = 0
+            try:
+                urllib.request.urlopen(req, timeout=10)
+            except urllib.error.HTTPError as e:
+                code = e.code
+            assert code == 400, (payload, code)
+    finally:
+        srv.shutdown()
+
+
+def test_forbidden_host_is_403():
+    srv, port = _serve()
+    try:
+        req = urllib.request.Request(f"http://127.0.0.1:{port}/health",
+                                     headers={"Host": "evil.example.com"})
+        code = 0
+        try:
+            urllib.request.urlopen(req, timeout=10)
+        except urllib.error.HTTPError as e:
+            code = e.code
+        assert code == 403
+    finally:
+        srv.shutdown()
+
+
+def test_post_wrong_path_404():
+    srv, port = _serve()
+    try:
+        req = urllib.request.Request(f"http://127.0.0.1:{port}/nope",
+                                     data=b"{}", method="POST")
+        code = 0
+        try:
+            urllib.request.urlopen(req, timeout=10)
+        except urllib.error.HTTPError as e:
+            code = e.code
+        assert code == 404
+    finally:
+        srv.shutdown()

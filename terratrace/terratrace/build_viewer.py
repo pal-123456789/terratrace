@@ -60,12 +60,13 @@ def _citations(pkg):
 
 def _gaps(pkg):
     out = []
-    for g in pkg["transfer_gap_ledger"]["gaps"]:
+    for g in pkg.get("transfer_gap_ledger", {}).get("gaps", []):
+        cls = html.escape(str(g.get("class", "")))
         out.append(
-            f"<li><span class='tc tc-{g['class']}'>{g['class']}</span> "
-            f"<strong>{html.escape(g['category'])}</strong> &mdash; "
-            f"{html.escape(g['statement'])} "
-            f"<em>{html.escape(g['prohibited'])}</em></li>")
+            f"<li><span class='tc tc-{cls}'>{cls}</span> "
+            f"<strong>{html.escape(str(g.get('category', '')))}</strong> &mdash; "
+            f"{html.escape(str(g.get('statement', '')))} "
+            f"<em>{html.escape(str(g.get('prohibited', '')))}</em></li>")
     return "\n".join(out)
 
 
@@ -220,11 +221,11 @@ def build_html(pkg):
         rec_line = "No single unit is recommended; see the result state and sensitivity below."
     return TEMPLATE.format(
         css=CSS,
-        state=state,
+        state=html.escape(str(state)),
         state_copy=html.escape(STATE_COPY.get(state, state)),
         rec_line=rec_line,
         source=html.escape(source),
-        support=pkg["profile"]["target_support_m"],
+        support=html.escape(str(pkg["profile"].get("target_support_m", ""))),
         decision_metrics=html.escape(pkg["profile"].get("decision_metrics", "core")),
         metric_names=html.escape(", ".join(pkg["profile"].get("metrics", []))),
         rows=_rows(pkg),

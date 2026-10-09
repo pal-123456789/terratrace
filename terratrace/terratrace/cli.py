@@ -15,6 +15,8 @@ def main(argv=None):
     ap.add_argument("--target-support-m", type=float, default=100.0)
     ap.add_argument("--native-posting-m", type=float, default=25.0)
     args = ap.parse_args(argv)
+    if args.target_support_m <= 0 or args.native_posting_m <= 0:
+        raise SystemExit("--target-support-m and --native-posting-m must be positive")
 
     pkg = run_study(target_support_m=args.target_support_m,
                     native_posting_m=args.native_posting_m)

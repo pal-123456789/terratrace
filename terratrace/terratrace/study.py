@@ -51,13 +51,32 @@ def _feature_distributions(z, dx, slope_threshold, relief_alpha, relief_window=5
             "ruggedness": rug.ravel(), "connectivity_scalar": conn}
 
 
-def _vector(ref, cand):
-    d_slope = distances.normalized_distance(cand["slope"], ref["slope"])
-    d_relief = distances.normalized_distance(cand["relief"], ref["relief"])
-    d_rug = distances.normalized_distance(cand["ruggedness"], ref["ruggedness"])
+def _vector(ref, cand, scales=None):
+    def nd(f):
+        s = None if scales is None else scales.get(f)
+        return distances.normalized_distance(cand[f], ref[f], scale=s)
     scale = abs(ref["connectivity_scalar"]) + 1e-6
     d_conn = abs(cand["connectivity_scalar"] - ref["connectivity_scalar"]) / scale
-    return (float(d_slope), float(d_relief), float(d_rug), float(d_conn))
+    return (float(nd("slope")), float(nd("relief")), float(nd("ruggedness")), float(d_conn))
+
+
+def _feature_scales(ref):
+    """Fixed per-feature normalizers from the REFERENCE distribution, so every
+    candidate's Pareto axis is divided by the same scale (comparable across
+    candidates). IQR with std -> range fallback."""
+    out = {}
+    for f in ("slope", "relief", "ruggedness"):
+        v = np.asarray(ref[f], dtype=float)
+        v = v[np.isfinite(v)]
+        s = 0.0
+        if v.size:
+            s = float(np.percentile(v, 75) - np.percentile(v, 25))
+            if not np.isfinite(s) or s <= 1e-9:
+                s = float(np.std(v))
+            if not np.isfinite(s) or s <= 1e-9:
+                s = float(np.max(v) - np.min(v))
+        out[f] = s if (np.isfinite(s) and s > 1e-9) else 1.0
+    return out
 
 
 def _extended_dims(extended, cid, reference_id):
@@ -94,37 +113,46 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
                      "zero_fraction_max": decision.ZERO_FRACTION_MAX,
                      "rights_status": rights.get(uid, "unknown"), "support": rec.to_dict()}
 
-    dx = float(target_support_m)
+    dxs = {uid: float(meta[uid]["support"]["target_support_m"]) for uid in agg}
     extended = {}
     for uid, a in agg.items():
         extended[uid] = {
-            "aspect_dispersion": features.aspect_dispersion(a, dx, dx),
+            "aspect_dispersion": features.aspect_dispersion(a, dxs[uid], dxs[uid]),
             "hypsometric_integral": features.hypsometric_integral(a),
+            "tpi_dispersion": features.tpi_dispersion(a, window=5),
         }
+    dx_ref = dxs[reference_id]
     candidate_ids = [u for u in agg if u != reference_id]
+    ref_ok, ref_reason = decision.eligibility(meta[reference_id])
     scenario_vectors, baseline_vectors = [], {}
-    ref_feats_base, cand_feats_base = None, {}
-    for cfg in SCENARIOS:
-        ref_f = _feature_distributions(agg[reference_id], dx, cfg["slope_threshold"], cfg["relief_alpha"])
-        vecs = {}
-        for cid in candidate_ids:
-            ok, _ = decision.eligibility(meta[cid])
-            if not ok:
-                continue
-            cand_f = _feature_distributions(agg[cid], dx, cfg["slope_threshold"], cfg["relief_alpha"])
-            vec = _vector(ref_f, cand_f)
-            if decision_metrics == "extended":
-                vec = vec + _extended_dims(extended, cid, reference_id)
-            vecs[cid] = vec
+    ref_feats_base, cand_feats_base, scales = None, {}, None
+    if ref_ok:
+        for cfg in SCENARIOS:
+            ref_f = _feature_distributions(agg[reference_id], dx_ref, cfg["slope_threshold"], cfg["relief_alpha"])
             if cfg["name"] == "baseline":
-                cand_feats_base[cid] = cand_f
-        scenario_vectors.append(vecs)
-        if cfg["name"] == "baseline":
-            baseline_vectors = vecs
-            ref_feats_base = ref_f
+                scales = _feature_scales(ref_f)
+                ref_feats_base = ref_f
+            vecs = {}
+            for cid in candidate_ids:
+                ok, _ = decision.eligibility(meta[cid])
+                if not ok:
+                    continue
+                cand_f = _feature_distributions(agg[cid], dxs[cid], cfg["slope_threshold"], cfg["relief_alpha"])
+                vec = _vector(ref_f, cand_f, scales)
+                if decision_metrics == "extended":
+                    vec = vec + _extended_dims(extended, cid, reference_id)
+                vecs[cid] = vec
+                if cfg["name"] == "baseline":
+                    cand_feats_base[cid] = cand_f
+            scenario_vectors.append(vecs)
+            if cfg["name"] == "baseline":
+                baseline_vectors = vecs
 
     elig_map = {u: decision.eligibility(meta[u]) for u in agg}
-    if not baseline_vectors and candidate_ids:
+    if not ref_ok:
+        state = "BLOCKED" if ref_reason.startswith("BLOCKED") else "NOT_COMPARABLE"
+        recommended, flips = None, {}
+    elif not baseline_vectors and candidate_ids:
         reasons = [elig_map[c][1] for c in candidate_ids]
         state = "BLOCKED" if any(r.startswith("BLOCKED") for r in reasons) else "NOT_COMPARABLE"
         recommended, flips = None, {}
@@ -135,7 +163,7 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
     metric_names = list(METRICS) + (["aspect_dispersion", "hypsometric_integral"]
                                      if decision_metrics == "extended" else [])
     profile = {"task": "map_scale_terrain_route_study", "target_body": "mars",
-               "target_support_m": dx, "metrics": metric_names,
+               "target_support_m": float(target_support_m), "metrics": metric_names,
                "decision_metrics": decision_metrics,
                "source_label": source_label, "claim_maturity": "prototype_morphology_only"}
     proto = protocol.draft_protocol(state, recommended, profile, gap_ledger)
@@ -160,7 +188,7 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
         if decision_metrics == "extended":
             extra = {cid: _extended_dims(extended, cid, reference_id) for cid in cand_feats_base}
         package["bootstrap"] = uncertainty.bootstrap_pareto(
-            ref_feats_base, cand_feats_base, n_boot=n_boot, seed=0, extra_dims=extra)
+            ref_feats_base, cand_feats_base, n_boot=n_boot, seed=0, extra_dims=extra, scales=scales)
     package["package_hash"] = provenance.sha256_json(
         {k: v for k, v in package.items() if k != "package_hash"})
     return package
