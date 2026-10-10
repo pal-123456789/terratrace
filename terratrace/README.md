@@ -36,6 +36,11 @@ source and a transformation.
 - Multi-candidate Pareto **frontier** ranking (peeled non-dominated layers + dominance
   matrix) so a batch run yields a defensible shortlist, not just a winner.
 - Sensitivity across scenarios with a pairwise rank-flip matrix.
+- Cross-reference, multi-lens **batch studies** (`run_batch` / `run_real_batch`): the
+  full comparison is rerun for every Mars-reference × decision-lens cell, then
+  synthesised into each candidate's layer-1 (non-dominated) frequency across references
+  and lenses, a **consensus shortlist** of candidates non-dominated in *every* cell, and
+  a robust ordering — a transparent robustness synthesis, not a composite score.
 - Transfer-gap ledger (T0–T4 classes) and a draft study protocol.
 - Evidence graph + content hashing; deterministic study package + static viewer.
 - **Data & sources layer (10-source registry):** a citeable **catalog** of real DEM
@@ -56,10 +61,10 @@ source and a transformation.
   closer candidate provably dominates and is recommended, a flat/water tile is blocked,
   and the whole pipeline is deterministic. A reproducibility + performance harness pins
   behavioural invariants, checks hash stability, and profiles wall-clock scaling.
-- 170 fixture tests with known analytic answers, all passing, no network required.
+- 180 fixture tests with known analytic answers, all passing, no network required.
 
 ```
-passed=170 failed=0
+passed=180 failed=0
 ```
 
 ## Install
@@ -78,7 +83,7 @@ pip install -r requirements-real.txt      # rasterio + requests (real DEMs)
 ```bash
 PYTHONPATH=. python3 -m terratrace.cli --out artifacts
 PYTHONPATH=. python3 -m terratrace.build_viewer      # writes viewer/index.html
-PYTHONPATH=. python3 tests/run_tests.py              # 170 tests
+PYTHONPATH=. python3 tests/run_tests.py              # 180 tests
 ```
 
 Open `viewer/index.html` in any browser — it is self-contained and works offline.
@@ -144,6 +149,7 @@ terratrace/
     provenance.py    evidence graph + hashing
     protocol.py      draft study protocol
     study.py         compare_units + run_study + run_real_study
+    batch.py         cross-reference, multi-lens batch synthesis
     descriptors.py   full geomorphometric descriptor bank (analysis layer)
     catalog.py       10-source registry: coverage, preference, nodata, selection
     preflight.py     fail-fast config-schema + AOI/bbox/size/coverage checks
@@ -154,11 +160,11 @@ terratrace/
     benchmark.py     reproducibility invariants + wall-clock scaling profile
     build_viewer.py  self-contained HTML viewer
     cli.py           study runner
-  tests/             170 fixture tests + dependency-free runner
+  tests/             180 fixture tests + dependency-free runner
   artifacts/         generated study package (JSON + checksums + manifest)
   viewer/            generated offline HTML viewer
   config/            AOI configuration for real runs
-  scripts/           fetch (+preflight) / profile / validate / benchmark / run
+  scripts/           fetch (+preflight) / profile / validate / benchmark / run / run_batch_study
 ```
 
 ## Scientific method

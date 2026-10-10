@@ -268,21 +268,17 @@ def run_study(target_support_m=100.0, native_posting_m=25.0, min_valid=0.5, n_bo
                          min_valid=min_valid, source_label="synthetic", n_boot=n_boot)
 
 
-def run_real_study(units, target_support_m=1000.0, min_valid=0.5, reproject=True,
-                   decision_metrics="core", n_boot=0):
-    """Compare REAL DEMs.
+def load_real_units(units, target_support_m=1000.0, reproject=True):
+    """Load AOI unit dicts into (raw, rights, native, reference_ids) arrays.
 
-    units: list of dicts with keys: id, path, native_posting_m, rights_status,
-    optional bbox (west,south,east,north in degrees), optional body
-    ("mars"/"earth"), and optional is_reference (exactly one is reference).
-
-    With reproject=True (default) each AOI is warped to its own local
-    azimuthal-equidistant metric grid at target_support_m before features
-    are computed (correct cross-body comparison). Requires rasterio.
+    Each unit is read (and, with reproject=True, warped to its own local
+    azimuthal-equidistant metric grid at target_support_m using the correct body)
+    and optional masks are applied. Returns the elevation arrays, rights map,
+    per-unit native posting, and the list of ids flagged is_reference. Requires
+    rasterio. Shared by run_real_study and the batch runner so both load identically.
     """
     from . import ingest
-    raw, rights, native = {}, {}, {}
-    reference_id = None
+    raw, rights, native, reference_ids = {}, {}, {}, []
     for u in units:
         body = u.get("body", "mars" if u.get("is_reference") else "earth")
         mask_kw = dict(mask_below=u.get("mask_below_m"),
@@ -303,7 +299,24 @@ def run_real_study(units, target_support_m=1000.0, min_valid=0.5, reproject=True
         raw[u["id"]] = z
         rights[u["id"]] = u.get("rights_status", "unknown")
         if u.get("is_reference"):
-            reference_id = u["id"]
+            reference_ids.append(u["id"])
+    return raw, rights, native, reference_ids
+
+
+def run_real_study(units, target_support_m=1000.0, min_valid=0.5, reproject=True,
+                   decision_metrics="core", n_boot=0):
+    """Compare REAL DEMs.
+
+    units: list of dicts with keys: id, path, native_posting_m, rights_status,
+    optional bbox (west,south,east,north in degrees), optional body
+    ("mars"/"earth"), and optional is_reference (exactly one is reference).
+
+    With reproject=True (default) each AOI is warped to its own local
+    azimuthal-equidistant metric grid at target_support_m before features
+    are computed (correct cross-body comparison). Requires rasterio.
+    """
+    raw, rights, native, reference_ids = load_real_units(units, target_support_m, reproject)
+    reference_id = reference_ids[-1] if reference_ids else None
     if reference_id is None:
         raise ValueError("exactly one unit must set is_reference=True")
     label = "real_dem_aeqd" if reproject else "real_dem"

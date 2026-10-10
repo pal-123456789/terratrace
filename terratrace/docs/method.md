@@ -101,6 +101,31 @@ opt-in: a recommendation that survives all three independent axis sets is far mo
 than one that holds under a single set. Choosing a non-default mode does not alter the `core`
 study package or its provenance hash; the extra descriptors are computed only when requested.
 
+## Batch studies
+
+A single study compares one Mars reference against a slate of Earth candidates under
+one decision lens, and that study already exists end-to-end. Analog screening is more
+defensible when a candidate is tested against several Mars reference regions and under
+several independent decision-axis sets at once, so `batch.py` generalises the single
+study across both. It runs a grid: every (Mars reference × decision mode) cell is a
+complete `compare_units` pipeline, the default modes being the same three lenses used
+elsewhere — `core`, `extended`, and `geomorphic`.
+
+The grid is synthesised rather than scored. For each candidate the batch reports how
+often it is Pareto non-dominated (frontier layer 1) across all cells, how often it is
+the sole recommendation, and its mean Pareto layer. The headline result is a consensus
+shortlist: the candidates that are non-dominated in *every* cell and are therefore
+robust to both the choice of Mars reference and the choice of morphology lens. A robust
+ordering then ranks candidates by how consistently they stay non-dominated.
+
+This is a transparent robustness synthesis, never a composite "Mars-likeness" number,
+and it inherits the engine's claim firewall: map-scale morphology only. A candidate can
+be non-dominated under some lenses yet still miss the consensus shortlist, and under
+some lenses the honest verdict is a tie with no sole winner even while one candidate is
+always non-dominated — the batch surfaces that disagreement rather than forcing an
+answer. The array-level `run_batch` needs no network or rasterio and is fully testable;
+`run_real_batch` loads real DEMs through the same shared loader as the single real study.
+
 ## Reprojection
 
 Each AOI is warped to a local azimuthal-equidistant CRS centered on its centroid, with the

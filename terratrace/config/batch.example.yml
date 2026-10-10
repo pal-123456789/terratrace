@@ -1,0 +1,76 @@
+# TerraTrace CROSS-REFERENCE batch study configuration (example).
+#
+# A batch study is a robustness sweep: every Earth candidate is compared against
+# EVERY Mars reference window under EVERY decision mode (core / extended /
+# geomorphic). The synthesis reports how often each candidate stays Pareto
+# non-dominated across that whole grid -- i.e. whether the recommendation
+# survives a different choice of Mars reference AND a different morphology lens.
+# (The decision modes are swept automatically, so there is NO decision_metrics
+# key here, unlike config/aois.example.yml.)
+#
+# Everything below is an EXAMPLE: adjust ids, paths, and bboxes to the DEMs you
+# fetched. Paths follow the data/mars and data/earth convention; the DEMs are
+# downloaded on a networked machine before you run the batch.
+
+# Bring every unit to a common support before comparison. MOLA ~463 m is the
+# limiting support, so a conservative 2000 m common support is a safe default
+# for a cross-reference sweep.
+target_support_m: 2000.0
+min_valid_fraction: 0.5
+# Warp each AOI to its own local azimuthal-equidistant metric grid (correct
+# cross-body comparison). Set false (or pass --no-reproject) for the same-dx fallback.
+reproject: true
+
+units:
+  # --- Mars reference windows (is_reference: true) --------------------------
+  # Two DIFFERENT bounded windows cropped from the SAME global MOLA 463 m DEM.
+  # Testing each candidate against BOTH windows is the "cross-reference" axis:
+  # a robust analog should not depend on which Mars window we happened to pick.
+  # bbox is west,south,east,north in the FILE's CRS (MOLA 463m is simple-
+  # cylindrical in DEGREES; adjust to its 0..360 or -180..180 longitude convention).
+  - id: mars_ref_window_a
+    path: data/mars/mola_463m.tif
+    body: mars
+    native_posting_m: 463.0
+    is_reference: true
+    rights_status: verified_allowed          # NASA PDS/USGS public data
+    bbox: [120.0, -5.0, 130.0, 5.0]          # example: ~10x10 deg equatorial window
+
+  - id: mars_ref_window_b
+    path: data/mars/mola_463m.tif
+    body: mars
+    native_posting_m: 463.0
+    is_reference: true
+    rights_status: verified_allowed
+    bbox: [300.0, -10.0, 310.0, 0.0]         # example: a second, distinct equatorial window
+
+  # --- Earth candidates (the slate ranked against both references) ----------
+  # All kept on land (no ocean-zero contamination). Copernicus GLO-30 (COP30);
+  # bbox is (west, south, east, north) in degrees.
+  - id: earth_craters_of_the_moon
+    path: data/earth/craters_of_the_moon_cop30.tif
+    body: earth
+    demtype: COP30
+    # Craters of the Moon basaltic lava field, Idaho - a classic terrestrial analog.
+    bbox: [-113.60, 43.30, -113.30, 43.60]
+    native_posting_m: 30.0
+    rights_status: verified_allowed
+    access_status: unknown                   # must be verified before any fieldwork
+
+  - id: earth_nevada_basin
+    path: data/earth/nevada_basin_cop30.tif
+    body: earth
+    demtype: COP30
+    bbox: [-115.80, 36.00, -115.40, 36.40]   # example: Nevada desert basin-and-range
+    native_posting_m: 30.0
+    rights_status: verified_allowed
+    access_status: unknown
+
+  - id: earth_andean_volcano
+    path: data/earth/andean_volcano_cop30.tif
+    body: earth
+    demtype: COP30
+    bbox: [-78.60, -0.20, -78.30, 0.10]      # example: Andean volcanic terrain (equatorial Andes)
+    native_posting_m: 30.0
+    rights_status: verified_allowed
+    access_status: unknown

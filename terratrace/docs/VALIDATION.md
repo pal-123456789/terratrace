@@ -5,7 +5,7 @@ screening**. These checks establish software/metric correctness, data handling,
 sensitivity, and provenance. They do **not** establish rover traversability,
 autonomy, geologic equivalence, site access, or mission readiness.
 
-## Test suite (170 fixtures, `tests/run_tests.py`)
+## Test suite (180 fixtures, `tests/run_tests.py`)
 
 | Area | What the fixtures prove |
 |---|---|
@@ -24,6 +24,7 @@ autonomy, geologic equivalence, site access, or mission readiness.
 | ingest | TIFF magic-byte guard rejects error-JSON; `_stream` retry/backoff + Retry-After + fail-fast |
 | sourcelock | SHA-256 matches hashlib; citations/terms per body; missing-file entry |
 | study (e2e) | Contract keys present; ineligible unit excluded; close unit dominates far; deterministic package hash; all-blocked -> BLOCKED; evidence graph has eligibility+result+protocol nodes; extended mode adds two dimensions |
+| batch | Cross-reference × multi-lens synthesis: the same-statistics twin is the sole consensus analog; a far-rougher candidate is never non-dominated; deterministic, JSON-serialisable report |
 | validation | The engine passes every scientific-correctness check (see below) |
 | benchmark | Pinned behavioural invariants + hash stability + a scaling profile |
 
