@@ -200,3 +200,123 @@ def tpi_dispersion(z, window=5):
     tpi = center - mean
     tpi = tpi[np.isfinite(tpi)]
     return float(np.std(tpi)) if tpi.size else float("nan")
+
+
+def _zt_coeffs(z, L):
+    """Zevenbergen & Thorne (1987) local quadratic coefficients on a 3x3 window.
+
+    Returns interior arrays (D, E, F, G, H) for the surface
+    z = D x^2 + E y^2 + F xy + G x + H y + ...  fitted at each node with node
+    spacing L. D,E are the second x/y derivatives /2; G,H the first derivatives.
+    NaNs propagate naturally (any NaN neighbour -> NaN coefficient).
+    """
+    z = np.asarray(z, dtype=float)
+    z1, z2, z3 = z[:-2, :-2], z[:-2, 1:-1], z[:-2, 2:]
+    z4, z5, z6 = z[1:-1, :-2], z[1:-1, 1:-1], z[1:-1, 2:]
+    z7, z8, z9 = z[2:, :-2], z[2:, 1:-1], z[2:, 2:]
+    D = ((z4 + z6) / 2.0 - z5) / (L * L)
+    E = ((z2 + z8) / 2.0 - z5) / (L * L)
+    F = (-z1 + z3 + z7 - z9) / (4.0 * L * L)
+    G = (-z4 + z6) / (2.0 * L)
+    H = (z2 - z8) / (2.0 * L)
+    return D, E, F, G, H
+
+
+def profile_curvature(z, dx=1.0):
+    """Curvature in the slope direction (Zevenbergen-Thorne), per interior cell.
+
+    Convex-up profiles are negative, concave positive (ZT convention). Zero on a
+    plane; constant -2a on a paraboloid z=a(x^2+y^2). Undefined where the surface
+    is locally flat (slope ~ 0) -> returned as 0 there."""
+    if min(np.asarray(z).shape) < 3:
+        return np.array([[np.nan]])
+    D, E, F, G, H = _zt_coeffs(z, dx)
+    denom = G * G + H * H
+    with np.errstate(invalid="ignore", divide="ignore"):
+        kp = -2.0 * (D * G * G + E * H * H + F * G * H) / denom
+    return np.where(denom > 1e-12, kp, 0.0)
+
+
+def plan_curvature(z, dx=1.0):
+    """Curvature across the slope (contour curvature, Zevenbergen-Thorne).
+
+    Zero on a plane; constant +2a on a paraboloid z=a(x^2+y^2). Flat cells -> 0."""
+    if min(np.asarray(z).shape) < 3:
+        return np.array([[np.nan]])
+    D, E, F, G, H = _zt_coeffs(z, dx)
+    denom = G * G + H * H
+    with np.errstate(invalid="ignore", divide="ignore"):
+        kc = 2.0 * (D * H * H + E * G * G - F * G * H) / denom
+    return np.where(denom > 1e-12, kc, 0.0)
+
+
+def mean_curvature(z, dx=1.0):
+    """ZT general curvature -2(D+E): defined everywhere (no slope division).
+
+    Zero on any plane; constant -4a on a paraboloid z=a(x^2+y^2); sign flips for a
+    dome. A robust, division-free convexity descriptor."""
+    if min(np.asarray(z).shape) < 3:
+        return np.array([[np.nan]])
+    D, E, _, _, _ = _zt_coeffs(z, dx)
+    return -2.0 * (D + E)
+
+
+def vector_ruggedness(z, window=3, dx=1.0, dy=1.0):
+    """Vector Ruggedness Measure (Sappington et al., 2007), per interior window.
+
+    Each cell's unit surface normal (-dz/dx, -dz/dy, 1)/|.| is summed over the
+    window; VRM = 1 - |resultant|/N. It is 0 for a plane (all normals parallel,
+    even if steep) and rises toward 1 as the surface becomes rugged -- a ruggedness
+    measure that, unlike slope spread, is decoupled from the mean slope. In [0, 1].
+    """
+    if window % 2 == 0:
+        raise ValueError("window must be odd")
+    za = np.asarray(z, dtype=float)
+    if min(za.shape) < window:
+        return np.array([[np.nan]])
+    gy, gx = np.gradient(za, dy, dx)
+    norm = np.sqrt(gx * gx + gy * gy + 1.0)
+    nx, ny, nz = -gx / norm, -gy / norm, 1.0 / norm
+    n = window * window
+    sx = _windows(nx, window).reshape(nx.shape[0] - window + 1, -1, n).sum(axis=-1)
+    sy = _windows(ny, window).reshape(ny.shape[0] - window + 1, -1, n).sum(axis=-1)
+    sz = _windows(nz, window).reshape(nz.shape[0] - window + 1, -1, n).sum(axis=-1)
+    resultant = np.sqrt(sx * sx + sy * sy + sz * sz)
+    return 1.0 - resultant / n
+
+
+def structure_function(z, lags=(1, 2, 4, 8), dx=1.0):
+    """RMS elevation difference at each lag (an isotropic structure function).
+
+    Returns {lag_metres: rms_height_difference} using horizontal and vertical
+    pixel offsets pooled. For a self-affine surface rms ~ lag^H; it is the raw
+    material for a roughness-vs-scale (Hurst) analysis. NaNs are ignored.
+    """
+    za = np.asarray(z, dtype=float)
+    out = {}
+    for h in lags:
+        h = int(h)
+        if h <= 0 or h >= min(za.shape):
+            continue
+        dxdiff = za[:, h:] - za[:, :-h]
+        dydiff = za[h:, :] - za[:-h, :]
+        pooled = np.concatenate([dxdiff.ravel(), dydiff.ravel()])
+        pooled = pooled[np.isfinite(pooled)]
+        if pooled.size:
+            out[float(h * dx)] = float(np.sqrt(np.mean(pooled ** 2)))
+    return out
+
+
+def hurst_exponent(z, lags=(1, 2, 4, 8), dx=1.0):
+    """Roughness scaling exponent: slope of log(RMS diff) vs log(lag), clamped to
+    [0, 1]. H near 0 is rough/white-noise-like, near 1 is smooth/long-correlated.
+    A single-number summary of how roughness grows with scale; NaN if undefined.
+    """
+    sf = structure_function(z, lags=lags, dx=dx)
+    pts = [(L, v) for L, v in sf.items() if v > 1e-12 and np.isfinite(v)]
+    if len(pts) < 2:
+        return float("nan")
+    logs = np.log(np.array([p[0] for p in pts]))
+    logv = np.log(np.array([p[1] for p in pts]))
+    slope = np.polyfit(logs, logv, 1)[0]
+    return float(min(1.0, max(0.0, slope)))

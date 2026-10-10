@@ -1,9 +1,8 @@
 """Scientific-correctness validation for the TerraTrace engine.
 
 A morphology engine is only credible if it provably behaves the way its claims
-require. This module does NOT re-test individual functions (the fixture tests do
-that); instead it drives the *real* comparison pipeline (`study.compare_units`)
-on synthetic terrains with KNOWN relationships and asserts that the engine's
+require. Most checks drive the *real* comparison pipeline (`study.compare_units`)
+on synthetic terrains with KNOWN relationships and assert that the engine's
 distances and Pareto decision come out the way geomorphometry says they must:
 
   * self-distance is zero (a unit compared with itself is identical);
@@ -16,15 +15,25 @@ distances and Pareto decision come out the way geomorphometry says they must:
   * a water/flat candidate is BLOCKED by eligibility, not silently compared;
   * the whole pipeline is deterministic (identical inputs -> identical hash).
 
+A second group checks feature-level scientific correctness directly on the
+morphology descriptors, independent of the pipeline:
+
+  * profile, plan AND mean curvature all vanish on a tilted plane (a planar
+    surface has no convexity);
+  * the vector ruggedness measure is ~0 on a plane and rises strictly with
+    added roughness amplitude, staying within [0, 1];
+  * the Hurst scaling exponent is ~1 for a smooth linear ramp and ~0 for
+    uncorrelated white noise.
+
 Each check returns a uniform record; `run_validation()` aggregates them into a
 hashed report that is both a test oracle and a publishable validation artifact.
-Pure NumPy + the engine; no network, no rasterio.
+Pure NumPy + the engine and its feature descriptors; no network, no rasterio.
 """
 from __future__ import annotations
 
 import numpy as np
 
-from . import study, synthetic, provenance
+from . import study, synthetic, provenance, features
 
 # Isolate the morphology math from aggregation smoothing: native == target gives
 # an aggregation factor of 1, so features are computed on the grids as built.
@@ -61,6 +70,13 @@ def _plane_with_noise(amp, seed, slope_x=0.02):
     """A gently sloped plane plus seeded roughness — a controllable terrain."""
     base = synthetic.plane(_SHAPE, slope_x=slope_x, dx=_NATIVE)
     return base + synthetic.rough_field(_SHAPE, amplitude=amp, seed=seed)
+
+
+def _median_finite(arr):
+    """Median of the finite entries of an array (nan if none are finite)."""
+    a = np.asarray(arr, dtype=float).ravel()
+    a = a[np.isfinite(a)]
+    return float(np.median(a)) if a.size else float("nan")
 
 
 def check_self_distance_zero(tol=1e-6):
@@ -179,6 +195,57 @@ def check_determinism():
                    hash1=h1, hash2=h2)
 
 
+def check_curvature_zero_on_plane(tol=1e-6):
+    """Profile, plan AND mean curvature must all vanish on a tilted plane: a
+    planar surface has zero convexity, so every curvature descriptor is ~0
+    regardless of its (non-zero) slope."""
+    z = synthetic.plane((21, 21), slope_x=0.2, slope_y=0.1, dx=1.0)
+    prof = _median_finite(features.profile_curvature(z, dx=1.0))
+    plan = _median_finite(features.plan_curvature(z, dx=1.0))
+    mean = _median_finite(features.mean_curvature(z, dx=1.0))
+    worst = max(abs(prof), abs(plan), abs(mean))
+    return _result("curvature_zero_on_plane", worst < tol,
+                   f"tilted-plane median |curvature| profile {prof:.2e} "
+                   f"plan {plan:.2e} mean {mean:.2e} (worst {worst:.2e} < "
+                   f"tol {tol:g})",
+                   profile=prof, plan=plan, mean=mean)
+
+
+def check_vrm_discriminates_roughness(amps=(0.0, 0.3, 1.0, 3.0), seed=71, tol=1e-9):
+    """Vector ruggedness is ~0 on a plane and rises strictly as seeded roughness
+    of growing amplitude is added to it, always staying within [0, 1] — a
+    slope-decoupled ruggedness measure with genuine discriminating power."""
+    base = synthetic.plane(_SHAPE, slope_x=0.02, dx=1.0)
+    seq = [_median_finite(features.vector_ruggedness(
+               base + synthetic.rough_field(_SHAPE, amplitude=a, seed=seed), dx=1.0))
+           for a in amps]
+    strictly_up = all(seq[i] < seq[i + 1] for i in range(len(seq) - 1))
+    bounded = all(0.0 <= s <= 1.0 for s in seq)
+    plane_zero = seq[0] <= tol
+    return _result("vrm_discriminates_roughness",
+                   strictly_up and bounded and plane_zero,
+                   f"VRM median sequence {[round(s, 4) for s in seq]} strictly "
+                   f"increasing in [0,1] (plane {seq[0]:.2e} ~ 0)",
+                   sequence=seq, amplitudes=list(amps))
+
+
+def check_roughness_hurst_sane(tol=1e-6, noise_max=0.1):
+    """The roughness scaling (Hurst) exponent must separate a perfectly smooth
+    gradient from uncorrelated roughness: ~1 for a linear ramp (long-range
+    correlated) and ~0 (<0.1) for white noise. The ramp uses a square grid, so
+    its structure function scales exactly as the lag."""
+    ramp = synthetic.ramp_x(_SHAPE, rise_per_pixel=1.0)
+    noise = synthetic.rough_field(_SHAPE, amplitude=1.0, seed=81)
+    h_ramp = features.hurst_exponent(ramp, dx=1.0)
+    h_noise = features.hurst_exponent(noise, dx=1.0)
+    ramp_ok = np.isfinite(h_ramp) and abs(h_ramp - 1.0) < tol
+    noise_ok = np.isfinite(h_noise) and h_noise < noise_max
+    return _result("roughness_hurst_sane", ramp_ok and noise_ok,
+                   f"Hurst ramp {h_ramp:.6f} (|Δ1| < {tol:g}) vs white noise "
+                   f"{h_noise:.4f} (< {noise_max:g})",
+                   hurst_ramp=float(h_ramp), hurst_noise=float(h_noise))
+
+
 _CHECKS = (
     check_self_distance_zero,
     check_translation_invariance,
@@ -188,6 +255,9 @@ _CHECKS = (
     check_null_control,
     check_water_candidate_blocked,
     check_determinism,
+    check_curvature_zero_on_plane,
+    check_vrm_discriminates_roughness,
+    check_roughness_hurst_sane,
 )
 
 

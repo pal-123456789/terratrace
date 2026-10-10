@@ -73,3 +73,63 @@ def test_small_aoi_features_degrade_gracefully():
     assert np.all(np.isnan(features.relief(tiny, window=5)))
     assert np.all(np.isnan(features.ruggedness(tiny, window=5)))
     assert np.isnan(features.tpi_dispersion(tiny, window=5))
+
+
+# --- geomorphometric descriptor depth (curvature / VRM / roughness) ---------
+
+def _paraboloid(n=41, a=0.001, L=1.0):
+    c = (n - 1) / 2.0
+    ii, jj = np.meshgrid(np.arange(n), np.arange(n), indexing="ij")
+    x = (jj - c) * L
+    y = (ii - c) * L
+    return a * (x * x + y * y)
+
+
+def _median_finite(arr):
+    v = np.asarray(arr, dtype=float)
+    v = v[np.isfinite(v)]
+    return float(np.median(v))
+
+
+def test_curvatures_zero_on_plane():
+    plane = synthetic.plane((21, 21), slope_x=0.2, slope_y=0.1, dx=1.0, dy=1.0)
+    for f in (features.profile_curvature, features.plan_curvature, features.mean_curvature):
+        m = f(plane, dx=1.0)
+        assert np.nanmax(np.abs(m)) < 1e-9, (f.__name__, np.nanmax(np.abs(m)))
+
+
+def test_curvatures_match_paraboloid_analytic():
+    # z = a(x^2+y^2): profile=-2a, plan=+2a, mean=-4a (exact for a 3x3 ZT fit).
+    a, L = 0.001, 1.0
+    z = _paraboloid(a=a, L=L)
+    assert abs(_median_finite(features.profile_curvature(z, L)) - (-2 * a)) < 1e-6
+    assert abs(_median_finite(features.plan_curvature(z, L)) - (2 * a)) < 1e-6
+    assert abs(_median_finite(features.mean_curvature(z, L)) - (-4 * a)) < 1e-9
+
+
+def test_vrm_zero_on_plane_and_rises_with_roughness():
+    plane = synthetic.plane((40, 40), slope_x=0.5, slope_y=0.2, dx=1.0, dy=1.0)
+    assert _median_finite(features.vector_ruggedness(plane, 3, 1.0, 1.0)) < 1e-9
+    vrms = [_median_finite(features.vector_ruggedness(
+        plane + synthetic.rough_field((40, 40), amplitude=a, seed=3), 3, 1.0, 1.0))
+        for a in (0.0, 0.2, 1.0, 3.0)]
+    assert all(vrms[i] < vrms[i + 1] for i in range(len(vrms) - 1)), vrms
+    assert 0.0 <= vrms[-1] <= 1.0
+
+
+def test_structure_function_increases_and_hurst_bounds():
+    # A linear ramp has rms difference exactly proportional to lag -> H = 1.
+    ramp = synthetic.ramp_x((50, 50), rise_per_pixel=2.0)
+    sf = features.structure_function(ramp, lags=(1, 2, 4, 8), dx=1.0)
+    vals = [sf[k] for k in sorted(sf)]
+    assert all(vals[i] < vals[i + 1] for i in range(len(vals) - 1)), vals
+    assert abs(features.hurst_exponent(ramp, lags=(1, 2, 4, 8)) - 1.0) < 1e-6
+    # White noise is uncorrelated -> near-zero scaling exponent.
+    noise = synthetic.rough_field((80, 80), amplitude=1.0, seed=5)
+    assert features.hurst_exponent(noise, lags=(1, 2, 4, 8, 16)) < 0.1
+
+
+def test_curvature_small_aoi_degrades_gracefully():
+    tiny = synthetic.plane((2, 2), slope_x=0.1)
+    assert np.all(np.isnan(features.profile_curvature(tiny)))
+    assert np.all(np.isnan(features.mean_curvature(tiny)))

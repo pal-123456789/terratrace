@@ -5,11 +5,12 @@ screening**. These checks establish software/metric correctness, data handling,
 sensitivity, and provenance. They do **not** establish rover traversability,
 autonomy, geologic equivalence, site access, or mission readiness.
 
-## Test suite (156 fixtures, `tests/run_tests.py`)
+## Test suite (170 fixtures, `tests/run_tests.py`)
 
 | Area | What the fixtures prove |
 |---|---|
 | features | Slope equals the analytic value on a known plane; relief exact on a ramp; ruggedness ~0 on a plane and scale-linear; connectivity counts the true largest component; aspect dispersion ~0 on a plane and high on noise; hypsometric integral 0.5 on a ramp, NaN when flat |
+| features (curvature / VRM / roughness) | Zevenbergen-Thorne profile, plan, and mean curvature are 0 on a tilted plane and bit-exact on a paraboloid (profile -2a, plan +2a, mean -4a); the Vector Ruggedness Measure is 0 on any plane and rises with added roughness, staying in [0,1]; the structure function increases with lag and the Hurst exponent is 1 on a linear ramp and near 0 on white noise; curvature degrades to NaN on a sub-3x3 AOI |
 | support | Block aggregation on constants, a known 2x2 mean, nodata/valid-fraction tracking, common-factor guards |
 | distances | Wasserstein-1 = 0 for identical, = c for a shift; KS 0/1 bounds; NaN ignored; degenerate scale stays finite; all-constant -> 0 |
 | decision | Pareto dominance and non-dominated sets; rights allowlist fails closed; water (zero-fraction) block; stable-winner vs tie resolution |
@@ -32,8 +33,8 @@ Every fixture has a known analytic answer; the runner exits non-zero on any fail
 
 Beyond unit fixtures, `scripts/run_validation.py` drives the **real** comparison
 pipeline on synthetic terrains with known relationships and asserts the engine's
-distances and Pareto decision come out the way geomorphometry requires. All eight
-checks pass:
+descriptors, distances, and Pareto decision come out the way geomorphometry requires. All
+of these checks pass:
 
 | Check | Property proven |
 |---|---|
@@ -45,6 +46,9 @@ checks pass:
 | null_control | A same-statistics twin is closer than a 5× rougher impostor |
 | water_candidate_blocked | A flat/zero (water-proxy) tile is BLOCKED by eligibility, not silently compared |
 | determinism | Identical inputs reproduce an identical package hash |
+| curvature_zero_on_plane | Profile, plan, and mean curvature vanish on a tilted plane and match the analytic paraboloid values (local convexity is measured, not slope) |
+| vrm_discriminates_roughness | The Vector Ruggedness Measure is 0 on a plane and increases with surface roughness within [0,1], decoupled from mean slope |
+| roughness_hurst_sane | The structure function grows with lag and the Hurst scaling exponent stays in [0,1] (1 on a smooth ramp, near 0 on white noise) |
 
 The suite emits a hashed report (`--json`) whose hash covers the pass/fail outcomes,
 so it is a stable, host-independent regression oracle.

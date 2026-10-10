@@ -20,6 +20,9 @@ _EXPECTED_NAMES = (
     "null_control",
     "water_candidate_blocked",
     "determinism",
+    "curvature_zero_on_plane",
+    "vrm_discriminates_roughness",
+    "roughness_hurst_sane",
 )
 
 _REPORT_CACHE = []
@@ -40,18 +43,18 @@ def _find(report, name):
 
 
 def test_run_validation_headline_oracle():
-    """The engine is scientifically correct: all 8 checks pass."""
+    """The engine is scientifically correct: all 11 checks pass."""
     report = _report()
     assert report["all_passed"] is True
-    assert report["passed"] == 8
+    assert report["passed"] == 11
     assert report["failed"] == 0
-    assert len(report["checks"]) == 8
+    assert len(report["checks"]) == 11
     assert isinstance(report["package_hash"], str)
     assert report["package_hash"], "package_hash must be a non-empty string"
 
 
 def test_every_check_record_shape_and_names():
-    """Each record has name/passed/detail/metrics, passes, and the 8 names are
+    """Each record has name/passed/detail/metrics, passes, and the 11 names are
     unique and exactly the expected set."""
     report = _report()
     names = []
@@ -64,8 +67,8 @@ def test_every_check_record_shape_and_names():
         assert isinstance(c["passed"], bool), c["name"]
         assert c["passed"] is True, (c["name"], c["detail"])
         names.append(c["name"])
-    assert len(names) == 8
-    assert len(set(names)) == 8, f"duplicate check names: {names}"
+    assert len(names) == 11
+    assert len(set(names)) == 11, f"duplicate check names: {names}"
     assert set(names) == set(_EXPECTED_NAMES), set(names) ^ set(_EXPECTED_NAMES)
 
 
@@ -95,6 +98,36 @@ def test_check_water_candidate_blocked_passes():
     rec = validation.check_water_candidate_blocked()
     assert rec["name"] == "water_candidate_blocked"
     assert rec["passed"] is True, rec["detail"]
+
+
+def test_check_curvature_zero_on_plane_passes():
+    """Every curvature descriptor vanishes on a tilted plane."""
+    rec = validation.check_curvature_zero_on_plane()
+    assert rec["name"] == "curvature_zero_on_plane"
+    assert rec["passed"] is True, rec["detail"]
+    m = rec["metrics"]
+    assert max(abs(m["profile"]), abs(m["plan"]), abs(m["mean"])) < 1e-6, m
+
+
+def test_check_vrm_discriminates_roughness_passes():
+    """VRM is ~0 on a plane and strictly increases with roughness amplitude,
+    always bounded in [0, 1]."""
+    rec = validation.check_vrm_discriminates_roughness()
+    assert rec["name"] == "vrm_discriminates_roughness"
+    assert rec["passed"] is True, rec["detail"]
+    seq = rec["metrics"]["sequence"]
+    assert seq[0] <= 1e-9, seq
+    assert all(seq[i] < seq[i + 1] for i in range(len(seq) - 1)), seq
+    assert all(0.0 <= s <= 1.0 for s in seq), seq
+
+
+def test_check_roughness_hurst_sane_passes():
+    """Hurst exponent ~1 for a smooth ramp, <0.1 for white noise."""
+    rec = validation.check_roughness_hurst_sane()
+    assert rec["name"] == "roughness_hurst_sane"
+    assert rec["passed"] is True, rec["detail"]
+    assert abs(rec["metrics"]["hurst_ramp"] - 1.0) < 1e-6, rec["metrics"]
+    assert rec["metrics"]["hurst_noise"] < 0.1, rec["metrics"]
 
 
 def test_monotonic_roughness_metric_strictly_increases():

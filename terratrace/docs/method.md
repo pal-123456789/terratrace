@@ -27,6 +27,63 @@ source DEM (Mars MOLA / Earth Copernicus)
   downslope direction, ~1 = isotropic.
 - **Hypsometric integral**: `(mean - min) / (max - min)` of elevation; 0.5 = symmetric.
 
+## Geomorphometric descriptors
+
+Alongside the bulk-roughness features above, TerraTrace exposes a deeper geomorphometric
+descriptor set that characterises *how* a surface curves and *how* its roughness changes
+with scale. These form a non-destructive analysis layer: they read the same projected
+metric grids but are not part of the default `core` or `extended` decision vector, so
+computing them leaves the study package and its provenance hash unchanged. Each is defined
+with an explicit window and known invariances, consistent with the map-scale claim
+firewall — they describe surface *form*, not traversability or any mechanical property.
+
+Profile, plan, and mean curvature are computed by the Zevenbergen & Thorne (1987) method,
+which fits a local quadratic surface to each 3x3 node neighbourhood and reads curvature
+from its coefficients. Profile curvature is taken in the slope (steepest-descent)
+direction and expresses whether a slope is accelerating or decelerating downslope flow;
+plan curvature is taken across the slope, along the contour, and expresses whether flow
+converges or diverges; mean curvature combines the two into a general, direction-free
+convexity. All three are exactly 0 on a plane of any tilt, and on the test paraboloid
+`z = a(x^2 + y^2)` they take precisely profile = -2a, plan = +2a, and mean = -4a, following
+the Zevenbergen & Thorne sign convention. Profile and plan curvature are undefined where
+the surface is locally flat, because the slope direction is indeterminate when the gradient
+is near 0; the engine returns 0 at those cells. Mean curvature is formed directly as
+-2(D + E) from the second-derivative coefficients, so it needs no division by slope and
+stays defined even on flat ground. Curvature therefore isolates local form — bumps,
+hollows, ridges, and channels — independently of overall steepness.
+
+The Vector Ruggedness Measure follows Sappington, Longshore & Thompson (2007). Within a
+window, each cell's unit surface-normal vector is summed, and the measure is one minus the
+length of the resultant divided by the number of cells. When every normal points the same
+way the resultant is full length and the measure is 0; as the normals scatter the
+resultant shortens and the measure climbs toward 1. Its defining property is that it is 0
+on any plane, however steep, because a plane's surface normals are all parallel. Unlike the
+spread of slope values, it is therefore decoupled from the mean slope and reports only the
+dispersion of surface orientation. The result is bounded in [0, 1] and increases
+monotonically as the surface is made rougher, which is the behaviour the validation suite
+asserts.
+
+To describe how roughness depends on scale, TerraTrace computes an isotropic structure
+function: the root-mean-square elevation difference between points separated by each of a
+set of lags, pooling horizontal and vertical offsets. For a self-affine
+(fractional-Brownian) surface this RMS difference grows with lag as a power law, `lag^H`,
+so the slope of the structure function plotted on log-log axes estimates the Hurst
+exponent H, which the engine clamps to [0, 1]. A value near 1 marks a smooth,
+long-range-correlated surface whose roughness keeps growing with distance; a value near 0
+marks white-noise-like roughness already saturated at the smallest lag. The limits are
+fixed analytically: a linear ramp, whose elevation difference is exactly proportional to
+lag, yields H = 1, while spatially uncorrelated noise yields H near 0. This provides a
+single, scale-aware roughness summary that complements the fixed-window ruggedness and
+relief statistics.
+
+These descriptors rest on standard references: Zevenbergen & Thorne (1987, *Earth Surface
+Processes and Landforms* 12, 47-56) for the local-quadratic curvature method; Sappington,
+Longshore & Thompson (2007, *Journal of Wildlife Management* 71, 1419-1426) for the Vector
+Ruggedness Measure; and the self-affine surface / fractional-Brownian-motion framework
+underlying structure-function and Hurst roughness scaling (Mandelbrot & Van Ness, 1968,
+*SIAM Review* 10, 422-437; applied to topography by Turcotte, 1997, *Fractals and Chaos in
+Geology and Geophysics*, Cambridge University Press).
+
 ## Distances and decision
 
 Per-feature distribution distance uses Wasserstein-1 normalized by a declared scale

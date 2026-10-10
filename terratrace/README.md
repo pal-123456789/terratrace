@@ -22,6 +22,12 @@ source and a transformation.
 
 - Pure-NumPy morphology engine: slope, local relief, detrended ruggedness, low-slope
   connectivity.
+- Expanded geomorphometric descriptors (non-destructive analysis layer): Zevenbergen-Thorne
+  profile / plan / mean curvature, the Vector Ruggedness Measure (surface-normal dispersion,
+  decoupled from mean slope), and a multiscale roughness structure function with its Hurst
+  scaling exponent — each proven on analytic cases (zero on a plane, bit-exact on a
+  paraboloid, VRM rising with roughness, Hurst = 1 on a linear ramp) and leaving the default
+  study pipeline and its provenance hash unchanged.
 - Common-support aggregation with valid-fraction tracking (missingness never hidden).
 - Distribution distances (Wasserstein-1, KS, quantile fingerprint) with no SciPy.
 - Eligibility filters + Pareto/tie/indeterminate decision (no composite "Mars-likeness"
@@ -49,10 +55,10 @@ source and a transformation.
   closer candidate provably dominates and is recommended, a flat/water tile is blocked,
   and the whole pipeline is deterministic. A reproducibility + performance harness pins
   behavioural invariants, checks hash stability, and profiles wall-clock scaling.
-- 156 fixture tests with known analytic answers, all passing, no network required.
+- 170 fixture tests with known analytic answers, all passing, no network required.
 
 ```
-passed=156 failed=0
+passed=170 failed=0
 ```
 
 ## Install
@@ -71,7 +77,7 @@ pip install -r requirements-real.txt      # rasterio + requests (real DEMs)
 ```bash
 PYTHONPATH=. python3 -m terratrace.cli --out artifacts
 PYTHONPATH=. python3 -m terratrace.build_viewer      # writes viewer/index.html
-PYTHONPATH=. python3 tests/run_tests.py              # 156 tests
+PYTHONPATH=. python3 tests/run_tests.py              # 170 tests
 ```
 
 Open `viewer/index.html` in any browser — it is self-contained and works offline.
@@ -128,7 +134,7 @@ real arrays through the identical pipeline used by the synthetic path.
 ```
 terratrace/
   terratrace/        engine package (synthetic + real share one comparison core)
-    features.py      slope / relief / ruggedness / connectivity
+    features.py      slope / relief / ruggedness / connectivity + curvature / VRM / roughness
     support.py       common-support aggregation
     distances.py     Wasserstein-1, KS, fingerprints
     decision.py      eligibility, Pareto, tie policy, rank flips
@@ -137,6 +143,7 @@ terratrace/
     provenance.py    evidence graph + hashing
     protocol.py      draft study protocol
     study.py         compare_units + run_study + run_real_study
+    descriptors.py   full geomorphometric descriptor bank (analysis layer)
     catalog.py       10-source registry: coverage, preference, nodata, selection
     preflight.py     fail-fast config-schema + AOI/bbox/size/coverage checks
     profile.py       DEM QA report (valid/water/NaN, relief, advisory flags)
@@ -146,7 +153,7 @@ terratrace/
     benchmark.py     reproducibility invariants + wall-clock scaling profile
     build_viewer.py  self-contained HTML viewer
     cli.py           study runner
-  tests/             156 fixture tests + dependency-free runner
+  tests/             170 fixture tests + dependency-free runner
   artifacts/         generated study package (JSON + checksums + manifest)
   viewer/            generated offline HTML viewer
   config/            AOI configuration for real runs
