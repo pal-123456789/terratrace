@@ -26,8 +26,9 @@ source and a transformation.
   profile / plan / mean curvature, the Vector Ruggedness Measure (surface-normal dispersion,
   decoupled from mean slope), and a multiscale roughness structure function with its Hurst
   scaling exponent — each proven on analytic cases (zero on a plane, bit-exact on a
-  paraboloid, VRM rising with roughness, Hurst = 1 on a linear ramp) and leaving the default
-  study pipeline and its provenance hash unchanged.
+  paraboloid, VRM rising with roughness, Hurst = 1 on a linear ramp). They power an opt-in
+  `geomorphic` decision mode (curvature + VRM as extra Pareto axes) as a third robustness
+  lens, and leave the default study pipeline and its provenance hash unchanged.
 - Common-support aggregation with valid-fraction tracking (missingness never hidden).
 - Distribution distances (Wasserstein-1, KS, quantile fingerprint) with no SciPy.
 - Eligibility filters + Pareto/tie/indeterminate decision (no composite "Mars-likeness"

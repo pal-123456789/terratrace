@@ -90,6 +90,42 @@ def _extended_dims(extended, cid, reference_id):
     return (diff("aspect_dispersion"), diff("hypsometric_integral"))
 
 
+def _geomorphic_distributions(z, dx):
+    """Map-valued descriptors for the opt-in 'geomorphic' decision mode: ZT mean
+    curvature (surface convexity) + Vector Ruggedness Measure (slope-decoupled
+    ruggedness), raveled to 1-D distributions comparable like slope/relief."""
+    mc = features.mean_curvature(z, dx=dx)
+    vrm = features.vector_ruggedness(z, window=3, dx=dx, dy=dx)
+    return {"mean_curvature": np.asarray(mc, dtype=float).ravel(),
+            "vrm": np.asarray(vrm, dtype=float).ravel()}
+
+
+def _geomorphic_scales(ref):
+    """Reference-IQR normalizers for the geomorphic axes (std->range fallback),
+    mirroring _feature_scales so each candidate's axis uses the same scale."""
+    out = {}
+    for f in ("mean_curvature", "vrm"):
+        v = np.asarray(ref[f], dtype=float)
+        v = v[np.isfinite(v)]
+        s = 0.0
+        if v.size:
+            s = float(np.percentile(v, 75) - np.percentile(v, 25))
+            if not np.isfinite(s) or s <= 1e-9:
+                s = float(np.std(v))
+            if not np.isfinite(s) or s <= 1e-9:
+                s = float(np.max(v) - np.min(v))
+        out[f] = s if (np.isfinite(s) and s > 1e-9) else 1.0
+    return out
+
+
+def _geomorphic_dims(geo, cid, reference_id, scales):
+    """Two extra Pareto dimensions: normalized distances on mean curvature + VRM."""
+    def nd(f):
+        return distances.normalized_distance(geo[cid][f], geo[reference_id][f],
+                                             scale=scales.get(f))
+    return (float(nd("mean_curvature")), float(nd("vrm")))
+
+
 def compare_units(raw_units, rights, native_posting_m, reference_id="mars_reference",
                   target_support_m=100.0, min_valid=0.5, source_label="synthetic",
                   decision_metrics="core", n_boot=0):
@@ -121,6 +157,14 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
             "hypsometric_integral": features.hypsometric_integral(a),
             "tpi_dispersion": features.tpi_dispersion(a, window=5),
         }
+    # Geomorphic axes are computed ONLY for the opt-in geomorphic mode, so the
+    # core/extended study packages (and their provenance hashes) are untouched.
+    geo, geo_scales = {}, {}
+    if decision_metrics == "geomorphic":
+        for uid, a in agg.items():
+            geo[uid] = _geomorphic_distributions(a, dxs[uid])
+        if reference_id in geo:
+            geo_scales = _geomorphic_scales(geo[reference_id])
     dx_ref = dxs[reference_id]
     candidate_ids = [u for u in agg if u != reference_id]
     ref_ok, ref_reason = decision.eligibility(meta[reference_id])
@@ -141,6 +185,8 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
                 vec = _vector(ref_f, cand_f, scales)
                 if decision_metrics == "extended":
                     vec = vec + _extended_dims(extended, cid, reference_id)
+                elif decision_metrics == "geomorphic":
+                    vec = vec + _geomorphic_dims(geo, cid, reference_id, geo_scales)
                 vecs[cid] = vec
                 if cfg["name"] == "baseline":
                     cand_feats_base[cid] = cand_f
@@ -160,8 +206,11 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
         eligible_scns = [v for v in scenario_vectors if v]
         state, recommended, flips = decision.resolve_state(baseline_vectors, eligible_scns)
     gap_ledger = gaps.ledger_for(state)
-    metric_names = list(METRICS) + (["aspect_dispersion", "hypsometric_integral"]
-                                     if decision_metrics == "extended" else [])
+    metric_names = list(METRICS)
+    if decision_metrics == "extended":
+        metric_names += ["aspect_dispersion", "hypsometric_integral"]
+    elif decision_metrics == "geomorphic":
+        metric_names += ["mean_curvature", "vector_ruggedness"]
     profile = {"task": "map_scale_terrain_route_study", "target_body": "mars",
                "target_support_m": float(target_support_m), "metrics": metric_names,
                "decision_metrics": decision_metrics,
@@ -185,11 +234,24 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
     if len(baseline_vectors) >= 2:
         from . import frontier
         package["frontier"] = frontier.summarize(baseline_vectors)
+    if decision_metrics == "geomorphic":
+        # Report the geomorphic descriptor scalars per unit (incl. the Hurst
+        # roughness-scaling exponent). Present only in this opt-in mode, so other
+        # modes' packages/hashes are unchanged.
+        package["geomorphic_metrics"] = {uid: {
+            "hurst_exponent": features.hurst_exponent(agg[uid], dx=dxs[uid]),
+            "mean_curvature_median": (float(np.nanmedian(geo[uid]["mean_curvature"]))
+                                      if geo[uid]["mean_curvature"].size else float("nan")),
+            "vrm_median": (float(np.nanmedian(geo[uid]["vrm"]))
+                           if geo[uid]["vrm"].size else float("nan")),
+        } for uid in agg}
     if n_boot and baseline_vectors and ref_feats_base is not None:
         from . import uncertainty
         extra = None
         if decision_metrics == "extended":
             extra = {cid: _extended_dims(extended, cid, reference_id) for cid in cand_feats_base}
+        elif decision_metrics == "geomorphic":
+            extra = {cid: _geomorphic_dims(geo, cid, reference_id, geo_scales) for cid in cand_feats_base}
         package["bootstrap"] = uncertainty.bootstrap_pareto(
             ref_feats_base, cand_feats_base, n_boot=n_boot, seed=0, extra_dims=extra, scales=scales)
     package["package_hash"] = provenance.sha256_json(

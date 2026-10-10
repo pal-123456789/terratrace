@@ -73,3 +73,56 @@ def test_extended_decision_mode_adds_two_dimensions():
     for vec in pkg["baseline_vectors"].values():
         assert len(vec) == 6
     assert pkg["result_state"] in study.decision.STATES
+
+
+def _geomorphic_scene():
+    from terratrace import synthetic
+    base = synthetic.plane((64, 64), slope_x=0.02, dx=10.0)
+    return {
+        "ref": base + synthetic.rough_field((64, 64), 0.8, seed=1),
+        "near": base + synthetic.rough_field((64, 64), 0.9, seed=2),
+        "far": base + synthetic.rough_field((64, 64), 4.0, seed=3),
+    }
+
+
+def test_geomorphic_mode_adds_curvature_and_vrm_axes():
+    raw = _geomorphic_scene()
+    rights = {k: "verified_allowed" for k in raw}
+    pkg = study.compare_units(raw, rights, native_posting_m=10.0, reference_id="ref",
+                              target_support_m=10.0, decision_metrics="geomorphic")
+    assert pkg["profile"]["decision_metrics"] == "geomorphic"
+    assert pkg["profile"]["metrics"][-2:] == ["mean_curvature", "vector_ruggedness"]
+    for vec in pkg["baseline_vectors"].values():
+        assert len(vec) == 6
+    assert pkg["result_state"] in study.decision.STATES
+
+
+def test_geomorphic_mode_recommends_closer_unit_and_reports_hurst():
+    raw = _geomorphic_scene()
+    rights = {k: "verified_allowed" for k in raw}
+    pkg = study.compare_units(raw, rights, native_posting_m=10.0, reference_id="ref",
+                              target_support_m=10.0, decision_metrics="geomorphic")
+    assert pkg["result_state"] == "RECOMMEND_FOLLOW_UP"
+    assert pkg["recommended_unit"] == "near"
+    gm = pkg["geomorphic_metrics"]
+    assert set(gm) == set(raw)
+    for u in raw:
+        assert "hurst_exponent" in gm[u] and "mean_curvature_median" in gm[u]
+
+
+def test_core_and_extended_packages_have_no_geomorphic_key():
+    # The opt-in mode must not leak into the default/extended packages (keeps
+    # their provenance hashes byte-stable).
+    raw = _geomorphic_scene()
+    rights = {k: "verified_allowed" for k in raw}
+    for mode in ("core", "extended"):
+        pkg = study.compare_units(raw, rights, native_posting_m=10.0, reference_id="ref",
+                                  target_support_m=10.0, decision_metrics=mode)
+        assert "geomorphic_metrics" not in pkg
+
+
+def test_core_study_hash_is_stable_regression():
+    # Guards the gated-build invariant: the canonical synthetic study hash must
+    # not drift as opt-in modes are added.
+    assert study.run_study()["package_hash"] == (
+        "8f4890777ee462a2266c053d2e498ccdd7c133ddc5a101d36988331fa7da8167")

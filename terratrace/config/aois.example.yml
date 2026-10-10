@@ -9,8 +9,10 @@ min_valid_fraction: 0.5
 # cross-body comparison). Set false to use the simpler same-dx fallback.
 reproject: true
 # Pareto decision axes: "core" = slope/relief/ruggedness/connectivity (default,
-# validated). "extended" also includes aspect dispersion + hypsometric integral
-# -> a built-in robustness ablation (does the winner survive more descriptors?).
+# validated). "extended" also includes aspect dispersion + hypsometric integral.
+# "geomorphic" instead adds ZT mean curvature + Vector Ruggedness Measure (shape
+# descriptors decoupled from slope). extended/geomorphic are built-in robustness
+# ablations: does the recommendation survive under a different, proven axis set?
 decision_metrics: extended
 # Bootstrap resamples for distance confidence intervals + non-domination
 # frequency (0 = off). 300 is a good value for a real run.

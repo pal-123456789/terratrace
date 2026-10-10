@@ -92,9 +92,14 @@ over the active metric vector; a recommendation is emitted only when one eligibl
 is non-dominated and stable across sensitivity scenarios (pairwise rank-flip <= 0.1).
 Otherwise the result is `TIE`, `INDETERMINATE`, `NOT_COMPARABLE`, or `BLOCKED`.
 
-The decision never collapses the vector into a single "Mars-likeness" number. Two decision
-axes are offered: `core` (four morphology metrics, default) and `extended` (adds aspect
-dispersion and hypsometric integral) as a built-in robustness ablation.
+The decision never collapses the vector into a single "Mars-likeness" number. Three decision
+axis sets are offered as mutually-exclusive robustness lenses: `core` (the four morphology
+metrics, default and gated), `extended` (adds aspect dispersion and hypsometric integral),
+and `geomorphic` (adds Zevenbergen-Thorne mean curvature and the Vector Ruggedness Measure —
+shape descriptors decoupled from mean slope). The `extended` and `geomorphic` modes are
+opt-in: a recommendation that survives all three independent axis sets is far more defensible
+than one that holds under a single set. Choosing a non-default mode does not alter the `core`
+study package or its provenance hash; the extra descriptors are computed only when requested.
 
 ## Reprojection
 
