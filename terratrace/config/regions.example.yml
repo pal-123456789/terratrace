@@ -1,0 +1,64 @@
+# TerraTrace STUDY configuration built from the named-site region library
+# (terratrace/regions.py). Instead of hand-typing bounding boxes, each unit
+# below is a well-known preset rendered into the standard AOI unit-dict shape
+# (see config/aois.example.yml). One Mars reference window is compared against a
+# slate of terrestrial analog sites.
+#
+# HONESTY NOTES:
+#   * All bbox values are APPROXIMATE bounding windows around published site
+#     centres (see the regions.py caveats) -- refine them to your DEM.
+#   * Every `path:` is a PLACEHOLDER for a DEM you still have to fetch on a
+#     networked machine (Mars cropped from global MOLA 463 m; Earth from
+#     OpenTopography Copernicus GLO-30).
+#   * "analog" labels are map-scale morphology screening conveniences, NOT
+#     geological, astrobiological or mission claims.
+
+# Bring every unit to a common support before comparison. MOLA ~463 m is the
+# limiting support, so a conservative 2000 m common support is a safe default.
+target_support_m: 2000.0
+min_valid_fraction: 0.5
+# Warp each AOI to its own local azimuthal-equidistant metric grid for a correct
+# cross-body comparison. Set false for the simpler same-dx fallback.
+reproject: true
+
+units:
+  # --- Mars reference window (is_reference: true) ---------------------------
+  # Jezero Crater (Perseverance landing site, delta). Crop from global MOLA 463 m.
+  - id: jezero_crater
+    path: data/mars/jezero_crater.tif          # placeholder: crop from MOLA 463 m
+    body: mars
+    native_posting_m: 463.0
+    is_reference: true
+    rights_status: verified_allowed            # NASA PDS/USGS public data
+    bbox: [77.2, 18.2, 77.8, 18.8]             # APPROXIMATE window around site centre
+
+  # --- Earth analog slate (Copernicus GLO-30; all on land) ------------------
+  # Craters of the Moon basaltic lava field, Idaho.
+  - id: craters_of_the_moon
+    path: data/earth/craters_of_the_moon.tif   # placeholder: fetch COP30
+    body: earth
+    demtype: COP30
+    bbox: [-113.6, 43.3, -113.3, 43.6]         # APPROXIMATE
+    native_posting_m: 30.0
+    rights_status: verified_allowed
+    access_status: unknown                     # verify before any fieldwork
+
+  # Mauna Loa, Hawaii - basaltic shield.
+  - id: hawaii_mauna_loa
+    path: data/earth/hawaii_mauna_loa.tif      # placeholder: fetch COP30
+    body: earth
+    demtype: COP30
+    bbox: [-155.7, 19.3, -155.4, 19.6]         # APPROXIMATE
+    native_posting_m: 30.0
+    rights_status: verified_allowed
+    access_status: unknown
+
+  # Icelandic Highlands - volcanic / periglacial.
+  - id: iceland_highlands
+    path: data/earth/iceland_highlands.tif     # placeholder: fetch COP30
+    body: earth
+    demtype: COP30
+    bbox: [-19.2, 64.7, -18.6, 65.1]           # APPROXIMATE
+    native_posting_m: 30.0
+    rights_status: verified_allowed
+    access_status: unknown

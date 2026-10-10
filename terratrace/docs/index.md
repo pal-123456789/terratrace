@@ -39,7 +39,7 @@ provenance-tracked study package.
 pip install -r requirements.txt
 python -m terratrace.cli --out artifacts        # synthetic, offline
 python -m terratrace.build_viewer               # viewer/index.html
-python tests/run_tests.py                        # 307 fixtures
+python tests/run_tests.py                        # 327 fixtures
 ```
 
 Real data: see the repository `REAL-DATA-RUNBOOK.md`. The only key required is a free

@@ -9,6 +9,9 @@ Commands:
   report     render a markdown report from a study JSON
   report-html render a self-contained HTML report from a study JSON
   dossier    print a per-candidate site dossier from a study JSON
+  references print the data-sources citation / credits bundle (Markdown)
+  sensitivity run a decision-lens robustness ablation on a synthetic scene
+  classify   label synthetic terrains by map-scale morphology type
   version    print the TerraTrace version and schema version
 
 Backward compatibility: the original CLI ran a study directly with options like
@@ -204,6 +207,91 @@ def _cmd_dossier(argv):
     return 0
 
 
+def _cmd_references(argv):
+    """Print the data-sources citation / credits bundle (Markdown) to stdout.
+
+    With ``--out PATH`` the Markdown is written to that file instead (and the
+    path is echoed), mirroring the report/report-html commands.
+    """
+    ap = argparse.ArgumentParser(
+        prog="terratrace references",
+        description="Print the data-sources citation / credits bundle (Markdown).")
+    ap.add_argument("--out", default=None,
+                    help="write the Markdown to this file instead of stdout")
+    args = ap.parse_args(argv)
+    # Lazy import keeps `import terratrace.cli` cheap and dependency-free.
+    from terratrace import references
+    md = references.references_md()
+    if args.out:
+        with open(args.out, "w", encoding="utf-8") as fh:
+            fh.write(md)
+        print(args.out)
+    else:
+        sys.stdout.write(md)
+    return 0
+
+
+def _cmd_sensitivity(argv):
+    """Run a decision-lens robustness ablation on a synthetic clear-winner scene.
+
+    Builds a small deterministic reference/near/far scene (~48x48, as in
+    test_sensitivity: a gently-sloped rough plane, a statistically-similar
+    ``near``, and a much rougher ``far``), runs :func:`sensitivity.lens_ablation`
+    across the decision lenses, and prints a one-line verdict. This is a
+    robustness diagnostic over the map-scale morphology screen, not a new claim.
+    """
+    ap = argparse.ArgumentParser(
+        prog="terratrace sensitivity",
+        description="Run a decision-lens robustness ablation on a synthetic scene.")
+    ap.parse_args(argv)
+    # Lazy import keeps `import terratrace.cli` cheap and dependency-free.
+    from terratrace import sensitivity, synthetic
+    n, L = 48, 10.0
+    base = synthetic.plane((n, n), slope_x=0.02, dx=L)
+    raw = {
+        "ref":  base + synthetic.rough_field((n, n), 0.8, seed=1),
+        "near": base + synthetic.rough_field((n, n), 0.9, seed=2),
+        "far":  base + synthetic.rough_field((n, n), 4.0, seed=3),
+    }
+    rights = {k: "verified_allowed" for k in raw}
+    rep = sensitivity.lens_ablation(raw, rights, native_posting_m=L,
+                                    reference_id="ref", target_support_m=L)
+    states = " ".join(f"{lens}={entry['result_state']}"
+                      for lens, entry in rep["per_lens"].items())
+    print(f"recommendation_stable={rep['recommendation_stable']} "
+          f"recommended_units={rep['recommended_units']} "
+          f"lenses: {states}")
+    return 0
+
+
+def _cmd_classify(argv):
+    """Label three synthetic terrains by their map-scale morphology type.
+
+    Builds the three study-style synthetic terrains offline -- the study's Mars
+    reference grid, a smooth gaussian dome, and a rough noisy plane -- runs the
+    transparent rule-based :func:`terrain_classify.classify` on each, and prints
+    ``label: type (confidence)``. The type is a DESCRIPTIVE morphology label
+    only (no geologic, hazard, or rover-traversability claim).
+    """
+    ap = argparse.ArgumentParser(
+        prog="terratrace classify",
+        description="Label synthetic terrains by map-scale morphology type.")
+    ap.parse_args(argv)
+    # Lazy imports keep `import terratrace.cli` cheap and dependency-free.
+    from terratrace import terrain_classify, synthetic, study
+    shape = (56, 56)
+    terrains = {
+        "reference": study._unit_grid("reference", shape),
+        "smooth": synthetic.gaussian_hill(shape, amplitude=10.0, sigma=12.0),
+        "rough": (synthetic.plane(shape, slope_x=0.2, slope_y=0.1)
+                  + synthetic.rough_field(shape, amplitude=5.0, seed=11)),
+    }
+    for label in ("reference", "smooth", "rough"):
+        r = terrain_classify.classify(terrains[label])
+        print(f"{label}: {r['type']} ({r['confidence']:.2f})")
+    return 0
+
+
 def _cmd_version(argv):
     """Print the package version and the study-schema version."""
     ap = argparse.ArgumentParser(
@@ -222,6 +310,9 @@ _DISPATCH = {
     "report": _cmd_report,
     "report-html": _cmd_report_html,
     "dossier": _cmd_dossier,
+    "references": _cmd_references,
+    "sensitivity": _cmd_sensitivity,
+    "classify": _cmd_classify,
     "version": _cmd_version,
 }
 
@@ -239,6 +330,9 @@ def _print_top_help():
     print("  report     render a markdown report from a study JSON")
     print("  report-html render a self-contained HTML report from a study JSON")
     print("  dossier    print a per-candidate site dossier from a study JSON")
+    print("  references  print the data-sources citation / credits bundle (Markdown)")
+    print("  sensitivity run a decision-lens robustness ablation on a synthetic scene")
+    print("  classify    label synthetic terrains by map-scale morphology type")
     print("  version    print the TerraTrace version and schema version")
     print()
     print("Run 'python -m terratrace.cli <command> -h' for a command's options.")

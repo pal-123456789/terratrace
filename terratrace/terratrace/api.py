@@ -6,6 +6,7 @@ FastAPI needed), so it runs anywhere Python does. Endpoints:
     GET  /health            -> liveness + version
     GET  /study             -> the canonical synthetic study package (JSON)
     GET  /bodies            -> supported reference bodies + data-source registry
+    GET  /references        -> upstream data-source citation / credits catalogue
     POST /compare           -> run a synthetic study with validated parameters
                                body: {"target_support_m": float, "n_boot": int}
     POST /validate          -> run the scientific-correctness validation suite
@@ -19,6 +20,11 @@ FastAPI needed), so it runs anywhere Python does. Endpoints:
     POST /report.html       -> run_study + render the report as a standalone HTML
                                document (Content-Type text/html, NOT JSON)
                                body: {"target_support_m": float, "n_boot": int}
+    POST /sensitivity       -> decision-lens robustness ablation over a small
+                               synthetic clear-winner scene (no array upload)
+                               body: {"target_support_m": float}  # optional
+    POST /classify          -> terrain-type classifier run on three synthetic
+                               grids of increasing roughness (no array upload)
 
 SECURITY: this server is UNAUTHENTICATED and binds to 127.0.0.1 (localhost) by
 default. Do not expose it to a network without putting authentication and rate
@@ -38,10 +44,11 @@ MAX_BOOT = 500             # interactive responsiveness cap for the HTTP endpoin
                            # (~7 s worst case); the library accepts any n_boot offline.
 MAX_BODY = 1 << 16          # 64 KiB cap on request bodies
 LOOPBACK = {"127.0.0.1", "localhost", "::1", "[::1]"}
-ROUTES = ["GET /health", "GET /study", "GET /bodies",
+ROUTES = ["GET /health", "GET /study", "GET /bodies", "GET /references",
           "POST /compare", "POST /validate", "POST /batch", "POST /report",
-          "POST /dossier", "POST /report.html"]
-POST_ROUTES = ("/compare", "/validate", "/batch", "/report", "/dossier", "/report.html")
+          "POST /dossier", "POST /report.html", "POST /sensitivity", "POST /classify"]
+POST_ROUTES = ("/compare", "/validate", "/batch", "/report", "/dossier",
+               "/report.html", "/sensitivity", "/classify")
 
 
 def _clamp(value, lo, hi, default):
@@ -71,6 +78,40 @@ def _synthetic_batch(shape=(48, 48)):
     references = ["mars_ref_a", "mars_ref_b"]
     candidates = ["earth_candidate_a", "earth_candidate_b", "earth_candidate_far"]
     return units, references, candidates
+
+
+_SENS_NATIVE_M = 10.0       # native posting (m) of the synthetic sensitivity scene
+
+
+def _sensitivity_scene(shape=(48, 48)):
+    """Small deterministic clear-winner scene for the decision-sensitivity demo:
+    a reference, a 'near' candidate statistically like it, and a much rougher
+    'far' candidate -- an unambiguous, reproducible winner, mirroring
+    test_sensitivity's _clear_winner_scene (and run_study's _unit_grid) at a tiny
+    size so the ablation stays fast. Returns (raw_units, rights)."""
+    base = synthetic.plane(shape, slope_x=0.02, dx=_SENS_NATIVE_M)
+    raw = {
+        "ref": base + synthetic.rough_field(shape, 0.8, seed=1),
+        "near": base + synthetic.rough_field(shape, 0.9, seed=2),
+        "far": base + synthetic.rough_field(shape, 4.0, seed=3),
+    }
+    rights = {k: "verified_allowed" for k in raw}
+    return raw, rights
+
+
+def _classify_scenes(shape=(48, 48)):
+    """Three deterministic synthetic grids of increasing roughness for the
+    terrain-type classifier demo: a smooth near-flat plane, a 'rolling' reference
+    dome, and a rough white-noise field. These mirror the proven
+    test_terrain_classify fixtures (reused via synthetic.*), so the classifier is
+    exercised across its vocabulary without needing an uploaded array.
+    Returns {label: 2-D elevation grid}."""
+    return {
+        "reference": synthetic.gaussian_hill(shape, amplitude=10.0, sigma=12.0),
+        "smooth": synthetic.plane(shape, slope_x=0.001, slope_y=0.0005),
+        "rough": (synthetic.plane(shape, slope_x=0.2, slope_y=0.1)
+                  + synthetic.rough_field(shape, amplitude=5.0, seed=11)),
+    }
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -118,6 +159,11 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, study.run_study())
             if route == "/bodies":
                 return self._send(200, self._bodies())
+            if route == "/references":
+                # Upstream data-source citation / credits catalogue (a GET like
+                # /bodies). references is lazy-imported so importing the API stays light.
+                from . import references
+                return self._send(200, {"references": references.references_for()})
             return self._send(404, {"error": "not found", "routes": ROUTES})
         except Exception:
             return self._send(500, {"error": "internal error"})
@@ -146,6 +192,10 @@ class Handler(BaseHTTPRequestHandler):
                 return self._post_dossier(params)
             if route == "/report.html":
                 return self._post_report_html(params)
+            if route == "/sensitivity":
+                return self._post_sensitivity(params)
+            if route == "/classify":
+                return self._post_classify(params)
             return self._post_report(params)
         except Exception:
             return self._send(500, {"error": "internal error"})
@@ -270,6 +320,38 @@ class Handler(BaseHTTPRequestHandler):
         nb = int(_clamp(params.get("n_boot", 0), 0, MAX_BOOT, 0))
         pkg = study.run_study(target_support_m=tsm, n_boot=nb)
         return self._send_html(200, report_html.study_report_html(pkg))
+
+    def _post_sensitivity(self, params):
+        """Decision-lens robustness ablation over a small deterministic
+        clear-winner scene (reference + a near and a far candidate; see
+        _sensitivity_scene). Re-runs the morphology screen under every decision
+        lens at a fixed common support and reports whether the recommendation
+        survives. Honours an optional {"target_support_m"}, clamped exactly like
+        /compare (default = the scene's native posting so the empty-body demo
+        shows the clear winner). sensitivity is lazy-imported so importing the API
+        stays light. This is a robustness diagnostic, not a new scientific claim."""
+        from . import sensitivity
+        tsm = _clamp(params.get("target_support_m", _SENS_NATIVE_M), 1.0, 100000.0, _SENS_NATIVE_M)
+        raw, rights = _sensitivity_scene()
+        rep = sensitivity.lens_ablation(raw, rights, native_posting_m=_SENS_NATIVE_M,
+                                        reference_id="ref", target_support_m=tsm)
+        return self._send(200, {"recommendation_stable": rep["recommendation_stable"],
+                                "recommended_units": rep["recommended_units"],
+                                "per_lens": rep["per_lens"]})
+
+    def _post_classify(self, params):
+        """Run the transparent, rule-based terrain-type classifier on three
+        deterministic synthetic grids of increasing roughness (see
+        _classify_scenes), demonstrating the classifier without an uploaded array.
+        Returns {"classes": {label: type}} with the chosen morphology type per
+        grid. No request params are required; the body is still read/validated via
+        the shared POST path. terrain_classify is lazy-imported so importing the
+        API stays light. The type is a descriptive map-scale morphology label, not
+        a geological, hazard, or traversability claim."""
+        from . import terrain_classify
+        classes = {label: terrain_classify.classify(grid)["type"]
+                   for label, grid in _classify_scenes().items()}
+        return self._send(200, {"classes": classes})
 
 
 def make_server(host="127.0.0.1", port=8000):

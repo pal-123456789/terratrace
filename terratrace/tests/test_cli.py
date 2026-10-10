@@ -135,3 +135,39 @@ def test_cli_dossier_subcommand_summary():
         code = _exit_code(["dossier", "--study", tmp_json])
     assert code == 0
     assert buf.getvalue().strip() != ""
+
+
+def test_cli_references_subcommand_prints_and_exits_zero():
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        code = _exit_code(["references"])
+    assert code == 0
+    assert buf.getvalue().strip() != ""
+
+
+def test_cli_references_subcommand_out_writes_file():
+    d = tempfile.mkdtemp()
+    out = os.path.join(d, "references.md")
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        code = _exit_code(["references", "--out", out])
+    assert code == 0
+    assert os.path.exists(out)
+    with open(out, encoding="utf-8") as fh:
+        assert fh.read().strip() != ""
+
+
+def test_cli_sensitivity_subcommand_exits_zero():
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        code = _exit_code(["sensitivity"])
+    assert code == 0
+    assert buf.getvalue().strip() != ""
+
+
+def test_cli_classify_subcommand_exits_zero():
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        code = _exit_code(["classify"])
+    assert code == 0
+    assert buf.getvalue().strip() != ""

@@ -288,3 +288,75 @@ def test_dossier_forbidden_host_403():
         assert code == 403
     finally:
         srv.shutdown()
+
+
+def test_references_lists_catalog_credits():
+    srv, port = _serve()
+    try:
+        r = json.loads(urllib.request.urlopen(
+            f"http://127.0.0.1:{port}/references", timeout=10).read())
+        assert isinstance(r, dict)
+        refs = r["references"]
+        assert isinstance(refs, list) and refs            # non-empty list
+        for rec in refs:
+            assert isinstance(rec, dict)
+            assert rec.get("citation")                     # every credit is attributed
+            assert rec.get("license")                      # and carries a licence
+    finally:
+        srv.shutdown()
+
+
+def test_sensitivity_default_body_is_stable():
+    srv, port = _serve()
+    try:
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{port}/sensitivity",
+            data=json.dumps({}).encode("utf-8"),
+            headers={"Content-Type": "application/json"}, method="POST")
+        r = json.loads(urllib.request.urlopen(req, timeout=60).read())
+        assert isinstance(r, dict)
+        assert isinstance(r["recommendation_stable"], bool)
+        assert r["recommendation_stable"] is True          # clear-winner scene -> stable
+        per_lens = r["per_lens"]
+        assert isinstance(per_lens, dict) and per_lens
+        assert set(per_lens) == {"core", "extended", "geomorphic"}
+        assert r["recommended_units"] == ["near"]          # the sole analog under every lens
+    finally:
+        srv.shutdown()
+
+
+def test_classify_default_body_distinguishes_terrains():
+    from terratrace import terrain_classify
+    rough_type = terrain_classify.TYPES[-1]                # documented most-rugged label
+    srv, port = _serve()
+    try:
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{port}/classify",
+            data=json.dumps({}).encode("utf-8"),
+            headers={"Content-Type": "application/json"}, method="POST")
+        r = json.loads(urllib.request.urlopen(req, timeout=60).read())
+        classes = r["classes"]
+        assert isinstance(classes, dict)
+        for label in ("reference", "smooth", "rough"):
+            assert label in classes, label
+        assert classes["rough"] == rough_type              # rough terrain -> rugged type
+        assert classes["smooth"] != rough_type             # flat terrain is NOT the rough type
+        assert classes["smooth"] != classes["rough"]       # smooth and rough differ
+    finally:
+        srv.shutdown()
+
+
+def test_sensitivity_forbidden_host_403():
+    srv, port = _serve()
+    try:
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{port}/sensitivity",
+            data=b"{}", headers={"Host": "evil.example.com"}, method="POST")
+        code = 0
+        try:
+            urllib.request.urlopen(req, timeout=10)
+        except urllib.error.HTTPError as e:
+            code = e.code
+        assert code == 403
+    finally:
+        srv.shutdown()
