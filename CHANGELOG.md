@@ -1,0 +1,540 @@
+# Changelog
+
+Complete build history of TerraTrace, generated from the git commit messages
+(newest first). Each entry is the exact message recorded with that commit.
+
+## bd5c6b8 — Harden: real-path regression test + GitHub Actions CI + accurate landing README
+
+*Committed 2026-10-10 by Pal Ghevariya*
+
+- tests/test_real_study_path.py: exercises run_real_study end-to-end WITHOUT rasterio
+  (monkeypatches the raster load) -- proves the real entry point's wiring: reference
+  detection, per-unit vertical-accuracy resolution (explicit + catalog-by-demtype),
+  opt-in feature_uncertainty + hillshade previews, and the geomorphic lens. Guards the
+  real-data path (otherwise untested in CI) against regressions. 330 tests, all green.
+- .github/workflows/ci.yml: runs the dependency-free suite + the scientific-correctness
+  validation on Python 3.10/3.11/3.12 on every push/PR (CI badge added).
+- README.md (root landing page): refreshed to the true scope -- five bodies, 13-source
+  catalog, 330 tests, the full capability set -- it was badly stale (46 tests, Mars-only).
+
+---
+
+## a96b3b7 — Day 10 — v0.2 push 5: curated analog-site library, one-command bundle, API+CLI expansion
+
+*Committed 2026-10-10 by Pal Ghevariya*
+
+Four parallel subagents; 327 fixture tests all passing; synthetic study hash UNCHANGED.
+
+regions.py (+config/regions.example.yml): a curated library of 11 well-known planetary
+reference sites (Jezero, Gale, Valles Marineris, Mare Tranquillitatis, Aristarchus,
+Caloris) and terrestrial analog sites (Hawaii, Iceland, Atacama, Devon Island, Craters of
+the Moon), as ready-to-use AOI presets (approximate bboxes; illustrative, not endorsed).
+
+bundle.py (+scripts/export_bundle.py): one command exports a complete deliverable set --
+study.json, report.md, report.html, REFERENCES.md, viewer.html, and a sha256 CHECKSUMS
+manifest -- all self-consistent and verified (sha256sum -c passes).
+
+api.py: new GET /references, POST /sensitivity, POST /classify (loopback-only + body cap +
+Host allowlist preserved). cli.py: new references, sensitivity, classify subcommands.
+
+README/docs test counts updated. 327 fixture tests, all passing, no network required.
+
+---
+
+## 92b49fc — Day 9 — v0.2 push 4: integrated uncertainty + previews, sensitivity ablation, terrain classifier, credits, API/CLI
+
+*Committed 2026-10-10 by Pal Ghevariya*
+
+Five parallel subagents + core integration; 307 fixture tests all passing; the canonical
+synthetic study hash is UNCHANGED (opt-in features are off by default).
+
+Integrated measurement uncertainty + previews (study.py + report_html.py + build_viewer.py):
+compare_units / run_real_study gain opt-in vertical_accuracy (scalar or per-unit; real runs
+auto-resolve it from each source's catalog vertical accuracy) and previews=True. When
+supplied, the package carries feature_uncertainty (propagated slope/relief/ruggedness 1-sigma
+via errorprop) and previews (one self-contained hillshade PNG data-URI per unit via
+hillshade), and the HTML report + offline viewer render a "Measurement uncertainty" table and
+inline terrain previews. OFF by default -> synthetic package/hash byte-unchanged (regression
+test added).
+
+sensitivity.py: lens_ablation / support_ablation / ablation_report — reports whether the
+recommendation is STABLE across the three decision lenses and across common-support scales.
+
+terrain_classify.py: a transparent, rule-based morphological type label (flat_plain / rolling
+/ dissected_upland / rough_rugged) with evidence + confidence margin. Descriptive map-scale
+label only, not a geological/genetic/mission classification.
+
+references.py (+ scripts/make_references.py): a complete "Data sources & credits" bundle
+(citation + licence per source, grouped by body) so every study is properly attributed.
+
+api.py: new POST /dossier (per-unit decision brief) and POST /report.html (HTML report);
+loopback-only + body cap + Host allowlist preserved. cli.py: new dossier + report-html
+subcommands.
+
+README / docs/method.md / docs/VALIDATION.md / docs/index.md updated.
+
+307 fixture tests, all passing, no network required.
+
+---
+
+## 4251941 — Day 8 — v0.2 push 3: elevation-error propagation, hillshade previews, cross-body fingerprint search, site dossiers
+
+*Committed 2026-10-10 by Pal Ghevariya*
+
+Four parallel subagents + core work; 275 fixture tests all passing; the canonical synthetic
+study hash is UNCHANGED.
+
+Error propagation (catalog.py + errorprop.py): every catalog source now carries an
+approximate 1-sigma vertical accuracy (vertical_accuracy_m) + a vertical_accuracy_for()
+accessor; errorprop propagates it analytically into slope / relief / ruggedness uncertainty
+(central-difference model: sigma_g = sigma_z/(dx*sqrt(2)); slope-angle sigma =
+sigma_g/(1+tan(slope)^2); relief sigma = sqrt(2)*sigma_z). Honest caveat: assumes independent
+per-pixel errors, so it is an optimistic lower bound (parallel to the bootstrap caveat).
+
+hillshade.py: a Horn shaded-relief image encoded as a base64 PNG data URI using ONLY the
+stdlib (zlib/struct/base64 — no PIL), so a terrain preview can be embedded inline in a fully
+self-contained HTML page. (Validity checked without PIL: the IDAT decompresses to
+height*(width+1) bytes.)
+
+fingerprint_library.py (+ scripts/fingerprint_search.py): build a library of reference-terrain
+fingerprints and rank candidates against them, including the cross-body case (rank Earth
+candidates against each planetary reference). A morphological similarity ranking, not a
+classification/identity claim.
+
+dossier.py: a focused per-candidate decision brief (its per-metric distances, Pareto layer,
+eligibility verdict, bootstrap frequencies + CIs when present, whether it is the
+recommendation, and the transfer-gap ledger + prohibited claims) as a structured dict and as
+Markdown.
+
+README / docs/method.md / docs/VALIDATION.md / docs/index.md updated.
+
+275 fixture tests, all passing, no network required.
+
+---
+
+## b27864c — Day 7 — v0.2 push 2: five bodies (Mercury + Ceres), HTML report, DEM co-registration, terrain fingerprint, API + viewer
+
+*Committed 2026-10-10 by Pal Ghevariya*
+
+Five parallel subagents + core work, each verified against the code and the suite; 247
+fixture tests all passing; the canonical synthetic study hash is UNCHANGED.
+
+Five reference bodies: added Mercury (MESSENGER sphere R=2,439,400 m) and Ceres (Dawn
+sphere R=469,730 m) across reproject.py / catalog.py / preflight.py (registry is now 13
+sources, keyless for the planetary bodies). Earth/Mars/Moon CRS strings and the gated study
+hash are byte-unchanged. Strongly irregular bodies (e.g. Vesta) are deliberately excluded —
+a single authalic sphere would misrepresent them.
+
+report_html.py (+ scripts/make_html_report.py): a polished, fully SELF-CONTAINED, offline
+HTML report (inline CSS, no external/CDN assets, every dynamic string escaped) rendered from
+a study or batch package.
+
+coregister.py: translation-only DEM co-registration — recovers a known pixel shift via an
+overlap-RMSE search with sub-pixel parabola refinement (RMSE -> ~0 in tests) and estimates
+the vertical-datum offset, so two DEMs can be aligned before differencing/comparison. No
+rotation/scale/warp.
+
+fingerprint.py: a compact 11-field normalized terrain signature, a bounded similarity
+metric, and rank_library() for morphological analog similarity search (a signature + ranking,
+NOT a classification/identity claim).
+
+api.py: new GET /bodies, POST /validate, POST /batch, POST /report endpoints (loopback-only,
+body cap, and Host allowlist all preserved; the n_boot cap is now 500 so an HTTP request
+stays responsive — the library still accepts any n_boot offline).
+
+build_viewer.py: the self-contained offline viewer now shows a target-body badge, a decision
+matrix, a Pareto-frontier panel, and an uncertainty panel.
+
+README / docs/method.md / docs/VALIDATION.md / docs/index.md updated for the expansion.
+
+247 fixture tests, all passing, no network required.
+
+---
+
+## ad1fd6a — Day 6 — v0.2 leap: multi-body (Moon), reporting, significance, autocorrelation, repro, unified CLI, geomorphometry
+
+*Committed 2026-10-10 by Pal Ghevariya*
+
+A large, parallel-built expansion (six subagents + core work, each verified against the
+code and the full suite; 220 fixture tests green; the canonical synthetic study hash is
+UNCHANGED, so all prior provenance still holds).
+
+Multi-body (Mars + Moon + Earth): reproject.py adds the lunar sphere (R=1,737,400 m) and
+body_radius_m(); catalog.py adds the keyless LRO/LOLA `moon_lola_ldem` source (registry is
+now 11 sources); preflight.py accepts body "moon" (radius-correct area + lon convention).
+Mars/Earth CRS strings and the gated study hash are byte-unchanged.
+
+report.py (+ scripts/make_report.py, CLI `report`): publication-grade Markdown from a study
+or batch package — plain-language verdict, decision table for the chosen lens, eligibility,
+an uncertainty section when bootstrapped, sensitivity, the transfer-gap ledger, and a
+provenance appendix carrying the package hash.
+
+significance.py: a permutation test ("is candidate A significantly closer to the reference
+than B?") returning a p-value + effect size, plus a bootstrap distance CI — closeness gaps
+are now tested, not merely asserted.
+
+autocorr.py: spatial autocorrelation curve + 1/e correlation length + suggest_block_size, so
+the spatial block bootstrap's block size is chosen from the data instead of guessed.
+
+repro.py (+ scripts/verify_study.py): recompute and verify a package's content hash, diff two
+packages, and confirm the synthetic study reproduces bit-for-bit — reviewer-grade integrity.
+
+features.py / descriptors.py: surface_area_ratio (rugosity), terrain_ruggedness_index (Riley
+1999 TRI), tpi_map, landform_fraction — an analysis layer, deliberately NOT wired into the
+default decision (gated hash preserved).
+
+cli.py: a unified `python -m terratrace.cli` dispatcher — study (default, back-compatible),
+validate, benchmark, report, version.
+
+README / docs/method.md / docs/VALIDATION.md / docs/index.md updated for the expansion.
+
+220 fixture tests, all passing, no network required.
+
+---
+
+## dfbb0ad — Day 5 — honest uncertainty: spatial moving-block bootstrap (autocorrelation-aware CIs)
+
+*Committed 2026-10-10 by Pal Ghevariya*
+
+uncertainty.py: add block_resample_2d (a 2-D moving-block bootstrap) and
+block_bootstrap_pareto. DEM pixels are spatially autocorrelated, so the existing
+independent-pixel bootstrap gives optimistically NARROW confidence intervals. The block
+bootstrap resamples block x block patches, preserving within-block correlation, and yields
+honest -- typically much wider -- CIs and non-domination frequencies. Verified on an
+autocorrelated field: the block distance-CI total width was several times the independent
+width (the independent method really was over-confident).
+
+study.py: compare_units and run_real_study gain an opt-in bootstrap_method
+("independent" default | "block") plus block_size (aggregated pixels), active only when
+n_boot>0. The default path is byte-identical and the canonical synthetic study
+package_hash is UNCHANGED (verified); the independent bootstrap_pareto is untouched.
+
+Tests: block_resample_2d block-preservation/determinism/clamping, block closer-unit +
+report shape, the wider-CI demonstration vs the independent bootstrap, and the
+compare_units wiring. config/aois.example.yml, README, docs/method.md, docs/VALIDATION.md,
+and REAL-DATA-RUNBOOK.md updated with the method and block_size guidance.
+
+184 fixture tests, all passing, no network required.
+
+---
+
+## 7849e70 — Day 4 — cross-reference, multi-lens batch studies (comparative synthesis)
+
+*Committed 2026-10-10 by Pal Ghevariya*
+
+batch.py (new): run_batch runs a GRID of full comparisons — every (Mars reference region
+x decision lens: core / extended / geomorphic) cell is a complete compare_units run — and
+synthesises, per Earth candidate: layer1_frequency (how often it is Pareto non-dominated
+across the whole grid), recommended_frequency, mean_layer, a consensus_shortlist
+(candidates non-dominated in EVERY cell → robust to both the reference choice AND the
+morphology lens), and a robust_ordering. It is a transparent robustness synthesis, NOT a
+composite "Mars-likeness" score; the map-scale-morphology claim firewall is unchanged.
+run_real_batch loads real DEMs through the shared loader.
+
+study.py: extracted load_real_units from run_real_study (behavior-preserving refactor so
+both the single study and the batch runner load/warp DEMs identically). Verified the
+canonical synthetic study package_hash is UNCHANGED.
+
+scripts/run_batch_study.py + config/batch.example.yml (two Mars reference windows × three
+Earth candidates). README / docs/method.md / docs/VALIDATION.md updated.
+
+180 fixture tests, all passing, no network required.
+
+---
+
+## 8ff5f9b — Day 3 (cont.) — opt-in geomorphic decision mode (curvature + VRM as Pareto axes)
+
+*Committed 2026-10-10 by Pal Ghevariya*
+
+decision_metrics="geomorphic": the core four axes plus Zevenbergen-Thorne mean curvature
+and the Vector Ruggedness Measure as two extra Pareto distances — a third independent
+robustness lens alongside core and extended. A recommendation that survives all three
+proven axis sets is far more defensible than one that holds under a single set. The mode
+also reports per-unit hurst_exponent + curvature/VRM medians in a geomorphic_metrics block.
+
+Gated so the DEFAULT pipeline is untouched: all new computation and the geomorphic_metrics
+key run only under decision_metrics=="geomorphic". Verified the canonical synthetic study
+package_hash is UNCHANGED (now locked by a regression test), the core/extended packages
+carry no geomorphic key, and the bootstrap non-domination frequency extends to the
+geomorphic axes consistently with how extended mode already works.
+
+config/aois.example.yml, docs/method.md, and README updated.
+
+174 fixture tests, all passing, no network required.
+
+---
+
+## 67e8ab0 — Day 3 (cont.) — geomorphometric descriptor depth: curvature, VRM, multiscale roughness
+
+*Committed 2026-10-10 by Pal Ghevariya*
+
+features.py: add standard, citable descriptors, each proven on analytic cases:
+  - Zevenbergen-Thorne (1987) profile/plan/mean curvature (3x3 local quadratic).
+    Bit-exact: 0 on a plane; profile=-2a, plan=+2a, mean=-4a on z=a(x^2+y^2).
+  - Vector Ruggedness Measure (Sappington et al., 2007): surface-normal dispersion in
+    [0,1], 0 on any plane (even steep), rising with roughness, decoupled from mean slope.
+  - Multiscale roughness: structure_function (RMS height difference vs lag) +
+    hurst_exponent (log-log scaling slope; 1.0 on a linear ramp, ~0 on white noise).
+
+descriptors.py (new): descriptor_bank(z) assembles the full geomorphometry of a tile
+(distribution summaries for the map-valued features + scalars + the structure function)
+as one JSON-serialisable dict, plus a bank_vector() convenience. A non-destructive
+ANALYSIS layer for analysts and future decision modes.
+
+validation.py: three new scientific-correctness checks (curvature_zero_on_plane,
+vrm_discriminates_roughness, roughness_hurst_sane) — run_validation() is now 11/11.
+
+These add NO axes to the DEFAULT decision pipeline: the synthetic study package_hash is
+UNCHANGED (verified), so all prior provenance still holds. docs/method.md, VALIDATION.md,
+and README updated with definitions, invariances, and citations.
+
+170 fixture tests, all passing, no network required.
+
+---
+
+## dd0ea10 — Day 3 — validation & benchmarking: scientific-correctness suite + ~40x exact relief speedup
+
+*Committed 2026-10-10 by Pal Ghevariya*
+
+validation.py (new): drives the REAL compare pipeline on synthetic terrains with known
+relationships and proves correctness — self-distance zero; slope/relief/ruggedness
+invariant to a vertical offset and a 90-deg rotation; distance monotonic in roughness
+(real discriminating power); a candidate closer on every axis provably dominates and is
+the recommendation; a same-statistics twin beats a 5x-rougher impostor (null control);
+a flat/water tile is BLOCKED by eligibility; the pipeline is deterministic.
+run_validation() emits a hashed, host-independent regression report (8/8 pass).
+
+benchmark.py (new): a pinned behavioural-invariant battery + hash-stability check + a
+wall-clock scaling profile. run_benchmark() reports timings honestly (never pass/failed
+on an absolute time).
+
+Performance (features.relief): a benchmark-driven optimisation replaced a per-window
+nanquantile with an exact min/max (alpha=0) or a single two-quantile call (alpha>0). A
+96x96 study dropped from ~12 s to ~0.3 s (~40x) with BIT-IDENTICAL outputs — verified by
+unchanged relief arrays and an unchanged study package_hash. The full test suite went
+from ~100 s to ~40 s.
+
+scripts/run_validation.py + run_benchmark.py: CI-friendly, exit!=0 on failure, --json.
+README / docs/VALIDATION.md / docs/index.md updated.
+
+156 fixture tests, all passing, no network required.
+
+---
+
+## c1f9449 — Day 2 (cont.) — complete data & sources: 10-source catalog, config-schema preflight, idempotent fetch cache
+
+*Committed 2026-10-10 by Pal Ghevariya*
+
+Catalog breadth (catalog.py): add 5 OpenTopography global DEMs — Copernicus GLO-90,
+NASADEM, SRTM GL1/GL3, ALOS AW3D30 — each with accurate coverage (SRTM-family 60N-56S,
+others global), licence, citation, vertical datum. Every source now carries a
+land-morphology `preference` tier and known `nodata_sentinels`. recommend_source()
+selects by preference then least-download-that-meets-support, and correctly declines a
+source whose footprint misses the AOI (e.g. an SRTM product above 60N, or a US-only
+product abroad). nodata_sentinels_for() accessor; validate() checks the new fields.
+Registry is now 10 sources.
+
+Config-schema preflight (preflight.py): validate_config() gates the whole config
+(types, required keys, duplicate ids/paths, demtype-vs-dataset conflict, per-unit bbox)
+and is wired into preflight_config, so a structural error fails fast with a clear
+message before any download.
+
+Idempotent fetch cache (fetchcache.py, new): needs_fetch() skips files already on disk
+(optionally checksum-verified); record_entry / load / update / save maintain a sha256
+provenance manifest. The sha256 is byte-identical to sourcelock's.
+
+fetch_real_dems.py: skips cached files (--force to override), writes
+data/fetch_manifest.json, dispatches any global demtype or 3DEP dataset, and applies
+each source's known nodata sentinels before the post-fetch QA. README / runbook / docs
+updated.
+
+143 fixture tests, all passing, no network required.
+
+---
+
+## bde600e — Day 2 — data & sources: catalog, preflight, QA profiler, batch frontier, resilient ingest
+
+*Committed 2026-10-10 by Pal Ghevariya*
+
+Source catalog (catalog.py): STAC-like registry for MOLA / Copernicus GLO-30 /
+USGS 3DEP with spatial-coverage metadata, source_covers(), and recommend_source()
+for automatic AOI->product selection; validate() extended with type/domain checks.
+
+Preflight (preflight.py): no-network AOI validation — bbox well-formedness, body
+bounds, approximate area/pixel/download sizing vs heuristic ceilings, and coverage
+check; preflight_config() reports per unit before any byte is downloaded.
+
+DEM QA profiler (profile.py): valid/water/NaN fractions, robust relief, percentiles,
+and advisory flags; water_fraction reuses masks.zero_fraction so WATER_CONTAMINATION
+matches the engine's existing 0.6 contamination gate.
+
+Pareto frontier (frontier.py): peeled non-dominated layers + dominance matrix for
+multi-candidate batch ranking; wired into study.compare_units and inspect_study.
+
+Ingest hardening (ingest.py): atomic downloads now retry transient 429/5xx with
+bounded backoff honouring Retry-After; TIFF magic-byte guard rejects ArcGIS
+error-JSON served as HTTP 200; window_from_bbox returns metres for a geographic CRS.
+
+Scripts/docs: fetch_real_dems runs preflight + post-fetch QA and dispatches 3DEP
+datasets; new profile_dem.py QA tool; README / runbook / docs updated.
+
+116 fixture tests, all passing, no network required.
+
+---
+
+## 71eade8 — Refresh real study with hardened engine
+
+*Committed 2026-10-10 by Pal Ghevariya*
+
+
+---
+
+## 8e9ad1a — Day-1 foundation hardening (audited): correctness, robustness, new descriptors
+
+*Committed 2026-10-09 by Pal Ghevariya*
+
+science correctness:
+- reference-based fixed per-feature scales so Pareto axes are comparable across
+  candidates (was: per-candidate IQR normalizer could flip dominance)
+- per-unit REALIZED support (native*factor) used as dx, not the target
+- gate the REFERENCE through eligibility (not just candidates)
+- paired-reference bootstrap (one reference resample per iteration), scales applied,
+  connectivity dropped from CI; docstring states the independent-pixel CI caveat
+- non_dominated() excludes NaN vectors; pairwise flip matrix excludes the baseline
+- aspect dispersion is gradient-magnitude weighted (flat -> 0, not noise)
+- hypsometric integral uses robust p1/p99 (not single-pixel min/max)
+- new descriptor: TPI dispersion (ridge/valley organisation), reported in extended
+- small-AOI feature guards; reproject uses area-average + NaN nodata; antimeridian centroid
+
+robustness/security:
+- API: body-size cap (413), Content-Length validation, 500 on error (no leak),
+  loopback Host allowlist (anti DNS-rebind), removed CORS wildcard,
+  refuse non-loopback bind without --allow-remote
+- CLI validates positive support/posting
+- build_viewer escapes state/support/class and uses .get defaults
+
+tests: 68 passing (was 54); added API, build_viewer, cli, feature and decision cases
+
+---
+
+## 2bb85b1 — Real study with bootstrap CIs
+
+*Committed 2026-10-09 by Pal Ghevariya*
+
+
+---
+
+## 709b474 — Bootstrap respects decision axes + enable n_boot=300 by default
+
+*Committed 2026-10-09 by Pal Ghevariya*
+
+- uncertainty.bootstrap_pareto accepts extra_dims so non-domination frequency is
+  computed in the SAME space as the decision (extended adds aspect/hypsometry)
+- compare_units passes the extended dims when decision_metrics=extended
+- config/aois.example.yml now sets n_boot: 300 so real runs produce CIs
+- +1 test (54 total, all green)
+
+---
+
+## a7b596e — Viewer: show bootstrap-uncertainty panel when a study has it
+
+*Committed 2026-10-09 by Pal Ghevariya*
+
+- build_viewer renders a non-domination % + slope-distance 95% CI table when the
+  study package includes bootstrap; omitted otherwise (verified both ways)
+- regenerate viewer/index.html and site/study/index.html from the real study
+
+---
+
+## 9a9e80b — Add stdlib HTTP API (health/study/compare) + console script
+
+*Committed 2026-10-09 by Pal Ghevariya*
+
+- terratrace/api.py: dependency-free http.server API exposing /health, /study,
+  POST /compare (validated/clamped params; bootstrap supported). Unauthenticated,
+  binds 127.0.0.1 by default (documented) — add auth before exposing.
+- 4 API tests via loopback (53 total, all green); terratrace-api console script;
+  README usage.
+
+---
+
+## b7cf920 — Add bootstrap uncertainty: distance CIs + probabilistic Pareto
+
+*Committed 2026-10-09 by Pal Ghevariya*
+
+- terratrace/uncertainty.py: resample feature distributions to put 95% CIs on
+  each morphology distance and turn the Pareto decision into a non-domination
+  frequency + clear-winner frequency (honest 'B non-dominated in N% of resamples')
+- wired through compare_units / run_study / run_real_study via n_boot (default 0,
+  so existing deterministic outputs are unchanged); config gains n_boot
+- inspect_study prints the bootstrap summary; 3 new tests (49 total, all green)
+
+---
+
+## bef6034 — Fix /study on Vercel: ship study viewer inside site/ (site/study/index.html)
+
+*Committed 2026-10-09 by Pal Ghevariya*
+
+- copy the self-contained study viewer to site/study/index.html so it deploys
+  with the site regardless of Vercel root-directory setting
+- site/vercel.json (cleanUrls) for when Root Directory = site
+- root vercel.json /study now points to /site/study/index.html
+
+---
+
+## b716308 — Add MIT LICENSE at repo root so GitHub recognizes it
+
+*Committed 2026-10-09 by Pal Ghevariya*
+
+
+---
+
+## 616a056 — Remove internal plan from public repo; keep it local-only
+
+*Committed 2026-10-09 by Pal Ghevariya*
+
+- untrack Planetary-Analog-OS-Plan/ and PLANETARY-ANALOG-OS-MASTER-PLAN.md
+  (still on local disk, now git-ignored)
+- README no longer references the plan library
+- repo now contains only engine + site + data + docs
+
+---
+
+## 8e15f8a — Add committable Mars AOI sample + fix sample CRS
+
+*Committed 2026-10-09 by Pal Ghevariya*
+
+
+---
+
+## ee8014a — Premium 3D scroll site + include Earth DEMs & data docs
+
+*Committed 2026-10-09 by Pal Ghevariya*
+
+- site/index.html: redesigned cinematic-observatory scroll experience
+  (offset planet + orbital rings + Mars->Earth morph tied to scroll + terminator
+  lighting + mouse parallax, fixed nav, bottom instrument console, animated
+  comparison chart, scrims for legibility, loader)
+- commit real Earth GLO-30 AOIs under terratrace/data/earth (small, redistributable)
+- data READMEs + scripts/make_mars_sample.py to crop a committable Mars AOI
+- .gitignore now excludes only the ~2 GB global MOLA (GitHub 100 MB limit),
+  not the whole data/ tree
+- engine depth since last commit: masks + water gate, extended decision mode,
+  aspect/hypsometric features, source lock, docs site, viewer panels
+
+---
+
+## 59884ca — TerraTrace / Planetary Analog OS: engine, plan library, 3D scroll site
+
+*Committed 2026-10-09 by Pal Ghevariya*
+
+- terratrace engine: real MOLA + Copernicus ingest, per-body AEQD reprojection,
+  morphology features (slope/relief/ruggedness/connectivity/aspect/hypsometry),
+  Pareto decision with tie/blocked states, water-contamination gate, masks,
+  evidence graph + provenance, source lock, 46 passing tests
+- 23-module Planetary Analog OS plan library + diagrams
+- site/: 3D scroll-animated website (Three.js + GSAP), honest claim-firewall copy
+- vercel.json serves the site at / and the study viewer at /study
+- large DEMs under terratrace/data/ are git-ignored
+
+---
