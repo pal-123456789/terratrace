@@ -115,5 +115,10 @@ retrieval dates, and checksums in a `sources.lock.yml` for every published study
   convention (0–360 east vs −180–180), or set `reproject: false` to use the
   simpler same-dx fallback while you investigate.
 - Treat Mars 463 m as the limiting support: do not claim sub-support structure.
+- When bootstrapping (`n_boot > 0`), prefer the **block** bootstrap on real DEMs: set
+  `bootstrap_method: block` for honest, autocorrelation-aware confidence intervals. The
+  default `independent` bootstrap treats pixels as independent and is optimistically narrow
+  on real terrain. Set `block_size` to roughly the terrain's spatial correlation length (in
+  aggregated pixels) so each resampled block holds a full correlation patch.
 - Keep the transfer-gap ledger visible; morphology similarity is not transfer validity.
 - Mark any unit with unverified access/rights/ecology status as ineligible.

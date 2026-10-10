@@ -17,6 +17,14 @@ decision_metrics: extended
 # Bootstrap resamples for distance confidence intervals + non-domination
 # frequency (0 = off). 300 is a good value for a real run.
 n_boot: 300
+# Bootstrap method for those CIs (only used when n_boot > 0): "independent"
+# (default) resamples pixels independently and is optimistically narrow on
+# spatially autocorrelated DEMs; "block" is a 2-D moving-block bootstrap that
+# preserves autocorrelation for honest (wider), autocorrelation-aware CIs.
+# bootstrap_method: independent  # or: block
+# block_size is the block edge in aggregated pixels used when bootstrap_method:
+# block; set it at or above the terrain's correlation length. Default 4.
+# block_size: 4
 
 # Reference: a bounded Mars window from the MOLA 463 m DEM you downloaded.
 reference:

@@ -51,6 +51,17 @@ def _feature_distributions(z, dx, slope_threshold, relief_alpha, relief_window=5
             "ruggedness": rug.ravel(), "connectivity_scalar": conn}
 
 
+def _feature_maps_2d(z, dx, slope_threshold, relief_alpha, relief_window=5, rug_window=5):
+    """Same features as _feature_distributions but kept as 2-D maps, for the
+    spatial block bootstrap (which must resample patches, not raveled values)."""
+    s = features.slope_deg(z, dx, dx)
+    r = features.relief(z, window=relief_window, alpha=relief_alpha)
+    rug = features.ruggedness(z, window=rug_window, dx=dx, dy=dx)
+    conn, _ = features.low_slope_connectivity(s, slope_threshold)
+    return {"slope": s, "relief": r, "ruggedness": rug, "connectivity_scalar": conn}
+
+
+
 def _vector(ref, cand, scales=None):
     def nd(f):
         s = None if scales is None else scales.get(f)
@@ -128,7 +139,8 @@ def _geomorphic_dims(geo, cid, reference_id, scales):
 
 def compare_units(raw_units, rights, native_posting_m, reference_id="mars_reference",
                   target_support_m=100.0, min_valid=0.5, source_label="synthetic",
-                  decision_metrics="core", n_boot=0):
+                  decision_metrics="core", n_boot=0, bootstrap_method="independent",
+                  block_size=4):
     """Run the full comparison on a dict of elevation arrays.
 
     raw_units: {unit_id: 2-D elevation array}
@@ -252,8 +264,17 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
             extra = {cid: _extended_dims(extended, cid, reference_id) for cid in cand_feats_base}
         elif decision_metrics == "geomorphic":
             extra = {cid: _geomorphic_dims(geo, cid, reference_id, geo_scales) for cid in cand_feats_base}
-        package["bootstrap"] = uncertainty.bootstrap_pareto(
-            ref_feats_base, cand_feats_base, n_boot=n_boot, seed=0, extra_dims=extra, scales=scales)
+        if bootstrap_method == "block":
+            bc = SCENARIOS[0]
+            ref_maps = _feature_maps_2d(agg[reference_id], dx_ref, bc["slope_threshold"], bc["relief_alpha"])
+            cand_maps = {cid: _feature_maps_2d(agg[cid], dxs[cid], bc["slope_threshold"], bc["relief_alpha"])
+                         for cid in cand_feats_base}
+            package["bootstrap"] = uncertainty.block_bootstrap_pareto(
+                ref_maps, cand_maps, block=block_size, n_boot=n_boot, seed=0,
+                extra_dims=extra, scales=scales)
+        else:
+            package["bootstrap"] = uncertainty.bootstrap_pareto(
+                ref_feats_base, cand_feats_base, n_boot=n_boot, seed=0, extra_dims=extra, scales=scales)
     package["package_hash"] = provenance.sha256_json(
         {k: v for k, v in package.items() if k != "package_hash"})
     return package
@@ -304,7 +325,8 @@ def load_real_units(units, target_support_m=1000.0, reproject=True):
 
 
 def run_real_study(units, target_support_m=1000.0, min_valid=0.5, reproject=True,
-                   decision_metrics="core", n_boot=0):
+                   decision_metrics="core", n_boot=0, bootstrap_method="independent",
+                   block_size=4):
     """Compare REAL DEMs.
 
     units: list of dicts with keys: id, path, native_posting_m, rights_status,
@@ -314,6 +336,10 @@ def run_real_study(units, target_support_m=1000.0, min_valid=0.5, reproject=True
     With reproject=True (default) each AOI is warped to its own local
     azimuthal-equidistant metric grid at target_support_m before features
     are computed (correct cross-body comparison). Requires rasterio.
+
+    bootstrap_method ("independent" | "block") selects the uncertainty resampler
+    when n_boot>0; "block" is the spatial block bootstrap (honest, autocorrelation-
+    respecting CIs) with the given block_size in aggregated pixels.
     """
     raw, rights, native, reference_ids = load_real_units(units, target_support_m, reproject)
     reference_id = reference_ids[-1] if reference_ids else None
@@ -322,7 +348,8 @@ def run_real_study(units, target_support_m=1000.0, min_valid=0.5, reproject=True
     label = "real_dem_aeqd" if reproject else "real_dem"
     return compare_units(raw, rights, native, reference_id=reference_id,
                          target_support_m=target_support_m, min_valid=min_valid,
-                         source_label=label, decision_metrics=decision_metrics, n_boot=n_boot)
+                         source_label=label, decision_metrics=decision_metrics, n_boot=n_boot,
+                         bootstrap_method=bootstrap_method, block_size=block_size)
 
 
 def _build_graph(meta, vectors, state, recommended, source_label, elig_map, flips):

@@ -5,7 +5,7 @@ screening**. These checks establish software/metric correctness, data handling,
 sensitivity, and provenance. They do **not** establish rover traversability,
 autonomy, geologic equivalence, site access, or mission readiness.
 
-## Test suite (180 fixtures, `tests/run_tests.py`)
+## Test suite (184 fixtures, `tests/run_tests.py`)
 
 | Area | What the fixtures prove |
 |---|---|
@@ -15,6 +15,7 @@ autonomy, geologic equivalence, site access, or mission readiness.
 | distances | Wasserstein-1 = 0 for identical, = c for a shift; KS 0/1 bounds; NaN ignored; degenerate scale stays finite; all-constant -> 0 |
 | decision | Pareto dominance and non-dominated sets; rights allowlist fails closed; water (zero-fraction) block; stable-winner vs tie resolution |
 | frontier | Peeled Pareto layers in order; dominance matrix; id-only within-layer order; identical-vector + determinism |
+| uncertainty (block) | `block_resample_2d` tiles a 2-D field with block×block patches drawn with replacement, preserving within-block autocorrelation (block=1 degenerates to independent pixels; NaNs carried with their block); the block-bootstrap distance CIs come out **wider** than the independent-pixel bootstrap on an autocorrelated field, and the closer unit holds the higher non-domination frequency |
 | masks | Sentinel/below/above masking to NaN; zero-fraction; input not mutated |
 | reproject | Body-correct CRS strings (Mars sphere vs WGS84), centroid, grid sizing, unknown-body guard |
 | catalog | 10-source registry validates; coverage + body-mismatch; `recommend_source` preference/least-download/keyless; SRTM band excludes >60°N; nodata sentinels |
@@ -116,3 +117,9 @@ locked sources and compare hashes.
   very large AOIs should use an area-appropriate projection.
 - No field or simulation outcome data yet exists, so no transfer-performance claim is
   made or validated.
+- Bootstrap confidence intervals default to the `independent`-pixel method, which assumes
+  independent pixels and is therefore **optimistic** (too narrow) on real, spatially
+  autocorrelated DEMs. The opt-in `block` bootstrap (`bootstrap_method: block`, `block_size`
+  at or above the terrain correlation length) now resamples spatial blocks for honest, wider
+  CIs; `independent` remains the default, so its optimism caveat still applies unless `block`
+  is selected.

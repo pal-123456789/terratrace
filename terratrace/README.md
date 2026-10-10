@@ -36,6 +36,13 @@ source and a transformation.
 - Multi-candidate Pareto **frontier** ranking (peeled non-dominated layers + dominance
   matrix) so a batch run yields a defensible shortlist, not just a winner.
 - Sensitivity across scenarios with a pairwise rank-flip matrix.
+- **Bootstrap uncertainty, two ways:** confidence intervals on every distance and a
+  non-domination *frequency* per candidate, computed either by the default
+  `independent`-pixel bootstrap or by a spatial **block** bootstrap
+  (`bootstrap_method: block`). The block method moving-block-resamples block×block patches
+  so spatial autocorrelation is preserved, giving honest, autocorrelation-aware CIs that
+  are typically **wider** than the optimistically narrow independent ones — selectable
+  end-to-end and active whenever `n_boot > 0`.
 - Cross-reference, multi-lens **batch studies** (`run_batch` / `run_real_batch`): the
   full comparison is rerun for every Mars-reference × decision-lens cell, then
   synthesised into each candidate's layer-1 (non-dominated) frequency across references
@@ -61,10 +68,10 @@ source and a transformation.
   closer candidate provably dominates and is recommended, a flat/water tile is blocked,
   and the whole pipeline is deterministic. A reproducibility + performance harness pins
   behavioural invariants, checks hash stability, and profiles wall-clock scaling.
-- 180 fixture tests with known analytic answers, all passing, no network required.
+- 184 fixture tests with known analytic answers, all passing, no network required.
 
 ```
-passed=180 failed=0
+passed=184 failed=0
 ```
 
 ## Install
@@ -83,7 +90,7 @@ pip install -r requirements-real.txt      # rasterio + requests (real DEMs)
 ```bash
 PYTHONPATH=. python3 -m terratrace.cli --out artifacts
 PYTHONPATH=. python3 -m terratrace.build_viewer      # writes viewer/index.html
-PYTHONPATH=. python3 tests/run_tests.py              # 180 tests
+PYTHONPATH=. python3 tests/run_tests.py              # 184 tests
 ```
 
 Open `viewer/index.html` in any browser — it is self-contained and works offline.
@@ -160,7 +167,7 @@ terratrace/
     benchmark.py     reproducibility invariants + wall-clock scaling profile
     build_viewer.py  self-contained HTML viewer
     cli.py           study runner
-  tests/             180 fixture tests + dependency-free runner
+  tests/             184 fixture tests + dependency-free runner
   artifacts/         generated study package (JSON + checksums + manifest)
   viewer/            generated offline HTML viewer
   config/            AOI configuration for real runs

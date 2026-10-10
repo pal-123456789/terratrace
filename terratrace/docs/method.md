@@ -101,6 +101,43 @@ opt-in: a recommendation that survives all three independent axis sets is far mo
 than one that holds under a single set. Choosing a non-default mode does not alter the `core`
 study package or its provenance hash; the extra descriptors are computed only when requested.
 
+## Uncertainty
+
+A single distance is a point estimate that hides sampling error, so TerraTrace resamples
+the terrain-feature distributions with replacement to put a confidence interval on each
+distance and to convert the Pareto decision into a *frequency*: how often each candidate is
+non-dominated, and how often one unit is the clear winner. "B beats A" becomes "B is
+non-dominated in 78% of resamples", which is the honest, scientist-grade statement.
+Bootstrapping runs whenever `n_boot > 0`.
+
+Two resampling methods are available. The default, `independent`, draws pixels
+independently. It is simple and fast, but DEM pixels are spatially autocorrelated —
+neighbouring cells are not independent samples — so treating every pixel as its own draw
+overstates the effective sample size and the resulting confidence intervals come out
+**optimistically narrow**. They should be read as a lower bound on the true uncertainty,
+not a calibrated one.
+
+The `block` method is a two-dimensional **moving-block bootstrap**. Rather than shuffling
+individual pixels, it tiles each resampled feature map with `block_size × block_size`
+patches drawn with replacement from random positions in the source map (edge blocks clipped
+to fit, NaNs carried along with their block), so the autocorrelation *within* a block is
+preserved instead of destroyed. Because neighbouring cells now travel together, the
+effective sample size is no longer inflated and the confidence intervals are more honest —
+typically **wider** than the independent-pixel intervals. On a measured autocorrelated field
+the block method's total distance-CI width came out several times the independent width,
+confirming that the independent bootstrap really was over-confident there. A `block_size` of
+1 degenerates to the independent resample; the guidance is to set `block_size` at or above
+the terrain's spatial correlation length so each resampled patch holds a full correlation
+cell.
+
+Both methods are selectable end-to-end: `compare_units` and `run_real_study` accept
+`bootstrap_method` (`independent` | `block`) and `block_size` (in aggregated pixels, default
+4), honoured only when `n_boot > 0`. The block bootstrap is opt-in and the default stays
+`independent`, so the synthetic study package and its provenance hash are unchanged. Either
+way the quantity is still map-scale morphology: a wider interval reports honest uncertainty
+about the *morphology distance*, and makes no claim about traversability, geologic
+equivalence, or mission readiness.
+
 ## Batch studies
 
 A single study compares one Mars reference against a slate of Earth candidates under
