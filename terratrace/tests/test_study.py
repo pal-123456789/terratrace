@@ -126,3 +126,22 @@ def test_core_study_hash_is_stable_regression():
     # not drift as opt-in modes are added.
     assert study.run_study()["package_hash"] == (
         "8f4890777ee462a2266c053d2e498ccdd7c133ddc5a101d36988331fa7da8167")
+
+
+def test_feature_uncertainty_and_previews_are_opt_in():
+    raw = _geomorphic_scene()
+    rights = {k: "verified_allowed" for k in raw}
+    # OFF by default -> neither key present (keeps packages/hashes byte-stable).
+    off = study.compare_units(raw, rights, 10.0, reference_id="ref", target_support_m=10.0)
+    assert "feature_uncertainty" not in off and "previews" not in off
+    # vertical_accuracy -> propagated per-unit uncertainty block.
+    on = study.compare_units(raw, rights, 10.0, reference_id="ref", target_support_m=10.0,
+                             vertical_accuracy={"ref": 3.0, "near": 4.0, "far": 4.0},
+                             previews=True)
+    fu = on["feature_uncertainty"]
+    assert set(fu) == set(raw)
+    for uid in raw:
+        assert fu[uid]["relief_sigma_m"] > 0 and "slope_sigma_deg" in fu[uid]
+    # previews -> one self-contained hillshade PNG data-URI per unit.
+    assert set(on["previews"]) == set(raw)
+    assert all(v.startswith("data:image/png;base64,") for v in on["previews"].values())

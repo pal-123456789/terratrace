@@ -62,6 +62,34 @@ source and a transformation.
   be embedded inline in the self-contained HTML report with no external assets. It is a
   visualisation aid only: the shading encodes illuminated surface orientation and makes no
   quantitative, mechanical, or trafficability claim.
+- **Measurement-uncertainty bands + previews, now in the report and viewer (opt-in):**
+  `compare_units` / `run_real_study` accept an opt-in `vertical_accuracy` (a scalar, or
+  per-unit; a real study auto-resolves it from each source's catalog vertical accuracy) and
+  `previews=True`. When supplied, the study package carries `feature_uncertainty` (propagated
+  1-sigma slope / relief / ruggedness bands per unit) and `previews` (one self-contained
+  hillshade PNG data-URI per unit), and both the HTML report and the offline viewer render a
+  **"Measurement uncertainty"** table and inline terrain previews. Both are **off by default**,
+  so the synthetic study package and its gated provenance hash stay byte-for-byte unchanged. The
+  bands assume independent per-pixel error, so (like the independent-pixel bootstrap) they are an
+  optimistic lower bound — map-scale morphology uncertainty only, no mechanical or mission claim.
+- **Sensitivity / ablation report:** `sensitivity.py` re-runs the finished screen to ask whether
+  the recommendation actually survives the analyst's choices. `lens_ablation` re-runs it under all
+  three decision lenses (`core` / `extended` / `geomorphic`), `support_ablation` re-runs it across
+  a set of common-support scales, and `ablation_report` combines them into an `overall_stable`
+  verdict — reporting whether the same unit is recommended throughout, or flagging that the
+  recommendation is fragile. It is a robustness diagnostic over the existing morphology screen and
+  adds no new claim.
+- **Transparent terrain-type classifier:** `terrain_classify.py` assigns a tile a single
+  descriptive map-scale morphology type — `flat_plain`, `rolling`, `dissected_upland`, or
+  `rough_rugged` — by a fully auditable set of documented threshold rules over the descriptor bank
+  (no ML, no training, no randomness), returning the label with its supporting evidence, per-type
+  scores, and a confidence margin. It is a **descriptive** morphology label only, explicitly
+  **not** a geological, genetic, lithological, hazard, or mission/rover classification.
+- **Data sources & credits bundle:** `references.py` (+ `scripts/make_references.py`) reads the
+  13-source catalog and renders a complete, deterministic "Data sources & credits" section —
+  product, provider, citation, and licence per source, grouped by body — so every study is
+  properly attributed to its upstream providers (NASA PDS / USGS Astrogeology / ESA Copernicus /
+  NASA-JAXA). The exact product a given run ingested stays pinned in `sources.lock.yml`.
 - **Cross-body fingerprint similarity search:** `fingerprint_library.py` (+
   `scripts/fingerprint_search.py`) builds a library of reference-terrain fingerprints and
   ranks candidates against them — including the cross-**body** case, ranking Earth candidates
@@ -156,10 +184,10 @@ source and a transformation.
   closer candidate provably dominates and is recommended, a flat/water tile is blocked,
   and the whole pipeline is deterministic. A reproducibility + performance harness pins
   behavioural invariants, checks hash stability, and profiles wall-clock scaling.
-- 275 fixture tests with known analytic answers, all passing, no network required.
+- 307 fixture tests with known analytic answers, all passing, no network required.
 
 ```
-passed=275 failed=0
+passed=307 failed=0
 ```
 
 ## Install
@@ -178,7 +206,7 @@ pip install -r requirements-real.txt      # rasterio + requests (real DEMs)
 ```bash
 PYTHONPATH=. python3 -m terratrace.cli --out artifacts
 PYTHONPATH=. python3 -m terratrace.build_viewer      # writes viewer/index.html
-PYTHONPATH=. python3 tests/run_tests.py              # 275 tests
+PYTHONPATH=. python3 tests/run_tests.py              # 307 tests
 ```
 
 Open `viewer/index.html` in any browser — it is self-contained and works offline.
@@ -191,6 +219,8 @@ Every entry point lives behind one dispatcher — `python -m terratrace.cli <com
 PYTHONPATH=. python3 -m terratrace.cli validate      # scientific-correctness suite
 PYTHONPATH=. python3 -m terratrace.cli benchmark     # reproducibility + scaling profile
 PYTHONPATH=. python3 -m terratrace.cli report        # render a Markdown study report
+PYTHONPATH=. python3 -m terratrace.cli report-html   # render a self-contained HTML report
+PYTHONPATH=. python3 -m terratrace.cli dossier       # per-candidate site decision brief
 PYTHONPATH=. python3 -m terratrace.cli version       # print version + schema
 ```
 
@@ -209,8 +239,10 @@ curl -X POST http://127.0.0.1:8000/compare -H "content-type: application/json" \
 Endpoints: `GET /health`, `GET /study`, `GET /bodies` (supported bodies + source
 registry), `POST /compare` (body `{"target_support_m", "n_boot"}`, inputs
 validated/clamped), `POST /validate` (scientific-correctness suite), `POST /batch`
-(synthetic cross-reference batch), and `POST /report` (study + Markdown report). The
-`n_boot` bootstrap count is capped at 500 for interactive responsiveness. The server is
+(synthetic cross-reference batch), `POST /report` (study + Markdown report), `POST
+/dossier` (per-candidate decision briefs), and `POST /report.html` (the report as a
+standalone HTML document). The `n_boot` bootstrap count is capped at 500 for interactive
+responsiveness. The server is
 **unauthenticated and binds to 127.0.0.1 by default** — put auth and rate limiting
 in front of it before exposing it to a network.
 
@@ -265,7 +297,9 @@ terratrace/
     protocol.py      draft study protocol
     study.py         compare_units + run_study + run_real_study
     batch.py         cross-reference, multi-lens batch synthesis
+    sensitivity.py   lens / support ablation -> recommendation-stability report
     descriptors.py   full geomorphometric descriptor bank (analysis layer)
+    terrain_classify.py  rule-based descriptive terrain-type label (map-scale)
     catalog.py       13-source registry: coverage, preference, nodata, vertical accuracy, selection
     preflight.py     fail-fast config-schema + AOI/bbox/size/coverage checks
     profile.py       DEM QA report (valid/water/NaN, relief, advisory flags)
@@ -275,6 +309,7 @@ terratrace/
     benchmark.py     reproducibility invariants + wall-clock scaling profile
     report.py        publication-grade Markdown report (study or batch package)
     report_html.py   self-contained offline HTML report (study or batch)
+    references.py    data sources & credits bundle (citation + licence per source)
     significance.py  permutation test + effect size + bootstrap distance CI
     autocorr.py      spatial autocorrelation length -> data-driven block size
     repro.py         recompute/verify package hash + diff + reproduce check
@@ -285,12 +320,12 @@ terratrace/
     hillshade.py     Horn shaded-relief PNG data URI (pure stdlib, self-contained)
     dossier.py       per-candidate decision brief (structured dict + Markdown)
     build_viewer.py  self-contained HTML viewer
-    cli.py           unified dispatcher: study / validate / benchmark / report / version
-  tests/             275 fixture tests + dependency-free runner
+    cli.py           unified dispatcher: study / validate / benchmark / report / report-html / dossier / version
+  tests/             307 fixture tests + dependency-free runner
   artifacts/         generated study package (JSON + checksums + manifest)
   viewer/            generated offline HTML viewer
   config/            AOI configuration for real runs
-  scripts/           fetch (+preflight) / profile / validate / benchmark / make_report / make_html_report / verify_study / fingerprint_search / run / run_batch_study
+  scripts/           fetch (+preflight) / profile / validate / benchmark / make_report / make_html_report / make_references / verify_study / fingerprint_search / run / run_batch_study
 ```
 
 ## Scientific method

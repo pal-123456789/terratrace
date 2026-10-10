@@ -207,3 +207,84 @@ def test_new_post_route_forbidden_host_403():
         assert code == 403
     finally:
         srv.shutdown()
+
+
+def test_dossier_all_units_default_body():
+    srv, port = _serve()
+    try:
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{port}/dossier",
+            data=json.dumps({}).encode("utf-8"),
+            headers={"Content-Type": "application/json"}, method="POST")
+        r = json.loads(urllib.request.urlopen(req, timeout=60).read())
+        assert isinstance(r, dict) and "earth_close" in r
+        d = r["earth_close"]
+        for k in ("is_recommended", "eligible", "distances"):
+            assert k in d, k
+    finally:
+        srv.shutdown()
+
+
+def test_dossier_single_unit():
+    srv, port = _serve()
+    try:
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{port}/dossier",
+            data=json.dumps({"unit": "earth_close"}).encode("utf-8"),
+            headers={"Content-Type": "application/json"}, method="POST")
+        r = json.loads(urllib.request.urlopen(req, timeout=60).read())
+        assert isinstance(r, dict)
+        assert r.get("unit") == "earth_close"
+        assert "is_recommended" in r and "eligible" in r
+    finally:
+        srv.shutdown()
+
+
+def test_dossier_unknown_unit_is_400():
+    srv, port = _serve()
+    try:
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{port}/dossier",
+            data=json.dumps({"unit": "does_not_exist"}).encode("utf-8"),
+            headers={"Content-Type": "application/json"}, method="POST")
+        code = 0
+        try:
+            urllib.request.urlopen(req, timeout=60)
+        except urllib.error.HTTPError as e:
+            code = e.code
+        assert code == 400
+    finally:
+        srv.shutdown()
+
+
+def test_report_html_renders_document():
+    srv, port = _serve()
+    try:
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{port}/report.html",
+            data=json.dumps({}).encode("utf-8"),
+            headers={"Content-Type": "application/json"}, method="POST")
+        resp = urllib.request.urlopen(req, timeout=60)
+        ctype = resp.headers.get("Content-Type", "")
+        body = resp.read().decode("utf-8")
+        assert "text/html" in ctype, ctype
+        assert body.lstrip().lower().startswith("<!doctype html")
+        assert "SCOPE" in body or "prohibited" in body.lower()
+    finally:
+        srv.shutdown()
+
+
+def test_dossier_forbidden_host_403():
+    srv, port = _serve()
+    try:
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{port}/dossier",
+            data=b"{}", headers={"Host": "evil.example.com"}, method="POST")
+        code = 0
+        try:
+            urllib.request.urlopen(req, timeout=10)
+        except urllib.error.HTTPError as e:
+            code = e.code
+        assert code == 403
+    finally:
+        srv.shutdown()

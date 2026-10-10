@@ -53,3 +53,20 @@ def test_html_injection_is_escaped():
     h = build_viewer.build_html(pkg)
     assert evil not in h                      # raw script tag must not survive
     assert "&lt;script&gt;" in h              # it should appear escaped
+
+
+def test_measurement_uncertainty_and_previews_sections():
+    from terratrace import synthetic
+    n, L = 64, 25.0
+    raw = {"mars_reference": synthetic.plane((n, n), 0.12, 0.05) + synthetic.rough_field((n, n), 0.6, 1),
+           "earth_close": synthetic.plane((n, n), 0.11, 0.06) + synthetic.rough_field((n, n), 0.65, 2)}
+    rights = {k: "verified_allowed" for k in raw}
+    pkg = study.compare_units(raw, rights, L, target_support_m=100.0,
+                              vertical_accuracy={"mars_reference": 3.0, "earth_close": 4.0},
+                              previews=True)
+    h = build_viewer.build_html(pkg)
+    assert "MEASUREMENT UNCERTAINTY" in h and "TERRAIN PREVIEWS" in h
+    assert "data:image/png;base64," in h
+    # both sections are empty strings for a plain study (no leakage, no error)
+    assert build_viewer._uncertainty_section(study.run_study()) == ""
+    assert build_viewer._previews_section(study.run_study()) == ""

@@ -92,3 +92,19 @@ def test_report_html_is_deterministic():
     assert report_html.study_report_html(pkg) == report_html.study_report_html(pkg)
     rep = _small_batch_report()
     assert report_html.batch_report_html(rep) == report_html.batch_report_html(rep)
+
+
+def test_report_html_renders_feature_uncertainty_and_previews_when_present():
+    from terratrace import synthetic
+    n, L = 64, 25.0
+    raw = {"mars_reference": synthetic.plane((n, n), 0.12, 0.05) + synthetic.rough_field((n, n), 0.6, 1),
+           "earth_close": synthetic.plane((n, n), 0.11, 0.06) + synthetic.rough_field((n, n), 0.65, 2)}
+    rights = {k: "verified_allowed" for k in raw}
+    pkg = study.compare_units(raw, rights, L, target_support_m=100.0,
+                              vertical_accuracy={"mars_reference": 3.0, "earth_close": 4.0},
+                              previews=True)
+    h = report_html.study_report_html(pkg)
+    assert "Measurement uncertainty" in h and "Terrain previews" in h
+    assert "data:image/png;base64," in h            # self-contained inline preview
+    # absent for a plain study (no new sections leak in)
+    assert "Measurement uncertainty" not in report_html.study_report_html(study.run_study())

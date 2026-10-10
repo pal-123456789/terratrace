@@ -5,7 +5,7 @@ screening**. These checks establish software/metric correctness, data handling,
 sensitivity, and provenance. They do **not** establish rover traversability,
 autonomy, geologic equivalence, site access, or mission readiness.
 
-## Test suite (275 fixtures, `tests/run_tests.py`)
+## Test suite (307 fixtures, `tests/run_tests.py`)
 
 | Area | What the fixtures prove |
 |---|---|
@@ -40,6 +40,10 @@ autonomy, geologic equivalence, site access, or mission readiness.
 | hillshade | The shaded relief encodes to a valid, self-contained PNG data URI whose single IDAT stream zlib-decompresses to exactly `height * (width + 1)` bytes (one 0x00 filter byte per scanline); a flat field is uniform, NaN cells render black, an oversized grid downsamples below `max_size`, and the encoded bytes are deterministic |
 | fingerprint_library | A fresh draw of a known process ranks its matching reference first; the cross-body table maps each Earth candidate to the correct planetary reference (Mars-like, Moon-like), fills every candidate × reference cell with a float, and is deterministic |
 | dossier | The recommended unit's dossier is flagged `is_recommended` with non-empty per-axis distances on the declared decision axes; an ineligible unit is blocked with its reason, empty distances, and no frontier/uncertainty — without raising; a bootstrapped run carries non-domination frequencies; the Markdown renders every metric and a verdict word |
+| sensitivity | On a clear-winner synthetic scene the recommended unit is stable across all three decision lenses and across a sweep of common supports (`lens_ablation`, `support_ablation`, and `ablation_report` agree, `overall_stable=True`); the ablation is deterministic |
+| terrain_classify | Synthetic flat, rolling, and rough tiles classify as `flat_plain`, `rolling`, and `rough_rugged` as expected; the rule-based label, its evidence, per-type scores, and confidence are deterministic |
+| references | The data-sources credits bundle lists a real citation and licence for every source across all five bodies (Mars, Earth, Moon, Mercury, Ceres), grouped by body; rendering is deterministic |
+| integration (uncertainty + previews) | `feature_uncertainty` and `previews` are opt-in and absent by default, so the gated synthetic study `package_hash` is unchanged; when supplied they attach to the package and the HTML report and viewer render a "Measurement uncertainty" table and inline hillshade previews |
 
 Every fixture has a known analytic answer; the runner exits non-zero on any failure.
 

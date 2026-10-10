@@ -84,6 +84,26 @@ underlying structure-function and Hurst roughness scaling (Mandelbrot & Van Ness
 *SIAM Review* 10, 422-437; applied to topography by Turcotte, 1997, *Fractals and Chaos in
 Geology and Geophysics*, Cambridge University Press).
 
+## Terrain-type classification
+
+For a one-word summary of a tile's map-scale form, `terrain_classify.py` assigns a single
+descriptive terrain *type* — `flat_plain`, `rolling`, `dissected_upland`, or `rough_rugged`,
+ordered from least to most relief and dissection. The classifier is deliberately transparent: it
+is a set of explicit, documented threshold rules over the robust descriptors already in the
+descriptor bank (median slope and its spread, median local relief, detrended ruggedness, the
+Terrain Ruggedness Index, the Vector Ruggedness Measure, the Hurst roughness-scaling exponent, and
+the ridge/valley landform fractions). There is no machine learning, no training, no fitted model,
+and no randomness anywhere — each type owns a short list of boolean criteria, its score is simply
+the fraction of those criteria the tile satisfies, and the chosen type is the argmax with a fixed
+tie-break by the type order. The result carries the label, the evidence values the rules read, the
+per-type scores, and a confidence equal to the margin between the top and runner-up scores.
+
+The type is a **descriptive** map-scale morphology label and nothing more. It inherits the feature
+layer's claim firewall unchanged: `flat_plain` does not assert the ground is safe to drive on and
+`rough_rugged` does not assert bedrock or boulders. Summarising morphology into a word adds no
+geological, genetic, lithological, age, hazard, mission, or rover-traversability claim that the
+underlying descriptors do not already carry.
+
 ## Distances and decision
 
 Per-feature distribution distance uses Wasserstein-1 normalized by a declared scale
@@ -100,6 +120,24 @@ shape descriptors decoupled from mean slope). The `extended` and `geomorphic` mo
 opt-in: a recommendation that survives all three independent axis sets is far more defensible
 than one that holds under a single set. Choosing a non-default mode does not alter the `core`
 study package or its provenance hash; the extra descriptors are computed only when requested.
+
+## Sensitivity / ablation
+
+A recommendation is only trustworthy if it survives the analyst's own choices, so `sensitivity.py`
+re-runs the finished screen under those choices and reports whether the answer holds.
+`lens_ablation` re-runs `compare_units` under each of the three decision lenses — `core`,
+`extended`, and `geomorphic` — and `support_ablation` re-runs it across a set of common-support
+scales under one lens; each reports the set of units recommended and whether that set collapses to
+a single unit (every recommending run names the same one, or none recommends). `ablation_report`
+combines the two into an `overall_stable` verdict that is true only when the recommendation is
+stable across lenses *and* across supports (or no support sweep was requested).
+
+This is a robustness *diagnostic* over the existing morphology screen, not a new scientific claim:
+it adds nothing to what the screen already decided and only reports how fragile or stable that
+decision is. A recommendation that is identical under all three independent axis sets and across a
+range of supports is far more defensible than one that depends on a single setting; where the
+ablation disagrees with itself it says so rather than hiding the fragility. The same map-scale
+morphology firewall applies throughout.
 
 ## Uncertainty
 
@@ -187,6 +225,29 @@ co-registration residuals, terrain-dependent bias — which inflates feature unc
 these estimates, and the relief and ruggedness bounds are additionally rough because window
 residuals partially cancel the per-pixel noise. These are map-scale morphology uncertainties
 only and make no mechanical, trafficability, or mission claim.
+
+## Measurement-uncertainty propagation in the report
+
+The elevation-error propagation above becomes visible in the deliverables when it is asked for.
+`compare_units` and `run_real_study` take an opt-in `vertical_accuracy` argument — a single
+`sigma_z` or a per-unit map — and, when it is supplied, attach a `feature_uncertainty` block to the
+study package: the propagated 1-sigma slope, relief, and ruggedness bands for each unit, computed
+by `errorprop.py` at that unit's common support and median slope. A real study resolves `sigma_z`
+automatically from each source's catalog vertical accuracy (or a per-unit `vertical_accuracy_m`
+override), so the bands reflect the actual DEM products compared. Passing `previews=True`
+additionally attaches a `previews` block: one self-contained hillshade PNG data-URI per unit,
+rendered by `hillshade.py` with the standard library alone. The HTML report (`report_html.py`) and
+the offline viewer (`build_viewer.py`) both detect these blocks and, when present, render a
+**"Measurement uncertainty"** table and an inline terrain-preview strip; when absent, that part of
+the document simply does not appear.
+
+Both features are **off by default**. When neither argument is given the study package is
+byte-for-byte what it was before — the synthetic study and its gated provenance `package_hash` are
+unchanged — so the uncertainty bands and previews are a strictly additive, opt-in layer. The bands
+carry the same caveat as the propagation that produced them: they assume independent per-pixel
+error and are therefore an optimistic lower bound, and they visualise map-scale morphology
+uncertainty only, with no mechanical, trafficability, or mission claim. The hillshade is an
+illustrative shaded-relief aid that encodes surface orientation and makes no quantitative claim.
 
 ## Batch studies
 

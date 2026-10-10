@@ -39,7 +39,7 @@ provenance-tracked study package.
 pip install -r requirements.txt
 python -m terratrace.cli --out artifacts        # synthetic, offline
 python -m terratrace.build_viewer               # viewer/index.html
-python tests/run_tests.py                        # 275 fixtures
+python tests/run_tests.py                        # 307 fixtures
 ```
 
 Real data: see the repository `REAL-DATA-RUNBOOK.md`. The only key required is a free
@@ -49,8 +49,11 @@ OpenTopography API key (Mars MOLA needs none).
 
 Validated at the level it claims, with an automatic degeneracy gate, a water-contamination
 ablation, and a core-vs-extended robustness ablation that turns an over-confident
-recommendation into an honest tie. Every catalog source carries an approximate 1-sigma
-vertical accuracy that `errorprop.py` propagates into honest slope/relief/ruggedness
-uncertainty (an optimistic lower bound under the independent-pixel assumption), and the whole
-result renders to a single self-contained, offline HTML report with an inline hillshade
-preview. See [Validation & ablations](VALIDATION.md).
+recommendation into an honest tie. A **sensitivity ablation** goes further, reporting whether the
+recommendation stays stable across all three decision lenses and a sweep of common supports.
+Every catalog source carries an approximate 1-sigma vertical accuracy that `errorprop.py`
+propagates into honest slope/relief/ruggedness uncertainty (an optimistic lower bound under the
+independent-pixel assumption); on request the study carries those **per-source
+measurement-uncertainty bands** and **inline hillshade previews**, and the whole result renders to
+a single self-contained, offline HTML report (and viewer) that shows them. See
+[Validation & ablations](VALIDATION.md).

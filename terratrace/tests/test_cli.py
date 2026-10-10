@@ -22,6 +22,15 @@ def _exit_code(argv):
     return rc if isinstance(rc, int) else 0
 
 
+def _write_study_json(path):
+    """Dump a small default study package to `path` (JSON) and return it."""
+    from terratrace import study
+    pkg = study.run_study()
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(pkg, fh)
+    return pkg
+
+
 def test_cli_writes_study_and_checksums():
     d = tempfile.mkdtemp()
     rc = cli.main(["--out", d])
@@ -89,3 +98,40 @@ def test_cli_unknown_subcommand_errors():
         code = exc.code
     # A clean failure: either SystemExit, or a nonzero int return value.
     assert raised or (isinstance(code, int) and code != 0)
+
+
+def test_cli_report_html_subcommand_writes_html():
+    d = tempfile.mkdtemp()
+    tmp_json = os.path.join(d, "study.json")
+    tmp_html = os.path.join(d, "study_report.html")
+    _write_study_json(tmp_json)
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        code = _exit_code(["report-html", "--study", tmp_json, "--out", tmp_html])
+    assert code == 0
+    assert os.path.exists(tmp_html)
+    with open(tmp_html, encoding="utf-8") as fh:
+        head = fh.read(64)
+    assert head.lower().startswith("<!doctype html")
+
+
+def test_cli_dossier_subcommand_unit():
+    d = tempfile.mkdtemp()
+    tmp_json = os.path.join(d, "study.json")
+    _write_study_json(tmp_json)
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        code = _exit_code(["dossier", "--study", tmp_json, "--unit", "earth_close"])
+    assert code == 0
+    assert buf.getvalue().strip() != ""
+
+
+def test_cli_dossier_subcommand_summary():
+    d = tempfile.mkdtemp()
+    tmp_json = os.path.join(d, "study.json")
+    _write_study_json(tmp_json)
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        code = _exit_code(["dossier", "--study", tmp_json])
+    assert code == 0
+    assert buf.getvalue().strip() != ""

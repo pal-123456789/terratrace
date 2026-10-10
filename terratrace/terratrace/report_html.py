@@ -359,6 +359,47 @@ def _provenance_html(p, profile):
     return "\n".join(out)
 
 
+def _feature_uncertainty_html(p):
+    """Propagated measurement-uncertainty table (present only when supplied)."""
+    fu = p.get("feature_uncertainty")
+    if not isinstance(fu, dict) or not fu:
+        return ""
+    out = ["<h2>Measurement uncertainty</h2>",
+           "<p>1&sigma; feature uncertainty propagated from each DEM's approximate vertical "
+           "accuracy (&sigma;<sub>z</sub>). Lower is better-constrained.</p>",
+           "<table><thead><tr><th scope='col'>unit</th><th scope='col'>&sigma;z (m)</th>"
+           "<th scope='col'>slope &sigma; (deg)</th><th scope='col'>relief &sigma; (m)</th>"
+           "<th scope='col'>ruggedness &sigma; (m)</th></tr></thead><tbody>"]
+    for uid in sorted(fu):
+        r = fu[uid] or {}
+        out.append(f"<tr><th scope='row'>{_esc(uid)}</th><td>{_num(r.get('sigma_z'))}</td>"
+                   f"<td>{_num(r.get('slope_sigma_deg'))}</td>"
+                   f"<td>{_num(r.get('relief_sigma_m'))}</td>"
+                   f"<td>{_num(r.get('ruggedness_sigma_m'))}</td></tr>")
+    out.append("</tbody></table>")
+    out.append("<blockquote class='note'>These bands assume independent per-pixel vertical "
+               "error, so (like the independent-pixel bootstrap) they are an optimistic lower "
+               "bound; real DEM errors are spatially correlated.</blockquote>")
+    return "\n".join(out)
+
+
+def _previews_html(p):
+    """Inline, self-contained hillshade previews (present only when supplied)."""
+    pv = p.get("previews")
+    if not isinstance(pv, dict) or not pv:
+        return ""
+    out = ["<h2>Terrain previews</h2>",
+           "<p>Shaded-relief hillshades of each unit at the common support (illustrative).</p>",
+           "<div class='previews'>"]
+    for uid in sorted(pv):
+        uri = pv[uid]
+        if isinstance(uri, str) and uri.startswith("data:image/png;base64,"):
+            out.append(f"<figure><img alt='hillshade of {_esc(uid)}' src='{_esc(uri)}'>"
+                       f"<figcaption>{_esc(uid)}</figcaption></figure>")
+    out.append("</div>")
+    return "\n".join(out)
+
+
 def study_report_html(package):
     """Render a study package as a complete, self-contained HTML document (str).
 
@@ -402,6 +443,8 @@ def study_report_html(package):
     w(_decision_html(p, profile, metrics, dm))
     w(_eligibility_html(p))
     w(_uncertainty_html(p))
+    w(_feature_uncertainty_html(p))
+    w(_previews_html(p))
     w(_sensitivity_html(p))
     w(_ledger_html(p))
     w(_provenance_html(p, profile))

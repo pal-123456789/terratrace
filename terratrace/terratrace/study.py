@@ -14,6 +14,8 @@ geologic-equivalence, access, or mission-readiness claim is produced.
 """
 from __future__ import annotations
 
+import warnings
+
 import numpy as np
 
 from . import synthetic, features, support, distances, decision, gaps, protocol, provenance, masks
@@ -140,7 +142,7 @@ def _geomorphic_dims(geo, cid, reference_id, scales):
 def compare_units(raw_units, rights, native_posting_m, reference_id="mars_reference",
                   target_support_m=100.0, min_valid=0.5, source_label="synthetic",
                   decision_metrics="core", n_boot=0, bootstrap_method="independent",
-                  block_size=4):
+                  block_size=4, vertical_accuracy=None, previews=False):
     """Run the full comparison on a dict of elevation arrays.
 
     raw_units: {unit_id: 2-D elevation array}
@@ -257,6 +259,31 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
             "vrm_median": (float(np.nanmedian(geo[uid]["vrm"]))
                            if geo[uid]["vrm"].size else float("nan")),
         } for uid in agg}
+    # Optional, OFF by default so the synthetic study package/hash is byte-unchanged.
+    # vertical_accuracy (scalar or {uid: sigma_z}) -> propagated feature uncertainty.
+    if vertical_accuracy is not None:
+        from . import errorprop
+        def _sigma(uid):
+            return (vertical_accuracy.get(uid) if isinstance(vertical_accuracy, dict)
+                    else vertical_accuracy)
+        fu = {}
+        for uid in agg:
+            sz = _sigma(uid)
+            if sz is None:
+                continue
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=RuntimeWarning)
+                med_slope = float(np.nanmedian(features.slope_deg(agg[uid], dxs[uid], dxs[uid])))
+            if not np.isfinite(med_slope):
+                med_slope = 0.0
+            fu[uid] = errorprop.propagate_feature_uncertainty(float(sz), dxs[uid], med_slope)
+        if fu:
+            package["feature_uncertainty"] = fu
+    # previews -> inline, self-contained hillshade PNG data-URIs per unit.
+    if previews:
+        from . import hillshade
+        package["previews"] = {uid: hillshade.hillshade_data_uri(agg[uid], dxs[uid], dxs[uid])
+                               for uid in agg}
     if n_boot and baseline_vectors and ref_feats_base is not None:
         from . import uncertainty
         extra = None
@@ -324,9 +351,23 @@ def load_real_units(units, target_support_m=1000.0, reproject=True):
     return raw, rights, native, reference_ids
 
 
+def _unit_vertical_accuracy(unit):
+    """Resolve a unit's 1-sigma vertical accuracy (m): explicit override, else the
+    catalog value for its demtype/dataset product, else None (skip)."""
+    if unit.get("vertical_accuracy_m") is not None:
+        return float(unit["vertical_accuracy_m"])
+    from . import catalog
+    demtype, dataset = unit.get("demtype"), unit.get("dataset")
+    for sid, s in catalog.SOURCES.items():
+        acc = s.get("access", {})
+        if (demtype and acc.get("demtype") == demtype) or (dataset and acc.get("datasetName") == dataset):
+            return catalog.vertical_accuracy_for(sid)
+    return None
+
+
 def run_real_study(units, target_support_m=1000.0, min_valid=0.5, reproject=True,
                    decision_metrics="core", n_boot=0, bootstrap_method="independent",
-                   block_size=4):
+                   block_size=4, previews=False):
     """Compare REAL DEMs.
 
     units: list of dicts with keys: id, path, native_posting_m, rights_status,
@@ -340,16 +381,23 @@ def run_real_study(units, target_support_m=1000.0, min_valid=0.5, reproject=True
     bootstrap_method ("independent" | "block") selects the uncertainty resampler
     when n_boot>0; "block" is the spatial block bootstrap (honest, autocorrelation-
     respecting CIs) with the given block_size in aggregated pixels.
+
+    Real studies also attach propagated measurement uncertainty (from each source's
+    catalog vertical accuracy, or a unit-level vertical_accuracy_m override) and,
+    with previews=True, an inline self-contained hillshade PNG per unit.
     """
     raw, rights, native, reference_ids = load_real_units(units, target_support_m, reproject)
     reference_id = reference_ids[-1] if reference_ids else None
     if reference_id is None:
         raise ValueError("exactly one unit must set is_reference=True")
     label = "real_dem_aeqd" if reproject else "real_dem"
+    vacc = {u["id"]: _unit_vertical_accuracy(u) for u in units}
+    vacc = {k: v for k, v in vacc.items() if v is not None} or None
     return compare_units(raw, rights, native, reference_id=reference_id,
                          target_support_m=target_support_m, min_valid=min_valid,
                          source_label=label, decision_metrics=decision_metrics, n_boot=n_boot,
-                         bootstrap_method=bootstrap_method, block_size=block_size)
+                         bootstrap_method=bootstrap_method, block_size=block_size,
+                         vertical_accuracy=vacc, previews=previews)
 
 
 def _build_graph(meta, vectors, state, recommended, source_label, elig_map, flips):

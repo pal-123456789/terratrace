@@ -13,6 +13,12 @@ FastAPI needed), so it runs anywhere Python does. Endpoints:
                                body: {"decision_modes": ["core", ...]}
     POST /report            -> run_study + render a publication-grade Markdown report
                                body: {"target_support_m": float, "n_boot": int}
+    POST /dossier           -> run_study + per-candidate decision briefs (JSON)
+                               body: {"target_support_m": float, "n_boot": int,
+                                      "unit": "<id>"}  # optional: just that one unit
+    POST /report.html       -> run_study + render the report as a standalone HTML
+                               document (Content-Type text/html, NOT JSON)
+                               body: {"target_support_m": float, "n_boot": int}
 
 SECURITY: this server is UNAUTHENTICATED and binds to 127.0.0.1 (localhost) by
 default. Do not expose it to a network without putting authentication and rate
@@ -33,8 +39,9 @@ MAX_BOOT = 500             # interactive responsiveness cap for the HTTP endpoin
 MAX_BODY = 1 << 16          # 64 KiB cap on request bodies
 LOOPBACK = {"127.0.0.1", "localhost", "::1", "[::1]"}
 ROUTES = ["GET /health", "GET /study", "GET /bodies",
-          "POST /compare", "POST /validate", "POST /batch", "POST /report"]
-POST_ROUTES = ("/compare", "/validate", "/batch", "/report")
+          "POST /compare", "POST /validate", "POST /batch", "POST /report",
+          "POST /dossier", "POST /report.html"]
+POST_ROUTES = ("/compare", "/validate", "/batch", "/report", "/dossier", "/report.html")
 
 
 def _clamp(value, lo, hi, default):
@@ -73,6 +80,19 @@ class Handler(BaseHTTPRequestHandler):
         body = json.dumps(obj).encode("utf-8")
         self.send_response(code)
         self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        if self.command != "HEAD":
+            self.wfile.write(body)
+
+    def _send_html(self, code, html_str):
+        """Send `html_str` as an HTML response (text/html; charset=utf-8), not
+        JSON. A sibling of `_send` that leaves `_send` untouched, so routes that
+        return a rendered document (e.g. /report.html) can bypass JSON encoding
+        while keeping the same Content-Length / HEAD handling."""
+        body = (html_str or "").encode("utf-8")
+        self.send_response(code)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         if self.command != "HEAD":
@@ -122,6 +142,10 @@ class Handler(BaseHTTPRequestHandler):
                 return self._post_validate(params)
             if route == "/batch":
                 return self._post_batch(params)
+            if route == "/dossier":
+                return self._post_dossier(params)
+            if route == "/report.html":
+                return self._post_report_html(params)
             return self._post_report(params)
         except Exception:
             return self._send(500, {"error": "internal error"})
@@ -214,6 +238,38 @@ class Handler(BaseHTTPRequestHandler):
         return self._send(200, {"markdown": report.study_report_md(pkg),
                                 "package_hash": pkg.get("package_hash"),
                                 "params": {"target_support_m": tsm, "n_boot": nb}})
+
+    def _post_dossier(self, params):
+        """Run the canonical synthetic study (same validated params as /compare)
+        and return per-candidate decision briefs. With no "unit" key, returns
+        dossier.all_dossiers(package): a {unit_id: brief} dict for every unit in
+        the package. With {"unit": "<id>"}, returns dossier.candidate_dossier for
+        just that unit, answering 400 with a JSON error (never crashing) when the
+        unit is unknown. dossier is lazy-imported so importing the API stays light.
+        """
+        from . import dossier
+        tsm = _clamp(params.get("target_support_m", 100.0), 1.0, 100000.0, 100.0)
+        nb = int(_clamp(params.get("n_boot", 0), 0, MAX_BOOT, 0))
+        pkg = study.run_study(target_support_m=tsm, n_boot=nb)
+        unit = params.get("unit")
+        if unit is not None:
+            try:
+                brief = dossier.candidate_dossier(pkg, unit)
+            except KeyError:
+                return self._send(400, {"error": f"unknown unit {unit!r}"})
+            return self._send(200, brief)
+        return self._send(200, dossier.all_dossiers(pkg))
+
+    def _post_report_html(self, params):
+        """Run the canonical synthetic study (same validated params as /compare)
+        and render it as a complete, self-contained HTML document, returned as an
+        HTML response (text/html; charset=utf-8), NOT JSON. report_html is
+        lazy-imported here so simply importing the API stays light."""
+        from . import report_html
+        tsm = _clamp(params.get("target_support_m", 100.0), 1.0, 100000.0, 100.0)
+        nb = int(_clamp(params.get("n_boot", 0), 0, MAX_BOOT, 0))
+        pkg = study.run_study(target_support_m=tsm, n_boot=nb)
+        return self._send_html(200, report_html.study_report_html(pkg))
 
 
 def make_server(host="127.0.0.1", port=8000):

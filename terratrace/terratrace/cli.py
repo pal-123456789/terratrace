@@ -7,6 +7,8 @@ Commands:
   validate   run the scientific-correctness validation suite
   benchmark  run the reproducibility + scaling benchmark
   report     render a markdown report from a study JSON
+  report-html render a self-contained HTML report from a study JSON
+  dossier    print a per-candidate site dossier from a study JSON
   version    print the TerraTrace version and schema version
 
 Backward compatibility: the original CLI ran a study directly with options like
@@ -140,6 +142,68 @@ def _cmd_report(argv):
     return 0
 
 
+def _cmd_report_html(argv):
+    """Render a self-contained HTML report from a study JSON via report_html."""
+    ap = argparse.ArgumentParser(
+        prog="terratrace report-html",
+        description="Render a self-contained HTML report from a study JSON package.")
+    ap.add_argument("--study", default=os.path.join("artifacts", "study.json"),
+                    help="input study JSON (default: artifacts/study.json)")
+    ap.add_argument("--out", default=os.path.join("artifacts", "study_report.html"),
+                    help="output HTML path (default: artifacts/study_report.html)")
+    args = ap.parse_args(argv)
+    # Lazy import: report_html may be supplied by a separate build and is still
+    # being extended, so importing it here keeps `import terratrace.cli` and the
+    # other commands working even if it is absent.
+    from terratrace import report_html
+    with open(args.study, "r", encoding="utf-8") as fh:
+        package = json.load(fh)
+    doc = report_html.study_report_html(package)
+    report_html.write_html(doc, args.out)
+    print(args.out)
+    return 0
+
+
+def _cmd_dossier(argv):
+    """Print a per-candidate site dossier (one unit) or a one-line summary of all."""
+    ap = argparse.ArgumentParser(
+        prog="terratrace dossier",
+        description="Print a per-candidate site dossier from a study JSON package.")
+    ap.add_argument("--study", default=os.path.join("artifacts", "study.json"),
+                    help="input study JSON (default: artifacts/study.json)")
+    ap.add_argument("--unit", default=None,
+                    help="candidate unit id; omit for a one-line summary of every unit")
+    args = ap.parse_args(argv)
+    # Lazy import keeps `import terratrace.cli` cheap and dependency-free.
+    from terratrace import dossier
+    try:
+        with open(args.study, "r", encoding="utf-8") as fh:
+            package = json.load(fh)
+    except OSError as exc:
+        sys.stderr.write(
+            f"terratrace dossier: cannot read study file {args.study!r}: {exc}\n")
+        return 2
+    if args.unit is not None:
+        try:
+            md = dossier.dossier_md(package, args.unit)
+        except KeyError:
+            sys.stderr.write(
+                f"terratrace dossier: unknown unit {args.unit!r} in study "
+                f"{args.study!r}\n")
+            return 2
+        print(md, end="")
+        return 0
+    briefs = dossier.all_dossiers(package)
+    if not briefs:
+        print("(no units in study package)")
+        return 0
+    for uid in sorted(briefs):
+        d = briefs[uid]
+        print(f"{uid}\teligible={d['eligible']}\t"
+              f"recommended={d['is_recommended']}")
+    return 0
+
+
 def _cmd_version(argv):
     """Print the package version and the study-schema version."""
     ap = argparse.ArgumentParser(
@@ -156,6 +220,8 @@ _DISPATCH = {
     "validate": _cmd_validate,
     "benchmark": _cmd_benchmark,
     "report": _cmd_report,
+    "report-html": _cmd_report_html,
+    "dossier": _cmd_dossier,
     "version": _cmd_version,
 }
 
@@ -171,6 +237,8 @@ def _print_top_help():
     print("  validate   run the scientific-correctness validation suite")
     print("  benchmark  run the reproducibility + scaling benchmark")
     print("  report     render a markdown report from a study JSON")
+    print("  report-html render a self-contained HTML report from a study JSON")
+    print("  dossier    print a per-candidate site dossier from a study JSON")
     print("  version    print the TerraTrace version and schema version")
     print()
     print("Run 'python -m terratrace.cli <command> -h' for a command's options.")

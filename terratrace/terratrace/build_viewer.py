@@ -262,6 +262,10 @@ tested scenarios. High values mean the result is assumption-sensitive.</p></sect
 
 {boot_section}
 
+{uncertainty_section}
+
+{previews_section}
+
 <section><h2>PROVENANCE</h2>
 <p class="sub">Every value derives from the <strong>{source}</strong> source through a recorded
 transformation and resolves in the evidence graph. Package hash:</p>
@@ -273,6 +277,45 @@ transformation and resolves in the evidence graph. Package hash:</p>
 <p class="foot">TerraTrace reference engine - source: {source} - morphology screening build.
 Not an official NASA submission artifact. Not NASA-endorsed.</p>
 </main></body></html>"""
+
+
+def _uncertainty_section(pkg):
+    """Propagated measurement-uncertainty table; empty unless the package carries it."""
+    fu = pkg.get("feature_uncertainty")
+    if not isinstance(fu, dict) or not fu:
+        return ""
+    rows = []
+    for uid in sorted(fu):
+        r = fu[uid] or {}
+        rows.append(
+            f"<tr><td>{html.escape(str(uid))}</td><td>{r.get('sigma_z', '')}</td>"
+            f"<td>{round(float(r.get('slope_sigma_deg', 0) or 0), 3)}</td>"
+            f"<td>{round(float(r.get('relief_sigma_m', 0) or 0), 3)}</td></tr>")
+    return ("<section><h2>MEASUREMENT UNCERTAINTY</h2>"
+            "<p class='sub'>1&sigma; propagated from each DEM's vertical accuracy "
+            "(optimistic: assumes independent pixels).</p>"
+            "<table><tr><th>unit</th><th>&sigma;z (m)</th><th>slope &sigma; (deg)</th>"
+            "<th>relief &sigma; (m)</th></tr>" + "".join(rows) + "</table></section>")
+
+
+def _previews_section(pkg):
+    """Inline self-contained hillshade previews; empty unless the package carries them."""
+    pv = pkg.get("previews")
+    if not isinstance(pv, dict) or not pv:
+        return ""
+    figs = []
+    for uid in sorted(pv):
+        uri = pv[uid]
+        if isinstance(uri, str) and uri.startswith("data:image/png;base64,"):
+            figs.append(f"<figure style='display:inline-block;margin:6px;text-align:center'>"
+                        f"<img alt='hillshade of {html.escape(str(uid))}' "
+                        f"src='{html.escape(uri)}' style='width:160px;image-rendering:pixelated'>"
+                        f"<figcaption class='sub'>{html.escape(str(uid))}</figcaption></figure>")
+    if not figs:
+        return ""
+    return ("<section><h2>TERRAIN PREVIEWS</h2>"
+            "<p class='sub'>Shaded-relief hillshades at the common support (illustrative).</p>"
+            + "".join(figs) + "</section>")
 
 
 def build_html(pkg):
@@ -301,6 +344,8 @@ def build_html(pkg):
         gaps=_gaps(pkg),
         flips=_flips(pkg),
         boot_section=_boot_section(pkg),
+        uncertainty_section=_uncertainty_section(pkg),
+        previews_section=_previews_section(pkg),
         objective=html.escape(proto["objective"]),
         auth=html.escape(proto["authorization"]),
         phash=html.escape(pkg["package_hash"]),
