@@ -29,6 +29,9 @@ from . import catalog
 # Body mean radii used for the planar area approximation (km).
 _R_EARTH_KM = 6371.0
 _R_MARS_KM = 3396.19          # Mars 2000 sphere, matches MOLA catalog CRS
+_R_MOON_KM = 1737.4           # IAU lunar mean radius, matches LOLA catalog CRS
+_BODY_RADIUS_KM = {"earth": _R_EARTH_KM, "mars": _R_MARS_KM, "moon": _R_MOON_KM}
+_SUPPORTED_BODIES = ("mars", "earth", "moon")
 
 # Heuristic practical ceilings. These are deliberately round, approximate limits
 # (not provider-exact) so a wildly oversized AOI is flagged before download.
@@ -40,8 +43,8 @@ _DEFAULT_LIMITS = {
 
 
 def _radius_km(body):
-    """Mars uses its own sphere radius; everything else is treated as Earth."""
-    return _R_MARS_KM if str(body).lower() == "mars" else _R_EARTH_KM
+    """Mean radius for the planar area approximation; defaults to Earth."""
+    return _BODY_RADIUS_KM.get(str(body).lower(), _R_EARTH_KM)
 
 
 def _is_number(x):
@@ -63,8 +66,8 @@ def validate_bbox(bbox, body):
     """
     problems = []
     b = str(body).lower() if body is not None else ""
-    if b not in ("mars", "earth"):
-        problems.append(f"body must be 'mars' or 'earth', got {body!r}")
+    if b not in _SUPPORTED_BODIES:
+        problems.append(f"body must be one of {_SUPPORTED_BODIES}, got {body!r}")
 
     # Structural check first; without 4 numbers nothing else is meaningful.
     if not isinstance(bbox, (list, tuple)) or len(bbox) != 4:
@@ -86,8 +89,10 @@ def validate_bbox(bbox, body):
         if not -90.0 <= lat <= 90.0:
             problems.append(f"{name} latitude {lat:g} out of range [-90, 90]")
 
-    # Only range-check longitude once the body's convention is known.
-    lon_bounds = {"mars": (-180.0, 360.0), "earth": (-180.0, 180.0)}.get(b)
+    # Only range-check longitude once the body's convention is known. Planetary
+    # bodies (Mars, Moon) ship in either 0..360 or -180..180, so accept both.
+    lon_bounds = {"mars": (-180.0, 360.0), "moon": (-180.0, 360.0),
+                  "earth": (-180.0, 180.0)}.get(b)
     if lon_bounds is not None:
         lo, hi = lon_bounds
         for name, lon in (("west", west), ("east", east)):
@@ -160,8 +165,8 @@ def validate_config(cfg) -> list[str]:
             problems.append(f"{tag}: missing or empty required key 'path'")
 
         body = u.get("body")
-        if str(body).lower() not in ("mars", "earth"):
-            problems.append(f"{tag}: body must be 'mars' or 'earth', got {body!r}")
+        if str(body).lower() not in _SUPPORTED_BODIES:
+            problems.append(f"{tag}: body must be one of {_SUPPORTED_BODIES}, got {body!r}")
 
         # bbox: report a missing key plainly; otherwise defer range/ordering to
         # validate_bbox. Drop its body line (we already checked body above) so a

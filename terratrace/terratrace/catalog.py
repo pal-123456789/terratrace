@@ -48,6 +48,18 @@ SOURCES = {
                      "valid_resolution_range_m": [463.0, 500000.0],
                      "description": "Entire planet, equirectangular GeoTIFF"},
     },
+    "moon_lola_ldem": {
+        "id": "moon_lola_ldem", "body": "moon", "provider": "NASA LRO LOLA / USGS Astrogeology",
+        "product": "LRO LOLA LDEM global lunar topography (~118 m)", "native_resolution_m": 118.0,
+        "access": {"method": "download",
+                   "endpoint": "https://astrogeology.usgs.gov/search/map/lunar_lro_lola_global_ldem_118m"},
+        "crs": "Moon 2000 sphere (R=1,737,400 m)", "vertical_datum": "Moon mean radius (selenoid)",
+        "key_required": False, "license": "NASA/USGS public; attribution requested",
+        "citation": "Smith et al., LRO LOLA LDEM; USGS Astrogeology lunar LDEM 118 m",
+        "coverage": {"kind": "global_body", "body": "moon", "complete": True,
+                     "valid_resolution_range_m": [118.0, 500000.0],
+                     "description": "Entire Moon (LOLA laser altimetry; denser near the poles)"},
+    },
     "earth_cop30": {
         "id": "earth_cop30", "body": "earth", "provider": "ESA Copernicus via OpenTopography",
         "product": "Copernicus GLO-30 DSM", "native_resolution_m": 30.0,
@@ -162,6 +174,7 @@ _PREFERENCE = {
     "earth_cop90": 2, "earth_nasadem": 2, "earth_aw3d30": 2,
     "earth_srtmgl1": 3, "earth_srtmgl3": 3,
     "mars_mola_usgs_463m": 1, "mars_mola_megdr": 2,
+    "moon_lola_ldem": 1,
 }
 _NODATA = {
     "earth_srtmgl1": [-32768.0], "earth_srtmgl3": [-32768.0],
@@ -311,8 +324,8 @@ def validate():
         acc = s.get("access")
         if not isinstance(acc, dict) or "method" not in acc:
             problems.append((sid, "access.method missing"))
-        if s.get("body") not in ("mars", "earth"):
-            problems.append((sid, f"body not in mars/earth: {s.get('body')!r}"))
+        if s.get("body") not in ("mars", "earth", "moon"):
+            problems.append((sid, f"body not in mars/earth/moon: {s.get('body')!r}"))
         res = s.get("native_resolution_m")
         if not isinstance(res, (int, float)) or res <= 0:
             problems.append((sid, f"native_resolution_m not positive: {res!r}"))

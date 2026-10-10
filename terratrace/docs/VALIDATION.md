@@ -5,7 +5,7 @@ screening**. These checks establish software/metric correctness, data handling,
 sensitivity, and provenance. They do **not** establish rover traversability,
 autonomy, geologic equivalence, site access, or mission readiness.
 
-## Test suite (184 fixtures, `tests/run_tests.py`)
+## Test suite (220 fixtures, `tests/run_tests.py`)
 
 | Area | What the fixtures prove |
 |---|---|
@@ -17,8 +17,8 @@ autonomy, geologic equivalence, site access, or mission readiness.
 | frontier | Peeled Pareto layers in order; dominance matrix; id-only within-layer order; identical-vector + determinism |
 | uncertainty (block) | `block_resample_2d` tiles a 2-D field with block×block patches drawn with replacement, preserving within-block autocorrelation (block=1 degenerates to independent pixels; NaNs carried with their block); the block-bootstrap distance CIs come out **wider** than the independent-pixel bootstrap on an autocorrelated field, and the closer unit holds the higher non-domination frequency |
 | masks | Sentinel/below/above masking to NaN; zero-fraction; input not mutated |
-| reproject | Body-correct CRS strings (Mars sphere vs WGS84), centroid, grid sizing, unknown-body guard |
-| catalog | 10-source registry validates; coverage + body-mismatch; `recommend_source` preference/least-download/keyless; SRTM band excludes >60°N; nodata sentinels |
+| reproject | Body-correct CRS strings (Mars sphere, Moon sphere, Earth WGS84), centroid, grid sizing, unknown-body guard; the Moon is a supported body and the Mars strings are unchanged |
+| catalog | 11-source registry validates (now including the keyless Moon LOLA LDEM); coverage + body-mismatch; `recommend_source` preference/least-download/keyless; SRTM band excludes >60°N; nodata sentinels |
 | preflight | bbox well-formedness + body bounds; area/pixel/download sizing; config-schema (dup ids/paths, demtype-vs-dataset); non-US routing |
 | profile | valid/water/NaN fractions; robust relief; advisory vs blocking flags; water==masks.zero_fraction |
 | fetchcache | sha256 matches sourcelock; needs_fetch skip/mismatch; manifest round-trip + update |
@@ -28,6 +28,10 @@ autonomy, geologic equivalence, site access, or mission readiness.
 | batch | Cross-reference × multi-lens synthesis: the same-statistics twin is the sole consensus analog; a far-rougher candidate is never non-dominated; deterministic, JSON-serialisable report |
 | validation | The engine passes every scientific-correctness check (see below) |
 | benchmark | Pinned behavioural invariants + hash stability + a scaling profile |
+| report | A study package and a batch report each render to Markdown containing the result, the per-axis metric table, and the provenance package hash; rendering is deterministic |
+| significance | The permutation test flags a true closeness gap (not a tie) as significant, and the bootstrap distance interval comes out correctly ordered (lo <= median <= hi) |
+| autocorr | White-noise terrain has a correlation length of ~1 px, far below a smooth hill's; the suggested block size lands within its clamp range |
+| repro | A recomputed hash matches the stored package hash; a tampered field is detected; the synthetic study reproduces bit-for-bit across runs |
 
 Every fixture has a known analytic answer; the runner exits non-zero on any failure.
 

@@ -133,3 +133,61 @@ def test_curvature_small_aoi_degrades_gracefully():
     tiny = synthetic.plane((2, 2), slope_x=0.1)
     assert np.all(np.isnan(features.profile_curvature(tiny)))
     assert np.all(np.isnan(features.mean_curvature(tiny)))
+
+
+# --- added analysis-layer descriptors: SAR / TRI / TPI map / landform mix ----
+
+def test_surface_area_ratio_flat_is_one_and_plane_is_sec_slope():
+    flat = synthetic.constant((20, 20), value=5.0)
+    sar_flat = features.surface_area_ratio(flat, 1.0, 1.0)
+    assert np.allclose(sar_flat, 1.0, atol=1e-12), float(np.nanmax(np.abs(sar_flat - 1.0)))
+
+    a, b, dx, dy = 0.2, 0.1, 2.0, 2.0
+    z = synthetic.plane((20, 20), slope_x=a, slope_y=b, dx=dx, dy=dy)
+    sar = features.surface_area_ratio(z, dx, dy)
+    expected = np.sqrt(1.0 + a * a + b * b)         # = sec(slope) for a tilted plane
+    assert np.allclose(sar, expected, atol=1e-6), (float(np.nanmax(sar)), float(expected))
+    slope_rad = np.radians(features.slope_deg(z, dx, dy))
+    assert np.allclose(sar, 1.0 / np.cos(slope_rad), atol=1e-6)
+    assert np.all(sar > 1.0) and np.all(np.isfinite(sar))
+
+
+def test_terrain_ruggedness_index_zero_on_constant_and_grows_with_roughness():
+    const = synthetic.constant((20, 20), value=3.0)
+    tri_c = features.terrain_ruggedness_index(const, window=3)
+    assert np.nanmax(np.abs(tri_c)) < 1e-12, float(np.nanmax(np.abs(tri_c)))
+
+    # same seed, scaled amplitude -> TRI scales linearly, so rough > smooth.
+    smooth = synthetic.rough_field((40, 40), amplitude=0.3, seed=1)
+    rough = synthetic.rough_field((40, 40), amplitude=3.0, seed=1)
+    tri_s = float(np.nanmean(features.terrain_ruggedness_index(smooth, window=3)))
+    tri_r = float(np.nanmean(features.terrain_ruggedness_index(rough, window=3)))
+    assert tri_r > tri_s > 0.0, (tri_r, tri_s)
+
+
+def test_tpi_map_zero_on_plane_nonzero_on_hill_and_matches_dispersion():
+    plane = synthetic.plane((21, 21), slope_x=0.3, slope_y=0.1)
+    tpi_plane = features.tpi_map(plane, window=5)
+    assert np.nanmax(np.abs(tpi_plane)) < 1e-9, float(np.nanmax(np.abs(tpi_plane)))
+
+    hill = synthetic.gaussian_hill((31, 31), amplitude=12.0, sigma=5.0)
+    tpi_hill = features.tpi_map(hill, window=5)
+    assert np.nanmax(np.abs(tpi_hill)) > 0.0
+    finite = tpi_hill[np.isfinite(tpi_hill)]
+    # tpi_dispersion is exactly the std of this map's finite values.
+    assert abs(float(np.std(finite)) - features.tpi_dispersion(hill, window=5)) < 1e-9
+
+
+def test_landform_fraction_hill_sums_to_one_flat_degenerate():
+    hill = synthetic.gaussian_hill((31, 31), amplitude=12.0, sigma=5.0)
+    lf = features.landform_fraction(hill, window=5, k=1.0)
+    assert set(lf) == {"ridge", "valley", "flat"}, set(lf)
+    assert abs((lf["ridge"] + lf["valley"] + lf["flat"]) - 1.0) < 1e-9, lf
+    assert lf["ridge"] + lf["valley"] > 0.0, lf
+    assert all(0.0 <= v <= 1.0 for v in lf.values()), lf
+
+    flat = synthetic.constant((20, 20), value=4.0)
+    lff = features.landform_fraction(flat, window=5, k=1.0)   # must not raise
+    all_flat = abs(lff["flat"] - 1.0) < 1e-9
+    degenerate = lff["ridge"] == lff["valley"] == lff["flat"] == 0.0
+    assert all_flat or degenerate, lff

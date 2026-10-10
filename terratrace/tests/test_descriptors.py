@@ -43,7 +43,9 @@ def test_bank_keys_types_and_json_serialisable():
     z = (synthetic.plane((40, 40), slope_x=0.2, slope_y=0.1)
          + synthetic.rough_field((40, 40), amplitude=0.5, seed=1))
     bank = descriptors.descriptor_bank(z)
-    expected = set(MAP_KEYS) | set(SCALAR_KEYS) | {"structure_function"}
+    expected = (set(MAP_KEYS) | set(SCALAR_KEYS) |
+                {"structure_function", "surface_area_ratio",
+                 "terrain_ruggedness_index", "landform_fraction"})
     assert set(bank) == expected, set(bank) ^ expected
     for key in MAP_KEYS:
         summ = bank[key]
@@ -102,3 +104,32 @@ def test_bank_vector_matches_bank_headline_scalars():
         bank["hurst_exponent"],
     )
     assert vec == expected, (vec, expected)
+
+
+# --- added analysis-layer descriptors wired into the bank --------------------
+
+def test_bank_has_added_descriptors_rough_gt_plane_sar_and_serialises():
+    plane = synthetic.plane((40, 40), slope_x=0.2, slope_y=0.1, dx=1.0, dy=1.0)
+    rough = plane + synthetic.rough_field((40, 40), amplitude=1.0, seed=13)
+    bp = descriptors.descriptor_bank(plane)
+    br = descriptors.descriptor_bank(rough)
+
+    for key in ("surface_area_ratio", "terrain_ruggedness_index", "landform_fraction"):
+        assert key in bp, key
+    # the two added map summaries are {mean,std,p10,p50,p90} dicts of plain floats
+    for key in ("surface_area_ratio", "terrain_ruggedness_index"):
+        assert set(bp[key]) == SUMMARY_KEYS, (key, set(bp[key]))
+        assert all(type(v) is float for v in bp[key].values()), key
+    # landform_fraction is a dict of plain floats summing to ~1 (or degenerate 0)
+    lf = bp["landform_fraction"]
+    assert set(lf) == {"ridge", "valley", "flat"}, set(lf)
+    assert all(type(v) is float for v in lf.values()), lf
+
+    # a rough field exposes more 3-D surface area per unit plan area than a plane
+    assert br["surface_area_ratio"]["mean"] > bp["surface_area_ratio"]["mean"], (
+        br["surface_area_ratio"]["mean"], bp["surface_area_ratio"]["mean"])
+    assert br["terrain_ruggedness_index"]["mean"] > bp["terrain_ruggedness_index"]["mean"]
+
+    # the whole extended bank still json.dumps and round-trips
+    dumped = json.dumps(br)
+    assert isinstance(dumped, str) and json.loads(dumped)

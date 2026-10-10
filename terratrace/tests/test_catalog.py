@@ -62,7 +62,7 @@ def test_validate_catches_injected_defects():
 def test_all_bodies_are_known_and_resolutions_positive():
     for sid in catalog.all_ids():
         s = catalog.get(sid)
-        assert s["body"] in ("mars", "earth")
+        assert s["body"] in ("mars", "earth", "moon")
         assert s["native_resolution_m"] > 0
     assert {s["id"] for s in catalog.by_body("earth")} >= {"earth_cop30", "earth_usgs10m"}
 
@@ -203,3 +203,16 @@ def test_every_source_has_valid_preference_and_sentinels():
         s = catalog.get(sid)
         assert isinstance(s["preference"], int) and s["preference"] >= 1
         assert isinstance(s["nodata_sentinels"], list)
+
+
+def test_moon_lola_source_is_registered_and_selectable():
+    # The engine is multi-body: the Moon (LRO/LOLA) is a first-class reference body.
+    s = catalog.get("moon_lola_ldem")
+    assert s["body"] == "moon" and s["key_required"] is False
+    assert "moon" in {src["id"][:4] for src in catalog.by_body("moon")} or \
+        "moon_lola_ldem" in {src["id"] for src in catalog.by_body("moon")}
+    assert catalog.validate() == []                       # registry still clean with Moon
+    cov = catalog.source_covers("moon_lola_ldem", (120.0, -5.0, 130.0, 5.0), "moon")
+    assert cov["covered"] is True                          # global_body covers any Moon bbox
+    r = catalog.recommend_source((120.0, -5.0, 130.0, 5.0), "moon", target_support_m=1000.0)
+    assert r["source_id"] == "moon_lola_ldem"

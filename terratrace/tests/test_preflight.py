@@ -52,6 +52,20 @@ def test_bbox_area_km2_equatorial_sanity_and_body_scaling():
     assert mars < earth                      # smaller planet -> smaller box
 
 
+def test_moon_body_accepted_and_scaled_smaller_than_mars():
+    # Moon is a supported body; a 0..360 lunar bbox is valid and its area scales
+    # with the (smaller) lunar radius.
+    assert preflight.validate_bbox((120.0, -5.0, 130.0, 5.0), "moon") == []
+    moon = preflight.bbox_area_km2((0.0, 0.0, 1.0, 1.0), "moon")
+    mars = preflight.bbox_area_km2((0.0, 0.0, 1.0, 1.0), "mars")
+    assert 0.0 < moon < mars                 # Moon radius < Mars radius
+    # A Moon AOI resolves to the LOLA product via preflight's source selection.
+    unit = {"id": "moon_aoi", "body": "moon", "bbox": (120.0, -5.0, 130.0, 5.0),
+            "native_posting_m": 118.0}
+    res = preflight.preflight_unit(unit, "moon", target_support_m=2000.0)
+    assert res["recommended_source"]["source_id"] == "moon_lola_ldem"
+
+
 def test_estimate_pixels_and_download_are_monotonic():
     small = preflight.estimate_pixels(_CRATERS, 30.0, "earth")
     big = preflight.estimate_pixels(_ANDES_HUGE, 30.0, "earth")

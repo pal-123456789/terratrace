@@ -138,6 +138,34 @@ way the quantity is still map-scale morphology: a wider interval reports honest 
 about the *morphology distance*, and makes no claim about traversability, geologic
 equivalence, or mission readiness.
 
+## Autocorrelation-driven block size
+
+The block bootstrap only gives honest intervals when its block is at least as large as the
+terrain's spatial correlation length, and choosing that block by eye is unprincipled.
+`autocorr.py` measures it from the data: it computes the field's autocorrelation as a
+function of lag — the Pearson correlation between the map and copies of itself shifted by
+one, two, three, and more pixels, pooling the horizontal and vertical shifts over finite
+pairs — and reads the correlation length as the first lag at which that curve falls to 1/e.
+Clamped to a sensible range, that length in pixels becomes the suggested block size fed to
+the moving-block bootstrap, so each resampled block spans a full correlation cell by
+construction rather than by guess. The curve and the length are map-scale descriptive
+statistics of the elevation grid only; they say how smoothly the sampled surface varies and
+make no traversability or mechanical-roughness claim.
+
+## Statistical significance
+
+A single distance, or even a bootstrap interval, still leaves one question open when two
+candidates are close: is A *meaningfully* nearer the reference than B, or is the gap noise?
+`significance.py` answers it with a one-sided permutation test. It pools the finite
+elevation-feature samples of the two candidates, repartitions the pool at random into two
+groups of the original sizes many times over, and each time recomputes the difference of
+normalized distances to the reference; the p-value is the fraction of those random
+relabellings whose gap is at least as extreme as the observed one. A standardized effect
+size in [-1, 1] reports how large the closeness gap is independent of its significance, and
+a bootstrap confidence interval brackets each distance. The test speaks only about the shape
+of elevation-sample distributions — it asks whether a closeness gap could arise by chance
+and makes no physical, geologic, or mission claim about either terrain.
+
 ## Batch studies
 
 A single study compares one Mars reference against a slate of Earth candidates under
@@ -167,8 +195,22 @@ answer. The array-level `run_batch` needs no network or rasterio and is fully te
 
 Each AOI is warped to a local azimuthal-equidistant CRS centered on its centroid, with the
 correct body ellipsoid/sphere, so slope and relief are computed on true metres and are
-comparable across Mars and Earth. Mars uses a sphere of radius 3,396,190 m; Earth uses
-WGS84.
+comparable across bodies. Mars uses a sphere of radius 3,396,190 m, the Moon a sphere of
+radius 1,737,400 m, and Earth the WGS84 ellipsoid.
+
+## Multi-body support
+
+The comparison core is body-agnostic, so TerraTrace now screens Earth candidates against a
+Mars *or* a Moon reference. Each AOI is warped on its own figure before any statistic is
+computed — the Mars sphere (R = 3,396,190 m), the Moon sphere (R = 1,737,400 m, the LRO/LOLA
+mean radius), or the Earth WGS84 ellipsoid — so a degree of longitude becomes the right
+number of metres on whichever body an AOI belongs to and slope and relief are true metres
+everywhere. The source catalog adds a keyless Moon product, the LRO LOLA LDEM global
+topography at about 118 m from USGS Astrogeology, beside the Mars MOLA and the Earth
+products, and the preflight accepts `moon` as a body with its own longitude convention. The
+Moon is an additional reference body, not a change to the comparison logic: every existing
+Mars and Earth result and the gated synthetic study hash are unchanged, and the same claim
+firewall applies — map-scale morphology only, on every body.
 
 ## Provenance
 

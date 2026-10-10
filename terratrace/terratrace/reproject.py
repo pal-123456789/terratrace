@@ -20,6 +20,21 @@ from __future__ import annotations
 import math
 
 MARS_RADIUS_M = 3396190.0  # IAU mean radius
+MOON_RADIUS_M = 1737400.0  # IAU lunar mean radius (LRO/LOLA sphere)
+
+# Spherical bodies handled with an authalic-sphere proj string. Earth is the one
+# ellipsoidal exception (WGS84), kept separate below.
+_SPHERE_RADIUS_M = {"mars": MARS_RADIUS_M, "moon": MOON_RADIUS_M}
+
+
+def body_radius_m(body):
+    """Mean radius in metres for a supported body (Earth uses the WGS84 mean)."""
+    b = body.lower()
+    if b == "earth":
+        return 6371008.8
+    if b in _SPHERE_RADIUS_M:
+        return _SPHERE_RADIUS_M[b]
+    raise ValueError(f"unknown body {body!r}")
 
 
 def geographic_crs(body):
@@ -27,8 +42,9 @@ def geographic_crs(body):
     b = body.lower()
     if b == "earth":
         return "EPSG:4326"
-    if b == "mars":
-        return f"+proj=longlat +a={MARS_RADIUS_M} +b={MARS_RADIUS_M} +no_defs"
+    if b in _SPHERE_RADIUS_M:
+        r = _SPHERE_RADIUS_M[b]
+        return f"+proj=longlat +a={r} +b={r} +no_defs"
     raise ValueError(f"unknown body {body!r}")
 
 
@@ -38,9 +54,10 @@ def local_aeqd(lat0, lon0, body):
     if b == "earth":
         return (f"+proj=aeqd +lat_0={lat0} +lon_0={lon0} "
                 f"+datum=WGS84 +units=m +no_defs")
-    if b == "mars":
+    if b in _SPHERE_RADIUS_M:
+        r = _SPHERE_RADIUS_M[b]
         return (f"+proj=aeqd +lat_0={lat0} +lon_0={lon0} "
-                f"+a={MARS_RADIUS_M} +b={MARS_RADIUS_M} +units=m +no_defs")
+                f"+a={r} +b={r} +units=m +no_defs")
     raise ValueError(f"unknown body {body!r}")
 
 

@@ -81,6 +81,12 @@ def descriptor_bank(z, dx=1.0, window=5):
             str(lag): float(rms)
             for lag, rms in features.structure_function(z, dx=dx).items()
         },
+        # --- added analysis-layer descriptors (append-only; NOT used by the
+        #     study decision -- a read-only extension of the bank) ---
+        "surface_area_ratio": summarize_map(features.surface_area_ratio(z, dx, dx)),
+        "terrain_ruggedness_index": summarize_map(
+            features.terrain_ruggedness_index(z, window=window)),
+        "landform_fraction": features.landform_fraction(z, window=window),
     }
 
 

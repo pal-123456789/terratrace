@@ -37,10 +37,21 @@ def test_grid_size_rejects_bad_resolution():
 
 
 def test_unknown_body_raises():
-    for fn in (lambda: rp.geographic_crs("moon"), lambda: rp.local_aeqd(0, 0, "moon")):
+    for fn in (lambda: rp.geographic_crs("venus"), lambda: rp.local_aeqd(0, 0, "venus")):
         try:
             fn()
             raised = False
         except ValueError:
             raised = True
         assert raised
+
+
+def test_moon_is_supported_body():
+    # Moon (LRO/LOLA sphere) is a first-class body alongside Mars and Earth.
+    g = rp.geographic_crs("moon")
+    assert "1737400" in g and "longlat" in g
+    a = rp.local_aeqd(10.0, 20.0, "moon")
+    assert "aeqd" in a and "1737400" in a and "WGS84" not in a
+    assert rp.body_radius_m("moon") == 1737400.0
+    # Mars strings are byte-identical to before Moon was added (no regression).
+    assert rp.geographic_crs("mars") == "+proj=longlat +a=3396190.0 +b=3396190.0 +no_defs"

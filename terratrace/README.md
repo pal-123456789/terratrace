@@ -22,6 +22,13 @@ source and a transformation.
 
 - Pure-NumPy morphology engine: slope, local relief, detrended ruggedness, low-slope
   connectivity.
+- **Multi-body screening (Mars + Moon vs Earth):** the engine now screens Earth
+  candidates against a Mars *or* a Moon reference. `reproject.py` warps each AOI on its
+  own body — Mars sphere (R=3,396,190 m), Moon sphere (R=1,737,400 m, LRO/LOLA), Earth
+  WGS84 — so slope and relief are true metres on every body; `catalog.py` adds a keyless
+  Moon source (`moon_lola_ldem`, LRO LOLA LDEM ~118 m, USGS Astrogeology) and the
+  preflight accepts `body: moon`. Mars/Earth behaviour and the gated synthetic study hash
+  are unchanged.
 - Expanded geomorphometric descriptors (non-destructive analysis layer): Zevenbergen-Thorne
   profile / plan / mean curvature, the Vector Ruggedness Measure (surface-normal dispersion,
   decoupled from mean slope), and a multiscale roughness structure function with its Hurst
@@ -29,6 +36,12 @@ source and a transformation.
   paraboloid, VRM rising with roughness, Hurst = 1 on a linear ramp). They power an opt-in
   `geomorphic` decision mode (curvature + VRM as extra Pareto axes) as a third robustness
   lens, and leave the default study pipeline and its provenance hash unchanged.
+- **Expanded geomorphometry (analysis layer):** `features.py` adds the surface-area ratio
+  (rugosity — exactly 1 on flat ground, `sec(slope)` on a tilted plane), the Riley (1999)
+  Terrain Ruggedness Index, a Topographic Position Index map, and a ridge/valley/flat
+  landform-fraction mix. All four are surfaced in `descriptors.descriptor_bank`; like the
+  other descriptors they sit outside the default decision, so the study package and its
+  provenance hash are unchanged.
 - Common-support aggregation with valid-fraction tracking (missingness never hidden).
 - Distribution distances (Wasserstein-1, KS, quantile fingerprint) with no SciPy.
 - Eligibility filters + Pareto/tie/indeterminate decision (no composite "Mars-likeness"
@@ -43,6 +56,15 @@ source and a transformation.
   so spatial autocorrelation is preserved, giving honest, autocorrelation-aware CIs that
   are typically **wider** than the optimistically narrow independent ones — selectable
   end-to-end and active whenever `n_boot > 0`.
+- **Data-driven block size:** `autocorr.py` estimates a DEM's spatial autocorrelation
+  curve and its correlation length (the 1/e e-folding lag) and suggests a block size from
+  it. That size feeds the spatial block bootstrap above, so the block length is chosen from
+  the terrain's own autocorrelation rather than guessed.
+- **Statistical significance:** `significance.py` adds a one-sided permutation test — *is
+  candidate A significantly closer to the reference than B, or could the closeness gap
+  arise by chance under random relabelling?* — returning a p-value and a standardized
+  effect size, plus a bootstrap confidence interval on each distance. Closeness gaps are
+  now tested, not merely asserted.
 - Cross-reference, multi-lens **batch studies** (`run_batch` / `run_real_batch`): the
   full comparison is rerun for every Mars-reference × decision-lens cell, then
   synthesised into each candidate's layer-1 (non-dominated) frequency across references
@@ -50,9 +72,10 @@ source and a transformation.
   a robust ordering — a transparent robustness synthesis, not a composite score.
 - Transfer-gap ledger (T0–T4 classes) and a draft study protocol.
 - Evidence graph + content hashing; deterministic study package + static viewer.
-- **Data & sources layer (10-source registry):** a citeable **catalog** of real DEM
-  products — Mars MOLA, and for Earth: Copernicus GLO-30/90, USGS 3DEP (10 m / 1 m),
-  SRTM GL1/GL3, NASADEM, and ALOS AW3D30 — each with spatial-coverage metadata, a
+- **Data & sources layer (11-source registry):** a citeable **catalog** of real DEM
+  products — Mars MOLA, the **Moon LRO LOLA LDEM** (~118 m, keyless), and for Earth:
+  Copernicus GLO-30/90, USGS 3DEP (10 m / 1 m), SRTM GL1/GL3, NASADEM, and ALOS AW3D30 —
+  each with spatial-coverage metadata, a
   land-morphology **preference** tier, and known nodata sentinels; `recommend_source()`
   auto-picks the covering product for an AOI + target support (and refuses a US-only
   product for a non-US bbox, or an SRTM product above 60°N). A fail-fast **preflight**
@@ -61,6 +84,16 @@ source and a transformation.
   avoids re-downloading gigabytes; downloads are atomic with retry/backoff honouring
   `Retry-After`; and a DEM **QA profiler** reports valid / water / NaN fractions, robust
   relief, and advisory flags (sentinels applied first).
+- **Publication-grade reporting:** `report.py` turns a study package or a cross-reference
+  batch into a single citable Markdown document — result plus a plain-language verdict, the
+  per-axis decision table across the chosen lens, eligibility, an uncertainty section when a
+  bootstrap was run, scenario sensitivity, the transfer-gap ledger, and a provenance
+  appendix carrying the package hash. It reproduces the claim firewall verbatim and never
+  widens it; `scripts/make_report.py` renders it and the CLI has a `report` subcommand.
+- **Reproducibility verifier:** `repro.py` recomputes and verifies a package's content hash
+  (detecting any tamper or truncation), diffs two packages key-by-key, and confirms the
+  synthetic study reproduces bit-for-bit; `scripts/verify_study.py` is the CLI and exits 0
+  only on a match, so a reviewer can confirm a published study is authentic.
 - **Validation & benchmarking:** a scientific-correctness suite that drives the *real*
   engine on synthetic terrains with known relationships and proves it behaves correctly —
   self-distance is zero, slope/relief/ruggedness are invariant to vertical offset and 90°
@@ -68,10 +101,10 @@ source and a transformation.
   closer candidate provably dominates and is recommended, a flat/water tile is blocked,
   and the whole pipeline is deterministic. A reproducibility + performance harness pins
   behavioural invariants, checks hash stability, and profiles wall-clock scaling.
-- 184 fixture tests with known analytic answers, all passing, no network required.
+- 220 fixture tests with known analytic answers, all passing, no network required.
 
 ```
-passed=184 failed=0
+passed=220 failed=0
 ```
 
 ## Install
@@ -90,10 +123,24 @@ pip install -r requirements-real.txt      # rasterio + requests (real DEMs)
 ```bash
 PYTHONPATH=. python3 -m terratrace.cli --out artifacts
 PYTHONPATH=. python3 -m terratrace.build_viewer      # writes viewer/index.html
-PYTHONPATH=. python3 tests/run_tests.py              # 184 tests
+PYTHONPATH=. python3 tests/run_tests.py              # 220 tests
 ```
 
 Open `viewer/index.html` in any browser — it is self-contained and works offline.
+
+### Unified CLI
+
+Every entry point lives behind one dispatcher — `python -m terratrace.cli <command>`:
+
+```bash
+PYTHONPATH=. python3 -m terratrace.cli validate      # scientific-correctness suite
+PYTHONPATH=. python3 -m terratrace.cli benchmark     # reproducibility + scaling profile
+PYTHONPATH=. python3 -m terratrace.cli report        # render a Markdown study report
+PYTHONPATH=. python3 -m terratrace.cli version       # print version + schema
+```
+
+With no known command, options route to the implicit `study` command, so the legacy
+`python -m terratrace.cli --out artifacts` call above keeps working unchanged.
 
 ## HTTP API (stdlib, no extra deps)
 
@@ -116,11 +163,12 @@ See [REAL-DATA-RUNBOOK.md](REAL-DATA-RUNBOOK.md). Minimal real stack:
 | Layer | Source | Native | API key? |
 |---|---|---|---|
 | Mars | USGS Astrogeology **Mars MGS MOLA DEM 463m** GeoTIFF | 463 m | none |
+| Moon | USGS Astrogeology / LRO **LOLA LDEM** (global ~118 m) | 118 m | none |
 | Earth (global) | **Copernicus GLO-30 / GLO-90** via OpenTopography | 30 / 90 m | free key |
 | Earth (near-global) | **NASADEM**, **SRTM GL1 / GL3**, **ALOS AW3D30** via OpenTopography | 30 / 90 m | free key |
 | Earth (US, higher-res) | **USGS 3DEP** 1/3″ (~10 m) / 1 m lidar via OpenTopography / ImageServer | 10 / 1 m | free key / none |
 
-The full 10-source registry (coverage, preference tier, nodata sentinels, licence,
+The full 11-source registry (coverage, preference tier, nodata sentinels, licence,
 citation, vertical datum) lives in `terratrace/catalog.py`;
 `catalog.recommend_source(bbox, body, target_support_m)` picks the right product for an
 AOI automatically — preferring the best land-morphology product that covers the box and
@@ -158,20 +206,24 @@ terratrace/
     study.py         compare_units + run_study + run_real_study
     batch.py         cross-reference, multi-lens batch synthesis
     descriptors.py   full geomorphometric descriptor bank (analysis layer)
-    catalog.py       10-source registry: coverage, preference, nodata, selection
+    catalog.py       11-source registry: coverage, preference, nodata, selection
     preflight.py     fail-fast config-schema + AOI/bbox/size/coverage checks
     profile.py       DEM QA report (valid/water/NaN, relief, advisory flags)
     ingest.py        real DEM download (atomic + retry/backoff) + raster read
     fetchcache.py    idempotent fetch decisions + sha256 provenance manifest
     validation.py    scientific-correctness suite (drives the real engine)
     benchmark.py     reproducibility invariants + wall-clock scaling profile
+    report.py        publication-grade Markdown report (study or batch package)
+    significance.py  permutation test + effect size + bootstrap distance CI
+    autocorr.py      spatial autocorrelation length -> data-driven block size
+    repro.py         recompute/verify package hash + diff + reproduce check
     build_viewer.py  self-contained HTML viewer
-    cli.py           study runner
-  tests/             184 fixture tests + dependency-free runner
+    cli.py           unified dispatcher: study / validate / benchmark / report / version
+  tests/             220 fixture tests + dependency-free runner
   artifacts/         generated study package (JSON + checksums + manifest)
   viewer/            generated offline HTML viewer
   config/            AOI configuration for real runs
-  scripts/           fetch (+preflight) / profile / validate / benchmark / run / run_batch_study
+  scripts/           fetch (+preflight) / profile / validate / benchmark / make_report / verify_study / run / run_batch_study
 ```
 
 ## Scientific method

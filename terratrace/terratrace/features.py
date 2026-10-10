@@ -320,3 +320,102 @@ def hurst_exponent(z, lags=(1, 2, 4, 8), dx=1.0):
     logv = np.log(np.array([p[1] for p in pts]))
     slope = np.polyfit(logs, logv, 1)[0]
     return float(min(1.0, max(0.0, slope)))
+
+
+# --- added analysis-layer descriptors (append-only; existing features above
+#     are untouched: rugosity / TRI / TPI map / landform mix) ------------------
+
+def surface_area_ratio(z, dx=1.0, dy=1.0):
+    """Surface-area ratio (rugosity): true 3-D surface area over planimetric area.
+
+    Computed per cell from the local gradient as
+    ``sqrt(1 + (dz/dx)^2 + (dz/dy)^2)`` using ``np.gradient`` (same convention
+    as :func:`slope_deg`). It is exactly 1.0 on flat ground and, on a tilted
+    plane z = a*x + b*y, the positive constant ``sqrt(1 + a^2 + b^2)`` which
+    equals ``sec(slope)`` (> 1). Returns the full-resolution map, with NaN
+    wherever the gradient is undefined (non-finite neighbours propagate).
+    """
+    if dx <= 0 or dy <= 0:
+        raise ValueError("dx and dy must be positive metres")
+    gy, gx = np.gradient(np.asarray(z, dtype=float), dy, dx)
+    return np.sqrt(1.0 + gx * gx + gy * gy)
+
+
+def terrain_ruggedness_index(z, window=3):
+    """Terrain Ruggedness Index (Riley et al., 1999), per interior cell.
+
+    ``TRI = sqrt(mean((neighbour - centre)^2))`` over the (window x window)
+    neighbourhood -- the RMS elevation difference between a cell and the cells
+    around it (the centre's own term is zero). It is 0 on perfectly flat or
+    CONSTANT ground and grows with roughness. Unlike detrended
+    :func:`ruggedness` it is NOT zero on a tilted plane: neighbours differ from
+    the centre there, so a plane yields a positive constant. NaN-aware
+    (non-finite neighbours are ignored); returns the interior map, or
+    ``np.array([[np.nan]])`` when the AOI is smaller than ``window``.
+    """
+    if window % 2 == 0:
+        raise ValueError("window must be odd")
+    za = np.asarray(z, dtype=float)
+    if min(za.shape) < window:
+        return np.array([[np.nan]])        # AOI too small for this window
+    w = _windows(za, window)
+    k = window // 2
+    center = w[:, :, k, k][:, :, None, None]
+    sq = (w - center) ** 2
+    flat = sq.reshape(w.shape[0], w.shape[1], -1)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=RuntimeWarning)
+        msd = np.nanmean(flat, axis=-1)
+    return np.sqrt(msd)
+
+
+def tpi_map(z, window=5):
+    """Topographic Position Index map: each cell minus its local window mean.
+
+    This is the per-cell field whose dispersion :func:`tpi_dispersion`
+    summarises (``tpi_dispersion`` returns the std of this map's finite
+    values). It is 0 on a plane or flat ground -- a symmetric window mean
+    equals the planar centre value -- and is positive on local highs (ridges)
+    and negative in local lows (valleys). NaN-aware via ``nanmean`` over each
+    window; returns the interior map, or ``np.array([[np.nan]])`` when the AOI
+    is smaller than ``window``.
+    """
+    if window % 2 == 0:
+        raise ValueError("window must be odd")
+    za = np.asarray(z, dtype=float)
+    if min(za.shape) < window:
+        return np.array([[np.nan]])        # AOI too small for this window
+    w = _windows(za, window)
+    flat = w.reshape(w.shape[0], w.shape[1], -1)
+    k = window // 2
+    center = za[k:za.shape[0] - k, k:za.shape[1] - k]
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", category=RuntimeWarning)
+        mean = np.nanmean(flat, axis=-1)
+    return center - mean
+
+
+def landform_fraction(z, window=5, k=1.0):
+    """Landform mix from the TPI map: ridge / valley / flat area fractions.
+
+    Classifies each finite cell of :func:`tpi_map` by its TPI relative to ``k``
+    standard deviations ``s`` of that map: ridge (``tpi > k*s``), valley
+    (``tpi < -k*s``), otherwise slope/flat (``|tpi| <= k*s``). Returns
+    ``{"ridge": f, "valley": f, "flat": f}`` whose fractions sum to 1.0 over the
+    finite cells -- a compact landform-organisation descriptor. If there are no
+    finite cells or the TPI map is degenerate (``s`` ~ 0, e.g. a plane or flat
+    ground) all three fractions are 0.0.
+    """
+    tpi = np.asarray(tpi_map(z, window=window), dtype=float)
+    finite = tpi[np.isfinite(tpi)]
+    n = int(finite.size)
+    if n == 0:
+        return {"ridge": 0.0, "valley": 0.0, "flat": 0.0}
+    s = float(np.std(finite))
+    if s <= 1e-12:                         # no landform structure (plane/flat)
+        return {"ridge": 0.0, "valley": 0.0, "flat": 0.0}
+    thr = k * s
+    ridge = float(np.count_nonzero(finite > thr)) / n
+    valley = float(np.count_nonzero(finite < -thr)) / n
+    flat = float(np.count_nonzero(np.abs(finite) <= thr)) / n
+    return {"ridge": ridge, "valley": valley, "flat": flat}
