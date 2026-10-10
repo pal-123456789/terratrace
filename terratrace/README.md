@@ -31,15 +31,21 @@ source and a transformation.
 - Sensitivity across scenarios with a pairwise rank-flip matrix.
 - Transfer-gap ledger (T0–T4 classes) and a draft study protocol.
 - Evidence graph + content hashing; deterministic study package + static viewer.
-- **Data & sources layer:** a citeable source **catalog** (MOLA / Copernicus GLO-30 /
-  USGS 3DEP) with spatial-coverage metadata and automatic source selection; a fail-fast
-  **preflight** that validates every AOI bbox and sizes the request before any download;
-  resilient downloads (atomic writes + retry/backoff honouring `Retry-After`); and a
-  DEM **QA profiler** (valid / water / NaN fractions, robust relief, advisory flags).
-- 115 fixture tests with known analytic answers, all passing, no network required.
+- **Data & sources layer (10-source registry):** a citeable **catalog** of real DEM
+  products — Mars MOLA, and for Earth: Copernicus GLO-30/90, USGS 3DEP (10 m / 1 m),
+  SRTM GL1/GL3, NASADEM, and ALOS AW3D30 — each with spatial-coverage metadata, a
+  land-morphology **preference** tier, and known nodata sentinels; `recommend_source()`
+  auto-picks the covering product for an AOI + target support (and refuses a US-only
+  product for a non-US bbox, or an SRTM product above 60°N). A fail-fast **preflight**
+  validates the config schema and every AOI bbox and sizes the request before any
+  download; **idempotent** fetching (skip-if-present + a sha256 provenance manifest)
+  avoids re-downloading gigabytes; downloads are atomic with retry/backoff honouring
+  `Retry-After`; and a DEM **QA profiler** reports valid / water / NaN fractions, robust
+  relief, and advisory flags (sentinels applied first).
+- 143 fixture tests with known analytic answers, all passing, no network required.
 
 ```
-passed=115 failed=0
+passed=143 failed=0
 ```
 
 ## Install
@@ -58,7 +64,7 @@ pip install -r requirements-real.txt      # rasterio + requests (real DEMs)
 ```bash
 PYTHONPATH=. python3 -m terratrace.cli --out artifacts
 PYTHONPATH=. python3 -m terratrace.build_viewer      # writes viewer/index.html
-PYTHONPATH=. python3 tests/run_tests.py              # 115 tests
+PYTHONPATH=. python3 tests/run_tests.py              # 143 tests
 ```
 
 Open `viewer/index.html` in any browser — it is self-contained and works offline.
@@ -84,12 +90,16 @@ See [REAL-DATA-RUNBOOK.md](REAL-DATA-RUNBOOK.md). Minimal real stack:
 | Layer | Source | Native | API key? |
 |---|---|---|---|
 | Mars | USGS Astrogeology **Mars MGS MOLA DEM 463m** GeoTIFF | 463 m | none |
-| Earth (global) | **Copernicus GLO-30** via OpenTopography API | 30 m | free key |
-| Earth (US, higher-res) | **USGS 3DEP** 1/3″ (~10 m) / 1 m lidar via OpenTopography / ImageServer | 10 m / 1 m | free key / none |
+| Earth (global) | **Copernicus GLO-30 / GLO-90** via OpenTopography | 30 / 90 m | free key |
+| Earth (near-global) | **NASADEM**, **SRTM GL1 / GL3**, **ALOS AW3D30** via OpenTopography | 30 / 90 m | free key |
+| Earth (US, higher-res) | **USGS 3DEP** 1/3″ (~10 m) / 1 m lidar via OpenTopography / ImageServer | 10 / 1 m | free key / none |
 
-The full registry (coverage, licence, citation, vertical datum) lives in
-`terratrace/catalog.py`; `catalog.recommend_source(bbox, body, target_support_m)` picks
-the right product for an AOI automatically.
+The full 10-source registry (coverage, preference tier, nodata sentinels, licence,
+citation, vertical datum) lives in `terratrace/catalog.py`;
+`catalog.recommend_source(bbox, body, target_support_m)` picks the right product for an
+AOI automatically — preferring the best land-morphology product that covers the box and
+reaches the target support, and declining a source whose footprint does not reach the AOI
+(e.g. SRTM north of 60°N, or a US-only product abroad).
 
 ```bash
 export OPENTOPO_API_KEY=...            # from portal.opentopography.org (My Account)
@@ -99,11 +109,12 @@ python3 scripts/profile_dem.py data/earth/candidate_b_cop30.tif                 
 PYTHONPATH=. python3 scripts/run_real_study.py --config config/aois.example.yml
 ```
 
-`fetch_real_dems.py` runs a no-network **preflight** first — it validates each bbox,
-chooses the covering source, and prints an approximate download size so a malformed or
-oversized AOI is caught before a byte moves. Downloads must run on a networked machine;
-the engine then compares the real arrays through the identical pipeline used by the
-synthetic path.
+`fetch_real_dems.py` runs a no-network **preflight** first (schema + every bbox), chooses
+the covering source, and prints an approximate download size so a malformed or oversized
+AOI is caught before a byte moves. Fetching is **idempotent** — a file already present is
+skipped (`--force` to override) and every fetch is recorded in `data/fetch_manifest.json`
+with its sha256. Downloads must run on a networked machine; the engine then compares the
+real arrays through the identical pipeline used by the synthetic path.
 
 ## Project layout
 
@@ -119,13 +130,14 @@ terratrace/
     provenance.py    evidence graph + hashing
     protocol.py      draft study protocol
     study.py         compare_units + run_study + run_real_study
-    catalog.py       source registry: coverage, licence, source selection
-    preflight.py     fail-fast AOI/bbox/size/coverage validation (no network)
+    catalog.py       10-source registry: coverage, preference, nodata, selection
+    preflight.py     fail-fast config-schema + AOI/bbox/size/coverage checks
     profile.py       DEM QA report (valid/water/NaN, relief, advisory flags)
-    ingest.py        real DEM download (atomic + retry) + raster read
+    ingest.py        real DEM download (atomic + retry/backoff) + raster read
+    fetchcache.py    idempotent fetch decisions + sha256 provenance manifest
     build_viewer.py  self-contained HTML viewer
     cli.py           study runner
-  tests/             115 fixture tests + dependency-free runner
+  tests/             143 fixture tests + dependency-free runner
   artifacts/         generated study package (JSON + checksums + manifest)
   viewer/            generated offline HTML viewer
   config/            AOI configuration for real runs

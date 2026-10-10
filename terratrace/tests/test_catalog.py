@@ -113,8 +113,12 @@ def test_recommend_source_warns_only_about_chosen_partial_source():
 
 def test_recommend_source_non_us_falls_back_to_global():
     r = catalog.recommend_source(_ANDES, "earth", target_support_m=90.0)
-    assert r["source_id"] == "earth_cop30"
-    assert r["candidates"] == ["earth_cop30"]            # US products don't cover it
+    assert r["source_id"] == "earth_cop30"               # best-tier global product
+    # US-only products never appear as candidates for a non-US bbox...
+    assert "earth_usgs10m" not in r["candidates"]
+    assert "earth_usgs1m" not in r["candidates"]
+    # ...but several global products legitimately cover the Andes.
+    assert "earth_cop30" in r["candidates"] and "earth_srtmgl1" in r["candidates"]
 
 
 def test_recommend_source_warns_when_target_finer_than_any_source():
@@ -149,3 +153,53 @@ def test_coverage_defect_is_flagged_by_validate():
     msgs = [p[1] for p in problems if p[0] == "__covbad__"]
     assert any("coverage.kind unknown" in m for m in msgs)
     assert any("valid_resolution_range_m invalid" in m for m in msgs)
+
+
+# --- expanded source breadth (OpenTopography global DEMs) -------------------
+_NORWAY = (8.0, 61.0, 8.3, 61.3)              # ~61 N: north of the SRTM 60 N limit
+
+
+def test_registry_breadth_and_new_global_sources():
+    ids = set(catalog.all_ids())
+    assert {"earth_cop90", "earth_nasadem", "earth_srtmgl1", "earth_srtmgl3",
+            "earth_aw3d30"} <= ids
+    assert len(ids) >= 10
+    # Every new source is an OpenTopography globaldem product with a demtype.
+    for sid in ("earth_cop90", "earth_nasadem", "earth_srtmgl1", "earth_srtmgl3", "earth_aw3d30"):
+        acc = catalog.get(sid)["access"]
+        assert acc["method"] == "opentopography_globaldem" and "demtype" in acc
+
+
+def test_preference_breaks_ties_toward_better_product():
+    # Non-US, both COP30 (30 m, tier 1) and SRTMGL1 (30 m, tier 3) qualify at 30 m;
+    # preference must pick Copernicus, not an id-order or coarser-first accident.
+    r = catalog.recommend_source(_ANDES, "earth", target_support_m=30.0)
+    assert r["source_id"] == "earth_cop30"
+    assert "earth_srtmgl1" in r["candidates"]             # it WAS a candidate, just lower tier
+
+
+def test_srtm_band_excludes_high_latitude_but_copernicus_covers():
+    # SRTM-family stops at 60 N; a 61 N AOI must not resolve to an SRTM product.
+    assert catalog.source_covers("earth_srtmgl1", _NORWAY, "earth")["covered"] is False
+    assert catalog.source_covers("earth_cop30", _NORWAY, "earth")["covered"] is True
+    r = catalog.recommend_source(_NORWAY, "earth", target_support_m=30.0)
+    assert r["source_id"] == "earth_cop30"
+    assert "earth_srtmgl1" not in r["candidates"] and "earth_srtmgl3" not in r["candidates"]
+    assert "earth_aw3d30" in r["candidates"]              # ALOS is global, so it still covers
+
+
+def test_nodata_sentinels_for_known_products():
+    assert catalog.nodata_sentinels_for("earth_srtmgl1") == [-32768.0]
+    assert catalog.nodata_sentinels_for("earth_aw3d30") == [-9999.0]
+    assert catalog.nodata_sentinels_for("earth_cop30") == []   # relies on raster mask
+    # Returns a copy -> mutating it cannot corrupt the registry.
+    got = catalog.nodata_sentinels_for("earth_srtmgl1")
+    got.append(999.0)
+    assert catalog.nodata_sentinels_for("earth_srtmgl1") == [-32768.0]
+
+
+def test_every_source_has_valid_preference_and_sentinels():
+    for sid in catalog.all_ids():
+        s = catalog.get(sid)
+        assert isinstance(s["preference"], int) and s["preference"] >= 1
+        assert isinstance(s["nodata_sentinels"], list)

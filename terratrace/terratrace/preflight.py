@@ -44,6 +44,15 @@ def _radius_km(body):
     return _R_MARS_KM if str(body).lower() == "mars" else _R_EARTH_KM
 
 
+def _is_number(x):
+    """True for a real int/float measurement, excluding bool.
+
+    `bool` is an `int` subclass, so `isinstance(True, int)` is True; we reject it
+    because a flag is never a meaningful support distance or valid fraction.
+    """
+    return isinstance(x, (int, float)) and not isinstance(x, bool)
+
+
 def validate_bbox(bbox, body):
     """Return a list of problem strings for `bbox` on `body` (empty == valid).
 
@@ -84,6 +93,105 @@ def validate_bbox(bbox, body):
         for name, lon in (("west", west), ("east", east)):
             if not lo <= lon <= hi:
                 problems.append(f"{name} longitude {lon:g} out of range [{lo:g}, {hi:g}] for {b}")
+    return problems
+
+
+def validate_config(cfg) -> list[str]:
+    """Return a list of structural/schema problem strings for `cfg` (empty == valid).
+
+    This is the cheap STRUCTURAL gate that complements `preflight_unit`: it checks
+    the config's *shape* -- the types of the top-level knobs, the required per-unit
+    keys, conflicting source selectors, and unique ids/paths -- before
+    `preflight_unit` does the heavier bbox-range, coverage and sizing work. Like
+    `validate_bbox` it is honest and quiet on success: an empty list means
+    "nothing structurally wrong", NOT "this will download cleanly". Checks are
+    ordered so a wildly malformed cfg degrades into readable messages instead of
+    an IndexError/AttributeError -- every container type is guarded before it is
+    indexed or `.get`-ed.
+    """
+    # Guard the top-level type first; everything below assumes a mapping.
+    if not isinstance(cfg, dict):
+        return ["cfg must be a dict"]
+
+    problems = []
+
+    # Optional top-level knobs: absent is fine, present-but-nonsense is not.
+    tsm = cfg.get("target_support_m")
+    if tsm is not None and not (_is_number(tsm) and tsm > 0):
+        problems.append(f"target_support_m must be a positive number, got {tsm!r}")
+    mvf = cfg.get("min_valid_fraction")
+    if mvf is not None and not (_is_number(mvf) and 0.0 <= mvf <= 1.0):
+        problems.append(f"min_valid_fraction must be a number in [0, 1], got {mvf!r}")
+
+    # Collect (label, unit) specs, guarding each container's type before we index
+    # into it. `label` is a unit's stable positional identity for messages.
+    specs = []
+    ref = cfg.get("reference")
+    if ref is not None:
+        if isinstance(ref, dict):
+            specs.append(("reference", ref))
+        else:
+            problems.append(f"reference must be a dict, got {type(ref).__name__}")
+
+    earth_units = cfg.get("earth_units")
+    if earth_units is not None:
+        if isinstance(earth_units, list):
+            for i, u in enumerate(earth_units):
+                if isinstance(u, dict):
+                    specs.append((f"earth_units[{i}]", u))
+                else:
+                    problems.append(
+                        f"earth_units[{i}] must be a dict, got {type(u).__name__}")
+        else:
+            problems.append(
+                f"earth_units must be a list, got {type(earth_units).__name__}")
+
+    # Per-unit required keys + bbox geometry + selector sanity. Fold the unit's
+    # own id into the tag when it has one: "earth_units[1] (id='x'): ...".
+    seen_ids = {}
+    seen_paths = {}
+    for label, u in specs:
+        uid = u.get("id")
+        tag = f"{label} (id={uid!r})" if isinstance(uid, str) and uid else label
+
+        if not (isinstance(uid, str) and uid):
+            problems.append(f"{tag}: missing or empty required key 'id'")
+        if not (isinstance(u.get("path"), str) and u.get("path")):
+            problems.append(f"{tag}: missing or empty required key 'path'")
+
+        body = u.get("body")
+        if str(body).lower() not in ("mars", "earth"):
+            problems.append(f"{tag}: body must be 'mars' or 'earth', got {body!r}")
+
+        # bbox: report a missing key plainly; otherwise defer range/ordering to
+        # validate_bbox. Drop its body line (we already checked body above) so a
+        # bad body is reported exactly once.
+        if u.get("bbox") is None:
+            problems.append(f"{tag}: missing required key 'bbox'")
+        else:
+            for m in validate_bbox(u.get("bbox"), body):
+                if m.startswith("body must be"):
+                    continue
+                problems.append(f"{tag}: {m}")
+
+        # demtype and dataset select *different* download APIs -> at most one.
+        if u.get("demtype") is not None and u.get("dataset") is not None:
+            problems.append(f"{tag}: set only one of 'demtype' or 'dataset', not both")
+
+        if isinstance(uid, str) and uid:
+            seen_ids.setdefault(uid, []).append(label)
+        path = u.get("path")
+        if isinstance(path, str) and path:
+            seen_paths.setdefault(path, []).append(label)
+
+    # Uniqueness across the whole config (reference + every earth unit).
+    for uid, where in seen_ids.items():
+        if len(where) > 1:
+            problems.append(f"duplicate unit id {uid!r} used by {', '.join(where)}")
+    for path, where in seen_paths.items():
+        if len(where) > 1:
+            problems.append(f"duplicate output path {path!r} used by {', '.join(where)}")
+
     return problems
 
 
@@ -172,22 +280,38 @@ def preflight_unit(unit, body, target_support_m, limits=None):
 def preflight_config(cfg):
     """Preflight every unit in a parsed config dict (reference + earth_units).
 
-    Returns {ok, units, problems, target_support_m}. `problems` is a flat list of
-    "<unit_id>: <msg>" so a caller can print one list; `units` keeps the full
-    per-unit result (estimates, warnings, recommended_source) for detail.
+    Runs the structural `validate_config` gate first, then sizes each unit.
+    Returns {ok, units, problems, target_support_m}. `problems` is a flat list:
+    schema issues come first, each prefixed "config: ", followed by per-unit
+    "<unit_id>: <msg>" entries, so a caller can print one list; `units` keeps the
+    full per-unit result (estimates, warnings, recommended_source) for detail.
+    Any schema problem forces `ok` False even if every unit happens to size clean.
     """
+    # Structural/schema gate first. If cfg is not even a dict there is nothing
+    # safe to index, so degrade to the single schema problem without crashing.
+    config_problems = validate_config(cfg)
+    if not isinstance(cfg, dict):
+        return {"ok": False, "units": {},
+                "problems": [f"config: {m}" for m in config_problems],
+                "target_support_m": 1000.0}
+
     target_support_m = cfg.get("target_support_m", 1000.0)
     units = {}
-    flat_problems = []
+    # Prepend schema problems (prefixed) ahead of the per-unit problems.
+    flat_problems = [f"config: {m}" for m in config_problems]
 
     # Read body per-unit rather than assuming, so a mixed config still validates:
-    # the reference is usually Mars, each earth unit declares its own body.
+    # the reference is usually Mars, each earth unit declares its own body. Guard
+    # the container/item types so a malformed cfg flagged above never crashes here.
     unit_specs = []
     ref = cfg.get("reference")
     if isinstance(ref, dict):
         unit_specs.append((ref, ref.get("body", "mars")))
-    for u in cfg.get("earth_units", []):
-        unit_specs.append((u, u.get("body", "earth")))
+    earth_units = cfg.get("earth_units", [])
+    if isinstance(earth_units, list):
+        for u in earth_units:
+            if isinstance(u, dict):
+                unit_specs.append((u, u.get("body", "earth")))
 
     for u, body in unit_specs:
         result = preflight_unit(u, body, target_support_m)
@@ -195,8 +319,9 @@ def preflight_config(cfg):
         for msg in result["problems"]:
             flat_problems.append(f"{result['id']}: {msg}")
 
-    # all([]) is True, so an empty config is vacuously ok (nothing to download).
-    ok = all(u["ok"] for u in units.values())
+    # Schema problems alone make the config not-ok; otherwise every unit must pass.
+    # all([]) is True, so an empty, schema-clean config is vacuously ok.
+    ok = not config_problems and all(u["ok"] for u in units.values())
     return {"ok": ok, "units": units, "problems": flat_problems,
             "target_support_m": target_support_m}
 

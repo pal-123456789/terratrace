@@ -97,10 +97,11 @@ def _good_cfg():
     # A valid Mars reference + one valid COP30 earth unit (all inline, no I/O).
     return {
         "target_support_m": 1000.0,
-        "reference": {"id": "mars_ref", "body": "mars",
+        "reference": {"id": "mars_ref", "body": "mars", "path": "data/mars/ref.tif",
                       "bbox": [120.0, -5.0, 130.0, 5.0], "native_posting_m": 463.0},
         "earth_units": [
             {"id": "earth_a", "body": "earth", "demtype": "COP30",
+             "path": "data/earth/a.tif",
              "bbox": [-113.60, 43.30, -113.30, 43.60], "native_posting_m": 30.0},
         ],
     }
@@ -122,4 +123,103 @@ def test_preflight_config_broken_bbox_fails_with_flat_problem():
     r = preflight.preflight_config(cfg)
     assert r["ok"] is False
     assert any(p.startswith("earth_bad:") and "west" in p for p in r["problems"])
+
+
+# --- validate_config (structural/schema gate) -------------------------------
+def test_validate_config_clean_cfg_is_empty_and_ok():
+    assert preflight.validate_config(_good_cfg()) == []
+    assert preflight.preflight_config(_good_cfg())["ok"] is True
+
+
+def test_validate_config_duplicate_ids_flagged():
+    cfg = _good_cfg()
+    # Second earth unit reuses "earth_a" but with a distinct path.
+    cfg["earth_units"].append(
+        {"id": "earth_a", "body": "earth", "demtype": "COP30",
+         "path": "data/earth/a2.tif",
+         "bbox": [-113.60, 43.30, -113.30, 43.60], "native_posting_m": 30.0})
+    probs = preflight.validate_config(cfg)
+    assert any("earth_a" in p and "duplicate" in p.lower() for p in probs)
+    r = preflight.preflight_config(cfg)
+    assert r["ok"] is False
+    assert any(p.startswith("config:") and "earth_a" in p for p in r["problems"])
+
+
+def test_validate_config_duplicate_paths_flagged():
+    cfg = _good_cfg()
+    # Distinct id, but the same output path as earth_a.
+    cfg["earth_units"].append(
+        {"id": "earth_b", "body": "earth", "demtype": "COP30",
+         "path": "data/earth/a.tif",
+         "bbox": [-113.60, 43.30, -113.30, 43.60], "native_posting_m": 30.0})
+    probs = preflight.validate_config(cfg)
+    assert any("data/earth/a.tif" in p and "duplicate" in p.lower() for p in probs)
+
+
+def test_validate_config_demtype_and_dataset_conflict_flagged():
+    cfg = _good_cfg()
+    cfg["earth_units"][0]["dataset"] = "USGS10m"   # already carries demtype COP30
+    probs = preflight.validate_config(cfg)
+    assert any("demtype" in p and "dataset" in p for p in probs)
+
+
+# PLACEHOLDER_MORE_TESTS
+
+
+def test_validate_config_missing_path_flagged_with_identifier():
+    cfg = _good_cfg()
+    del cfg["earth_units"][0]["path"]
+    probs = preflight.validate_config(cfg)
+    assert any("path" in p and ("earth_a" in p or "earth_units[0]" in p) for p in probs)
+
+
+def test_validate_config_missing_id_and_bbox_flagged():
+    cfg = _good_cfg()
+    del cfg["earth_units"][0]["id"]
+    del cfg["earth_units"][0]["bbox"]
+    probs = preflight.validate_config(cfg)
+    assert any("'id'" in p and "earth_units[0]" in p for p in probs)
+    assert any("'bbox'" in p and "earth_units[0]" in p for p in probs)
+
+
+def test_validate_config_earth_units_not_a_list_flagged_no_crash():
+    cfg = _good_cfg()
+    cfg["earth_units"] = {"earth_a": {"body": "earth"}}   # a dict, not a list
+    probs = preflight.validate_config(cfg)
+    assert any("earth_units" in p and "list" in p for p in probs)
+    # preflight_config must degrade on the non-list, not raise.
+    r = preflight.preflight_config(cfg)
+    assert r["ok"] is False
+    assert any(p.startswith("config:") and "earth_units" in p for p in r["problems"])
+
+
+def test_validate_config_cfg_not_a_dict_no_crash():
+    assert preflight.validate_config(None) == ["cfg must be a dict"]
+    assert any("dict" in p for p in preflight.validate_config([1, 2, 3]))
+    # preflight_config must degrade gracefully, not raise.
+    r = preflight.preflight_config(None)
+    assert r["ok"] is False
+    assert r["units"] == {}
+    assert r["problems"] == ["config: cfg must be a dict"]
+    assert r["target_support_m"] == 1000.0
+
+
+def test_validate_config_out_of_range_bbox_surfaces():
+    cfg = _good_cfg()
+    cfg["earth_units"][0]["bbox"] = [-113.30, 43.30, -113.60, 43.60]   # west > east
+    probs = preflight.validate_config(cfg)
+    assert any("west" in p and ("earth_a" in p or "earth_units[0]" in p) for p in probs)
+
+
+def test_validate_config_bad_scalars_flagged():
+    cfg = _good_cfg()
+    cfg["target_support_m"] = -5.0
+    cfg["min_valid_fraction"] = 1.5
+    probs = preflight.validate_config(cfg)
+    assert any("target_support_m" in p for p in probs)
+    assert any("min_valid_fraction" in p for p in probs)
+    # A bool must not pass as a valid number (bool is an int subclass).
+    cfg2 = _good_cfg()
+    cfg2["target_support_m"] = True
+    assert any("target_support_m" in p for p in preflight.validate_config(cfg2))
 

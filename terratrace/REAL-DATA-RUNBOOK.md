@@ -52,11 +52,18 @@ python3 scripts/fetch_real_dems.py --config config/aois.example.yml
 
 Preflight runs again automatically and aborts on hard problems (pass `--skip-preflight`
 to override). For each Earth unit it calls the OpenTopography `globaldem` API
-(`demtype=COP30` by default) and writes GeoTIFFs into `data/earth/`. To pull a
-higher-resolution US product instead, set `dataset: USGS10m` (or `USGS30m`) on that unit
-— the fetcher dispatches to the 3DEP `usgsdem` API with the same key. Downloads are
-atomic (`.part` → rename) and retry transient 429/5xx responses with backoff. After each
-file lands it is given a quick QA profile (valid / water / NaN fraction, relief, flags).
+(`demtype=COP30` by default) and writes GeoTIFFs into `data/earth/`. Other global
+products are available by setting `demtype`: `COP90`, `NASADEM`, `SRTMGL1`, `SRTMGL3`,
+or `AW3D30`. To pull a higher-resolution US product instead, set `dataset: USGS10m` (or
+`USGS30m`) — the fetcher dispatches to the 3DEP `usgsdem` API with the same key.
+
+Fetching is **idempotent**: a file already on disk is skipped (use `--force` to
+re-download), and every unit is recorded in a provenance manifest
+(`data/fetch_manifest.json`, override with `--manifest`) carrying its sha256, byte
+count, source id, and timestamp. Downloads are atomic (`.part` → rename) and retry
+transient 429/5xx responses with backoff honouring `Retry-After`. After each file lands
+it gets a quick QA profile (valid / water / NaN fraction, relief, flags) with the
+source's known nodata sentinels (e.g. SRTM's −32768) dropped first.
 
 ## 6. QA a downloaded DEM (optional)
 
@@ -84,9 +91,14 @@ It writes `artifacts/study.json` (+ manifest/checksums) and `viewer/index.html`.
 | Source | Terms | Cite as |
 |---|---|---|
 | Mars MOLA MEGDR / USGS DEM | NASA PDS / USGS public; attribution required | Smith et al., MGS MOLA MEGDR; USGS Astrogeology |
-| Copernicus GLO-30 | ESA Copernicus; attribution required | © ESA Copernicus DEM, via OpenTopography |
-| USGS 3DEP (optional) | US public domain | USGS 3D Elevation Program |
+| Copernicus GLO-30 / GLO-90 | ESA Copernicus; attribution required | © ESA Copernicus DEM, via OpenTopography |
+| NASADEM | NASA/USGS public; attribution requested | NASADEM Merged DEM Global 1″, via OpenTopography |
+| SRTM GL1 / GL3 | NASA public; attribution requested | NASA SRTM GL1/GL3, via OpenTopography |
+| ALOS AW3D30 | JAXA; attribution required | JAXA ALOS World 3D-30m, via OpenTopography |
+| USGS 3DEP (10 m / 1 m) | US public domain | USGS 3D Elevation Program |
 
+Each product's licence, citation, and vertical datum are also machine-readable in
+`terratrace/catalog.py` (and copied into the fetch manifest + `sources.lock.yml`).
 Do not redistribute source rasters if a provider prohibits it; distribute derived
 artifacts and the retrieval recipe instead. Record exact product IDs, versions,
 retrieval dates, and checksums in a `sources.lock.yml` for every published study.
