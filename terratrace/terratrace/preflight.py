@@ -30,8 +30,11 @@ from . import catalog
 _R_EARTH_KM = 6371.0
 _R_MARS_KM = 3396.19          # Mars 2000 sphere, matches MOLA catalog CRS
 _R_MOON_KM = 1737.4           # IAU lunar mean radius, matches LOLA catalog CRS
-_BODY_RADIUS_KM = {"earth": _R_EARTH_KM, "mars": _R_MARS_KM, "moon": _R_MOON_KM}
-_SUPPORTED_BODIES = ("mars", "earth", "moon")
+_R_MERCURY_KM = 2439.4        # IAU Mercury mean radius (MESSENGER)
+_R_CERES_KM = 469.73          # Dawn Ceres mean radius
+_BODY_RADIUS_KM = {"earth": _R_EARTH_KM, "mars": _R_MARS_KM, "moon": _R_MOON_KM,
+                   "mercury": _R_MERCURY_KM, "ceres": _R_CERES_KM}
+_SUPPORTED_BODIES = ("mars", "earth", "moon", "mercury", "ceres")
 
 # Heuristic practical ceilings. These are deliberately round, approximate limits
 # (not provider-exact) so a wildly oversized AOI is flagged before download.
@@ -90,8 +93,9 @@ def validate_bbox(bbox, body):
             problems.append(f"{name} latitude {lat:g} out of range [-90, 90]")
 
     # Only range-check longitude once the body's convention is known. Planetary
-    # bodies (Mars, Moon) ship in either 0..360 or -180..180, so accept both.
-    lon_bounds = {"mars": (-180.0, 360.0), "moon": (-180.0, 360.0),
+    # bodies ship in either 0..360 or -180..180, so accept both; Earth is -180..180.
+    pl = (-180.0, 360.0)
+    lon_bounds = {"mars": pl, "moon": pl, "mercury": pl, "ceres": pl,
                   "earth": (-180.0, 180.0)}.get(b)
     if lon_bounds is not None:
         lo, hi = lon_bounds

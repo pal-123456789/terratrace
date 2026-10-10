@@ -55,3 +55,13 @@ def test_moon_is_supported_body():
     assert rp.body_radius_m("moon") == 1737400.0
     # Mars strings are byte-identical to before Moon was added (no regression).
     assert rp.geographic_crs("mars") == "+proj=longlat +a=3396190.0 +b=3396190.0 +no_defs"
+
+
+def test_mercury_and_ceres_are_supported_bodies():
+    # Multi-body: Mercury (MESSENGER) and Ceres (Dawn) spheres are first-class too.
+    assert "2439400" in rp.geographic_crs("mercury")
+    assert "469730" in rp.geographic_crs("ceres")
+    assert rp.body_radius_m("mercury") == 2439400.0 and rp.body_radius_m("ceres") == 469730.0
+    for b in ("mercury", "ceres"):
+        a = rp.local_aeqd(0.0, 0.0, b)
+        assert "aeqd" in a and "WGS84" not in a

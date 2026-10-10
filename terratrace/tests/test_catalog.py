@@ -49,7 +49,7 @@ def test_validate_catches_injected_defects():
         del catalog.SOURCES["__defect__"]
     msgs = [p[1] for p in problems if p[0] == "__defect__"]
     assert any("id field mismatch" in m for m in msgs)
-    assert any("body not in mars/earth" in m for m in msgs)
+    assert any("body not in known bodies" in m for m in msgs)
     assert any("native_resolution_m not positive" in m for m in msgs)
     assert any("access.method missing" in m for m in msgs)
     assert any("key_required not bool" in m for m in msgs)
@@ -62,7 +62,7 @@ def test_validate_catches_injected_defects():
 def test_all_bodies_are_known_and_resolutions_positive():
     for sid in catalog.all_ids():
         s = catalog.get(sid)
-        assert s["body"] in ("mars", "earth", "moon")
+        assert s["body"] in ("mars", "earth", "moon", "mercury", "ceres")
         assert s["native_resolution_m"] > 0
     assert {s["id"] for s in catalog.by_body("earth")} >= {"earth_cop30", "earth_usgs10m"}
 
@@ -216,3 +216,17 @@ def test_moon_lola_source_is_registered_and_selectable():
     assert cov["covered"] is True                          # global_body covers any Moon bbox
     r = catalog.recommend_source((120.0, -5.0, 130.0, 5.0), "moon", target_support_m=1000.0)
     assert r["source_id"] == "moon_lola_ldem"
+
+
+def test_mercury_and_ceres_sources_registered_and_selectable():
+    # Five reference bodies now: earth, mars, moon, mercury, ceres.
+    assert catalog.get("mercury_messenger_dem")["body"] == "mercury"
+    assert catalog.get("ceres_dawn_dem")["body"] == "ceres"
+    assert catalog.validate() == []
+    assert len(catalog.all_ids()) >= 13
+    assert catalog.recommend_source((10.0, -5.0, 20.0, 5.0), "mercury",
+                                    target_support_m=2000.0)["source_id"] == "mercury_messenger_dem"
+    assert catalog.recommend_source((10.0, -5.0, 20.0, 5.0), "ceres",
+                                    target_support_m=1000.0)["source_id"] == "ceres_dawn_dem"
+    bodies = {s["body"] for s in catalog.SOURCES.values()}
+    assert {"earth", "mars", "moon", "mercury", "ceres"} <= bodies

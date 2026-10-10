@@ -22,13 +22,38 @@ source and a transformation.
 
 - Pure-NumPy morphology engine: slope, local relief, detrended ruggedness, low-slope
   connectivity.
-- **Multi-body screening (Mars + Moon vs Earth):** the engine now screens Earth
-  candidates against a Mars *or* a Moon reference. `reproject.py` warps each AOI on its
-  own body — Mars sphere (R=3,396,190 m), Moon sphere (R=1,737,400 m, LRO/LOLA), Earth
-  WGS84 — so slope and relief are true metres on every body; `catalog.py` adds a keyless
-  Moon source (`moon_lola_ldem`, LRO LOLA LDEM ~118 m, USGS Astrogeology) and the
-  preflight accepts `body: moon`. Mars/Earth behaviour and the gated synthetic study hash
-  are unchanged.
+- **Multi-body screening — five reference bodies (Earth, Mars, Moon, Mercury, Ceres):**
+  the engine screens Earth candidates against a Mars, Moon, Mercury, *or* Ceres reference.
+  `reproject.py` warps each AOI on its own figure — Mars sphere (R=3,396,190 m), Moon
+  sphere (R=1,737,400 m, LRO/LOLA), Mercury sphere (R=2,439,400 m, MESSENGER), Ceres sphere
+  (R=469,730 m, Dawn), Earth WGS84 — so slope and relief are true metres on every body;
+  `catalog.py` carries keyless planetary DEMs for the non-Earth bodies (Mars MOLA, the Moon
+  LRO LOLA LDEM ~118 m, Mercury MESSENGER ~665 m, Ceres Dawn HAMO ~137 m) and `preflight.py`
+  accepts each body with its own longitude convention. Strongly irregular bodies such as
+  Vesta are deliberately **not** offered — a single sphere would misrepresent them.
+  Mars/Earth/Moon behaviour and the gated synthetic study hash are unchanged.
+- **Self-contained HTML report:** `report_html.py` renders a study package or a
+  cross-reference batch into a single polished, fully self-contained, offline HTML document
+  — inline CSS only, no external or CDN assets, every dynamic value HTML-escaped, and
+  deterministic (no timestamps). It mirrors the Markdown report section-for-section and
+  reproduces the claim firewall verbatim; `scripts/make_html_report.py` renders it and the
+  existing Markdown report remains.
+- **DEM co-registration + vertical datum:** `coregister.py` aligns two elevation grids
+  before they are differenced or compared. It recovers a horizontal pixel shift via an
+  overlap-RMSE search with sub-pixel parabola refinement and estimates a single
+  vertical-datum (bias) offset — translation only, NaN-aware, pure NumPy. It performs **no**
+  rotation, scaling, or non-rigid warp and makes no mechanical or mission claim.
+- **Terrain fingerprint + similarity search:** `fingerprint.py` distils the descriptor bank
+  into a compact 11-field normalized morphology signature, scores two signatures with a
+  bounded similarity in (0, 1] (1.0 iff identical), and `rank_library()` ranks a library of
+  reference terrains to find the nearest morphological match. This is a morphology signature
+  and ranking, **not** a classification, identity, or geological-equivalence claim.
+- **Expanded stdlib HTTP API:** the dependency-free localhost API adds `GET /bodies`
+  (supported bodies + source registry), `POST /validate` (scientific-correctness suite),
+  `POST /batch` (synthetic cross-reference batch), and `POST /report` (study + Markdown
+  report) beside the existing `GET /health`, `GET /study`, and `POST /compare`. It stays
+  loopback-only with a Host allowlist and a 64 KiB body cap; the bootstrap `n_boot` is
+  capped at 500 for interactive responsiveness.
 - Expanded geomorphometric descriptors (non-destructive analysis layer): Zevenbergen-Thorne
   profile / plan / mean curvature, the Vector Ruggedness Measure (surface-normal dispersion,
   decoupled from mean slope), and a multiscale roughness structure function with its Hurst
@@ -71,9 +96,12 @@ source and a transformation.
   and lenses, a **consensus shortlist** of candidates non-dominated in *every* cell, and
   a robust ordering — a transparent robustness synthesis, not a composite score.
 - Transfer-gap ledger (T0–T4 classes) and a draft study protocol.
-- Evidence graph + content hashing; deterministic study package + static viewer.
-- **Data & sources layer (11-source registry):** a citeable **catalog** of real DEM
-  products — Mars MOLA, the **Moon LRO LOLA LDEM** (~118 m, keyless), and for Earth:
+- Evidence graph + content hashing; deterministic study package + a self-contained,
+  offline **viewer** that now shows a target-body badge, a per-axis decision matrix, a
+  Pareto-frontier panel, and a bootstrap-uncertainty panel.
+- **Data & sources layer (13-source registry):** a citeable **catalog** of real DEM
+  products — Mars MOLA, the **Moon LRO LOLA LDEM** (~118 m), **Mercury MESSENGER** (~665 m)
+  and **Ceres Dawn HAMO** (~137 m) — all keyless — and for Earth:
   Copernicus GLO-30/90, USGS 3DEP (10 m / 1 m), SRTM GL1/GL3, NASADEM, and ALOS AW3D30 —
   each with spatial-coverage metadata, a
   land-morphology **preference** tier, and known nodata sentinels; `recommend_source()`
@@ -101,10 +129,10 @@ source and a transformation.
   closer candidate provably dominates and is recommended, a flat/water tile is blocked,
   and the whole pipeline is deterministic. A reproducibility + performance harness pins
   behavioural invariants, checks hash stability, and profiles wall-clock scaling.
-- 220 fixture tests with known analytic answers, all passing, no network required.
+- 247 fixture tests with known analytic answers, all passing, no network required.
 
 ```
-passed=220 failed=0
+passed=247 failed=0
 ```
 
 ## Install
@@ -123,7 +151,7 @@ pip install -r requirements-real.txt      # rasterio + requests (real DEMs)
 ```bash
 PYTHONPATH=. python3 -m terratrace.cli --out artifacts
 PYTHONPATH=. python3 -m terratrace.build_viewer      # writes viewer/index.html
-PYTHONPATH=. python3 tests/run_tests.py              # 220 tests
+PYTHONPATH=. python3 tests/run_tests.py              # 247 tests
 ```
 
 Open `viewer/index.html` in any browser — it is self-contained and works offline.
@@ -151,8 +179,11 @@ curl -X POST http://127.0.0.1:8000/compare -H "content-type: application/json" \
      -d '{"n_boot": 300}'
 ```
 
-Endpoints: `GET /health`, `GET /study`, `POST /compare` (body
-`{"target_support_m", "n_boot"}`, inputs validated/clamped). The server is
+Endpoints: `GET /health`, `GET /study`, `GET /bodies` (supported bodies + source
+registry), `POST /compare` (body `{"target_support_m", "n_boot"}`, inputs
+validated/clamped), `POST /validate` (scientific-correctness suite), `POST /batch`
+(synthetic cross-reference batch), and `POST /report` (study + Markdown report). The
+`n_boot` bootstrap count is capped at 500 for interactive responsiveness. The server is
 **unauthenticated and binds to 127.0.0.1 by default** — put auth and rate limiting
 in front of it before exposing it to a network.
 
@@ -164,11 +195,13 @@ See [REAL-DATA-RUNBOOK.md](REAL-DATA-RUNBOOK.md). Minimal real stack:
 |---|---|---|---|
 | Mars | USGS Astrogeology **Mars MGS MOLA DEM 463m** GeoTIFF | 463 m | none |
 | Moon | USGS Astrogeology / LRO **LOLA LDEM** (global ~118 m) | 118 m | none |
+| Mercury | USGS Astrogeology / **MESSENGER global DEM** (~665 m) | 665 m | none |
+| Ceres | USGS Astrogeology / **Dawn HAMO global DTM** (~137 m) | 137 m | none |
 | Earth (global) | **Copernicus GLO-30 / GLO-90** via OpenTopography | 30 / 90 m | free key |
 | Earth (near-global) | **NASADEM**, **SRTM GL1 / GL3**, **ALOS AW3D30** via OpenTopography | 30 / 90 m | free key |
 | Earth (US, higher-res) | **USGS 3DEP** 1/3″ (~10 m) / 1 m lidar via OpenTopography / ImageServer | 10 / 1 m | free key / none |
 
-The full 11-source registry (coverage, preference tier, nodata sentinels, licence,
+The full 13-source registry (coverage, preference tier, nodata sentinels, licence,
 citation, vertical datum) lives in `terratrace/catalog.py`;
 `catalog.recommend_source(bbox, body, target_support_m)` picks the right product for an
 AOI automatically — preferring the best land-morphology product that covers the box and
@@ -206,7 +239,7 @@ terratrace/
     study.py         compare_units + run_study + run_real_study
     batch.py         cross-reference, multi-lens batch synthesis
     descriptors.py   full geomorphometric descriptor bank (analysis layer)
-    catalog.py       11-source registry: coverage, preference, nodata, selection
+    catalog.py       13-source registry: coverage, preference, nodata, selection
     preflight.py     fail-fast config-schema + AOI/bbox/size/coverage checks
     profile.py       DEM QA report (valid/water/NaN, relief, advisory flags)
     ingest.py        real DEM download (atomic + retry/backoff) + raster read
@@ -214,16 +247,19 @@ terratrace/
     validation.py    scientific-correctness suite (drives the real engine)
     benchmark.py     reproducibility invariants + wall-clock scaling profile
     report.py        publication-grade Markdown report (study or batch package)
+    report_html.py   self-contained offline HTML report (study or batch)
     significance.py  permutation test + effect size + bootstrap distance CI
     autocorr.py      spatial autocorrelation length -> data-driven block size
     repro.py         recompute/verify package hash + diff + reproduce check
+    coregister.py    translational DEM alignment + vertical-datum offset
+    fingerprint.py   compact morphology signature + similarity + library ranking
     build_viewer.py  self-contained HTML viewer
     cli.py           unified dispatcher: study / validate / benchmark / report / version
-  tests/             220 fixture tests + dependency-free runner
+  tests/             247 fixture tests + dependency-free runner
   artifacts/         generated study package (JSON + checksums + manifest)
   viewer/            generated offline HTML viewer
   config/            AOI configuration for real runs
-  scripts/           fetch (+preflight) / profile / validate / benchmark / make_report / verify_study / run / run_batch_study
+  scripts/           fetch (+preflight) / profile / validate / benchmark / make_report / make_html_report / verify_study / run / run_batch_study
 ```
 
 ## Scientific method

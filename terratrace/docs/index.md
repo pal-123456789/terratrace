@@ -12,12 +12,15 @@ provenance-tracked study package.
 
 ## What it does
 
-1. Loads real Mars (MOLA), Moon (LRO LOLA LDEM), and Earth (Copernicus GLO-30 / USGS 3DEP) DEMs — the product
-   for each AOI is chosen by a source **catalog** with spatial-coverage metadata, after a
+1. Loads real DEMs for one of **five reference bodies (Earth, Mars, Moon, Mercury,
+   Ceres)** — Mars (MOLA), Moon (LRO LOLA LDEM), Mercury (MESSENGER), Ceres (Dawn HAMO),
+   and Earth (Copernicus GLO-30 / USGS 3DEP) — the product for each AOI is chosen by a
+   source **catalog** with spatial-coverage metadata, after a
    fail-fast **preflight** validates the bounding box and sizes the request (no network),
    and each fetched file gets a **QA profile** (valid / water / NaN fraction, relief).
 2. Reprojects each AOI to its own **local azimuthal-equidistant metric grid** using the
-   correct body (Mars sphere R=3,396,190 m; Moon sphere R=1,737,400 m; Earth WGS84).
+   correct body (Mars sphere R=3,396,190 m; Moon sphere R=1,737,400 m; Mercury sphere
+   R=2,439,400 m; Ceres sphere R=469,730 m; Earth WGS84).
 3. Masks water/sentinel contamination and blocks units that are mostly flat/zero.
 4. Computes map-scale descriptors: slope, local relief, detrended ruggedness, low-slope
    connectivity, aspect dispersion, hypsometric integral.
@@ -26,7 +29,8 @@ provenance-tracked study package.
    candidates is ranked by a **Pareto frontier** (peeled non-dominated layers + a dominance
    matrix), so the result is a defensible shortlist rather than a single forced winner.
 6. Attaches a transfer-gap ledger, a draft study protocol, and an evidence graph; writes
-   a hashed study package, a self-contained viewer, and — on request — a citable Markdown report.
+   a hashed study package, a self-contained viewer, and — on request — a citable Markdown
+   or self-contained offline HTML report.
 
 ## Quick start
 
@@ -34,7 +38,7 @@ provenance-tracked study package.
 pip install -r requirements.txt
 python -m terratrace.cli --out artifacts        # synthetic, offline
 python -m terratrace.build_viewer               # viewer/index.html
-python tests/run_tests.py                        # 220 fixtures
+python tests/run_tests.py                        # 247 fixtures
 ```
 
 Real data: see the repository `REAL-DATA-RUNBOOK.md`. The only key required is a free

@@ -60,6 +60,30 @@ SOURCES = {
                      "valid_resolution_range_m": [118.0, 500000.0],
                      "description": "Entire Moon (LOLA laser altimetry; denser near the poles)"},
     },
+    "mercury_messenger_dem": {
+        "id": "mercury_messenger_dem", "body": "mercury", "provider": "NASA MESSENGER / USGS Astrogeology",
+        "product": "Mercury MESSENGER global DEM (~665 m)", "native_resolution_m": 665.0,
+        "access": {"method": "download",
+                   "endpoint": "https://astrogeology.usgs.gov/search/map/mercury_messenger_usgs_dem_global_665m"},
+        "crs": "Mercury 2000 sphere (R=2,439,400 m)", "vertical_datum": "Mercury mean radius",
+        "key_required": False, "license": "NASA/USGS public; attribution requested",
+        "citation": "USGS Astrogeology, Mercury MESSENGER global DEM 665 m (MLA + stereo)",
+        "coverage": {"kind": "global_body", "body": "mercury", "complete": True,
+                     "valid_resolution_range_m": [665.0, 500000.0],
+                     "description": "Entire planet (MESSENGER stereo + MLA)"},
+    },
+    "ceres_dawn_dem": {
+        "id": "ceres_dawn_dem", "body": "ceres", "provider": "NASA Dawn / USGS Astrogeology",
+        "product": "Ceres Dawn HAMO DEM (~137 m)", "native_resolution_m": 137.0,
+        "access": {"method": "download",
+                   "endpoint": "https://astrogeology.usgs.gov/search/map/ceres_dawn_fc_hamo_dtm_global_60ppd"},
+        "crs": "Ceres sphere (R=469,730 m)", "vertical_datum": "Ceres mean radius",
+        "key_required": False, "license": "NASA/USGS public; attribution requested",
+        "citation": "USGS Astrogeology, Ceres Dawn HAMO global DTM",
+        "coverage": {"kind": "global_body", "body": "ceres", "complete": True,
+                     "valid_resolution_range_m": [137.0, 500000.0],
+                     "description": "Entire dwarf planet (Dawn Framing Camera HAMO)"},
+    },
     "earth_cop30": {
         "id": "earth_cop30", "body": "earth", "provider": "ESA Copernicus via OpenTopography",
         "product": "Copernicus GLO-30 DSM", "native_resolution_m": 30.0,
@@ -174,7 +198,7 @@ _PREFERENCE = {
     "earth_cop90": 2, "earth_nasadem": 2, "earth_aw3d30": 2,
     "earth_srtmgl1": 3, "earth_srtmgl3": 3,
     "mars_mola_usgs_463m": 1, "mars_mola_megdr": 2,
-    "moon_lola_ldem": 1,
+    "moon_lola_ldem": 1, "mercury_messenger_dem": 1, "ceres_dawn_dem": 1,
 }
 _NODATA = {
     "earth_srtmgl1": [-32768.0], "earth_srtmgl3": [-32768.0],
@@ -324,8 +348,8 @@ def validate():
         acc = s.get("access")
         if not isinstance(acc, dict) or "method" not in acc:
             problems.append((sid, "access.method missing"))
-        if s.get("body") not in ("mars", "earth", "moon"):
-            problems.append((sid, f"body not in mars/earth/moon: {s.get('body')!r}"))
+        if s.get("body") not in ("mars", "earth", "moon", "mercury", "ceres"):
+            problems.append((sid, f"body not in known bodies: {s.get('body')!r}"))
         res = s.get("native_resolution_m")
         if not isinstance(res, (int, float)) or res <= 0:
             problems.append((sid, f"native_resolution_m not positive: {res!r}"))

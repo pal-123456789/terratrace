@@ -196,21 +196,68 @@ answer. The array-level `run_batch` needs no network or rasterio and is fully te
 Each AOI is warped to a local azimuthal-equidistant CRS centered on its centroid, with the
 correct body ellipsoid/sphere, so slope and relief are computed on true metres and are
 comparable across bodies. Mars uses a sphere of radius 3,396,190 m, the Moon a sphere of
-radius 1,737,400 m, and Earth the WGS84 ellipsoid.
+radius 1,737,400 m, Mercury a sphere of radius 2,439,400 m, Ceres a sphere of radius
+469,730 m, and Earth the WGS84 ellipsoid.
 
 ## Multi-body support
 
-The comparison core is body-agnostic, so TerraTrace now screens Earth candidates against a
-Mars *or* a Moon reference. Each AOI is warped on its own figure before any statistic is
-computed — the Mars sphere (R = 3,396,190 m), the Moon sphere (R = 1,737,400 m, the LRO/LOLA
-mean radius), or the Earth WGS84 ellipsoid — so a degree of longitude becomes the right
-number of metres on whichever body an AOI belongs to and slope and relief are true metres
-everywhere. The source catalog adds a keyless Moon product, the LRO LOLA LDEM global
-topography at about 118 m from USGS Astrogeology, beside the Mars MOLA and the Earth
-products, and the preflight accepts `moon` as a body with its own longitude convention. The
-Moon is an additional reference body, not a change to the comparison logic: every existing
-Mars and Earth result and the gated synthetic study hash are unchanged, and the same claim
+The comparison core is body-agnostic, so TerraTrace screens Earth candidates against a
+Mars, Moon, Mercury, *or* Ceres reference — five reference bodies in all (Earth, Mars,
+Moon, Mercury, Ceres). Each AOI is warped on its own figure before any statistic is
+computed — the Mars sphere (R = 3,396,190 m), the Moon sphere (R = 1,737,400 m, the
+LRO/LOLA mean radius), the Mercury sphere (R = 2,439,400 m, the MESSENGER mean radius),
+the Ceres sphere (R = 469,730 m, the Dawn mean radius), or the Earth WGS84 ellipsoid — so a
+degree of longitude becomes the right number of metres on whichever body an AOI belongs to
+and slope and relief are true metres everywhere. The source catalog carries keyless
+planetary products for the non-Earth bodies — the Mars MOLA DEM, the LRO LOLA LDEM global
+topography (~118 m), the MESSENGER global DEM of Mercury (~665 m), and the Dawn HAMO DTM of
+Ceres (~137 m), all from USGS Astrogeology — beside the Earth products, and the preflight
+accepts each body with its own longitude convention. Strongly irregular bodies such as the
+asteroid Vesta are deliberately **not** offered: a single sphere would misrepresent a shape
+that departs far from spherical, so forcing one would corrupt the metric grid rather than
+describe it. Adding a body does not change the comparison logic: every existing Mars, Earth,
+and Moon result and the gated synthetic study hash are unchanged, and the same claim
 firewall applies — map-scale morphology only, on every body.
+
+## DEM co-registration
+
+Before two elevation grids can be differenced or compared pixel-by-pixel they must sit on
+the same frame. `coregister.py` performs a translation-only, map-scale alignment and nothing
+more: it recovers the horizontal pixel shift that best registers a *moving* grid onto a
+*reference* grid, then estimates a single vertical-datum (bias) offset so the two share a
+common zero. The horizontal shift is found by scoring every integer (dy, dx) within a search
+radius by the root-mean-square elevation difference over the cells the two grids share — each
+candidate's own median offset removed first, so a pure datum bias cannot pull the horizontal
+search — and the best integer shift is then refined to sub-pixel precision by fitting a
+parabola to the RMSE of its immediate neighbours and taking the vertex. The vertical offset
+is the median difference over co-located finite cells, robust to outliers and to partial
+overlap. Every routine is pure NumPy and NaN-aware: cells that are nodata in either grid are
+ignored, and edges exposed by a shift are filled with NaN rather than wrapped. The alignment
+is deliberately rigid — translation plus a datum offset only, with **no** rotation, scaling,
+or non-rigid warp — and it is a numerical registration of two grids so their overlap can be
+studied, carried out before comparison; it is not a claim about how either DEM was acquired
+or any mechanical or mission property.
+
+## Terrain fingerprint and similarity
+
+A *fingerprint* is a compact, fixed-length signature of a terrain's map-scale morphology,
+distilled from the geomorphometric descriptor bank. `fingerprint.py` pulls a stable,
+documented subset of eleven descriptors — slope at the 50th and 90th percentiles, median
+local relief, detrended and vector ruggedness, surface-area ratio (rugosity), the spread of
+mean curvature, aspect isotropy, the hypsometric integral, the dispersion of the Topographic
+Position Index, and the Hurst roughness-scaling exponent — chosen to span complementary and
+largely independent axes of surface form. Two fingerprints are compared by a
+per-dimension-normalised root-mean-square distance taken over the dimensions both signatures
+define, mapped to a bounded similarity `sim = 1 / (1 + d)` in (0, 1]; identical signatures
+give exactly 1.0 and the score decays monotonically as the signatures diverge.
+`rank_library()` scores a query terrain against a library of references and returns them
+ordered by similarity, best match first, so the engine can answer "which reference terrain
+does this most resemble, morphologically?". Optional per-dimension scales (for example the
+library's own spread) put every axis on a comparable footing so no single large-magnitude
+descriptor dominates the distance. This is a morphology signature and a ranking only — a
+statement about nearness in a morphology-signature space — and explicitly **not** a
+classification, an identity match, a geological-equivalence claim, or any traversability,
+mechanical, or mission claim.
 
 ## Provenance
 

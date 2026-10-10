@@ -77,13 +77,65 @@ def _flips(pkg):
     return "\n".join(rows) or "<tr><td colspan='2'>n/a</td></tr>"
 
 
+def _matrix_section(pkg):
+    """Decision matrix: rows = eligible units, columns = decision axes, cells = the
+    per-axis normalized distance. No single composite score is produced on purpose."""
+    metrics = list(pkg["profile"].get("metrics", []))
+    vectors = pkg.get("baseline_vectors") or {}
+    head = "".join(f"<th scope='col'>{html.escape(str(m))}</th>" for m in metrics)
+    body = []
+    for uid in sorted(vectors):
+        vec = vectors[uid]
+        rec = " &#9733;" if uid == pkg.get("recommended_unit") else ""
+        cells = []
+        for i in range(len(metrics)):
+            x = vec[i] if i < len(vec) else None
+            cells.append(f"<td>{x:.3f}</td>" if isinstance(x, (int, float)) else "<td>&mdash;</td>")
+        body.append(f"<tr><th scope='row'>{html.escape(str(uid))}{rec}</th>{''.join(cells)}</tr>")
+    body_html = "\n".join(body) or f"<tr><td colspan='{len(metrics) + 1}'>no eligible units</td></tr>"
+    return (
+        "<section><h2>DECISION MATRIX (per-axis distance to reference)</h2>"
+        "<p class='sub'>Each cell is the normalized distance on one decision axis; "
+        "<strong>lower = closer</strong> to the Mars reference. Rows are the eligible Earth "
+        "units and a star marks a recommended follow-up. Axes are reported separately on "
+        "purpose: <strong>no single composite &quot;Mars-likeness&quot; score is produced</strong>, "
+        "and the ranking is by Pareto dominance across these axes (a tie is a valid result).</p>"
+        "<table><thead><tr><th scope='col'>unit</th>" + head + "</tr></thead>"
+        "<tbody>" + body_html + "</tbody></table></section>")
+
+
+def _frontier_section(pkg):
+    """Pareto-layer ranking panel, or '' if the study carries no frontier."""
+    fr = pkg.get("frontier")
+    if not fr:
+        return ""
+    rank = fr.get("rank", {})
+    rows = []
+    for uid in sorted(rank, key=lambda u: (rank[u], u)):
+        rec = " &#9733;" if uid == pkg.get("recommended_unit") else ""
+        rows.append(f"<tr><th scope='row'>{html.escape(str(uid))}{rec}</th>"
+                    f"<td>{int(rank[uid])}</td></tr>")
+    body = "\n".join(rows) or "<tr><td colspan='2'>n/a</td></tr>"
+    note = html.escape(str(fr.get("note", "")))
+    return (
+        "<section><h2>PARETO FRONTIER (layer rank)</h2>"
+        "<p class='sub'>Layer 1 is the non-dominated set (best); each higher layer is peeled "
+        "after the better layers are removed. Layer membership is the ranking &mdash; "
+        "within-layer order is by id and carries no score. " + note + "</p>"
+        "<table><thead><tr><th scope='col'>unit</th><th scope='col'>Pareto layer</th></tr></thead>"
+        "<tbody>" + body + "</tbody></table></section>")
+
+
 def _boot_section(pkg):
     """Render the bootstrap-uncertainty panel, or '' if the study has none."""
     boot = pkg.get("bootstrap")
     if not boot:
         return ""
+    method = html.escape(str(boot.get("method", "independent")))
+    honest = html.escape(str(boot.get("note", "")))
     rows = []
-    for uid, u in boot["units"].items():
+    for uid in sorted(boot["units"]):
+        u = boot["units"][uid]
         ci = u["distance_ci"].get("slope", [float("nan")] * 3)
         rows.append(
             f"<tr><th scope='row'>{html.escape(uid)}</th>"
@@ -92,13 +144,15 @@ def _boot_section(pkg):
             f"<td>{ci[1]:.2f} <span style='color:#7f9398'>[{ci[0]:.2f}–{ci[2]:.2f}]</span></td></tr>")
     return (
         "<section><h2>UNCERTAINTY (BOOTSTRAP, n=" + str(boot["n_boot"]) + ")</h2>"
-        "<p class='sub'>Feature distributions resampled with replacement. "
+        "<p class='sub'>Method: <strong>" + method + "</strong> resampling. "
+        "Feature distributions resampled with replacement. "
         "Non-domination frequency is how often each unit is Pareto non-dominated across "
         "resamples; a single clear winner appears in " + f"{boot['decisive_freq']*100:.0f}%" +
         " of resamples. Slope-distance shown as median [95% CI].</p>"
         "<table><thead><tr><th scope='col'>unit</th><th scope='col'>non-dominated</th>"
         "<th scope='col'>clear winner</th><th scope='col'>slope distance</th></tr></thead>"
-        "<tbody>" + "\n".join(rows) + "</tbody></table></section>")
+        "<tbody>" + "\n".join(rows) + "</tbody></table>"
+        "<p class='sub note'>" + honest + "</p></section>")
 
 
 CSS = """
@@ -133,6 +187,11 @@ ul.gaps em{color:#D6A33A;font-style:normal}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
 @media(max-width:760px){.grid{grid-template-columns:1fr}h1{font-size:34px}}
 .foot{margin-top:40px;color:#789096;font-size:12px}
+.badge{display:inline-block;padding:3px 12px;border-radius:999px;background:#A8513A;color:#fff;
+ font-size:12px;font-weight:700;letter-spacing:.16em;border:1px solid #c56a4f}
+.badge-line{margin:.4em 0 .1em}
+.bl{color:#789096;font-size:12px;letter-spacing:.14em;margin-left:9px}
+.note{color:#9fb0b5}
 """
 
 
@@ -143,6 +202,7 @@ TEMPLATE = """<!doctype html>
 <style>{css}</style></head>
 <body><main class="wrap">
 <p class="eyebrow">PLANETARY ANALOG OS / TERRATRACE v0.1</p>
+<p class="badge-line"><span class="badge">{body_badge}</span><span class="bl">target reference body</span></p>
 <h1>Map-scale morphology transfer audit</h1>
 <p class="sub">A reproducible comparison of a Mars reference terrain unit with
 candidate Earth terrain units at a declared common support of {support} m.</p>
@@ -163,6 +223,10 @@ score is produced; ranking is by Pareto dominance, and a tie is a valid result.<
 </tr></thead><tbody>
 {rows}
 </tbody></table></section>
+
+{matrix_section}
+
+{frontier_section}
 
 <section><h2>EXTENDED MORPHOLOGY DESCRIPTORS</h2>
 <table><thead><tr><th scope="col">unit</th>
@@ -228,6 +292,9 @@ def build_html(pkg):
         support=html.escape(str(pkg["profile"].get("target_support_m", ""))),
         decision_metrics=html.escape(pkg["profile"].get("decision_metrics", "core")),
         metric_names=html.escape(", ".join(pkg["profile"].get("metrics", []))),
+        body_badge=html.escape(str(pkg["profile"].get("target_body", "")).upper()),
+        matrix_section=_matrix_section(pkg),
+        frontier_section=_frontier_section(pkg),
         rows=_rows(pkg),
         ext_rows=_ext_rows(pkg),
         citations=_citations(pkg),

@@ -21,10 +21,17 @@ import math
 
 MARS_RADIUS_M = 3396190.0  # IAU mean radius
 MOON_RADIUS_M = 1737400.0  # IAU lunar mean radius (LRO/LOLA sphere)
+MERCURY_RADIUS_M = 2439400.0  # IAU Mercury mean radius (MESSENGER sphere)
+CERES_RADIUS_M = 469730.0  # Dawn Ceres mean radius (near-spherical dwarf planet)
 
 # Spherical bodies handled with an authalic-sphere proj string. Earth is the one
-# ellipsoidal exception (WGS84), kept separate below.
-_SPHERE_RADIUS_M = {"mars": MARS_RADIUS_M, "moon": MOON_RADIUS_M}
+# ellipsoidal exception (WGS84), kept separate below. These spheres are a good
+# model for the near-round bodies here; strongly irregular bodies (e.g. Vesta)
+# are deliberately NOT offered, as a single sphere would misrepresent them.
+_SPHERE_RADIUS_M = {
+    "mars": MARS_RADIUS_M, "moon": MOON_RADIUS_M,
+    "mercury": MERCURY_RADIUS_M, "ceres": CERES_RADIUS_M,
+}
 
 
 def body_radius_m(body):
