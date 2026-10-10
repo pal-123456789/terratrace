@@ -34,6 +34,11 @@ def relief(z, window=3, alpha=0.0):
 
     alpha is the tail fraction; alpha=0 gives max-min, alpha=0.05 gives a
     robust 5th-95th percentile relief. Returns the per-window relief map.
+
+    Fast paths preserve EXACT results: with no NaNs the all-finite min/max
+    (alpha=0) or a single two-quantile call (alpha>0) replace the much slower
+    per-element ``nanquantile`` (q=1 is the max, q=0 the min, and ``quantile``
+    equals ``nanquantile`` on finite data), so the output is unchanged.
     """
     if not 0.0 <= alpha < 0.5:
         raise ValueError("alpha must be in [0, 0.5)")
@@ -41,10 +46,20 @@ def relief(z, window=3, alpha=0.0):
         return np.array([np.nan])      # AOI too small for this window
     w = _windows(z, window)
     flat = w.reshape(w.shape[0], w.shape[1], -1)
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", category=RuntimeWarning)
-        hi = np.nanquantile(flat, 1.0 - alpha, axis=-1)
-        lo = np.nanquantile(flat, alpha, axis=-1)
+    has_nan = bool(np.isnan(flat).any())
+    if alpha == 0.0:
+        if has_nan:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", category=RuntimeWarning)
+                return np.nanmax(flat, axis=-1) - np.nanmin(flat, axis=-1)
+        return flat.max(axis=-1) - flat.min(axis=-1)
+    if has_nan:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=RuntimeWarning)
+            hi = np.nanquantile(flat, 1.0 - alpha, axis=-1)
+            lo = np.nanquantile(flat, alpha, axis=-1)
+        return hi - lo
+    lo, hi = np.quantile(flat, [alpha, 1.0 - alpha], axis=-1)
     return hi - lo
 
 

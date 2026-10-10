@@ -42,10 +42,17 @@ source and a transformation.
   avoids re-downloading gigabytes; downloads are atomic with retry/backoff honouring
   `Retry-After`; and a DEM **QA profiler** reports valid / water / NaN fractions, robust
   relief, and advisory flags (sentinels applied first).
-- 143 fixture tests with known analytic answers, all passing, no network required.
+- **Validation & benchmarking:** a scientific-correctness suite that drives the *real*
+  engine on synthetic terrains with known relationships and proves it behaves correctly —
+  self-distance is zero, slope/relief/ruggedness are invariant to vertical offset and 90°
+  rotation, distance grows monotonically with roughness (real discriminating power), a
+  closer candidate provably dominates and is recommended, a flat/water tile is blocked,
+  and the whole pipeline is deterministic. A reproducibility + performance harness pins
+  behavioural invariants, checks hash stability, and profiles wall-clock scaling.
+- 156 fixture tests with known analytic answers, all passing, no network required.
 
 ```
-passed=143 failed=0
+passed=156 failed=0
 ```
 
 ## Install
@@ -64,7 +71,7 @@ pip install -r requirements-real.txt      # rasterio + requests (real DEMs)
 ```bash
 PYTHONPATH=. python3 -m terratrace.cli --out artifacts
 PYTHONPATH=. python3 -m terratrace.build_viewer      # writes viewer/index.html
-PYTHONPATH=. python3 tests/run_tests.py              # 143 tests
+PYTHONPATH=. python3 tests/run_tests.py              # 156 tests
 ```
 
 Open `viewer/index.html` in any browser — it is self-contained and works offline.
@@ -135,13 +142,15 @@ terratrace/
     profile.py       DEM QA report (valid/water/NaN, relief, advisory flags)
     ingest.py        real DEM download (atomic + retry/backoff) + raster read
     fetchcache.py    idempotent fetch decisions + sha256 provenance manifest
+    validation.py    scientific-correctness suite (drives the real engine)
+    benchmark.py     reproducibility invariants + wall-clock scaling profile
     build_viewer.py  self-contained HTML viewer
     cli.py           study runner
-  tests/             143 fixture tests + dependency-free runner
+  tests/             156 fixture tests + dependency-free runner
   artifacts/         generated study package (JSON + checksums + manifest)
   viewer/            generated offline HTML viewer
   config/            AOI configuration for real runs
-  scripts/           real-data fetch (+preflight) / profile / run helpers
+  scripts/           fetch (+preflight) / profile / validate / benchmark / run
 ```
 
 ## Scientific method

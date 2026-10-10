@@ -5,7 +5,7 @@ screening**. These checks establish software/metric correctness, data handling,
 sensitivity, and provenance. They do **not** establish rover traversability,
 autonomy, geologic equivalence, site access, or mission readiness.
 
-## Test suite (46 fixtures, `tests/run_tests.py`)
+## Test suite (156 fixtures, `tests/run_tests.py`)
 
 | Area | What the fixtures prove |
 |---|---|
@@ -13,12 +13,51 @@ autonomy, geologic equivalence, site access, or mission readiness.
 | support | Block aggregation on constants, a known 2x2 mean, nodata/valid-fraction tracking, common-factor guards |
 | distances | Wasserstein-1 = 0 for identical, = c for a shift; KS 0/1 bounds; NaN ignored; degenerate scale stays finite; all-constant -> 0 |
 | decision | Pareto dominance and non-dominated sets; rights allowlist fails closed; water (zero-fraction) block; stable-winner vs tie resolution |
+| frontier | Peeled Pareto layers in order; dominance matrix; id-only within-layer order; identical-vector + determinism |
 | masks | Sentinel/below/above masking to NaN; zero-fraction; input not mutated |
 | reproject | Body-correct CRS strings (Mars sphere vs WGS84), centroid, grid sizing, unknown-body guard |
+| catalog | 10-source registry validates; coverage + body-mismatch; `recommend_source` preference/least-download/keyless; SRTM band excludes >60°N; nodata sentinels |
+| preflight | bbox well-formedness + body bounds; area/pixel/download sizing; config-schema (dup ids/paths, demtype-vs-dataset); non-US routing |
+| profile | valid/water/NaN fractions; robust relief; advisory vs blocking flags; water==masks.zero_fraction |
+| fetchcache | sha256 matches sourcelock; needs_fetch skip/mismatch; manifest round-trip + update |
+| ingest | TIFF magic-byte guard rejects error-JSON; `_stream` retry/backoff + Retry-After + fail-fast |
 | sourcelock | SHA-256 matches hashlib; citations/terms per body; missing-file entry |
 | study (e2e) | Contract keys present; ineligible unit excluded; close unit dominates far; deterministic package hash; all-blocked -> BLOCKED; evidence graph has eligibility+result+protocol nodes; extended mode adds two dimensions |
+| validation | The engine passes every scientific-correctness check (see below) |
+| benchmark | Pinned behavioural invariants + hash stability + a scaling profile |
 
 Every fixture has a known analytic answer; the runner exits non-zero on any failure.
+
+## Automated scientific-correctness suite (`terratrace/validation.py`)
+
+Beyond unit fixtures, `scripts/run_validation.py` drives the **real** comparison
+pipeline on synthetic terrains with known relationships and asserts the engine's
+distances and Pareto decision come out the way geomorphometry requires. All eight
+checks pass:
+
+| Check | Property proven |
+|---|---|
+| self_distance_zero | A unit compared with itself has an all-zero distance vector |
+| translation_invariance | A vertical offset (+1000 m) changes no morphology axis (shape, not height) |
+| rotation90_invariance | A 90° rotation leaves slope/relief/ruggedness distributions unchanged |
+| monotonic_roughness_discrimination | Distance grows monotonically as a candidate is made rougher (real power) |
+| dominance_recovery | A candidate closer on every axis provably dominates and is the recommendation |
+| null_control | A same-statistics twin is closer than a 5× rougher impostor |
+| water_candidate_blocked | A flat/zero (water-proxy) tile is BLOCKED by eligibility, not silently compared |
+| determinism | Identical inputs reproduce an identical package hash |
+
+The suite emits a hashed report (`--json`) whose hash covers the pass/fail outcomes,
+so it is a stable, host-independent regression oracle.
+
+## Performance (`terratrace/benchmark.py`)
+
+`scripts/run_benchmark.py` pins end-to-end behavioural invariants (which state is
+reached, which unit wins, what is blocked), checks hash stability, and profiles
+wall-clock time vs grid size. A benchmark-driven optimisation of the local-relief
+operator replaced a per-window `nanquantile` with an exact min/max (α=0) or a single
+two-quantile call (α>0): a 96×96 study dropped from ~12 s to ~0.3 s (**~40× faster**)
+with **bit-identical** outputs — verified by unchanged `relief` arrays and an
+unchanged study `package_hash`. Performance is now characterised, not assumed.
 
 ## Independent cross-checks (recommended on real runs)
 
