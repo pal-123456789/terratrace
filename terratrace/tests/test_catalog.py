@@ -203,6 +203,14 @@ def test_every_source_has_valid_preference_and_sentinels():
         s = catalog.get(sid)
         assert isinstance(s["preference"], int) and s["preference"] >= 1
         assert isinstance(s["nodata_sentinels"], list)
+        assert s["vertical_accuracy_m"] > 0                       # for error propagation
+
+
+def test_vertical_accuracy_accessor_and_physical_ordering():
+    # Lidar/altimetry products are far more vertically accurate than radar/stereo DSMs.
+    assert catalog.vertical_accuracy_for("earth_usgs1m") < catalog.vertical_accuracy_for("earth_cop30")
+    assert catalog.vertical_accuracy_for("moon_lola_ldem") < catalog.vertical_accuracy_for("earth_srtmgl3")
+    assert all(catalog.vertical_accuracy_for(s) > 0 for s in catalog.all_ids())
 
 
 def test_moon_lola_source_is_registered_and_selectable():

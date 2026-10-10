@@ -166,6 +166,28 @@ a bootstrap confidence interval brackets each distance. The test speaks only abo
 of elevation-sample distributions — it asks whether a closeness gap could arise by chance
 and makes no physical, geologic, or mission claim about either terrain.
 
+## Elevation-error propagation
+
+A morphology distance inherits uncertainty not only from sampling but from the DEM's own
+vertical accuracy, so each catalog source now declares an approximate 1-sigma vertical
+accuracy (`vertical_accuracy_m`, an order-of-magnitude RMSE from the product/mission docs)
+and `errorprop.py` propagates it analytically into feature uncertainty. With a
+central-difference gradient and independent per-pixel vertical error of standard deviation
+`sigma_z`, the gradient-magnitude error is `sigma_G = sigma_z / (dx * sqrt(2))`; propagating
+through `theta = atan(G)` (`dtheta/dG = 1 / (1 + G^2)`) gives a slope-angle uncertainty
+`sigma_theta = sigma_G / (1 + tan(slope)^2)`, largest on flat ground and shrinking as the
+terrain steepens and as the pixel grows. Local relief, a difference of two pixels, propagates
+exactly as `sqrt(2) * sigma_z`, and detrended ruggedness carries a rough bound of order
+`sigma_z`.
+
+The caveat is exactly parallel to the independent-pixel bootstrap: assuming **independent**
+per-pixel errors makes every number here an **optimistic lower bound** on the true
+uncertainty. Real DEM errors are spatially correlated — striping, swath and tile seams,
+co-registration residuals, terrain-dependent bias — which inflates feature uncertainty above
+these estimates, and the relief and ruggedness bounds are additionally rough because window
+residuals partially cancel the per-pixel noise. These are map-scale morphology uncertainties
+only and make no mechanical, trafficability, or mission claim.
+
 ## Batch studies
 
 A single study compares one Mars reference against a slate of Earth candidates under
@@ -258,6 +280,35 @@ descriptor dominates the distance. This is a morphology signature and a ranking 
 statement about nearness in a morphology-signature space — and explicitly **not** a
 classification, an identity match, a geological-equivalence claim, or any traversability,
 mechanical, or mission claim.
+
+## Fingerprint similarity search and dossiers
+
+The single-terrain fingerprint above becomes a *search* once there are several references to
+compare against. `fingerprint_library.py` turns a collection of named reference terrains into
+a fingerprint library and ranks any query terrain against it, best morphological match first;
+`cross_body_table` generalises that to the cross-**body** case, ranking a slate of Earth
+candidates against a set of planetary references (Mars-like, Moon-like) and reporting, per
+candidate, the full candidate × reference similarity matrix and the single reference it most
+resembles. `scripts/fingerprint_search.py` is an offline, network-free demo over synthetic
+terrains; a real-data run fingerprints DEM tiles loaded through `ingest` with the identical
+API. All feature math lives in the fingerprint and descriptor layers, so the ranking inherits
+their firewall unchanged: "most similar" means nearest in the fixed morphology-signature space
+and is **not** a classification, identity, or geological-equivalence claim.
+
+Where the study package summarises every unit at once, `dossier.py` produces the
+per-**candidate** analogue: a focused decision brief for one unit that gathers, in one place,
+its per-metric morphology distances to the reference, its Pareto-frontier layer, its
+eligibility verdict, its bootstrap non-domination / clear-winner frequencies and distance CIs
+(when a bootstrap was run), whether it is the recommendation, and the transfer-gap ledger and
+prohibited-claims list that bind it — as a structured dict and as Markdown. An ineligible or
+missing unit yields a blocked verdict with its reason and no distances rather than an error.
+Nothing in a dossier widens, softens, or re-weights a claim; it only re-presents, per
+candidate, what the engine already decided, under the same map-scale morphology firewall.
+
+For visual context, `hillshade.py` can render an AOI as a Horn shaded-relief image encoded as
+a base64 PNG data URI using only the Python standard library, so a terrain preview embeds
+inline in the self-contained HTML report with no external assets. It is a visualisation aid
+that encodes illuminated surface orientation only and makes no quantitative claim.
 
 ## Provenance
 

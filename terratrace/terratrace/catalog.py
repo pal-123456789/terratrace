@@ -184,7 +184,8 @@ SOURCES = {
 
 REQUIRED_FIELDS = ("id", "body", "provider", "product", "native_resolution_m",
                    "access", "crs", "vertical_datum", "key_required", "license",
-                   "citation", "coverage", "preference", "nodata_sentinels")
+                   "citation", "coverage", "preference", "nodata_sentinels",
+                   "vertical_accuracy_m")
 
 # Retrieval hints added post-hoc to keep the SOURCES literal readable.
 #   preference: lower = better suited to cross-body LAND-SURFACE morphology screening
@@ -193,6 +194,9 @@ REQUIRED_FIELDS = ("id", "body", "provider", "product", "native_resolution_m",
 #   nodata_sentinels: extra values to drop beyond the raster's own declared nodata --
 #     a safety net for undeclared voids (e.g. SRTM's -32768, ALOS's -9999). Copernicus
 #     and the Mars/3DEP products rely on the raster mask, so their list is empty.
+#   vertical_accuracy_m: APPROXIMATE published 1-sigma vertical accuracy (RMSE, m).
+#     Order-of-magnitude figures from mission/product docs, used by errorprop to
+#     propagate elevation error into slope/relief uncertainty -- NOT exact per-pixel.
 _PREFERENCE = {
     "earth_cop30": 1, "earth_usgs10m": 1, "earth_usgs1m": 1,
     "earth_cop90": 2, "earth_nasadem": 2, "earth_aw3d30": 2,
@@ -204,9 +208,18 @@ _NODATA = {
     "earth_srtmgl1": [-32768.0], "earth_srtmgl3": [-32768.0],
     "earth_nasadem": [-32768.0], "earth_aw3d30": [-9999.0],
 }
+# Approximate 1-sigma vertical RMSE in metres (provider/mission docs; see note above).
+_VERTICAL_ACC = {
+    "earth_cop30": 4.0, "earth_cop90": 4.0, "earth_nasadem": 5.0,
+    "earth_srtmgl1": 6.0, "earth_srtmgl3": 9.0, "earth_aw3d30": 5.0,
+    "earth_usgs10m": 1.5, "earth_usgs1m": 0.2,
+    "mars_mola_megdr": 3.0, "mars_mola_usgs_463m": 3.0,
+    "moon_lola_ldem": 1.0, "mercury_messenger_dem": 30.0, "ceres_dawn_dem": 20.0,
+}
 for _sid, _s in SOURCES.items():
     _s.setdefault("preference", _PREFERENCE.get(_sid, 5))
     _s.setdefault("nodata_sentinels", list(_NODATA.get(_sid, [])))
+    _s.setdefault("vertical_accuracy_m", _VERTICAL_ACC.get(_sid, 10.0))
 
 
 def all_ids():
@@ -227,6 +240,12 @@ def nodata_sentinels_for(source_id):
     """Extra sentinel values to drop (beyond the raster's declared nodata) for a
     source. Apply with masks.apply_masks(z, mask_values=...) right after load."""
     return list(get(source_id).get("nodata_sentinels", []))
+
+
+def vertical_accuracy_for(source_id):
+    """Approximate 1-sigma vertical RMSE (m) for a source, for error propagation
+    (errorprop). Order-of-magnitude from product docs, not an exact per-pixel value."""
+    return float(get(source_id)["vertical_accuracy_m"])
 
 
 def _bbox_inside(inner, outer):
@@ -361,6 +380,9 @@ def validate():
         nod = s.get("nodata_sentinels")
         if not isinstance(nod, list) or not all(isinstance(v, (int, float)) for v in nod):
             problems.append((sid, f"nodata_sentinels not a numeric list: {nod!r}"))
+        va = s.get("vertical_accuracy_m")
+        if not isinstance(va, (int, float)) or isinstance(va, bool) or va <= 0:
+            problems.append((sid, f"vertical_accuracy_m not positive: {va!r}"))
         if "coverage" in s:
             problems.extend(_coverage_problems(sid, s["coverage"]))
     return problems

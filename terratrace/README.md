@@ -48,6 +48,33 @@ source and a transformation.
   bounded similarity in (0, 1] (1.0 iff identical), and `rank_library()` ranks a library of
   reference terrains to find the nearest morphological match. This is a morphology signature
   and ranking, **not** a classification, identity, or geological-equivalence claim.
+- **Elevation-error propagation:** every catalog source now carries an approximate 1-sigma
+  vertical accuracy (`vertical_accuracy_m`), and `errorprop.py` propagates it analytically
+  into map-scale feature uncertainty — a central-difference model gives a slope-angle sigma
+  `sigma_z / (dx*sqrt(2)) / (1 + tan(slope)^2)`, a local-relief sigma `sqrt(2)*sigma_z`, and a
+  rough ruggedness bound `~ sigma_z`. Like the independent-pixel bootstrap it assumes
+  **independent** per-pixel errors, so every figure is an **optimistic lower bound** — real
+  DEM errors are spatially correlated. Map-scale morphology uncertainty only; no mechanical or
+  mission claim.
+- **Inline hillshade previews:** `hillshade.py` renders a Horn shaded-relief image of an
+  elevation grid and encodes it as a base64 PNG **data URI using only the standard library**
+  (`zlib` / `struct` / `base64` — no PIL or other image dependency), so a terrain preview can
+  be embedded inline in the self-contained HTML report with no external assets. It is a
+  visualisation aid only: the shading encodes illuminated surface orientation and makes no
+  quantitative, mechanical, or trafficability claim.
+- **Cross-body fingerprint similarity search:** `fingerprint_library.py` (+
+  `scripts/fingerprint_search.py`) builds a library of reference-terrain fingerprints and
+  ranks candidates against them — including the cross-**body** case, ranking Earth candidates
+  against each planetary (Mars-like, Moon-like) reference and naming the single reference each
+  candidate most resembles. A morphological similarity ranking only, **not** a classification,
+  identity, or geological-equivalence claim; it inherits the fingerprint layer's firewall
+  unchanged.
+- **Per-candidate site dossiers:** `dossier.py` distils the whole study package into a focused
+  per-candidate decision brief — its per-metric morphology distances, Pareto-frontier layer,
+  eligibility verdict, bootstrap non-domination / clear-winner frequencies and distance CIs
+  (when a bootstrap was run), whether it is the recommendation, and the transfer-gap ledger +
+  prohibited claims — as a structured dict and as Markdown. It only re-presents what the engine
+  already decided; it never widens a claim.
 - **Expanded stdlib HTTP API:** the dependency-free localhost API adds `GET /bodies`
   (supported bodies + source registry), `POST /validate` (scientific-correctness suite),
   `POST /batch` (synthetic cross-reference batch), and `POST /report` (study + Markdown
@@ -129,10 +156,10 @@ source and a transformation.
   closer candidate provably dominates and is recommended, a flat/water tile is blocked,
   and the whole pipeline is deterministic. A reproducibility + performance harness pins
   behavioural invariants, checks hash stability, and profiles wall-clock scaling.
-- 247 fixture tests with known analytic answers, all passing, no network required.
+- 275 fixture tests with known analytic answers, all passing, no network required.
 
 ```
-passed=247 failed=0
+passed=275 failed=0
 ```
 
 ## Install
@@ -151,7 +178,7 @@ pip install -r requirements-real.txt      # rasterio + requests (real DEMs)
 ```bash
 PYTHONPATH=. python3 -m terratrace.cli --out artifacts
 PYTHONPATH=. python3 -m terratrace.build_viewer      # writes viewer/index.html
-PYTHONPATH=. python3 tests/run_tests.py              # 247 tests
+PYTHONPATH=. python3 tests/run_tests.py              # 275 tests
 ```
 
 Open `viewer/index.html` in any browser — it is self-contained and works offline.
@@ -239,7 +266,7 @@ terratrace/
     study.py         compare_units + run_study + run_real_study
     batch.py         cross-reference, multi-lens batch synthesis
     descriptors.py   full geomorphometric descriptor bank (analysis layer)
-    catalog.py       13-source registry: coverage, preference, nodata, selection
+    catalog.py       13-source registry: coverage, preference, nodata, vertical accuracy, selection
     preflight.py     fail-fast config-schema + AOI/bbox/size/coverage checks
     profile.py       DEM QA report (valid/water/NaN, relief, advisory flags)
     ingest.py        real DEM download (atomic + retry/backoff) + raster read
@@ -253,13 +280,17 @@ terratrace/
     repro.py         recompute/verify package hash + diff + reproduce check
     coregister.py    translational DEM alignment + vertical-datum offset
     fingerprint.py   compact morphology signature + similarity + library ranking
+    fingerprint_library.py  cross-body fingerprint library + similarity search
+    errorprop.py     vertical-accuracy -> slope / relief / ruggedness uncertainty
+    hillshade.py     Horn shaded-relief PNG data URI (pure stdlib, self-contained)
+    dossier.py       per-candidate decision brief (structured dict + Markdown)
     build_viewer.py  self-contained HTML viewer
     cli.py           unified dispatcher: study / validate / benchmark / report / version
-  tests/             247 fixture tests + dependency-free runner
+  tests/             275 fixture tests + dependency-free runner
   artifacts/         generated study package (JSON + checksums + manifest)
   viewer/            generated offline HTML viewer
   config/            AOI configuration for real runs
-  scripts/           fetch (+preflight) / profile / validate / benchmark / make_report / make_html_report / verify_study / run / run_batch_study
+  scripts/           fetch (+preflight) / profile / validate / benchmark / make_report / make_html_report / verify_study / fingerprint_search / run / run_batch_study
 ```
 
 ## Scientific method
