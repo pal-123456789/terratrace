@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  tests:
+    name: tests (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    defaults:
+      run:
+        working-directory: terratrace
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install core dependencies (NumPy only)
+        run: pip install -r requirements.txt
+      - name: Run the dependency-free test suite
+        env:
+          PYTHONPATH: .
+        run: python tests/run_tests.py
+      - name: Scientific-correctness validation suite
+        env:
+          PYTHONPATH: .
+        run: python scripts/run_validation.py

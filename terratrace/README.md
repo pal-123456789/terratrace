@@ -184,10 +184,10 @@ source and a transformation.
   closer candidate provably dominates and is recommended, a flat/water tile is blocked,
   and the whole pipeline is deterministic. A reproducibility + performance harness pins
   behavioural invariants, checks hash stability, and profiles wall-clock scaling.
-- 327 fixture tests with known analytic answers, all passing, no network required.
+- 330 fixture tests with known analytic answers, all passing, no network required.
 
 ```
-passed=327 failed=0
+passed=330 failed=0
 ```
 
 ## Install
@@ -206,7 +206,7 @@ pip install -r requirements-real.txt      # rasterio + requests (real DEMs)
 ```bash
 PYTHONPATH=. python3 -m terratrace.cli --out artifacts
 PYTHONPATH=. python3 -m terratrace.build_viewer      # writes viewer/index.html
-PYTHONPATH=. python3 tests/run_tests.py              # 327 tests
+PYTHONPATH=. python3 tests/run_tests.py              # 330 tests
 ```
 
 Open `viewer/index.html` in any browser — it is self-contained and works offline.
@@ -321,7 +321,7 @@ terratrace/
     dossier.py       per-candidate decision brief (structured dict + Markdown)
     build_viewer.py  self-contained HTML viewer
     cli.py           unified dispatcher: study / validate / benchmark / report / report-html / dossier / version
-  tests/             327 fixture tests + dependency-free runner
+  tests/             330 fixture tests + dependency-free runner
   artifacts/         generated study package (JSON + checksums + manifest)
   viewer/            generated offline HTML viewer
   config/            AOI configuration for real runs
