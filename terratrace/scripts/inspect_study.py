@@ -61,6 +61,13 @@ def main(argv=None):
         print(f"{'unit':<20}{'non-dom %':<12}{'winner %'}")
         for uid, u in boot["units"].items():
             print(f"{uid:<20}{u['nondominated_freq']*100:<12.0f}{u['clear_winner_freq']*100:.0f}")
+    front = pkg.get("frontier")
+    if front and len(front.get("rank", {})) >= 2:
+        print("-" * 60)
+        order = sorted(front["rank"].items(), key=lambda kv: (kv[1], kv[0]))
+        print("Pareto ranking (layer 1 = non-dominated):")
+        for uid, layer in order:
+            print(f"  layer {layer}: {uid}")
     print(f"evidence nodes   : {len(pkg['evidence_graph']['nodes'])}")
 
     if warnings:

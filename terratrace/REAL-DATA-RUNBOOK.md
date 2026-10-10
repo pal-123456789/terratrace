@@ -31,22 +31,53 @@ MEGDR products: `https://pds-geosciences.wustl.edu/missions/mgs/megdr.html`.)
 Pick a bounded Mars analysis window (a sub-region), not the whole globe, for a
 map-scale study.
 
-## 4. Fetch the Earth candidate DEMs
+## 4. Preflight the AOI config (no network)
+
+Before downloading anything, dry-run the config. Preflight validates every bounding
+box, picks the catalog source that actually covers each AOI, and prints an approximate
+request size so a malformed or oversized AOI is caught before a byte moves:
+
+```bash
+python3 scripts/fetch_real_dems.py --config config/aois.example.yml --preflight-only
+```
+
+Hard problems (e.g. `west >= east`, latitude out of range, no covering source) make it
+exit non-zero. Size-limit breaches are warnings, not errors.
+
+## 5. Fetch the Earth candidate DEMs
 
 ```bash
 python3 scripts/fetch_real_dems.py --config config/aois.example.yml
 ```
 
-This calls the OpenTopography `globaldem` API (`demtype=COP30`) for each Earth unit
-bounding box and writes GeoTIFFs into `data/earth/`.
+Preflight runs again automatically and aborts on hard problems (pass `--skip-preflight`
+to override). For each Earth unit it calls the OpenTopography `globaldem` API
+(`demtype=COP30` by default) and writes GeoTIFFs into `data/earth/`. To pull a
+higher-resolution US product instead, set `dataset: USGS10m` (or `USGS30m`) on that unit
+— the fetcher dispatches to the 3DEP `usgsdem` API with the same key. Downloads are
+atomic (`.part` → rename) and retry transient 429/5xx responses with backoff. After each
+file lands it is given a quick QA profile (valid / water / NaN fraction, relief, flags).
 
-## 5. Run the real study
+## 6. QA a downloaded DEM (optional)
+
+```bash
+python3 scripts/profile_dem.py data/earth/candidate_b_cop30.tif
+python3 scripts/profile_dem.py --bbox -115.8 36.0 -115.4 36.4 data/earth/candidate_a_cop30.tif
+```
+
+Reports valid/water/NaN fractions, robust relief (p99−p1), percentiles, and advisory
+flags. It exits non-zero on a blocking flag (`ALL_NAN` / `LOW_VALID_FRACTION` /
+`WATER_CONTAMINATION`) — the water flag is the same `zero_fraction > 0.6` gate the engine
+uses, so a mostly-ocean AOI (a classic contamination trap) is caught early.
+
+## 7. Run the real study
 
 ```bash
 PYTHONPATH=. python3 scripts/run_real_study.py --config config/aois.example.yml
 ```
 
-It writes `artifacts/study.json` (+ manifest/checksums) and `viewer/index.html`.
+It writes `artifacts/study.json` (+ manifest/checksums) and `viewer/index.html`. With
+≥2 eligible Earth candidates the package also carries a Pareto **frontier** ranking.
 
 ## Data terms and citation (required)
 

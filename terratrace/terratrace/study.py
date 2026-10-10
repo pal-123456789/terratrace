@@ -182,6 +182,9 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
         "transfer_gap_ledger": gap_ledger, "draft_protocol": proto,
         "prohibited_claims": gaps.prohibited_claims(), "evidence_graph": graph.to_dict(),
     }
+    if len(baseline_vectors) >= 2:
+        from . import frontier
+        package["frontier"] = frontier.summarize(baseline_vectors)
     if n_boot and baseline_vectors and ref_feats_base is not None:
         from . import uncertainty
         extra = None

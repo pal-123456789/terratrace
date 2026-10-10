@@ -26,13 +26,20 @@ source and a transformation.
 - Distribution distances (Wasserstein-1, KS, quantile fingerprint) with no SciPy.
 - Eligibility filters + Pareto/tie/indeterminate decision (no composite "Mars-likeness"
   score).
+- Multi-candidate Pareto **frontier** ranking (peeled non-dominated layers + dominance
+  matrix) so a batch run yields a defensible shortlist, not just a winner.
 - Sensitivity across scenarios with a pairwise rank-flip matrix.
 - Transfer-gap ledger (T0–T4 classes) and a draft study protocol.
 - Evidence graph + content hashing; deterministic study package + static viewer.
-- 24 fixture tests with known analytic answers, all passing, no network required.
+- **Data & sources layer:** a citeable source **catalog** (MOLA / Copernicus GLO-30 /
+  USGS 3DEP) with spatial-coverage metadata and automatic source selection; a fail-fast
+  **preflight** that validates every AOI bbox and sizes the request before any download;
+  resilient downloads (atomic writes + retry/backoff honouring `Retry-After`); and a
+  DEM **QA profiler** (valid / water / NaN fractions, robust relief, advisory flags).
+- 115 fixture tests with known analytic answers, all passing, no network required.
 
 ```
-passed=24 failed=0
+passed=115 failed=0
 ```
 
 ## Install
@@ -51,7 +58,7 @@ pip install -r requirements-real.txt      # rasterio + requests (real DEMs)
 ```bash
 PYTHONPATH=. python3 -m terratrace.cli --out artifacts
 PYTHONPATH=. python3 -m terratrace.build_viewer      # writes viewer/index.html
-PYTHONPATH=. python3 tests/run_tests.py              # 24 tests
+PYTHONPATH=. python3 tests/run_tests.py              # 115 tests
 ```
 
 Open `viewer/index.html` in any browser — it is self-contained and works offline.
@@ -74,19 +81,29 @@ in front of it before exposing it to a network.
 
 See [REAL-DATA-RUNBOOK.md](REAL-DATA-RUNBOOK.md). Minimal real stack:
 
-| Layer | Source | API key? |
-|---|---|---|
-| Mars | USGS Astrogeology **Mars MGS MOLA DEM 463m** GeoTIFF | none |
-| Earth | **Copernicus GLO-30** via OpenTopography API | free key |
+| Layer | Source | Native | API key? |
+|---|---|---|---|
+| Mars | USGS Astrogeology **Mars MGS MOLA DEM 463m** GeoTIFF | 463 m | none |
+| Earth (global) | **Copernicus GLO-30** via OpenTopography API | 30 m | free key |
+| Earth (US, higher-res) | **USGS 3DEP** 1/3″ (~10 m) / 1 m lidar via OpenTopography / ImageServer | 10 m / 1 m | free key / none |
+
+The full registry (coverage, licence, citation, vertical datum) lives in
+`terratrace/catalog.py`; `catalog.recommend_source(bbox, body, target_support_m)` picks
+the right product for an AOI automatically.
 
 ```bash
 export OPENTOPO_API_KEY=...            # from portal.opentopography.org (My Account)
-python3 scripts/fetch_real_dems.py --config config/aois.example.yml
+python3 scripts/fetch_real_dems.py --config config/aois.example.yml --preflight-only  # dry run
+python3 scripts/fetch_real_dems.py --config config/aois.example.yml                   # fetch
+python3 scripts/profile_dem.py data/earth/candidate_b_cop30.tif                       # QA a file
 PYTHONPATH=. python3 scripts/run_real_study.py --config config/aois.example.yml
 ```
 
-Downloads must run on a networked machine; the engine then compares the real arrays
-through the identical pipeline used by the synthetic path.
+`fetch_real_dems.py` runs a no-network **preflight** first — it validates each bbox,
+chooses the covering source, and prints an approximate download size so a malformed or
+oversized AOI is caught before a byte moves. Downloads must run on a networked machine;
+the engine then compares the real arrays through the identical pipeline used by the
+synthetic path.
 
 ## Project layout
 
@@ -97,24 +114,29 @@ terratrace/
     support.py       common-support aggregation
     distances.py     Wasserstein-1, KS, fingerprints
     decision.py      eligibility, Pareto, tie policy, rank flips
+    frontier.py      multi-candidate Pareto layers + dominance matrix
     gaps.py          transfer-gap taxonomy (T0-T4)
     provenance.py    evidence graph + hashing
     protocol.py      draft study protocol
     study.py         compare_units + run_study + run_real_study
-    ingest.py        real DEM download + raster read (rasterio/requests)
+    catalog.py       source registry: coverage, licence, source selection
+    preflight.py     fail-fast AOI/bbox/size/coverage validation (no network)
+    profile.py       DEM QA report (valid/water/NaN, relief, advisory flags)
+    ingest.py        real DEM download (atomic + retry) + raster read
     build_viewer.py  self-contained HTML viewer
     cli.py           study runner
-  tests/             24 fixture tests + dependency-free runner
+  tests/             115 fixture tests + dependency-free runner
   artifacts/         generated study package (JSON + checksums + manifest)
   viewer/            generated offline HTML viewer
   config/            AOI configuration for real runs
-  scripts/           real-data fetch + run helpers
+  scripts/           real-data fetch (+preflight) / profile / run helpers
 ```
 
 ## Scientific method
 
-See the full planning library in `../Planetary-Analog-OS-Plan/` (23 module plans,
-diagrams, equations, validation, ablations, governance, economics, roadmap).
+See [docs/method.md](docs/method.md) for the comparison method, [docs/limitations.md](docs/limitations.md)
+for what the engine deliberately does not claim, and [docs/VALIDATION.md](docs/VALIDATION.md)
+for the validation evidence.
 
 ## Compliance
 

@@ -54,3 +54,24 @@ earth_units:
     # For coastal/island AOIs, drop Copernicus sea-level pixels, e.g.:
     # mask_values: [0.0]      # exact 0 m -> NaN (blunt; prefer land AOIs)
     # mask_below_m: 0.5       # drop anything below 0.5 m
+
+  # --- More candidates make the Pareto frontier a real ranking (uncomment & fetch) ---
+  # A third global (Copernicus) candidate:
+  # - id: earth_candidate_c
+  #     path: data/earth/candidate_c_cop30.tif
+  #     body: earth
+  #     demtype: COP30
+  #     bbox: [-78.6, -0.2, -78.3, 0.1]        # example: Andean volcanic terrain
+  #     native_posting_m: 30.0
+  #     rights_status: verified_allowed
+  #     access_status: unknown
+  # A higher-resolution USGS 3DEP candidate (reuses the same OpenTopography key;
+  # set `dataset` instead of `demtype`):
+  # - id: earth_candidate_3dep
+  #     path: data/earth/candidate_3dep_usgs10m.tif
+  #     body: earth
+  #     dataset: USGS10m                       # USGS30m / USGS10m (USGS1m may need enabled access)
+  #     bbox: [-113.60, 43.30, -113.30, 43.60]
+  #     native_posting_m: 10.0
+  #     rights_status: verified_allowed
+  #     access_status: unknown
