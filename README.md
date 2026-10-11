@@ -68,7 +68,8 @@ On real data (a Mars reference vs a Nevada desert and Craters of the Moon, Idaho
 analog" depends on what you intend to test. The tool reports that rather than forcing a winner.
 See `terratrace/docs/VALIDATION.md`. A full method + results write-up is in
 `terratrace/docs/PAPER.md`, and the real worked example (with the four-lens ablation) in
-`terratrace/docs/REAL-EXAMPLE.md`.
+`terratrace/docs/REAL-EXAMPLE.md`. The multi-reference, lens-robustness **analog atlas** (one
+command over many references × many candidates) is documented in `terratrace/docs/ATLAS.md`.
 
 ## Deploy
 

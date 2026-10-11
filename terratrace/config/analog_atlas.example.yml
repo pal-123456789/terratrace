@@ -1,0 +1,124 @@
+# TerraTrace ANALOG ATLAS (example) -- many references x many candidates x all lenses.
+#
+# One config, one command: scripts/run_analog_atlas.py reads this file and emits a
+# ranked LENS-ROBUSTNESS catalog (atlas.json + atlas.md) in a single directory --
+# which candidate terrains stay Pareto non-dominated no matter which planetary
+# reference window and which morphology lens you pick.
+#
+# This is a MORPHOLOGY SCREENING catalog: it compares the map-scale SHAPE of real
+# terrain windows at a common support across every (reference x decision-lens)
+# cell. It makes NO traversability, geologic-equivalence, site-access, or
+# mission-readiness claim. The ranking is a transparent robustness synthesis, NOT
+# a composite "Mars-likeness" score. Every candidate AOI below is an ILLUSTRATIVE
+# analog chosen for its surface morphology; access_status is deliberately unknown
+# -- land access, permits, and ground truth MUST be verified independently before
+# any fieldwork.
+#
+# OFFLINE first: exercise the whole pipeline with no network and no rasterio via
+#   --dry-run    (preflight each unit's bbox/body/size; exit 0 clean / 2 problems)
+#   --synthetic  (deterministic surfaces; writes a real atlas.json/atlas.md)
+# This example is RUNNABLE AS-IS against the DEMs you already fetched for
+# config/real_multibody.example.yml, so you can run it right now with --skip-fetch:
+#
+#   python3 scripts/run_analog_atlas.py --config config/analog_atlas.example.yml \
+#       --skip-fetch --out artifacts/atlas
+#
+# (Drop --skip-fetch on a networked machine with OPENTOPO_API_KEY to download any
+# missing candidate DEM; planetary reference DEMs must already be on disk.)
+
+# --- Common support + lenses ------------------------------------------------
+# Mars MOLA ~463 m is the limiting support, so a 1000 m common support is a safe
+# default: every unit is aggregated UP to 1000 m before any feature is computed.
+target_support_m: 1000.0
+min_valid_fraction: 0.5
+# Warp each AOI to its own local azimuthal-equidistant metric grid (correct
+# cross-body comparison). Set false for the simpler same-dx fallback.
+reproject: true
+# All four decision lenses. Each (reference x lens) pairing is one cell; a
+# candidate's robustness is how often it stays non-dominated across every cell.
+#   core       slope / relief / ruggedness / connectivity
+#   extended   core + aspect dispersion + hypsometric integral
+#   geomorphic core + curvature / VRM / roughness descriptors
+#   landform   core + geomorphon-composition + topographic-openness descriptors
+# Omit this key to default to all four.
+decision_modes: [core, extended, geomorphic, landform]
+
+# --- References: bounded Mars windows cropped from ONE MOLA 463 m DEM ---------
+# Download 'Mars MGS MOLA DEM 463m' (GeoTIFF) ONCE from USGS Astrogeology:
+#   https://astrogeology.usgs.gov/search/map/mars_mgs_mola_dem_463m
+# save it to data/mars/mola_463m.tif. BOTH references below crop that SAME file
+# at DIFFERENT bboxes -- two independent reference windows from one download. The
+# MOLA 463 m product is simple-cylindrical in DEGREES and uses the 0..360 east
+# longitude convention. bbox is (west, south, east, north).
+references:
+  - id: mars_window_sw
+    path: data/mars/mola_463m.tif
+    body: mars
+    native_posting_m: 463.0
+    is_reference: true
+    rights_status: verified_allowed        # NASA PDS / USGS Astrogeology public data
+    # SW quadrant of a 10x10 deg equatorial window.
+    bbox: [120.0, -5.0, 125.0, 0.0]
+
+  - id: mars_window_ne
+    path: data/mars/mola_463m.tif
+    body: mars
+    native_posting_m: 463.0
+    is_reference: true
+    rights_status: verified_allowed
+    # NE quadrant of the same equatorial window (disjoint from the SW crop).
+    bbox: [125.0, 0.0, 130.0, 5.0]
+
+# --- Candidates: illustrative terrestrial analogs (COP30 / GLO-30) -----------
+# These reuse the EXACT paths + bboxes already fetched for the real multi-body
+# study, so --skip-fetch works immediately. access_status: unknown -- verify land
+# access, permits, and ground truth independently before any fieldwork.
+candidates:
+  - id: earth_nevada_basin
+    path: data/earth/nevada_basin_cop30.tif
+    body: earth
+    demtype: COP30
+    # Basin-and-range desert near Las Vegas, NV: low-relief alluvial basin floors
+    # bounded by faulted ranges -- an illustrative arid analog.
+    bbox: [-115.80, 36.00, -115.40, 36.40]
+    native_posting_m: 30.0
+    rights_status: verified_allowed
+    access_status: unknown                  # must be verified before any fieldwork
+
+  - id: earth_craters_of_the_moon
+    path: data/earth/craters_of_the_moon_cop30.tif
+    body: earth
+    demtype: COP30
+    # Craters of the Moon basaltic lava field, Idaho: a classic terrestrial
+    # Mars/Moon analog, entirely on land (no ocean-zero contamination).
+    bbox: [-113.60, 43.30, -113.30, 43.60]
+    native_posting_m: 30.0
+    rights_status: verified_allowed
+    access_status: unknown
+
+  - id: earth_andean_volcano
+    path: data/earth/andean_volcano_cop30.tif
+    body: earth
+    demtype: COP30
+    # Equatorial Andean volcanic terrain (Ecuador): steep stratovolcano flanks
+    # and radial drainage -- a distinct high-relief volcanic analog.
+    bbox: [-78.60, -0.20, -78.30, 0.10]
+    native_posting_m: 30.0
+    rights_status: verified_allowed
+    access_status: unknown
+
+# --- OPTIONAL: add more references (e.g. the Moon) --------------------------
+# The atlas is multi-reference AND multi-body: append more windows under
+# `references:` to widen the catalog. To add a lunar reference, download
+# 'Lunar LRO LOLA DEM 118m' from USGS Astrogeology, save it to
+# data/moon/lola_dem.tif, bump target_support_m if needed (it must be >= every
+# unit's native posting), and add, for example:
+#
+#   - id: moon_window
+#     path: data/moon/lola_dem.tif
+#     body: moon
+#     native_posting_m: 118.0
+#     is_reference: true
+#     rights_status: verified_allowed       # NASA LRO LOLA / USGS public data
+#     bbox: [40.0, -5.0, 50.0, 5.0]         # example bounded lunar window (0..360 lon)
+
