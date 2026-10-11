@@ -74,6 +74,47 @@ SCALE_FABRIC_FIELDS = (
 # axis. Chosen to bracket the plausible range of terrain spectral slopes.
 SCALE_FABRIC_SLOPE_SPAN = 4.0
 
+# Key under which the OPTIONAL texture-battery component is stored inside a
+# fingerprint when it is built with ``include_texture=True``. The value is a flat
+# ``{field: float}`` dict over :data:`TEXTURE_FIELDS`: the log-log spectral slope
+# (:func:`terratrace.spectral.spectral_signature`), the differential box-counting
+# fractal dimension (:func:`terratrace.fractal.box_counting_dimension`), the
+# normalised slope entropy (:func:`terratrace.entropy_terrain.entropy_signature`)
+# and the r=2 gliding-box lacunarity
+# (:func:`terratrace.lacunarity.lacunarity_signature`) -- four complementary
+# map-scale TEXTURE / surface-complexity descriptors. Like the landform and
+# scale/fabric components it is purely additive: the FINGERPRINT_FIELDS scalars
+# are untouched, so a default fingerprint stays byte-identical to one built before
+# this component existed.
+TEXTURE_KEY = "texture"
+TEXTURE_FIELDS = (
+    "spectral_slope",
+    "fractal_dim",
+    "slope_entropy_norm",
+    "lacunarity_r2",
+)
+
+# Documented reference spans for the texture sub-distances, one per
+# :data:`TEXTURE_FIELDS` entry: on each axis a difference of this many native
+# units is treated as a "full" (==1) separation, so the per-scalar sub-distance
+# is ``min(1, |a - b| / span)`` and the averaged texture term stays bounded in
+# ``[0, 1]`` even though the raw scalars live on very different scales:
+#   * ``spectral_slope``     -- log-log slope units (matches
+#     :data:`SCALE_FABRIC_SLOPE_SPAN`; brackets the plausible terrain range);
+#   * ``fractal_dim``        -- the box-counting dimension is confined to
+#     ``[2, 3]``, so its full physical range is exactly 1.0;
+#   * ``slope_entropy_norm`` -- already a normalised ``[0, 1]`` diversity index,
+#     so its full range is 1.0;
+#   * ``lacunarity_r2``      -- Lambda(2) is ``>= 1`` and unbounded above; a span
+#     of 1.0 brackets the spread seen across terrain tiles while keeping the term
+#     bounded (larger gaps simply saturate at 1).
+TEXTURE_SPANS = {
+    "spectral_slope": 4.0,
+    "fractal_dim": 1.0,
+    "slope_entropy_norm": 1.0,
+    "lacunarity_r2": 1.0,
+}
+
 
 def _scale_fabric_signature(spec, aniso):
     """Build the flat scale/fabric ``{field: float}`` dict from a spectral and an
@@ -175,6 +216,80 @@ def scale_fabric_distance(a, b):
     return float(np.mean(subs)) if subs else 0.0
 
 
+def _texture_signature(z, dx=1.0):
+    """Build the flat texture ``{field: float}`` dict for a raw elevation array.
+
+    Collects four complementary map-scale TEXTURE / surface-complexity scalars by
+    calling their source modules directly (lazily imported so this module's
+    default import surface is unchanged): the log-log spectral slope
+    (:func:`terratrace.spectral.spectral_signature`), the differential
+    box-counting fractal dimension
+    (:func:`terratrace.fractal.box_counting_dimension`), the normalised slope
+    entropy (:func:`terratrace.entropy_terrain.entropy_signature`) and the r=2
+    gliding-box lacunarity (:func:`terratrace.lacunarity.lacunarity_signature`).
+    ``dx`` is forwarded to the two spacing-dependent signatures (the fractal
+    dimension and the lacunarity are dx-free). Returns plain floats in
+    :data:`TEXTURE_FIELDS` order (``nan`` where a source scalar is undefined, e.g.
+    the spectral slope or lacunarity of a degenerate tile).
+    """
+    from . import fractal, entropy_terrain, lacunarity
+    za = np.asarray(z, dtype=float)
+    spec = spectral.spectral_signature(za, dx=dx)
+    ent = entropy_terrain.entropy_signature(za, dx=dx)
+    lac = lacunarity.lacunarity_signature(za)
+    return {
+        "spectral_slope": float(spec["spectral_slope"]),
+        "fractal_dim": float(fractal.box_counting_dimension(za)),
+        "slope_entropy_norm": float(ent["slope_entropy_norm"]),
+        "lacunarity_r2": float(lac["lacunarity_r2"]),
+    }
+
+
+def _texture(fp_or_z, dx=1.0):
+    """Resolve a texture ``{field: float}`` dict for a fingerprint or tile.
+
+    A fingerprint dict must carry a :data:`TEXTURE_KEY` entry (build it with
+    ``terrain_fingerprint(..., include_texture=True)``); a raw elevation array is
+    scanned on the fly with :func:`_texture_signature`. Returns a plain
+    ``{field: float}`` dict in :data:`TEXTURE_FIELDS` order.
+    """
+    if isinstance(fp_or_z, dict):
+        if TEXTURE_KEY not in fp_or_z:
+            raise ValueError(
+                "fingerprint has no %r; build it with "
+                "terrain_fingerprint(..., include_texture=True) before "
+                "using the texture similarity term" % TEXTURE_KEY)
+        tx = fp_or_z[TEXTURE_KEY]
+        return {k: float(tx[k]) for k in TEXTURE_FIELDS}
+    return _texture_signature(fp_or_z, dx=dx)
+
+
+def texture_distance(a, b):
+    """Bounded ``[0, 1]`` distance between two texture dicts.
+
+    The texture term of :func:`similarity`. ``a`` and ``b`` are dicts over
+    :data:`TEXTURE_FIELDS` (plain floats). For each field the sub-distance is
+    ``min(1, |a - b| / TEXTURE_SPANS[field])`` -- the native-unit difference
+    normalised by that axis's documented span (:data:`TEXTURE_SPANS`) so the four
+    very differently-scaled scalars are commensurate -- and the distance is the
+    mean of those sub-distances, so it stays in ``[0, 1]``.
+
+    Any sub-distance that is non-finite (e.g. a degenerate tile whose spectral
+    slope or lacunarity is ``nan``) is dropped, and the mean is taken over the
+    sub-distances that remain, so the term stays on the same ``[0, 1]`` footing
+    regardless of how many were available. If NONE are finite the distance is
+    ``0.0`` (no information -> no penalty), keeping :func:`similarity` finite.
+    Returns a plain ``float``.
+    """
+    subs = []
+    for field in TEXTURE_FIELDS:
+        va, vb = float(a[field]), float(b[field])
+        span = float(TEXTURE_SPANS[field])
+        if np.isfinite(va) and np.isfinite(vb) and span > 0.0:
+            subs.append(min(1.0, abs(va - vb) / span))
+    return float(np.mean(subs)) if subs else 0.0
+
+
 def spectrum_tv(a, b):
     """Total-variation distance between two normalised geomorphon spectra.
 
@@ -227,7 +342,7 @@ def _pull(bank, field):
 
 def terrain_fingerprint(z, dx=1.0, window=5, include_landform=False,
                         search=10, skip=0, flat_deg=1.0,
-                        include_scale_fabric=False):
+                        include_scale_fabric=False, include_texture=False):
     """Compute the morphological fingerprint of one elevation tile.
 
     Runs :func:`descriptors.descriptor_bank` once and pulls the fixed subset
@@ -252,8 +367,17 @@ def terrain_fingerprint(z, dx=1.0, window=5, include_landform=False,
     and ``"anisotropy"`` blocks. This is the component consumed by the OPT-IN
     scale/fabric term of :func:`similarity`.
 
-    Both optional entries are purely additive: the FINGERPRINT_FIELDS scalars
-    are left untouched, so by default (both flags False) the fingerprint is
+    When ``include_texture`` is True a third ADDITIVE :data:`TEXTURE_KEY` entry is
+    added holding the flat texture dict over :data:`TEXTURE_FIELDS` -- the
+    ``spectral_slope`` (:func:`terratrace.spectral.spectral_signature`),
+    ``fractal_dim`` (:func:`terratrace.fractal.box_counting_dimension`),
+    ``slope_entropy_norm`` (:func:`terratrace.entropy_terrain.entropy_signature`)
+    and ``lacunarity_r2`` (:func:`terratrace.lacunarity.lacunarity_signature`), as
+    plain floats. This is the component consumed by the OPT-IN texture term of
+    :func:`similarity`.
+
+    All optional entries are purely additive: the FINGERPRINT_FIELDS scalars
+    are left untouched, so by default (all flags False) the fingerprint is
     byte-identical to one built before these components existed and existing
     callers / tests are unchanged.
     """
@@ -266,6 +390,8 @@ def terrain_fingerprint(z, dx=1.0, window=5, include_landform=False,
     if include_scale_fabric:
         fp[SCALE_FABRIC_KEY] = _scale_fabric_signature(bank["spectral"],
                                                        bank["anisotropy"])
+    if include_texture:
+        fp[TEXTURE_KEY] = _texture_signature(np.asarray(z, dtype=float), dx=dx)
     return fp
 
 
@@ -304,7 +430,8 @@ def _morph_distance(fp_a, fp_b, scales=None):
 
 
 def similarity(fp_a, fp_b, scales=None, include_landform=False, landform_weight=1.0,
-               include_scale_fabric=False, scale_fabric_weight=1.0):
+               include_scale_fabric=False, scale_fabric_weight=1.0,
+               include_texture=False, texture_weight=1.0):
     """Morphological similarity in (0, 1]; 1.0 iff the signatures are identical.
 
     Builds both fingerprint vectors (via :func:`fingerprint_vector`, so dicts
@@ -352,9 +479,22 @@ def similarity(fp_a, fp_b, scales=None, include_landform=False, landform_weight=
     strength). Each dict comes from its argument via :func:`_scale_fabric`: a
     fingerprint dict must have been built with
     ``terrain_fingerprint(..., include_scale_fabric=True)`` (else a
-    ``ValueError`` is raised), while a raw array is scanned on the fly. The two
-    opt-in terms are independent and may be combined; with both flags False the
-    behaviour is byte-identical to the morphology-only similarity.
+    ``ValueError`` is raised), while a raw array is scanned on the fly.
+
+    OPT-IN texture term: with ``include_texture=True`` a weighted texture
+    distance is likewise ADDED to ``d``::
+
+        d_total += texture_weight * texture_distance(tex_a, tex_b)
+
+    using :func:`texture_distance` (range ``[0, 1]``) over the two tiles' texture
+    dicts (spectral slope, box-counting fractal dimension, normalised slope
+    entropy, r=2 lacunarity), each sub-distance normalised by its documented
+    :data:`TEXTURE_SPANS` entry. Each dict comes from its argument via
+    :func:`_texture`: a fingerprint dict must have been built with
+    ``terrain_fingerprint(..., include_texture=True)`` (else a ``ValueError`` is
+    raised), while a raw array is scanned on the fly. The three opt-in terms are
+    independent and may be combined; with all flags False the behaviour is
+    byte-identical to the morphology-only similarity.
     """
     d = _morph_distance(fp_a, fp_b, scales=scales)
     if include_landform:
@@ -363,6 +503,9 @@ def similarity(fp_a, fp_b, scales=None, include_landform=False, landform_weight=
     if include_scale_fabric:
         sf = scale_fabric_distance(_scale_fabric(fp_a), _scale_fabric(fp_b))
         d = (0.0 if not np.isfinite(d) else d) + float(scale_fabric_weight) * sf
+    if include_texture:
+        tx = texture_distance(_texture(fp_a), _texture(fp_b))
+        d = (0.0 if not np.isfinite(d) else d) + float(texture_weight) * tx
     if not np.isfinite(d):
         return float("nan")
     return 1.0 / (1.0 + d)
@@ -370,7 +513,8 @@ def similarity(fp_a, fp_b, scales=None, include_landform=False, landform_weight=
 
 def rank_library(query, library, scales=None, include_landform=False,
                  landform_weight=1.0, include_scale_fabric=False,
-                 scale_fabric_weight=1.0):
+                 scale_fabric_weight=1.0, include_texture=False,
+                 texture_weight=1.0):
     """Rank reference terrains by morphological similarity to ``query``.
 
     ``query`` is a fingerprint dict or a raw elevation array; ``library`` is a
@@ -381,22 +525,26 @@ def rank_library(query, library, scales=None, include_landform=False,
     forwarded to :func:`similarity`; the query fingerprint is computed once.
     Morphological resemblance only; not a classification or identity claim.
 
-    ``include_landform`` / ``landform_weight`` and ``include_scale_fabric`` /
-    ``scale_fabric_weight`` are forwarded to :func:`similarity` to add the
-    opt-in landform and scale/fabric terms. When either is enabled and ``query``
-    is a raw array it is fingerprinted WITH the matching component, and every
-    library entry must likewise expose that component (a raw array, or a dict
-    built with the corresponding ``include_*`` flag) or a ``ValueError`` is
-    raised. Defaults (both flags False) preserve the existing behaviour exactly.
+    ``include_landform`` / ``landform_weight``, ``include_scale_fabric`` /
+    ``scale_fabric_weight`` and ``include_texture`` / ``texture_weight`` are
+    forwarded to :func:`similarity` to add the opt-in landform, scale/fabric and
+    texture terms. When any is enabled and ``query`` is a raw array it is
+    fingerprinted WITH the matching component, and every library entry must
+    likewise expose that component (a raw array, or a dict built with the
+    corresponding ``include_*`` flag) or a ``ValueError`` is raised. Defaults (all
+    flags False) preserve the existing behaviour exactly.
     """
     q = (query if isinstance(query, dict)
          else terrain_fingerprint(query, include_landform=include_landform,
-                                  include_scale_fabric=include_scale_fabric))
+                                  include_scale_fabric=include_scale_fabric,
+                                  include_texture=include_texture))
     ranked = [(name, similarity(q, ref, scales=scales,
                                 include_landform=include_landform,
                                 landform_weight=landform_weight,
                                 include_scale_fabric=include_scale_fabric,
-                                scale_fabric_weight=scale_fabric_weight))
+                                scale_fabric_weight=scale_fabric_weight,
+                                include_texture=include_texture,
+                                texture_weight=texture_weight))
               for name, ref in library.items()]
 
     def _key(item):

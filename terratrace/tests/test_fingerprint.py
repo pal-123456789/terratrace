@@ -8,7 +8,8 @@ import json
 
 import numpy as np
 
-from terratrace import fingerprint, synthetic, spectral, anisotropy
+from terratrace import (fingerprint, synthetic, spectral, anisotropy,
+                        fractal, entropy_terrain, lacunarity)
 
 
 def _rough(amplitude, seed, shape=(48, 48)):
@@ -323,3 +324,133 @@ def test_rank_library_scale_fabric_optin_and_missing_raises():
     except ValueError:
         raised = True
     assert raised, "expected ValueError for a fingerprint lacking a scale/fabric block"
+
+
+# --- opt-in texture battery (spectral slope + fractal dim + entropy + lacunarity)
+
+def test_fingerprint_default_has_no_texture_key():
+    z = (synthetic.plane((48, 48), slope_x=0.2, slope_y=0.1) + _rough(2.0, seed=9))
+    fp = fingerprint.terrain_fingerprint(z)              # include_texture=False
+    assert fingerprint.TEXTURE_KEY not in fp
+    assert tuple(fp.keys()) == fingerprint.FINGERPRINT_FIELDS
+
+
+def test_fingerprint_include_texture_is_additive_and_json():
+    z = (synthetic.plane((48, 48), slope_x=0.2, slope_y=0.1) + _rough(2.0, seed=9))
+    base = fingerprint.terrain_fingerprint(z)
+    withtx = fingerprint.terrain_fingerprint(z, include_texture=True)
+    # additive: every FINGERPRINT_FIELDS scalar is byte-identical to the default
+    for field in fingerprint.FINGERPRINT_FIELDS:
+        assert withtx[field] == base[field], field
+    tx = withtx[fingerprint.TEXTURE_KEY]
+    # exactly the 4 documented texture fields, every value a plain float
+    assert set(tx) == set(fingerprint.TEXTURE_FIELDS), set(tx)
+    assert all(type(v) is float for v in tx.values()), tx
+    # this rough + tilted fixture leaves every texture scalar defined (finite)
+    assert all(np.isfinite(v) for v in tx.values()), tx
+    # JSON round-trips exactly and the build is deterministic
+    assert json.loads(json.dumps(withtx)) == withtx
+    assert fingerprint.terrain_fingerprint(z, include_texture=True) == withtx
+
+
+def test_fingerprint_texture_matches_source_signatures():
+    z = (synthetic.plane((48, 48), slope_x=0.1, slope_y=0.2) + _rough(1.5, seed=12))
+    tx = fingerprint.terrain_fingerprint(z, include_texture=True)[
+        fingerprint.TEXTURE_KEY]
+    # each stored scalar equals a direct call to its source module (default dx=1)
+    assert tx["spectral_slope"] == float(
+        spectral.spectral_signature(z)["spectral_slope"])
+    assert tx["fractal_dim"] == float(fractal.box_counting_dimension(z))
+    assert tx["slope_entropy_norm"] == float(
+        entropy_terrain.entropy_signature(z)["slope_entropy_norm"])
+    assert tx["lacunarity_r2"] == float(
+        lacunarity.lacunarity_signature(z)["lacunarity_r2"])
+    # fractal dimension lives in its documented [2, 3] band; entropy in [0, 1]
+    assert 2.0 <= tx["fractal_dim"] <= 3.0, tx["fractal_dim"]
+    assert 0.0 <= tx["slope_entropy_norm"] <= 1.0, tx["slope_entropy_norm"]
+
+
+def test_texture_distance_bounds_symmetry_and_known_values():
+    z = (synthetic.plane((48, 48), slope_x=0.2, slope_y=0.1) + _rough(2.0, seed=14))
+    tx = fingerprint.terrain_fingerprint(z, include_texture=True)[
+        fingerprint.TEXTURE_KEY]
+    other = fingerprint.terrain_fingerprint(_rough(6.0, seed=15),
+                                            include_texture=True)[
+        fingerprint.TEXTURE_KEY]
+    # identical -> 0.0; general pair -> bounded [0,1], symmetric, plain float
+    assert fingerprint.texture_distance(tx, tx) == 0.0
+    d = fingerprint.texture_distance(tx, other)
+    assert type(d) is float and 0.0 <= d <= 1.0, d
+    assert fingerprint.texture_distance(tx, other) == \
+        fingerprint.texture_distance(other, tx)
+    # a hand-built pair maximally separated on every axis (each a full span) -> 1.0
+    a = {"spectral_slope": 0.0, "fractal_dim": 2.0,
+         "slope_entropy_norm": 0.0, "lacunarity_r2": 1.0}
+    b = {"spectral_slope": fingerprint.TEXTURE_SPANS["spectral_slope"],
+         "fractal_dim": 3.0, "slope_entropy_norm": 1.0, "lacunarity_r2": 2.0}
+    assert abs(fingerprint.texture_distance(a, b) - 1.0) < 1e-12
+    # all-NaN components -> 0.0 (no information, no penalty), kept finite
+    nan4 = {k: float("nan") for k in fingerprint.TEXTURE_FIELDS}
+    assert fingerprint.texture_distance(nan4, nan4) == 0.0
+
+
+def test_similarity_texture_term_active_and_opt_in_preserves_default():
+    smooth = (synthetic.gaussian_hill((48, 48), amplitude=12.0, sigma=12.0)
+              + _rough(0.3, seed=41))
+    rough_a = _rough(5.0, seed=21)
+    rough_b = _rough(5.0, seed=22)
+    fp_s = fingerprint.terrain_fingerprint(smooth, include_texture=True)
+    fp_a = fingerprint.terrain_fingerprint(rough_a, include_texture=True)
+    fp_b = fingerprint.terrain_fingerprint(rough_b, include_texture=True)
+
+    # identical signatures -> 1.0 even with the texture term switched on
+    assert fingerprint.similarity(fp_a, fp_a, include_texture=True) == 1.0
+
+    # a valid, bounded similarity in (0, 1] with the texture term active
+    s_diff = fingerprint.similarity(fp_s, fp_a, include_texture=True)
+    assert type(s_diff) is float and 0.0 < s_diff <= 1.0, s_diff
+
+    # a terrain is more texture-similar to ITSELF than to a very different one
+    assert fingerprint.similarity(fp_a, fp_a, include_texture=True) > s_diff
+
+    # same rough process more similar than smooth-vs-rough (texture-aware)
+    s_same = fingerprint.similarity(fp_a, fp_b, include_texture=True)
+    assert s_diff < s_same, (s_diff, s_same)
+
+    # the term is actually active: for a pair with differing texture it strictly
+    # lowers similarity relative to morphology-only
+    s_morph = fingerprint.similarity(fp_s, fp_a, include_texture=False)
+    assert fingerprint.similarity(fp_s, fp_a, include_texture=True) < s_morph
+
+    # opt-out is byte-identical to the pre-existing morphology-only similarity,
+    # and the extra texture key never perturbs the morphology distance
+    assert s_morph == fingerprint.similarity(fp_s, fp_a)
+    s_def = fingerprint.terrain_fingerprint(smooth)
+    a_def = fingerprint.terrain_fingerprint(rough_a)
+    assert fingerprint.similarity(fp_s, fp_a) == \
+        fingerprint.similarity(s_def, a_def)
+
+
+def test_rank_library_texture_optin_and_missing_raises():
+    base_hill = synthetic.gaussian_hill((48, 48), amplitude=12.0, sigma=12.0)
+    library = {
+        "plane": synthetic.plane((48, 48), slope_x=0.05, slope_y=0.0),
+        "moderate_hill": base_hill + _rough(0.8, seed=1),
+        "rough": _rough(10.0, seed=2),
+    }
+    query = base_hill + _rough(0.8, seed=777)
+    # texture-aware ranking over raw arrays (signatures computed on the fly)
+    ranked = fingerprint.rank_library(query, library, include_texture=True)
+    assert ranked[0][0] == "moderate_hill", ranked
+    sims = [s for _, s in ranked]
+    assert sims == sorted(sims, reverse=True), sims
+    assert {name for name, _ in ranked} == set(library)
+
+    # a dict fingerprint built WITHOUT the texture block cannot opt in
+    fp_no_tx = fingerprint.terrain_fingerprint(query)   # include_texture=False
+    raised = False
+    try:
+        fingerprint.similarity(fp_no_tx, fp_no_tx, include_texture=True)
+    except ValueError:
+        raised = True
+    assert raised, "expected ValueError for a fingerprint lacking a texture block"

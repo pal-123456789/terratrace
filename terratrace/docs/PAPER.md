@@ -22,7 +22,7 @@ every result. On a real five-world run (Mars MOLA vs three Copernicus GLO-30 Ear
 the method independently re-identifies a documented basalt analog — Craters of the Moon, Idaho
 — as the closest match on the core roughness/relief axes, while honestly reporting that the
 recommendation does not survive every lens. Everything is offline-reproducible from one command
-and covered by 583 automated tests.
+and covered by 593 automated tests.
 
 ## 1. Problem and approach
 
@@ -61,7 +61,7 @@ compared to the reference with scale-normalized Wasserstein/KS distances.
 **2.3 Decision: Pareto, not a score.** Candidates become vectors of distances-to-reference and
 are ranked by **Pareto dominance** (peeled non-dominated layers + a dominance matrix). The
 result is one of `RECOMMEND_FOLLOW_UP`, `TIE`, `INDETERMINATE`, `NOT_COMPARABLE`, or `BLOCKED`.
-Four **lenses** — core, extended, geomorphic, landform — are independent axis sets; a
+Five **lenses** — core, extended, geomorphic, landform, texture — are independent axis sets; a
 recommendation that holds under more lenses is more robust, and lens disagreement is surfaced,
 not hidden.
 
@@ -150,7 +150,7 @@ vertical-datum error propagation end-to-end into the decision, and a multi-pair 
 
 ```bash
 pip install -r terratrace/requirements.txt      # core: NumPy only
-python terratrace/tests/run_tests.py             # 583 offline tests
+python terratrace/tests/run_tests.py             # 593 offline tests
 python terratrace/scripts/run_validation.py      # 40 correctness oracles
 # real five-world study, one command (needs a free OpenTopography key):
 python terratrace/scripts/run_real_analog_study.py --config config/real_multibody.example.yml

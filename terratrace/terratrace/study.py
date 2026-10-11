@@ -179,6 +179,47 @@ def _landform_dims(lf, cid, reference_id):
     return (axis_spectrum, axis_openness)
 
 
+def _texture_scalars(z, dx):
+    """Three per-unit TEXTURE scalars for the opt-in 'texture' decision lens, each
+    computed on the unit's aggregated grid at its realized common support ``dx``
+    (metres). Imported lazily so the lens stays off the default study path (keeping
+    the core/extended/geomorphic/landform packages and their hashes untouched):
+
+    * ``spectral_slope``   - log-log slope of the radially-averaged power spectral
+      density (Fourier roughness-scaling exponent; :mod:`terratrace.spectral`);
+    * ``fractal_dim``      - differential box-counting fractal dimension in [2, 3]
+      (:mod:`terratrace.fractal`; scale-free, so it takes only ``z``);
+    * ``normal_roughness`` - mean surface-normal dispersion ``1 - R`` in [0, 1]
+      (:mod:`terratrace.normal_roughness`).
+
+    Map-scale MORPHOLOGY / roughness descriptors only - no traversability, hazard,
+    geologic, or mission claim."""
+    from . import spectral, fractal, normal_roughness
+    return {
+        "spectral_slope": float(spectral.spectral_signature(z, dx=dx)["spectral_slope"]),
+        "fractal_dim": float(fractal.box_counting_dimension(z)),
+        "normal_roughness": float(
+            normal_roughness.normal_roughness_signature(z, dx=dx)["roughness_mean"]),
+    }
+
+
+def _texture_dims(tex, cid, reference_id):
+    """Three extra Pareto axes for the 'texture' lens, each a candidate->reference
+    scalar DISTANCE on one texture descriptor, using the SAME relative convention
+    the connectivity-scalar axis uses in :func:`_vector`::
+
+        d = |cand_value - ref_value| / (|ref_value| + 1e-6)
+
+    so the reference against itself is exactly 0.0 on every axis. Returns
+    ``(d_spectral, d_fractal, d_normal)``. Dissimilarity measures only - no
+    traversability/hazard/mission meaning."""
+    def d(key):
+        a = float(tex[cid][key])
+        b = float(tex[reference_id][key])
+        return abs(a - b) / (abs(b) + 1e-6)
+    return (d("spectral_slope"), d("fractal_dim"), d("normal_roughness"))
+
+
 def compare_units(raw_units, rights, native_posting_m, reference_id="mars_reference",
                   target_support_m=100.0, min_valid=0.5, source_label="synthetic",
                   decision_metrics="core", n_boot=0, bootstrap_method="independent",
@@ -229,6 +270,15 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
     if landform or decision_metrics == "landform":
         for uid, a in agg.items():
             lf[uid] = _landform_data(a, dxs[uid])
+    # Texture axes (spectral slope + box-counting fractal dimension + surface-
+    # normal dispersion roughness) are computed ONLY for the opt-in 'texture'
+    # decision lens, on the SAME per-unit aggregated grid at the realized support,
+    # so the core/extended/geomorphic/landform study packages (and their hashes)
+    # are untouched.
+    tex = {}
+    if decision_metrics == "texture":
+        for uid, a in agg.items():
+            tex[uid] = _texture_scalars(a, dxs[uid])
     dx_ref = dxs[reference_id]
     candidate_ids = [u for u in agg if u != reference_id]
     ref_ok, ref_reason = decision.eligibility(meta[reference_id])
@@ -253,6 +303,8 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
                     vec = vec + _geomorphic_dims(geo, cid, reference_id, geo_scales)
                 elif decision_metrics == "landform":
                     vec = vec + _landform_dims(lf, cid, reference_id)
+                elif decision_metrics == "texture":
+                    vec = vec + _texture_dims(tex, cid, reference_id)
                 vecs[cid] = vec
                 if cfg["name"] == "baseline":
                     cand_feats_base[cid] = cand_f
@@ -279,6 +331,8 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
         metric_names += ["mean_curvature", "vector_ruggedness"]
     elif decision_metrics == "landform":
         metric_names += ["landform_spectrum", "openness"]
+    elif decision_metrics == "texture":
+        metric_names += ["spectral_slope", "fractal_dim", "normal_roughness"]
     profile = {"task": "map_scale_terrain_route_study", "target_body": "mars",
                "target_support_m": float(target_support_m), "metrics": metric_names,
                "decision_metrics": decision_metrics,
@@ -380,6 +434,8 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
             extra = {cid: _geomorphic_dims(geo, cid, reference_id, geo_scales) for cid in cand_feats_base}
         elif decision_metrics == "landform":
             extra = {cid: _landform_dims(lf, cid, reference_id) for cid in cand_feats_base}
+        elif decision_metrics == "texture":
+            extra = {cid: _texture_dims(tex, cid, reference_id) for cid in cand_feats_base}
         if bootstrap_method == "block":
             bc = SCENARIOS[0]
             ref_maps = _feature_maps_2d(agg[reference_id], dx_ref, bc["slope_threshold"], bc["relief_alpha"])

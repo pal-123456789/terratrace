@@ -8,7 +8,7 @@ This repository holds two things:
 
 | Path | What it is |
 |---|---|
-| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across four robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **583 tests**, no network required. |
+| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across five robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **593 tests**, no network required. |
 | `site/` | A 3D scroll-animated website telling the project story (deployed on Vercel). |
 
 > **Scope / claim firewall.** TerraTrace screens terrain **morphology** between curated
@@ -25,8 +25,8 @@ correct body, computes map-scale descriptors (slope, relief, ruggedness, connect
 curvature, vector ruggedness, roughness/Hurst, topographic openness, geomorphon landforms,
 spectral slope, directional fabric, …),
 and ranks candidate terrains by **Pareto dominance** — never a composite "Mars-likeness" score.
-It returns a recommendation only when it survives four independent decision lenses (core,
-extended, geomorphic, landform), reports an honest TIE/INDETERMINATE/BLOCKED state
+It returns a recommendation only when it survives five independent decision lenses (core,
+extended, geomorphic, landform, texture), reports an honest TIE/INDETERMINATE/BLOCKED state
 otherwise, and carries measurement uncertainty, a spatial block-bootstrap, significance tests,
 a transfer-gap ledger, and a full provenance appendix. On request it also attaches a map-scale
 **scale & fabric** layer — a radially-averaged power spectrum (spectral slope, band roughness,
@@ -45,7 +45,7 @@ viewer are generated per study.
 ```bash
 cd terratrace
 pip install -r requirements.txt            # core (NumPy only)
-python tests/run_tests.py                   # 583 fixtures, offline
+python tests/run_tests.py                   # 593 fixtures, offline
 python scripts/run_validation.py            # scientific-correctness suite
 python -m terratrace.cli --out artifacts    # synthetic study
 python -m terratrace.build_viewer           # viewer/index.html
