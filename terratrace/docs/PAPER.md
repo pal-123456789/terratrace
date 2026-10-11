@@ -107,6 +107,14 @@ The defensible conclusion is therefore **lens-conditional**: *Craters of the Moo
 analog for surface roughness and local shape; it is not uniquely best for directional/elevation
 structure.* No single number could have said that honestly.
 
+**Corroboration at scale.** Running the one-command atlas over four distinct Mars terrains
+(Jezero and Gale crater floors; Daedalia Planum and Elysium Planitia volcanic plains) against the
+same three Earth candidates under all four lenses (16 reference×lens cells) makes the result
+sharper: Craters of the Moon is Pareto non-dominated in **every** cell — the sole consensus analog
+— and is the *decisive* recommendation for the volcanic plains under three of four lenses, while
+the crater floors tie more often (no clean crater-floor analog among the three). The engine points
+confidently where the morphology agrees and abstains where it does not. See `REAL-EXAMPLE.md`.
+
 ## 5. Validation
 
 Correctness is pinned by a scientific-correctness suite of 29 oracles that drive the real

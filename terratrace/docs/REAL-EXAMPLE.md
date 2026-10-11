@@ -86,6 +86,28 @@ transfer gap the ledger exists to flag. A cleaner run uses comparable-footprint 
 the Mars `bbox` in the config to a ~0.5° window over one specific unit (e.g. a lava plain in
 Daedalia Planum) and re-run.
 
+## Multi-region atlas (real)
+
+Scaling up with the one-command atlas (`config/mars_regions_atlas.example.yml`): four Mars
+terrains — **Jezero** and **Gale** crater floors, and the **Daedalia Planum** and **Elysium
+Planitia** volcanic plains, each a MOLA window — screened against the three Earth candidates
+under all four lenses (16 reference×lens cells). Lens-robustness synthesis:
+
+| candidate | layer-1 freq | recommended freq | consensus |
+|---|---|---|---|
+| **Craters of the Moon** | **100%** | 50% | ✓ |
+| Nevada basin | 50% | 0% | — |
+| Andean volcano | 19% | 0% | — |
+
+Craters of the Moon is Pareto non-dominated in **every one of the 16 cells** — the sole consensus
+analog across four different Mars terrains and four independent lenses. The per-terrain detail is
+geologically coherent: for the **volcanic plains** (Daedalia Planum, Elysium Planitia), Craters of
+the Moon — itself a basalt lava field — is the decisive recommendation under three of the four
+lenses; for the **crater floors**, Jezero recommends it under core and geomorphic but ties on the
+others, and Gale ties under all four — honestly reflecting that none of these three Earth sites is
+a clean crater-floor analog. The tool points confidently where the morphology agrees and abstains
+where it does not.
+
 ## Scale-resolved view (real)
 
 Running the scale profile on the same data (`scripts/run_scale_profile.py`, core lens,
