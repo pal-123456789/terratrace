@@ -3,6 +3,42 @@
 Complete build history of TerraTrace, generated from the git commit messages
 (newest first). Each entry is the exact message recorded with that commit.
 
+## Unreleased — One-command real multi-body analog study: run_real_analog_study.py orchestrator
+
+*Prepared 2026-10-11 by Pal Ghevariya (pending commit — hash assigned at commit time; builds on the pending scale & fabric push)*
+
+A single flagship entry point that runs the entire real multi-body analog study end to end. It
+only orchestrates existing, already-tested modules, so it adds no new claim and the canonical
+synthetic study hash is UNCHANGED.
+
+scripts/run_real_analog_study.py (new): one command takes a config and runs the whole pipeline —
+config -> preflight (schema + every AOI bbox, no network) -> fetch the covering DEM per unit
+(or --synthetic to run on built-in synthetic terrains, or --dry-run to stop after preflight) ->
+a full-depth study (significance, spatial block bootstrap, landform lens, terrain_spectra, and
+hillshade previews all on) -> decision confidence -> a complete, self-consistent bundle:
+study.json, report.md, report.html, a self-contained offline viewer, REFERENCES, a sha256
+CHECKSUMS manifest, and confidence.json. The offline --synthetic / --dry-run modes make the whole
+orchestrator exercisable with no network and no API key.
+
+config/real_multibody.example.yml (new): a curated, ready-to-run config — a Mars reference AOI
+plus Earth analog candidate AOIs, with the depth flags (significance / bootstrap / landform /
+terrain_spectra / previews) switched on — so the one command produces a full-depth bundle out of
+the box.
+
+REAL-DATA-RUNBOOK.md: rewritten around the one-command path (the manual fetch -> profile ->
+run_real_study sequence is retained for stepwise runs).
+
+Tests: +2 offline fixtures covering the orchestrator (its --synthetic / --dry-run paths run with
+no network), so the suite is now 472; the default study path and its gated package_hash are
+untouched.
+
+Claim firewall unchanged: this is orchestration over the existing map-scale morphology engine —
+NOT a traversability, hazard, geologic-equivalence, or mission-readiness claim; not NASA-endorsed.
+
+472 fixture tests, all passing, no network required.
+
+---
+
 ## Unreleased — Scale & fabric: radially-averaged power spectrum + directional terrain anisotropy
 
 *Prepared 2026-10-11 by Pal Ghevariya (pending commit — hash assigned at commit time; builds on the pending significance/confidence push)*

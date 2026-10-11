@@ -20,6 +20,11 @@ source and a transformation.
 
 ## What runs today (verified)
 
+- **One-command real multi-body study:** `scripts/run_real_analog_study.py` runs the entire real
+  pipeline from one config — preflight, fetch (or offline `--synthetic` / `--dry-run`), a
+  full-depth study (significance, block bootstrap, landform, terrain spectra, previews), decision
+  confidence, and a complete bundle (study.json, report.md, report.html, offline viewer,
+  REFERENCES, CHECKSUMS, confidence.json). See [REAL-DATA-RUNBOOK.md](REAL-DATA-RUNBOOK.md).
 - Pure-NumPy morphology engine: slope, local relief, detrended ruggedness, low-slope
   connectivity.
 - **Multi-body screening — five reference bodies (Earth, Mars, Moon, Mercury, Ceres):**
@@ -240,10 +245,10 @@ source and a transformation.
   closer candidate provably dominates and is recommended, a flat/water tile is blocked,
   and the whole pipeline is deterministic. A reproducibility + performance harness pins
   behavioural invariants, checks hash stability, and profiles wall-clock scaling.
-- 470 fixture tests with known analytic answers, all passing, no network required.
+- 472 fixture tests with known analytic answers, all passing, no network required.
 
 ```
-passed=470 failed=0
+passed=472 failed=0
 ```
 
 ## Install
@@ -262,7 +267,7 @@ pip install -r requirements-real.txt      # rasterio + requests (real DEMs)
 ```bash
 PYTHONPATH=. python3 -m terratrace.cli --out artifacts
 PYTHONPATH=. python3 -m terratrace.build_viewer      # writes viewer/index.html
-PYTHONPATH=. python3 tests/run_tests.py              # 470 tests
+PYTHONPATH=. python3 tests/run_tests.py              # 472 tests
 ```
 
 Open `viewer/index.html` in any browser — it is self-contained and works offline.
@@ -384,11 +389,11 @@ terratrace/
     dossier.py       per-candidate decision brief (structured dict + Markdown)
     build_viewer.py  self-contained HTML viewer
     cli.py           unified dispatcher: study / validate / benchmark / report / report-html / dossier / confidence / version
-  tests/             470 fixture tests + dependency-free runner
+  tests/             472 fixture tests + dependency-free runner
   artifacts/         generated study package (JSON + checksums + manifest)
   viewer/            generated offline HTML viewer
-  config/            AOI configuration for real runs
-  scripts/           fetch (+preflight) / profile / validate / benchmark / make_report / make_html_report / make_references / verify_study / fingerprint_search / run / run_batch_study
+  config/            AOI configuration for real runs (incl. real_multibody.example.yml)
+  scripts/           fetch (+preflight) / profile / validate / benchmark / make_report / make_html_report / make_references / verify_study / fingerprint_search / run / run_batch_study / run_real_analog_study
 ```
 
 ## Scientific method

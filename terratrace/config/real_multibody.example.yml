@@ -1,0 +1,120 @@
+# TerraTrace REAL multi-body analog study (example, depth flags ON).
+#
+# One config, one command: scripts/run_real_analog_study.py reads this file and
+# produces a FULL result bundle (study.json + Markdown/HTML report + offline
+# viewer + REFERENCES + CHECKSUMS + confidence.json) in a single directory.
+#
+# This is a MORPHOLOGY SCREENING study: it compares the map-scale SHAPE of real
+# Earth terrain windows against a real Mars window at a common support. It makes
+# NO traversability, geologic-equivalence, site-access, or mission-readiness
+# claim. Every Earth AOI below is an ILLUSTRATIVE terrestrial analog chosen for
+# its surface morphology; `access_status: unknown` is deliberate -- land access,
+# permits, and ground truth MUST be verified independently before any fieldwork.
+#
+# OFFLINE first: you can exercise the whole pipeline with no network and no
+# rasterio using the orchestrator's --dry-run (preflight only) and --synthetic
+# (deterministic surfaces) modes. The REAL path downloads Earth DEMs on a
+# networked machine (needs OPENTOPO_API_KEY + rasterio); the Mars MOLA reference
+# is downloaded once from USGS Astrogeology (see the reference block below).
+
+# --- Common support + decision knobs ---------------------------------------
+# Mars MOLA ~463 m is the limiting support, so a 1000 m common support is a safe
+# default: every unit is aggregated UP to 1000 m before any feature is computed.
+target_support_m: 1000.0
+min_valid_fraction: 0.5
+# Warp each AOI to its own local azimuthal-equidistant metric grid (correct
+# cross-body comparison). Set false for the simpler same-dx fallback.
+reproject: true
+# Pareto decision axes. "extended" = core (slope/relief/ruggedness/connectivity)
+# plus aspect dispersion + hypsometric integral -- a built-in robustness ablation
+# (does the recommendation survive a different, proven axis set?).
+decision_metrics: extended
+
+# --- Depth flags (ON): a richer, honest bundle ------------------------------
+# Bootstrap resamples for distance confidence intervals + Pareto non-domination
+# frequency (0 = off). 300 is a good value for a real run and feeds the
+# "bootstrap non-domination" decision-confidence signal.
+n_boot: 300
+# Opt-in permutation significance on the recommendation vs the runner-up
+# (distribution-shape resampling statistics only -- not a physical/mission claim).
+significance: true
+n_perm: 1000
+# Opt-in per-unit landform block (geomorphon composition/spectrum + topographic
+# openness) and per-unit terrain-spectra block (radial PSD roughness signature +
+# directional-fabric anisotropy). Map-scale morphology descriptors only.
+landform: true
+terrain_spectra: true
+# Inline, self-contained hillshade (and, with landform, landform/openness) preview
+# PNGs embedded as data-URIs in the package -- visualisation aids only.
+previews: true
+
+# --- Reference: a bounded Mars window from the MOLA 463 m DEM ---------------
+# Download 'Mars MGS MOLA DEM 463m' (GeoTIFF) once from USGS Astrogeology:
+#   https://astrogeology.usgs.gov/search/map/mars_mgs_mola_dem_463m
+# and save it to data/mars/mola_463m.tif. The bbox crops a bounded window in the
+# FILE's CRS (MOLA 463 m is simple-cylindrical in DEGREES; this file uses the
+# 0..360 east longitude convention). west, south, east, north:
+reference:
+  id: mars_reference
+  path: data/mars/mola_463m.tif
+  body: mars
+  native_posting_m: 463.0
+  is_reference: true
+  rights_status: verified_allowed        # NASA PDS / USGS Astrogeology public data
+  # ~10x10 deg equatorial window. Large enough to trip the preflight AREA sizing
+  # WARNING (advisory, not a hard fail) -- shrink it for a smaller download.
+  bbox: [120.0, -5.0, 130.0, 5.0]
+
+# --- Earth candidates: illustrative terrestrial analogs (COP30, GLO-30) -----
+# bbox is (west, south, east, north) in degrees. All kept on land (no ocean-zero
+# contamination). access_status: unknown -- verify access before any fieldwork.
+earth_units:
+  - id: earth_nevada_basin
+    path: data/earth/nevada_basin_cop30.tif
+    body: earth
+    demtype: COP30
+    # Basin-and-range desert near Las Vegas, NV: low-relief alluvial basin floors
+    # bounded by faulted ranges -- an illustrative arid analog.
+    bbox: [-115.80, 36.00, -115.40, 36.40]
+    native_posting_m: 30.0
+    rights_status: verified_allowed
+    access_status: unknown                 # must be verified before any fieldwork
+
+  - id: earth_craters_of_the_moon
+    path: data/earth/craters_of_the_moon_cop30.tif
+    body: earth
+    demtype: COP30
+    # Craters of the Moon basaltic lava field, Idaho: a classic terrestrial
+    # Mars/Moon analog, entirely on land (no ocean-zero contamination).
+    bbox: [-113.60, 43.30, -113.30, 43.60]
+    native_posting_m: 30.0
+    rights_status: verified_allowed
+    access_status: unknown
+
+  - id: earth_andean_volcano
+    path: data/earth/andean_volcano_cop30.tif
+    body: earth
+    demtype: COP30
+    # Equatorial Andean volcanic terrain (Ecuador): steep stratovolcano flanks
+    # and radial drainage -- a distinct high-relief volcanic analog.
+    bbox: [-78.60, -0.20, -78.30, 0.10]
+    native_posting_m: 30.0
+    rights_status: verified_allowed
+    access_status: unknown
+
+# --- OPTIONAL: swap the reference to the Moon (LOLA) ------------------------
+# TerraTrace is multi-body. To run the SAME Earth slate against a lunar
+# reference, download 'Lunar LRO LOLA DEM 118m' from USGS Astrogeology, save it
+# to data/moon/lola_dem.tif, and replace the `reference:` block above with:
+#
+# reference:
+#   id: moon_reference
+#   path: data/moon/lola_dem.tif
+#   body: moon
+#   native_posting_m: 118.0
+#   is_reference: true
+#   rights_status: verified_allowed        # NASA LRO LOLA / USGS public data
+#   bbox: [40.0, -5.0, 50.0, 5.0]          # example bounded lunar window (0..360 lon)
+#
+# (Bump target_support_m if you compare bodies with very different native
+# postings; the common support must be >= every unit's native posting.)
