@@ -86,6 +86,27 @@ transfer gap the ledger exists to flag. A cleaner run uses comparable-footprint 
 the Mars `bbox` in the config to a ~0.5° window over one specific unit (e.g. a lava plain in
 Daedalia Planum) and re-run.
 
+## Scale-resolved view (real)
+
+Running the scale profile on the same data (`scripts/run_scale_profile.py`, core lens,
+supports 1000–4000 m) shows the best analog is **not** scale-invariant. Overall core distance
+to Mars per candidate (lower = closer):
+
+| support (m) | best analog | Craters of the Moon | Nevada basin | Andean volcano |
+|---|---|---|---|---|
+| 1000 | Craters of the Moon | **1.32** | 2.41 | 2.95 |
+| 1500 | — (tie) | **1.35** | 2.11 | 2.31 |
+| 2000 | — (tie) | **1.35** | 2.11 | 2.31 |
+| 3000 | Craters of the Moon | **1.33** | 2.09 | 2.12 |
+| 4000 | Craters of the Moon | **1.32** | 2.33 | 2.01 |
+
+Craters of the Moon is Pareto non-dominated at **every** scale (its analog scale-band spans the
+whole 1000–4000 m sweep), reinforcing the atlas result. But the Andean volcano is non-dominated
+only in the **1500–2000 m band**, where the candidates tie — its mid-scale (~1.5–2 km) texture is
+where it most resembles this Mars window, and it steadily closes the gap as the support coarsens
+(2.95 → 2.01). Quantifying the scale over which an analogy holds — and seeing it change — is
+something a single-support comparison cannot do.
+
 ## Reproduce
 
 See `REAL-DATA-RUNBOOK.md`. Everything is hash-anchored and offline-reproducible from the

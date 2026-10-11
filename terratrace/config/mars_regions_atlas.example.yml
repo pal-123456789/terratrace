@@ -1,0 +1,73 @@
+# TerraTrace — multi-region Mars analog ATLAS (example).
+#
+# Screens SEVERAL named Mars terrains (each a window cropped from the one global
+# MOLA 463 m file you already downloaded) against the three Earth candidates you
+# already fetched, under all four decision lenses. No new downloads: run it with
+#   py scripts/run_analog_atlas.py --config config/mars_regions_atlas.example.yml --skip-fetch
+#
+# This grows the evidence from one Mars window into a cross-terrain catalog:
+# "which Earth site is the robust morphological analog for each kind of Mars
+# terrain?" — a volcanic plain vs a crater floor may prefer different analogs.
+#
+# REQUIRES the GLOBAL "Mars MGS MOLA DEM 463m" GeoTIFF at data/mars/mola_463m.tif
+# (these windows span the planet). The bboxes are APPROXIMATE windows over the
+# named features, in the MOLA file's 0..360 deg-East convention; adjust to taste.
+# Scope firewall: map-scale morphology screening only — illustrative analogs, not
+# endorsed field sites, no traversability/geologic/mission claim.
+
+target_support_m: 1000.0
+reproject: true
+decision_modes: [core, extended, geomorphic, landform]
+
+references:
+  - id: mars_jezero                 # Jezero crater (Perseverance) ~77.4E 18.4N
+    path: data/mars/mola_463m.tif
+    body: mars
+    native_posting_m: 463.0
+    is_reference: true
+    rights_status: verified_allowed
+    bbox: [75.0, 16.0, 80.0, 21.0]
+  - id: mars_gale                   # Gale crater (Curiosity) ~137.8E -5.4N
+    path: data/mars/mola_463m.tif
+    body: mars
+    native_posting_m: 463.0
+    is_reference: true
+    rights_status: verified_allowed
+    bbox: [135.3, -7.9, 140.3, -2.9]
+  - id: mars_daedalia_planum        # Daedalia Planum lava flows (basalt plains) ~226.5E -21.5N
+    path: data/mars/mola_463m.tif
+    body: mars
+    native_posting_m: 463.0
+    is_reference: true
+    rights_status: verified_allowed
+    bbox: [224.0, -24.0, 229.0, -19.0]
+  - id: mars_elysium_planitia       # Elysium Planitia smooth volcanic plains ~150E 4.5N
+    path: data/mars/mola_463m.tif
+    body: mars
+    native_posting_m: 463.0
+    is_reference: true
+    rights_status: verified_allowed
+    bbox: [147.5, 2.0, 152.5, 7.0]
+
+candidates:
+  - id: earth_nevada_basin
+    path: data/earth/nevada_basin_cop30.tif
+    body: earth
+    demtype: COP30
+    native_posting_m: 30.0
+    rights_status: verified_allowed
+    bbox: [-115.80, 36.00, -115.40, 36.40]
+  - id: earth_craters_of_the_moon
+    path: data/earth/craters_of_the_moon_cop30.tif
+    body: earth
+    demtype: COP30
+    native_posting_m: 30.0
+    rights_status: verified_allowed
+    bbox: [-113.60, 43.30, -113.30, 43.60]
+  - id: earth_andean_volcano
+    path: data/earth/andean_volcano_cop30.tif
+    body: earth
+    demtype: COP30
+    native_posting_m: 30.0
+    rights_status: verified_allowed
+    bbox: [-78.60, -0.20, -78.30, 0.10]
