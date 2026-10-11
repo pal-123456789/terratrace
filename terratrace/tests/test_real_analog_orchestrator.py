@@ -1,9 +1,11 @@
 """Offline tests for the one-command analog-study orchestrator.
 
-Dependency-free (plain top-level ``test_*`` + ``assert``), and strictly OFFLINE:
-only the --synthetic (deterministic surfaces) and --dry-run (preflight) paths are
-exercised, so no network call and no rasterio import ever happens. The REAL
-download path is intentionally not tested here.
+Dependency-free (plain top-level ``test_*`` + ``assert``), strictly OFFLINE, and
+IMPORTANTLY yaml-free: the orchestration is driven through ``run_from_config``
+with a plain Python dict, so neither PyYAML (a requirements-real extra, absent in
+the NumPy-only CI env) nor rasterio nor any network is needed. Only the
+--synthetic (deterministic surfaces) and --dry-run (preflight) paths are
+exercised; the REAL download path is intentionally not tested here.
 """
 import importlib.util
 import json
@@ -13,7 +15,7 @@ import sys
 import tempfile
 
 HERE = pathlib.Path(__file__).resolve().parent
-ROOT = HERE.parent                                   # repo root (holds terratrace/, scripts/, config/)
+ROOT = HERE.parent                                   # repo root (terratrace/, scripts/, config/)
 SCRIPT = ROOT / "scripts" / "run_real_analog_study.py"
 CONFIG = ROOT / "config" / "real_multibody.example.yml"
 
@@ -24,9 +26,9 @@ _VALID_STATES = {"RECOMMEND_FOLLOW_UP", "TIE", "INDETERMINATE", "NOT_COMPARABLE"
 def _load_orchestrator():
     """Import scripts/run_real_analog_study.py as a module.
 
-    The script inserts the repo root onto sys.path at import time, so its own
-    ``from terratrace import ...`` resolves; we also insert it here so this test
-    file can be run from anywhere.
+    The script no longer imports PyYAML at module top (yaml is lazy, only in
+    _load_config), so importing it here is yaml-free; it also inserts the repo
+    root onto sys.path so its ``from terratrace import ...`` resolves.
     """
     if str(ROOT) not in sys.path:
         sys.path.insert(0, str(ROOT))
@@ -36,20 +38,40 @@ def _load_orchestrator():
     return mod
 
 
-def _call_main(argv):
-    """Run ``main(argv)``, returning its exit code whether it returns a code or
-    raises ``SystemExit`` (argparse / --dry-run). ``None`` is treated as 0."""
-    mod = _load_orchestrator()
-    try:
-        rc = mod.main(argv)
-    except SystemExit as exc:
-        rc = exc.code
-    return 0 if rc is None else rc
+def _cfg():
+    """A compact, valid multi-body config DICT (no YAML needed) with the depth
+    flags ON and small resampling counts for a fast offline run."""
+    return {
+        "target_support_m": 1000.0,
+        "min_valid_fraction": 0.5,
+        "reproject": True,
+        "decision_metrics": "extended",
+        "n_boot": 40,
+        "significance": True,
+        "n_perm": 120,
+        "landform": True,
+        "terrain_spectra": True,
+        "previews": True,
+        "reference": {
+            "id": "mars_reference", "body": "mars", "is_reference": True,
+            "rights_status": "verified_allowed", "native_posting_m": 463.0,
+            "bbox": [120.0, -5.0, 130.0, 5.0], "path": "data/mars/mola_463m.tif",
+        },
+        "earth_units": [
+            {"id": "earth_a", "body": "earth", "demtype": "COP30",
+             "native_posting_m": 30.0, "rights_status": "verified_allowed",
+             "bbox": [-115.80, 36.00, -115.40, 36.40], "path": "data/earth/a_cop30.tif"},
+            {"id": "earth_b", "body": "earth", "demtype": "COP30",
+             "native_posting_m": 30.0, "rights_status": "verified_allowed",
+             "bbox": [-113.60, 43.30, -113.30, 43.60], "path": "data/earth/b_cop30.tif"},
+        ],
+    }
 
 
 def test_synthetic_end_to_end():
+    mod = _load_orchestrator()
     out = tempfile.mkdtemp(prefix="ras_syn_")
-    rc = _call_main(["--config", str(CONFIG), "--synthetic", "--out", out])
+    rc = mod.run_from_config(_cfg(), out=out, synthetic=True)
     assert rc == 0, f"synthetic run returned {rc!r}"
 
     for name in ("study.json", "report.html", "confidence.json"):
@@ -69,10 +91,25 @@ def test_synthetic_end_to_end():
 
 
 def test_dry_run_offline():
-    # Preflight is fully offline; it must exit cleanly (0 = clean, 2 = problems)
-    # and nothing else.
-    rc = _call_main(["--config", str(CONFIG), "--dry-run"])
+    # Preflight is fully offline; it returns 0 (clean) / 2 (problems), nothing else.
+    mod = _load_orchestrator()
+    rc = mod.run_from_config(_cfg(), dry_run=True)
     assert rc in (0, 2), f"dry-run exit code was {rc!r}"
+
+
+def test_example_config_parses_when_yaml_available():
+    # Validates the SHIPPED YAML example end-to-end only where PyYAML is
+    # installed (requirements-real); in the NumPy-only CI env this is skipped
+    # (treated as a pass) rather than failing on a missing optional dependency.
+    try:
+        import yaml  # noqa: F401
+    except ImportError:
+        return
+    mod = _load_orchestrator()
+    cfg = mod._load_config(str(CONFIG))
+    assert isinstance(cfg, dict)
+    assert "reference" in cfg and "earth_units" in cfg
+    assert cfg["reference"].get("is_reference") is True
 
 
 if __name__ == "__main__":

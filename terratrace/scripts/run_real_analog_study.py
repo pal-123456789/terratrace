@@ -33,8 +33,6 @@ import json
 import os
 import sys
 
-import yaml
-
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from terratrace import study, bundle, confidence, preflight, synthetic
 
@@ -42,7 +40,13 @@ HONEST_NOTE = ("NOTE: map-scale terrain-MORPHOLOGY screening + resampling statis
                "no traversability, geologic-equivalence, site-access, or mission-readiness claim.")
 
 def _load_config(path):
-    """Parse the YAML AOI config into a plain dict."""
+    """Parse the YAML AOI config into a plain dict.
+
+    PyYAML is imported LAZILY here (not at module top) so the engine's offline
+    tests can drive run_from_config() with a plain dict without requiring PyYAML
+    -- the NumPy-only CI environment has no yaml (it ships in requirements-real).
+    """
+    import yaml
     with open(path, encoding="utf-8") as fh:
         return yaml.safe_load(fh)
 
@@ -83,10 +87,10 @@ def _print_preflight(report):
 
 
 def _dry_run(cfg):
-    """--dry-run: preflight only (offline), then exit 0 (clean) / 2 (problems)."""
+    """--dry-run: preflight only (offline). Return 0 (clean) / 2 (problems)."""
     report = preflight.preflight_config(cfg)
     _print_preflight(report)
-    sys.exit(0 if report["ok"] else 2)
+    return 0 if report["ok"] else 2
 
 def _synthetic_package(cfg):
     """--synthetic: build deterministic OFFLINE surfaces and run the real
@@ -218,6 +222,25 @@ def _finish(package, out):
     return 0
 
 
+def run_from_config(cfg, out="artifacts/real_study", dry_run=False,
+                    synthetic=False, skip_fetch=False):
+    """Drive the whole pipeline from an already-parsed config DICT.
+
+    Factored out of main() with NO YAML/file I/O so the orchestration is
+    unit-testable offline without PyYAML. Returns an exit code (0 = clean;
+    --dry-run returns 0/2). REAL mode may sys.exit on a missing key / DEM.
+    """
+    if dry_run:
+        return _dry_run(cfg)
+    if synthetic:
+        print("[mode] synthetic (deterministic offline surfaces)")
+        package = _synthetic_package(cfg)
+    else:
+        print("[mode] real (download + rasterio)")
+        package = _real_package(cfg, skip_fetch)
+    return _finish(package, out)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(
         description="One-command real multi-body analog study for TerraTrace "
@@ -231,21 +254,9 @@ def main(argv=None):
     ap.add_argument("--skip-fetch", action="store_true",
                     help="REAL mode: assume DEMs are already on disk; do not download")
     args = ap.parse_args(argv)
-
     cfg = _load_config(args.config)
-
-    if args.dry_run:
-        _dry_run(cfg)        # calls sys.exit(0/2)
-        return 0             # unreachable; kept for a non-exiting caller
-
-    if args.synthetic:
-        print("[mode] synthetic (deterministic offline surfaces)")
-        package = _synthetic_package(cfg)
-    else:
-        print("[mode] real (download + rasterio)")
-        package = _real_package(cfg, args.skip_fetch)
-
-    return _finish(package, args.out)
+    return run_from_config(cfg, out=args.out, dry_run=args.dry_run,
+                           synthetic=args.synthetic, skip_fetch=args.skip_fetch)
 
 
 if __name__ == "__main__":
