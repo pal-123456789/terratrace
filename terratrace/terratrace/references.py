@@ -256,6 +256,16 @@ METHOD_REFERENCES = (
                      "of Geophysical Research: Planets, 105(E11), 26695-26711."),
         "doi": None,
     },
+    {
+        "id": "iwahashi_pike_2007",
+        "topic": ("Automated terrain classification (three-part geometric "
+                  "signature + nested-means)"),
+        "citation": ("Iwahashi, J., & Pike, R. J. (2007). Automated classifications "
+                     "of topography from DEMs by an unsupervised nested-means "
+                     "algorithm and a three-part geometric signature. "
+                     "Geomorphology, 86(3-4), 409-440."),
+        "doi": None,
+    },
 )
 
 

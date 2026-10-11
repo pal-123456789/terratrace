@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from . import features, openness, geomorphons, spectral, anisotropy, kh_roughness
+from . import features, openness, geomorphons, spectral, anisotropy, kh_roughness, iwahashi_pike
 
 _SUMMARY_KEYS = ("mean", "std", "p10", "p50", "p90")
 
@@ -91,6 +91,17 @@ def descriptor_bank(z, dx=1.0, window=5):
     metric, computed at the bank's ``dx``; a flat dict of plain floats with a
     float-keyed ``profile`` sub-dict, JSON-serialisable.
 
+    An Iwahashi & Pike (2007) terrain-signature sub-dict is appended likewise
+    (append-only analysis layer, NOT read by any decision): ``"iwahashi_pike"`` --
+    the :func:`terratrace.iwahashi_pike.iwahashi_pike_signature` dict (the
+    three-part geometric-signature tile means ``slope_mean`` / ``convexity_mean``
+    / ``texture_mean``, the first-level nested-means ``composition`` over the 8
+    classes "0".."7", and the integer ``dominant_class``). This is the
+    first-level, 8-class geometric-signature classification of Iwahashi & Pike
+    (2007), computed at the bank's ``dx``; a JSON-serialisable dict of plain
+    floats + a string-keyed float ``composition`` + an int, complementary to the
+    geomorphon landform classifier.
+
     These are map-scale morphology descriptors only. No traversability,
     mechanical, or mission claim is implied by any value in the bank.
     """
@@ -142,6 +153,12 @@ def descriptor_bank(z, dx=1.0, window=5):
         #     Flat dict of plain floats + a float-keyed profile dict,
         #     JSON-serialisable. ---
         "kh_roughness": kh_roughness.kh_roughness_signature(z, dx=dx),
+        # --- Iwahashi & Pike (2007) three-part geometric signature + first-level
+        #     nested-means terrain classification (append-only; NOT used by the
+        #     study decision). slope/convexity/texture tile means, the 8-class
+        #     composition ("0".."7") and the dominant class; JSON-serialisable,
+        #     complementary to the geomorphon landform classifier. ---
+        "iwahashi_pike": iwahashi_pike.iwahashi_pike_signature(z, dx=dx),
     }
 
 

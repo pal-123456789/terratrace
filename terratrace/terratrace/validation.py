@@ -58,7 +58,8 @@ from __future__ import annotations
 import numpy as np
 
 from . import (study, synthetic, provenance, features, openness, geomorphons,
-               confidence, spectral, anisotropy, multiscale, kh_roughness)
+               confidence, spectral, anisotropy, multiscale, kh_roughness,
+               iwahashi_pike)
 
 # Isolate the morphology math from aggregation smoothing: native == target gives
 # an aggregation factor of 1, so features are computed on the grids as built.
@@ -720,6 +721,54 @@ def check_kh_roughness_plane_is_zero_rough_discriminates(tol=1e-6):
                    plane_roughness=float(r_plane), rough_roughness=float(r_rough))
 
 
+# --- Iwahashi & Pike (2007) geometric-signature oracle ----------------------
+# Two map-scale MORPHOLOGY signatures of the IP07 three-part descriptor checked
+# directly (not through the comparison pipeline) against their defining
+# behaviour on synthetic surfaces with a KNOWN answer: surface texture
+# (pit-and-peak frequency) must DISCRIMINATE roughness -- a seeded rough field
+# has a strictly greater mean texture than a smooth tilted plane (whose 3x3
+# median residual is ~0) -- and local convexity must separate a radial DOME (a
+# local high, convex) from a radial BASIN (a local low, concave) at its centre.
+# dx = 1 m, 80x80. Seeds are fixed (host-independent PCG64) and only the
+# pass/fail boolean enters the outcome hash; both asserted bounds are decisive
+# (texture ~55 vs 0; convexity 100 vs 0), so the check is deterministic and
+# host-independent. Map-scale morphology classification only -- no
+# traversability, hazard, geologic, or mission claim.
+_IP_SHAPE = (80, 80)
+_IP_DX = 1.0
+
+
+def check_iwahashi_pike_texture_and_convexity():
+    """The Iwahashi & Pike (2007) signatures behave as their definitions require:
+    (a) a seeded ROUGH random field has a strictly GREATER mean surface texture
+    (pit-and-peak frequency) than a smooth tilted plane -- texture discriminates
+    roughness; and (b) a radial DOME (z decreasing with radius; a convex local
+    high) has a HIGHER local convexity at its centre than a radial BASIN (z
+    increasing with radius; a concave low) does at its centre. PASS iff both."""
+    plane = synthetic.plane(_IP_SHAPE, slope_x=0.02, dx=_IP_DX)
+    rough = plane + synthetic.rough_field(_IP_SHAPE, amplitude=2.0, seed=101)
+    t_smooth = float(np.nanmean(iwahashi_pike.surface_texture(plane, dx=_IP_DX)))
+    t_rough = float(np.nanmean(iwahashi_pike.surface_texture(rough, dx=_IP_DX)))
+    texture_ok = (np.isfinite(t_smooth) and np.isfinite(t_rough)
+                  and t_rough > t_smooth)
+
+    ci, cj = _IP_SHAPE[0] // 2, _IP_SHAPE[1] // 2
+    ii, jj = np.indices(_IP_SHAPE)
+    radius = np.hypot(ii - ci, jj - cj)
+    dome_conv = float(iwahashi_pike.local_convexity(-radius, dx=_IP_DX)[ci, cj])
+    basin_conv = float(iwahashi_pike.local_convexity(radius, dx=_IP_DX)[ci, cj])
+    convex_ok = (np.isfinite(dome_conv) and np.isfinite(basin_conv)
+                 and dome_conv > basin_conv)
+
+    return _result("iwahashi_pike_texture_and_convexity",
+                   bool(texture_ok and convex_ok),
+                   f"surface texture rough {t_rough:.3f}% > smooth plane "
+                   f"{t_smooth:.3f}% (discriminates roughness); dome-centre local "
+                   f"convexity {dome_conv:.1f}% > basin-centre {basin_conv:.1f}%",
+                   texture_rough=t_rough, texture_smooth=t_smooth,
+                   dome_convexity=dome_conv, basin_convexity=basin_conv)
+
+
 _CHECKS = (
     check_self_distance_zero,
     check_translation_invariance,
@@ -751,6 +800,7 @@ _CHECKS = (
     check_anisotropy_isotropic_low,
     check_multiscale_identical_is_layer1_all_scales,
     check_kh_roughness_plane_is_zero_rough_discriminates,
+    check_iwahashi_pike_texture_and_convexity,
 )
 
 

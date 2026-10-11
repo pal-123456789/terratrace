@@ -7,7 +7,7 @@ import json
 
 import numpy as np
 
-from terratrace import descriptors, synthetic, geomorphons, spectral, anisotropy, kh_roughness
+from terratrace import descriptors, synthetic, geomorphons, spectral, anisotropy, kh_roughness, iwahashi_pike
 
 MAP_KEYS = ("slope", "relief", "ruggedness", "profile_curvature",
             "plan_curvature", "mean_curvature", "vector_ruggedness")
@@ -47,7 +47,7 @@ def test_bank_keys_types_and_json_serialisable():
                 {"structure_function", "surface_area_ratio",
                  "terrain_ruggedness_index", "landform_fraction",
                  "openness", "geomorphons", "spectral", "anisotropy",
-                 "kh_roughness"})
+                 "kh_roughness", "iwahashi_pike"})
     assert set(bank) == expected, set(bank) ^ expected
     for key in MAP_KEYS:
         summ = bank[key]
@@ -331,3 +331,47 @@ def test_bank_kh_roughness_plane_zero_and_rough_gt_plane():
     assert kp["baseline_roughness_coarse"] < 1e-9, kp["baseline_roughness_coarse"]
     assert kr["baseline_roughness_fine"] > kp["baseline_roughness_fine"], (kr, kp)
     assert kr["baseline_roughness_coarse"] > kp["baseline_roughness_coarse"], (kr, kp)
+
+
+# --- Iwahashi & Pike (2007) geometric-signature block wired into the bank -----
+
+IWAHASHI_PIKE_KEYS = {"slope_mean", "convexity_mean", "texture_mean",
+                      "composition", "dominant_class"}
+
+
+def test_bank_has_iwahashi_pike_block_and_json():
+    z = (synthetic.plane((48, 48), slope_x=0.2, slope_y=0.1)
+         + synthetic.rough_field((48, 48), amplitude=1.0, seed=43))
+    bank = descriptors.descriptor_bank(z)
+    assert "iwahashi_pike" in bank
+
+    ip = bank["iwahashi_pike"]
+    assert set(ip) == IWAHASHI_PIKE_KEYS, set(ip)
+    for key in ("slope_mean", "convexity_mean", "texture_mean"):
+        assert type(ip[key]) is float, (key, type(ip[key]))
+    comp = ip["composition"]
+    assert set(comp) == {str(c) for c in range(8)}, set(comp)
+    assert all(type(k) is str for k in comp)
+    assert all(type(v) is float for v in comp.values()), comp
+    assert abs(sum(comp.values()) - 1.0) < 1e-9, sum(comp.values())
+    assert type(ip["dominant_class"]) is int and 0 <= ip["dominant_class"] <= 7
+
+    # the bank's block is exactly the source-module signature (bank dx=1.0)
+    assert ip == iwahashi_pike.iwahashi_pike_signature(z, dx=1.0)
+
+    # the whole extended bank still serialises, round-trips and is deterministic
+    assert json.loads(json.dumps(bank))
+    assert descriptors.descriptor_bank(z) == bank
+
+
+def test_bank_iwahashi_pike_plane_mostly_one_class_rough_spreads():
+    # a homogeneous tilted plane collapses to a single terrain class; a seeded
+    # rough field spreads mass across several classes (analysis layer only).
+    plane = synthetic.plane((60, 60), slope_x=0.2, slope_y=0.1)
+    rough = plane + synthetic.rough_field((60, 60), amplitude=1.5, seed=47)
+    comp_p = descriptors.descriptor_bank(plane)["iwahashi_pike"]["composition"]
+    comp_r = descriptors.descriptor_bank(rough)["iwahashi_pike"]["composition"]
+    assert max(comp_p.values()) > 0.95, comp_p          # plane ~ one class
+    n_classes_rough = sum(1 for v in comp_r.values() if v > 0.0)
+    assert n_classes_rough >= 4, comp_r                 # rough terrain spreads
+
