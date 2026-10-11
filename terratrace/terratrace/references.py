@@ -247,6 +247,15 @@ METHOD_REFERENCES = (
                      "of Geophysical Research: Planets, 106(E12), 32777-32795."),
         "doi": None,
     },
+    {
+        "id": "kh_roughness_kreslavsky_head_2000",
+        "topic": ("Differential-slope baseline roughness (MOLA kilometre-scale "
+                  "roughness; gridded adaptation)"),
+        "citation": ("Kreslavsky, M. A., & Head, J. W. (2000). Kilometer-scale "
+                     "roughness of Mars: Results from MOLA data analysis. Journal "
+                     "of Geophysical Research: Planets, 105(E11), 26695-26711."),
+        "doi": None,
+    },
 )
 
 
@@ -262,7 +271,9 @@ def method_references():
     map-scale roughness-spectrum and directional-fabric descriptors (the
     radially-averaged power spectral density, Perron, Kirchner & Dietrich 2008;
     natural-terrain roughness and its directional structure function, Shepard
-    et al. 2001) - and are distinct from the upstream DATA-provider credits
+    et al. 2001; and the differential-slope baseline roughness, a gridded
+    adaptation of the Mars/MOLA kilometre-scale roughness metric of Kreslavsky &
+    Head 2000) - and are distinct from the upstream DATA-provider credits
     produced by :func:`references_for`. Returns fresh dict copies in declaration
     order.
     """

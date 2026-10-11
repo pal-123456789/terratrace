@@ -58,7 +58,7 @@ from __future__ import annotations
 import numpy as np
 
 from . import (study, synthetic, provenance, features, openness, geomorphons,
-               confidence, spectral, anisotropy, multiscale)
+               confidence, spectral, anisotropy, multiscale, kh_roughness)
 
 # Isolate the morphology math from aggregation smoothing: native == target gives
 # an aggregation factor of 1, so features are computed on the grids as built.
@@ -683,6 +683,43 @@ def check_multiscale_identical_is_layer1_all_scales():
                    far_layer_finest=far_layer_finest, supports=prof["supports"])
 
 
+# --- Kreslavsky & Head differential-slope baseline-roughness oracle ---------
+# A gridded adaptation of the canonical Mars/MOLA kilometre-scale roughness
+# metric (Kreslavsky & Head 2000) checked directly (not through the comparison
+# pipeline) against its two defining analytic behaviours: the second difference
+# of a LINEAR field is exactly zero, so a tilted plane is perfectly smooth at
+# every baseline; and adding seeded roughness to that plane strictly raises the
+# pooled median absolute differential slope. dx = 10 m with a 40 m baseline
+# (k = 2 cells) keeps the stencil far inside the 80x80 grid. Only the pass/fail
+# boolean enters the outcome hash and both asserted bounds are decisive, so the
+# check is deterministic and host-independent. Map-scale roughness descriptor
+# only -- no traversability, hazard, geologic, or mission claim.
+_KH_SHAPE = (80, 80)
+_KH_DX = 10.0
+_KH_BASELINE = 4.0 * _KH_DX          # k = max(1, round(40/20)) = 2 cells
+
+
+def check_kh_roughness_plane_is_zero_rough_discriminates(tol=1e-6):
+    """The gridded Kreslavsky & Head (2000) baseline roughness behaves as its
+    math requires: (a) a pure tilted PLANE has baseline roughness ~ 0 (the second
+    difference of a linear field is exactly zero, so < 1e-6 deg), and (b) a rough
+    surface (that plane plus seeded roughness) has a strictly GREATER baseline
+    roughness than the smooth plane -- the metric discriminates roughness. PASS
+    iff both hold."""
+    plane = synthetic.plane(_KH_SHAPE, slope_x=0.05, slope_y=0.02, dx=_KH_DX)
+    rough = plane + synthetic.rough_field(_KH_SHAPE, amplitude=2.0, seed=91)
+    r_plane = kh_roughness.baseline_roughness(plane, _KH_DX, _KH_BASELINE)
+    r_rough = kh_roughness.baseline_roughness(rough, _KH_DX, _KH_BASELINE)
+    plane_zero = bool(np.isfinite(r_plane)) and r_plane < tol
+    discriminates = bool(np.isfinite(r_rough)) and r_rough > r_plane
+    passed = plane_zero and discriminates
+    return _result("kh_roughness_plane_is_zero_rough_discriminates", passed,
+                   f"tilted-plane baseline roughness {r_plane:.2e} deg (< {tol:g}) "
+                   f"and rough-surface {r_rough:.4f} deg strictly greater "
+                   f"(discriminates roughness)",
+                   plane_roughness=float(r_plane), rough_roughness=float(r_rough))
+
+
 _CHECKS = (
     check_self_distance_zero,
     check_translation_invariance,
@@ -713,6 +750,7 @@ _CHECKS = (
     check_anisotropy_ridges_oriented,
     check_anisotropy_isotropic_low,
     check_multiscale_identical_is_layer1_all_scales,
+    check_kh_roughness_plane_is_zero_rough_discriminates,
 )
 
 

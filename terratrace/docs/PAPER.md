@@ -22,7 +22,7 @@ every result. On a real five-world run (Mars MOLA vs three Copernicus GLO-30 Ear
 the method independently re-identifies a documented basalt analog — Craters of the Moon, Idaho
 — as the closest match on the core roughness/relief axes, while honestly reporting that the
 recommendation does not survive every lens. Everything is offline-reproducible from one command
-and covered by 475 automated tests.
+and covered by 497 automated tests.
 
 ## 1. Problem and approach
 
@@ -117,7 +117,7 @@ confidently where the morphology agrees and abstains where it does not. See `REA
 
 ## 5. Validation
 
-Correctness is pinned by a scientific-correctness suite of 29 oracles that drive the real
+Correctness is pinned by a scientific-correctness suite of 30 oracles that drive the real
 engine on synthetic terrains with known answers: self-distance is zero; slope/relief/ruggedness
 are invariant to a constant offset and to 90° rotation; roughness discrimination is monotone; a
 planted close twin is recovered over an impostor; a water tile is BLOCKED; openness is 90° on a
@@ -142,8 +142,8 @@ vertical-datum error propagation end-to-end into the decision, and a multi-pair 
 
 ```bash
 pip install -r terratrace/requirements.txt      # core: NumPy only
-python terratrace/tests/run_tests.py             # 475 offline tests
-python terratrace/scripts/run_validation.py      # 29 correctness oracles
+python terratrace/tests/run_tests.py             # 497 offline tests
+python terratrace/scripts/run_validation.py      # 30 correctness oracles
 # real five-world study, one command (needs a free OpenTopography key):
 python terratrace/scripts/run_real_analog_study.py --config config/real_multibody.example.yml
 ```

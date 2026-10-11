@@ -7,7 +7,7 @@ import json
 
 import numpy as np
 
-from terratrace import descriptors, synthetic, geomorphons, spectral, anisotropy
+from terratrace import descriptors, synthetic, geomorphons, spectral, anisotropy, kh_roughness
 
 MAP_KEYS = ("slope", "relief", "ruggedness", "profile_curvature",
             "plan_curvature", "mean_curvature", "vector_ruggedness")
@@ -46,7 +46,8 @@ def test_bank_keys_types_and_json_serialisable():
     expected = (set(MAP_KEYS) | set(SCALAR_KEYS) |
                 {"structure_function", "surface_area_ratio",
                  "terrain_ruggedness_index", "landform_fraction",
-                 "openness", "geomorphons", "spectral", "anisotropy"})
+                 "openness", "geomorphons", "spectral", "anisotropy",
+                 "kh_roughness"})
     assert set(bank) == expected, set(bank) ^ expected
     for key in MAP_KEYS:
         summ = bank[key]
@@ -287,3 +288,46 @@ def test_bank_vector_tail_is_scale_fabric_scalars_and_prefix_frozen():
         bank["aspect_dispersion"], bank["hypsometric_integral"],
         bank["hurst_exponent"],
     )
+
+
+# --- Kreslavsky & Head differential-slope roughness block wired into the bank -
+
+KH_ROUGHNESS_KEYS = {"baseline_roughness_fine", "baseline_roughness_coarse",
+                     "profile", "profile_loglog_slope"}
+
+
+def test_bank_has_kh_roughness_block_and_json():
+    z = (synthetic.plane((48, 48), slope_x=0.2, slope_y=0.1)
+         + synthetic.rough_field((48, 48), amplitude=1.0, seed=37))
+    bank = descriptors.descriptor_bank(z)
+    assert "kh_roughness" in bank
+
+    kh = bank["kh_roughness"]
+    assert set(kh) == KH_ROUGHNESS_KEYS, set(kh)
+    for key in ("baseline_roughness_fine", "baseline_roughness_coarse",
+                "profile_loglog_slope"):
+        assert type(kh[key]) is float, (key, type(kh[key]))
+    prof = kh["profile"]
+    assert isinstance(prof, dict) and prof
+    assert all(type(k) is float for k in prof), prof
+    assert all(type(v) is float for v in prof.values()), prof
+
+    # the bank's block is exactly the source-module signature (bank dx=1.0)
+    assert kh == kh_roughness.kh_roughness_signature(z, dx=1.0)
+
+    # the whole extended bank still serialises, round-trips and is deterministic
+    assert json.loads(json.dumps(bank))
+    assert descriptors.descriptor_bank(z) == bank
+
+
+def test_bank_kh_roughness_plane_zero_and_rough_gt_plane():
+    # a tilted plane bends nowhere -> ~0 baseline roughness at every baseline;
+    # adding seeded roughness strictly raises it (analysis layer only, no claim).
+    plane = synthetic.plane((48, 48), slope_x=0.2, slope_y=0.1)
+    rough = plane + synthetic.rough_field((48, 48), amplitude=1.5, seed=41)
+    kp = descriptors.descriptor_bank(plane)["kh_roughness"]
+    kr = descriptors.descriptor_bank(rough)["kh_roughness"]
+    assert kp["baseline_roughness_fine"] < 1e-9, kp["baseline_roughness_fine"]
+    assert kp["baseline_roughness_coarse"] < 1e-9, kp["baseline_roughness_coarse"]
+    assert kr["baseline_roughness_fine"] > kp["baseline_roughness_fine"], (kr, kp)
+    assert kr["baseline_roughness_coarse"] > kp["baseline_roughness_coarse"], (kr, kp)

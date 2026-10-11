@@ -41,6 +41,7 @@ _EXPECTED_NAMES = (
     "anisotropy_ridges_oriented",
     "anisotropy_isotropic_low",
     "multiscale_identical_is_layer1_all_scales",
+    "kh_roughness_plane_is_zero_rough_discriminates",
 )
 
 # New line-of-sight morphology oracles added on top of the original battery.
@@ -399,3 +400,24 @@ def test_check_multiscale_identical_is_layer1_all_scales_passes():
     assert rec["passed"] is True, rec["detail"]
     assert rec["metrics"]["near_fraction_layer1"] == 1.0, rec["metrics"]
     assert rec["metrics"]["far_layer_finest"] != 1, rec["metrics"]
+
+
+def test_new_kh_roughness_check_present_and_passes():
+    """The Kreslavsky & Head differential-slope roughness oracle is registered in
+    the report and passes."""
+    report = _report()
+    present = {c["name"] for c in report["checks"]}
+    name = "kh_roughness_plane_is_zero_rough_discriminates"
+    assert name in present, f"{name!r} not registered in run_validation()"
+    assert _find(report, name)["passed"] is True, _find(report, name)["detail"]
+
+
+def test_check_kh_roughness_plane_is_zero_rough_discriminates_passes():
+    """A tilted plane has ~0 baseline roughness (< 1e-6 deg) and a rough surface
+    strictly exceeds it (the metric discriminates roughness)."""
+    rec = validation.check_kh_roughness_plane_is_zero_rough_discriminates()
+    assert rec["name"] == "kh_roughness_plane_is_zero_rough_discriminates"
+    assert rec["passed"] is True, rec["detail"]
+    m = rec["metrics"]
+    assert m["plane_roughness"] < 1e-6, m
+    assert m["rough_roughness"] > m["plane_roughness"], m

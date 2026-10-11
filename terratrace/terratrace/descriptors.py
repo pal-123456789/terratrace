@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from . import features, openness, geomorphons, spectral, anisotropy
+from . import features, openness, geomorphons, spectral, anisotropy, kh_roughness
 
 _SUMMARY_KEYS = ("mean", "std", "p10", "p50", "p90")
 
@@ -81,6 +81,16 @@ def descriptor_bank(z, dx=1.0, window=5):
     flat dicts of plain floats (``nan`` where a descriptor is undefined, e.g. a
     degenerate / perfectly flat tile), so they stay JSON-serialisable.
 
+    A differential-slope baseline-roughness sub-dict is appended likewise
+    (append-only analysis layer, NOT read by any decision): ``"kh_roughness"`` --
+    the :func:`terratrace.kh_roughness.kh_roughness_signature` dict (the
+    ``baseline_roughness_fine`` / ``baseline_roughness_coarse`` medians of the
+    absolute differential slope in degrees, the ascending ``profile`` of
+    roughness vs baseline, and its ``profile_loglog_slope``). This is a gridded
+    adaptation of the Kreslavsky & Head (2000) MOLA kilometre-scale roughness
+    metric, computed at the bank's ``dx``; a flat dict of plain floats with a
+    float-keyed ``profile`` sub-dict, JSON-serialisable.
+
     These are map-scale morphology descriptors only. No traversability,
     mechanical, or mission claim is implied by any value in the bank.
     """
@@ -124,6 +134,14 @@ def descriptor_bank(z, dx=1.0, window=5):
         #     isotropy). Both are flat dicts of plain floats, JSON-serialisable. ---
         "spectral": spectral.spectral_signature(z, dx=dx),
         "anisotropy": anisotropy.anisotropy_signature(z, dx=dx),
+        # --- differential-slope baseline roughness sub-dict (append-only; NOT
+        #     used by the study decision). Kreslavsky & Head (2000) MOLA
+        #     kilometre-scale roughness, gridded to the DEM: fine/coarse baseline
+        #     roughness (median |differential slope|, degrees), the ascending
+        #     roughness-vs-scale profile (float-metre keys) and its log-log slope.
+        #     Flat dict of plain floats + a float-keyed profile dict,
+        #     JSON-serialisable. ---
+        "kh_roughness": kh_roughness.kh_roughness_signature(z, dx=dx),
     }
 
 
