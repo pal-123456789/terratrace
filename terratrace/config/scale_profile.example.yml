@@ -1,0 +1,95 @@
+# TerraTrace SCALE-RESOLVED analog profile (example) -- one config, one scale sweep.
+#
+# scripts/run_scale_profile.py reads this file and emits a per-SCALE morphology
+# profile (scale_profile.json + scale_profile.md) in a single directory: at every
+# common support in `supports:` below it re-runs the proven comparison engine and
+# records each candidate's OVERALL core distance to the reference and its Pareto
+# layer -- so you can read, at a glance, AT WHICH SCALES a site resembles the
+# reference and WHETHER the single best analog changes with scale.
+#
+# This is a MORPHOLOGY SCREENING profile: it compares the map-scale SHAPE of real
+# terrain windows at a sweep of common supports. It makes NO traversability,
+# geologic-equivalence, site-access, or mission-readiness claim, and the per-scale
+# ordering is a transparent Pareto layering, NOT a composite "Mars-likeness"
+# score. Every Earth AOI below is an ILLUSTRATIVE analog chosen for its surface
+# morphology; access_status is deliberately unknown -- land access, permits, and
+# ground truth MUST be verified independently before any fieldwork.
+#
+# OFFLINE first: exercise the whole pipeline with no network and no rasterio via
+#   --dry-run    (preflight each unit's bbox/body/size; exit 0 clean / 2 problems)
+#   --synthetic  (deterministic surfaces; writes a real scale_profile.json/.md)
+# This example is RUNNABLE AS-IS against the DEMs you already fetched for
+# config/real_multibody.example.yml, so you can run it right now with --skip-fetch:
+#
+#   python3 scripts/run_scale_profile.py --config config/scale_profile.example.yml \
+#       --skip-fetch --out artifacts/scale_profile
+#
+# (Drop --skip-fetch on a networked machine with OPENTOPO_API_KEY to download any
+# missing candidate DEM; the planetary reference DEM must already be on disk.)
+
+# --- The scale sweep --------------------------------------------------------
+# Common supports (metres), ascending. Every unit is loaded ONCE at the FINEST
+# support (the smallest value here) and compare_units re-aggregates each coarser
+# support from those arrays. Mars MOLA ~463 m is the limiting native posting, so
+# the finest support must stay >= ~463 m; 1000 m is a safe floor.
+supports: [1000, 1500, 2000, 3000, 4000]
+
+# target_support_m is the synthetic-mode native posting fallback; for the sweep
+# itself the `supports:` list above is authoritative. min_valid_fraction and
+# reproject are passed straight through to the engine.
+target_support_m: 1000.0
+min_valid_fraction: 0.5
+reproject: true
+
+# --- Reference: a bounded Mars window from the MOLA 463 m DEM ---------------
+# Download 'Mars MGS MOLA DEM 463m' (GeoTIFF) once from USGS Astrogeology:
+#   https://astrogeology.usgs.gov/search/map/mars_mgs_mola_dem_463m
+# and save it to data/mars/mola_463m.tif. The bbox crops a bounded window in the
+# FILE's CRS (MOLA 463 m is simple-cylindrical in DEGREES, 0..360 east longitude).
+# west, south, east, north:
+reference:
+  id: mars_reference
+  path: data/mars/mola_463m.tif
+  body: mars
+  native_posting_m: 463.0
+  is_reference: true
+  rights_status: verified_allowed        # NASA PDS / USGS Astrogeology public data
+  bbox: [120.0, -5.0, 130.0, 5.0]
+
+# --- Earth candidates: illustrative terrestrial analogs (COP30 / GLO-30) -----
+# These reuse the EXACT paths + bboxes already fetched for the real multi-body
+# study, so --skip-fetch works immediately. access_status: unknown -- verify land
+# access, permits, and ground truth independently before any fieldwork.
+earth_units:
+  - id: earth_nevada_basin
+    path: data/earth/nevada_basin_cop30.tif
+    body: earth
+    demtype: COP30
+    # Basin-and-range desert near Las Vegas, NV: low-relief alluvial basin floors
+    # bounded by faulted ranges -- an illustrative arid analog.
+    bbox: [-115.80, 36.00, -115.40, 36.40]
+    native_posting_m: 30.0
+    rights_status: verified_allowed
+    access_status: unknown                 # must be verified before any fieldwork
+
+  - id: earth_craters_of_the_moon
+    path: data/earth/craters_of_the_moon_cop30.tif
+    body: earth
+    demtype: COP30
+    # Craters of the Moon basaltic lava field, Idaho: a classic terrestrial
+    # Mars/Moon analog, entirely on land (no ocean-zero contamination).
+    bbox: [-113.60, 43.30, -113.30, 43.60]
+    native_posting_m: 30.0
+    rights_status: verified_allowed
+    access_status: unknown
+
+  - id: earth_andean_volcano
+    path: data/earth/andean_volcano_cop30.tif
+    body: earth
+    demtype: COP30
+    # Equatorial Andean volcanic terrain (Ecuador): steep stratovolcano flanks
+    # and radial drainage -- a distinct high-relief volcanic analog.
+    bbox: [-78.60, -0.20, -78.30, 0.10]
+    native_posting_m: 30.0
+    rights_status: verified_allowed
+    access_status: unknown

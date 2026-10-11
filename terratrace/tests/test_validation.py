@@ -40,6 +40,7 @@ _EXPECTED_NAMES = (
     "spectral_parseval",
     "anisotropy_ridges_oriented",
     "anisotropy_isotropic_low",
+    "multiscale_identical_is_layer1_all_scales",
 )
 
 # New line-of-sight morphology oracles added on top of the original battery.
@@ -379,3 +380,22 @@ def test_check_anisotropy_isotropic_low_passes():
     assert rec["name"] == "anisotropy_isotropic_low"
     assert rec["passed"] is True, rec["detail"]
     assert rec["metrics"]["strength"] < 0.25, rec["metrics"]
+
+
+def test_new_multiscale_check_present_and_passes():
+    """The scale-resolved analog oracle is registered in the report and passes."""
+    report = _report()
+    present = {c["name"] for c in report["checks"]}
+    name = "multiscale_identical_is_layer1_all_scales"
+    assert name in present, f"{name!r} not registered in run_validation()"
+    assert _find(report, name)["passed"] is True, _find(report, name)["detail"]
+
+
+def test_check_multiscale_identical_is_layer1_all_scales_passes():
+    """A near twin is a layer-1 analog at every swept support (fraction 1.0) and
+    the far unit is NOT layer 1 at the finest support."""
+    rec = validation.check_multiscale_identical_is_layer1_all_scales()
+    assert rec["name"] == "multiscale_identical_is_layer1_all_scales"
+    assert rec["passed"] is True, rec["detail"]
+    assert rec["metrics"]["near_fraction_layer1"] == 1.0, rec["metrics"]
+    assert rec["metrics"]["far_layer_finest"] != 1, rec["metrics"]

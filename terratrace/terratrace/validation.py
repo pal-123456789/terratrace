@@ -58,7 +58,7 @@ from __future__ import annotations
 import numpy as np
 
 from . import (study, synthetic, provenance, features, openness, geomorphons,
-               confidence, spectral, anisotropy)
+               confidence, spectral, anisotropy, multiscale)
 
 # Isolate the morphology math from aggregation smoothing: native == target gives
 # an aggregation factor of 1, so features are computed on the grids as built.
@@ -640,6 +640,49 @@ def check_anisotropy_isotropic_low():
                    strength=strength, orientation_deg=float(a["orientation_deg"]))
 
 
+# --- scale-resolved analog oracle -------------------------------------------
+# This drives multiscale.scale_profile end-to-end. multiscale adds NO new
+# morphology math: it only re-runs the proven study.compare_units at a sweep of
+# supports and stacks each candidate's core distance + Pareto layer. The oracle
+# asserts the one scale-resolved invariant that must hold by construction -- a
+# NEAR twin of the reference stays non-dominated at EVERY scale, while a FAR unit
+# carrying a large, scale-persistent structure is dominated at the finest scale.
+# Only pass/fail booleans enter the outcome hash, and both asserted booleans are
+# decisive (not marginal), so the check is deterministic and host-independent.
+# Morphology-across-scales screening only -- no traversability/mission claim.
+_MS_NATIVE = 1000.0
+_MS_SHAPE = (80, 80)
+
+
+def check_multiscale_identical_is_layer1_all_scales():
+    """Scale-resolved analog screening is self-consistent: on a 3-unit scene
+    (reference; a NEAR twin = reference + small seeded roughness; a FAR unit =
+    reference + a large, scale-persistent structure) swept over three ascending
+    supports, the NEAR twin is a layer-1 (non-dominated) analog at EVERY support
+    (``fraction_layer1 == 1.0``) while the FAR unit is NOT layer 1 at the finest
+    support. Exercises multiscale.scale_profile + analog_scale_band, which only
+    re-run study.compare_units per support (no new morphology math)."""
+    base = synthetic.plane(_MS_SHAPE, slope_x=0.02, dx=_MS_NATIVE)
+    ref = base + synthetic.rough_field(_MS_SHAPE, amplitude=5.0, seed=1)
+    near = ref + synthetic.rough_field(_MS_SHAPE, amplitude=2.0, seed=2)
+    far = (ref + synthetic.plane(_MS_SHAPE, slope_x=0.4, dx=_MS_NATIVE)
+           + synthetic.rough_field(_MS_SHAPE, amplitude=15.0, seed=3))
+    raw = {"ref": ref, "near": near, "far": far}
+    rights = {u: "verified_allowed" for u in raw}
+    supports = [_MS_NATIVE, 1.5 * _MS_NATIVE, 2.0 * _MS_NATIVE]
+    prof = multiscale.scale_profile(raw, rights, _MS_NATIVE, "ref", supports)
+    near_band = multiscale.analog_scale_band(prof, "near")
+    far_layer_finest = prof["per_candidate"]["far"]["layer"][0]   # supports ascending -> [0] finest
+    passed = near_band["fraction_layer1"] == 1.0 and far_layer_finest != 1
+    return _result("multiscale_identical_is_layer1_all_scales", passed,
+                   f"near fraction_layer1={near_band['fraction_layer1']:.2f} "
+                   f"band {near_band['band']} over supports {prof['supports']}; "
+                   f"far Pareto layer at finest support = {far_layer_finest!r} (expected not 1)",
+                   near_fraction_layer1=near_band["fraction_layer1"],
+                   near_band=list(near_band["band"]) if near_band["band"] else None,
+                   far_layer_finest=far_layer_finest, supports=prof["supports"])
+
+
 _CHECKS = (
     check_self_distance_zero,
     check_translation_invariance,
@@ -669,6 +712,7 @@ _CHECKS = (
     check_spectral_parseval,
     check_anisotropy_ridges_oriented,
     check_anisotropy_isotropic_low,
+    check_multiscale_identical_is_layer1_all_scales,
 )
 
 
