@@ -220,6 +220,51 @@ def _texture_dims(tex, cid, reference_id):
     return (d("spectral_slope"), d("fractal_dim"), d("normal_roughness"))
 
 
+def _hydro_scalars(z, dx):
+    """Three per-unit HYDRO-GEOMETRIC scalars for the opt-in 'hydro' decision lens,
+    each computed on the unit's aggregated grid at its realized common support ``dx``
+    (metres). Imported lazily so the lens stays off the default study path (keeping
+    the core/extended/geomorphic/landform/texture packages and their hashes
+    untouched):
+
+    * ``twi_mean``         - mean Topographic Wetness Index over finite cells (a
+      geometric area/slope composite; :mod:`terratrace.twi`);
+    * ``convergence_mean`` - mean aspect-field convergence index in degrees
+      (negative => convergent/valley-like, positive => divergent/ridge-like;
+      :mod:`terratrace.convergence`);
+    * ``dissection``       - peak flow-accumulation fraction ``max(acc)/n`` in
+      (0, 1], a D8 surface-dissection texture scalar (:mod:`terratrace.drainage`).
+
+    Map-scale MORPHOLOGY / geometric descriptors only - a purely geometric
+    area/slope/aspect/accumulation composite, NOT a water, soil-moisture, fluvial,
+    hydrology, hazard, or mission claim on any body."""
+    from . import twi, convergence, drainage
+    return {
+        "twi_mean": float(twi.twi_signature(z, dx=dx)["twi_mean"]),
+        "convergence_mean": float(
+            convergence.convergence_signature(z, dx=dx)["convergence_mean"]),
+        "dissection": float(drainage.drainage_signature(z, dx=dx)["max_acc_fraction"]),
+    }
+
+
+def _hydro_dims(hyd, cid, reference_id):
+    """Three extra Pareto axes for the 'hydro' lens, each a candidate->reference
+    scalar DISTANCE on one hydro-geometric descriptor, using the SAME relative
+    convention the connectivity-scalar axis uses in :func:`_vector` (identical to
+    the 'texture' lens in :func:`_texture_dims`)::
+
+        d = |cand_value - ref_value| / (|ref_value| + 1e-6)
+
+    so the reference against itself is exactly 0.0 on every axis. Returns
+    ``(d_twi, d_convergence, d_dissection)``. Dissimilarity measures only - no
+    water/hydrology/hazard/mission meaning."""
+    def d(key):
+        a = float(hyd[cid][key])
+        b = float(hyd[reference_id][key])
+        return abs(a - b) / (abs(b) + 1e-6)
+    return (d("twi_mean"), d("convergence_mean"), d("dissection"))
+
+
 def compare_units(raw_units, rights, native_posting_m, reference_id="mars_reference",
                   target_support_m=100.0, min_valid=0.5, source_label="synthetic",
                   decision_metrics="core", n_boot=0, bootstrap_method="independent",
@@ -279,6 +324,14 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
     if decision_metrics == "texture":
         for uid, a in agg.items():
             tex[uid] = _texture_scalars(a, dxs[uid])
+    # Hydro axes (mean TWI + mean aspect-convergence + peak flow-accumulation
+    # dissection) are computed ONLY for the opt-in 'hydro' decision lens, on the
+    # SAME per-unit aggregated grid at the realized support, so the core/extended/
+    # geomorphic/landform/texture study packages (and their hashes) are untouched.
+    hyd = {}
+    if decision_metrics == "hydro":
+        for uid, a in agg.items():
+            hyd[uid] = _hydro_scalars(a, dxs[uid])
     dx_ref = dxs[reference_id]
     candidate_ids = [u for u in agg if u != reference_id]
     ref_ok, ref_reason = decision.eligibility(meta[reference_id])
@@ -305,6 +358,8 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
                     vec = vec + _landform_dims(lf, cid, reference_id)
                 elif decision_metrics == "texture":
                     vec = vec + _texture_dims(tex, cid, reference_id)
+                elif decision_metrics == "hydro":
+                    vec = vec + _hydro_dims(hyd, cid, reference_id)
                 vecs[cid] = vec
                 if cfg["name"] == "baseline":
                     cand_feats_base[cid] = cand_f
@@ -333,6 +388,8 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
         metric_names += ["landform_spectrum", "openness"]
     elif decision_metrics == "texture":
         metric_names += ["spectral_slope", "fractal_dim", "normal_roughness"]
+    elif decision_metrics == "hydro":
+        metric_names += ["twi_mean", "convergence_mean", "dissection"]
     profile = {"task": "map_scale_terrain_route_study", "target_body": "mars",
                "target_support_m": float(target_support_m), "metrics": metric_names,
                "decision_metrics": decision_metrics,
@@ -436,6 +493,8 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
             extra = {cid: _landform_dims(lf, cid, reference_id) for cid in cand_feats_base}
         elif decision_metrics == "texture":
             extra = {cid: _texture_dims(tex, cid, reference_id) for cid in cand_feats_base}
+        elif decision_metrics == "hydro":
+            extra = {cid: _hydro_dims(hyd, cid, reference_id) for cid in cand_feats_base}
         if bootstrap_method == "block":
             bc = SCENARIOS[0]
             ref_maps = _feature_maps_2d(agg[reference_id], dx_ref, bc["slope_threshold"], bc["relief_alpha"])

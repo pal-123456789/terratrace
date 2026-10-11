@@ -5,7 +5,7 @@ import threading
 import urllib.error
 import urllib.request
 
-from terratrace import api
+from terratrace import api, synthetic
 
 
 def _free_port():
@@ -14,6 +14,17 @@ def _free_port():
     p = s.getsockname()[1]
     s.close()
     return p
+
+
+def _small_tile(shape=(24, 24)):
+    """A small, deterministic, well-conditioned synthetic elevation tile as a
+    nested Python list (JSON-ready, no numpy/rasterio in the request). Slope +
+    central dome + seeded roughness keep every descriptor non-degenerate while the
+    body stays well under the 64 KiB cap."""
+    z = (synthetic.plane(shape, slope_x=0.03, slope_y=0.01)
+         + synthetic.gaussian_hill(shape, amplitude=12.0, sigma=6.0)
+         + synthetic.rough_field(shape, amplitude=1.5, seed=7))
+    return z.tolist()
 
 
 def _serve():
@@ -358,5 +369,127 @@ def test_sensitivity_forbidden_host_403():
         except urllib.error.HTTPError as e:
             code = e.code
         assert code == 403
+    finally:
+        srv.shutdown()
+
+
+# __APPEND_BANK_TRANSECT_TESTS__
+
+
+def test_bank_returns_descriptor_bank():
+    srv, port = _serve()
+    try:
+        body = json.dumps({"z": _small_tile(), "dx": 10.0}).encode("utf-8")
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{port}/bank", data=body,
+            headers={"Content-Type": "application/json"}, method="POST")
+        r = json.loads(urllib.request.urlopen(req, timeout=60).read())
+        assert isinstance(r, dict)
+        for k in ("slope", "variogram", "melton_relief", "fabric_eigen"):
+            assert k in r, k
+        assert set(r["slope"]) >= {"mean", "std", "p10", "p50", "p90"}
+    finally:
+        srv.shutdown()
+
+
+def test_bank_missing_z_is_400():
+    srv, port = _serve()
+    try:
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{port}/bank",
+            data=json.dumps({"dx": 10.0}).encode("utf-8"),
+            headers={"Content-Type": "application/json"}, method="POST")
+        code = 0
+        try:
+            urllib.request.urlopen(req, timeout=30)
+        except urllib.error.HTTPError as e:
+            code = e.code
+        assert code == 400
+    finally:
+        srv.shutdown()
+
+
+def test_bank_malformed_body_is_400():
+    # same code as the sibling POST endpoints for a malformed JSON body
+    srv, port = _serve()
+    try:
+        req = urllib.request.Request(f"http://127.0.0.1:{port}/bank",
+                                     data=b"{not json", method="POST")
+        code = 0
+        try:
+            urllib.request.urlopen(req, timeout=10)
+        except urllib.error.HTTPError as e:
+            code = e.code
+        assert code == 400
+    finally:
+        srv.shutdown()
+
+
+# __APPEND_BANK_TRANSECT_TESTS_2__
+
+
+def test_bank_oversize_body_is_413():
+    # body larger than MAX_BODY -> rejected on Content-Length, like every POST
+    srv, port = _serve()
+    try:
+        payload = b'{"z":' + b'0' * (api.MAX_BODY + 1024) + b'}'
+        req = urllib.request.Request(f"http://127.0.0.1:{port}/bank",
+                                     data=payload, method="POST")
+        code = 0
+        try:
+            urllib.request.urlopen(req, timeout=10)
+        except urllib.error.HTTPError as e:
+            code = e.code
+        assert code == 413
+    finally:
+        srv.shutdown()
+
+
+def test_bank_forbidden_host_403():
+    srv, port = _serve()
+    try:
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{port}/bank",
+            data=b"{}", headers={"Host": "evil.example.com"}, method="POST")
+        code = 0
+        try:
+            urllib.request.urlopen(req, timeout=10)
+        except urllib.error.HTTPError as e:
+            code = e.code
+        assert code == 403
+    finally:
+        srv.shutdown()
+
+
+def test_transect_returns_signature():
+    srv, port = _serve()
+    try:
+        body = json.dumps({"z": _small_tile(), "p0": [2, 2], "p1": [21, 21],
+                           "dx": 10.0}).encode("utf-8")
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{port}/transect", data=body,
+            headers={"Content-Type": "application/json"}, method="POST")
+        r = json.loads(urllib.request.urlopen(req, timeout=60).read())
+        assert isinstance(r, dict)
+        assert "mean_slope" in r
+        for k in ("length_m", "relief_m", "max_slope", "elev_gain_m"):
+            assert k in r, k
+    finally:
+        srv.shutdown()
+
+
+def test_transect_bad_points_is_400():
+    srv, port = _serve()
+    try:
+        body = json.dumps({"z": _small_tile(), "p0": [2, 2], "p1": [21]}).encode("utf-8")
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{port}/transect", data=body,
+            headers={"Content-Type": "application/json"}, method="POST")
+        code = 0
+        try:
+            urllib.request.urlopen(req, timeout=30)
+        except urllib.error.HTTPError as e:
+            code = e.code
+        assert code == 400
     finally:
         srv.shutdown()

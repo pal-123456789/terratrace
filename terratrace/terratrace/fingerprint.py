@@ -115,6 +115,45 @@ TEXTURE_SPANS = {
     "lacunarity_r2": 1.0,
 }
 
+# Key under which the OPTIONAL geostatistical-structure component is stored inside
+# a fingerprint when it is built with ``include_geostat=True``. The value is a flat
+# ``{field: float}`` dict over :data:`GEOSTAT_FIELDS`: two scale-aware second-order
+# structure scalars -- the variogram log-log roughness-scaling slope
+# (:func:`terratrace.variogram.variogram_signature`) and the surface-normal fabric
+# isotropy (:func:`terratrace.fabric_eigen.fabric_signature`) -- followed by the six
+# Wood (1996) curvature-feature area fractions
+# (:func:`terratrace.curvature_classes.curvature_class_signature`), stored as
+# ``curv_<class>`` in :data:`terratrace.curvature_classes.CLASS_NAMES` order and
+# forming a composition that sums to ~1. Like the landform, scale/fabric and texture
+# components it is purely additive: the FINGERPRINT_FIELDS scalars are untouched, so a
+# default fingerprint stays byte-identical to one built before this component existed.
+GEOSTAT_KEY = "geostat"
+GEOSTAT_SCALAR_FIELDS = ("vario_loglog_slope", "isotropy")
+GEOSTAT_COMPOSITION_FIELDS = (
+    "curv_planar", "curv_peak", "curv_pit",
+    "curv_ridge", "curv_channel", "curv_pass",
+)
+GEOSTAT_FIELDS = GEOSTAT_SCALAR_FIELDS + GEOSTAT_COMPOSITION_FIELDS
+
+# Documented reference spans for the two scalar geostat sub-distances: on each axis a
+# difference of this many native units is treated as a "full" (==1) separation, so the
+# per-scalar sub-distance is ``min(1, |a - b| / span)`` and the averaged geostat term
+# stays bounded in ``[0, 1]`` (the six composition fractions are instead compared with
+# the total-variation distance ``0.5 * sum|a - b|``, already in ``[0, 1]``, exactly like
+# the landform geomorphon-spectrum term):
+#   * ``vario_loglog_slope`` -- the slope of log(gamma) vs log(h) over the rising part
+#     of the semivariogram. For a self-affine surface gamma(h) ~ h^(2H) with the Hurst
+#     exponent H in [0, 1], so the slope spans [0, 2]; a span of 2.0 is its full
+#     physical range. dx-invariant (a constant rescaling of the lag shifts log(h) by a
+#     constant and leaves the slope unchanged);
+#   * ``isotropy``           -- Woodcock 3*lambda3, already a normalised [0, 1]
+#     orientation-isotropy index (1 = perfectly isotropic normals), so its full range
+#     is 1.0.
+GEOSTAT_SPANS = {
+    "vario_loglog_slope": 2.0,
+    "isotropy": 1.0,
+}
+
 
 def _scale_fabric_signature(spec, aniso):
     """Build the flat scale/fabric ``{field: float}`` dict from a spectral and an
@@ -290,6 +329,89 @@ def texture_distance(a, b):
     return float(np.mean(subs)) if subs else 0.0
 
 
+def _geostat_signature(z, dx=1.0):
+    """Build the flat geostat ``{field: float}`` dict for a raw elevation array.
+
+    Collects a scale-aware geostatistical-structure summary by calling three source
+    modules directly (lazily imported so this module's default import surface is
+    unchanged): the variogram log-log roughness-scaling slope
+    (:func:`terratrace.variogram.variogram_signature`), the surface-normal fabric
+    isotropy (:func:`terratrace.fabric_eigen.fabric_signature`) and the six Wood (1996)
+    curvature-feature area fractions
+    (:func:`terratrace.curvature_classes.curvature_class_signature`). ``dx`` is
+    forwarded to all three. Returns plain floats in :data:`GEOSTAT_FIELDS` order: the
+    two scalars (``nan`` where a source scalar is undefined, e.g. the variogram slope of
+    a degenerate flat tile) and the six ``curv_<class>`` composition fractions in
+    :data:`terratrace.curvature_classes.CLASS_NAMES` order (always finite, summing to
+    ~1 over classified cells).
+    """
+    from . import variogram, fabric_eigen, curvature_classes
+    za = np.asarray(z, dtype=float)
+    vs = variogram.variogram_signature(za, dx=dx)
+    fs = fabric_eigen.fabric_signature(za, dx=dx)
+    comp = curvature_classes.curvature_class_signature(za, dx=dx)["composition"]
+    out = {
+        "vario_loglog_slope": float(vs["vario_loglog_slope"]),
+        "isotropy": float(fs["isotropy"]),
+    }
+    for name in curvature_classes.CLASS_NAMES:
+        out["curv_" + name] = float(comp[name])
+    return out
+
+
+def _geostat(fp_or_z, dx=1.0):
+    """Resolve a geostat ``{field: float}`` dict for a fingerprint or tile.
+
+    A fingerprint dict must carry a :data:`GEOSTAT_KEY` entry (build it with
+    ``terrain_fingerprint(..., include_geostat=True)``); a raw elevation array is
+    scanned on the fly with :func:`_geostat_signature`. Returns a plain
+    ``{field: float}`` dict in :data:`GEOSTAT_FIELDS` order.
+    """
+    if isinstance(fp_or_z, dict):
+        if GEOSTAT_KEY not in fp_or_z:
+            raise ValueError(
+                "fingerprint has no %r; build it with "
+                "terrain_fingerprint(..., include_geostat=True) before "
+                "using the geostatistical similarity term" % GEOSTAT_KEY)
+        gs = fp_or_z[GEOSTAT_KEY]
+        return {k: float(gs[k]) for k in GEOSTAT_FIELDS}
+    return _geostat_signature(fp_or_z, dx=dx)
+
+
+def geostat_distance(a, b):
+    """Bounded ``[0, 1]`` distance between two geostat dicts.
+
+    The geostat term of :func:`similarity`. ``a`` and ``b`` are dicts over
+    :data:`GEOSTAT_FIELDS` (plain floats). The distance is the mean of up to three
+    bounded, complementary sub-distances, each in ``[0, 1]``:
+
+    * for each scalar in :data:`GEOSTAT_SCALAR_FIELDS` the native-unit difference
+      normalised by its documented span, ``min(1, |a - b| / GEOSTAT_SPANS[field])``
+      (so the two differently-scaled scalars are commensurate);
+    * the total-variation distance ``0.5 * sum|a - b|`` between the two six-class
+      curvature-feature compositions (each sums to ~1), in ``[0, 1]`` -- exactly the
+      metric the landform geomorphon-spectrum term uses.
+
+    Any sub-distance that is non-finite (e.g. a degenerate tile whose variogram slope
+    is ``nan``, or a composition that is not finite) is dropped, and the mean is taken
+    over the sub-distances that remain, so the term stays on the same ``[0, 1]`` footing
+    regardless of how many were available. If NONE are finite the distance is ``0.0``
+    (no information -> no penalty), keeping :func:`similarity` finite. Returns a plain
+    ``float``.
+    """
+    subs = []
+    for field in GEOSTAT_SCALAR_FIELDS:
+        va, vb = float(a[field]), float(b[field])
+        span = float(GEOSTAT_SPANS[field])
+        if np.isfinite(va) and np.isfinite(vb) and span > 0.0:
+            subs.append(min(1.0, abs(va - vb) / span))
+    ca = np.array([a[f] for f in GEOSTAT_COMPOSITION_FIELDS], dtype=float)
+    cb = np.array([b[f] for f in GEOSTAT_COMPOSITION_FIELDS], dtype=float)
+    if np.isfinite(ca).all() and np.isfinite(cb).all():
+        subs.append(0.5 * float(np.abs(ca - cb).sum()))
+    return float(np.mean(subs)) if subs else 0.0
+
+
 def spectrum_tv(a, b):
     """Total-variation distance between two normalised geomorphon spectra.
 
@@ -342,7 +464,8 @@ def _pull(bank, field):
 
 def terrain_fingerprint(z, dx=1.0, window=5, include_landform=False,
                         search=10, skip=0, flat_deg=1.0,
-                        include_scale_fabric=False, include_texture=False):
+                        include_scale_fabric=False, include_texture=False,
+                        include_geostat=False):
     """Compute the morphological fingerprint of one elevation tile.
 
     Runs :func:`descriptors.descriptor_bank` once and pulls the fixed subset
@@ -376,6 +499,15 @@ def terrain_fingerprint(z, dx=1.0, window=5, include_landform=False,
     plain floats. This is the component consumed by the OPT-IN texture term of
     :func:`similarity`.
 
+    When ``include_geostat`` is True a fourth ADDITIVE :data:`GEOSTAT_KEY` entry is
+    added holding the flat geostat dict over :data:`GEOSTAT_FIELDS` -- the variogram
+    log-log roughness-scaling slope
+    (:func:`terratrace.variogram.variogram_signature`), the surface-normal fabric
+    ``isotropy`` (:func:`terratrace.fabric_eigen.fabric_signature`) and the six
+    ``curv_<class>`` Wood (1996) curvature-feature area fractions
+    (:func:`terratrace.curvature_classes.curvature_class_signature`), as plain floats.
+    This is the component consumed by the OPT-IN geostat term of :func:`similarity`.
+
     All optional entries are purely additive: the FINGERPRINT_FIELDS scalars
     are left untouched, so by default (all flags False) the fingerprint is
     byte-identical to one built before these components existed and existing
@@ -392,6 +524,8 @@ def terrain_fingerprint(z, dx=1.0, window=5, include_landform=False,
                                                        bank["anisotropy"])
     if include_texture:
         fp[TEXTURE_KEY] = _texture_signature(np.asarray(z, dtype=float), dx=dx)
+    if include_geostat:
+        fp[GEOSTAT_KEY] = _geostat_signature(np.asarray(z, dtype=float), dx=dx)
     return fp
 
 
@@ -431,7 +565,8 @@ def _morph_distance(fp_a, fp_b, scales=None):
 
 def similarity(fp_a, fp_b, scales=None, include_landform=False, landform_weight=1.0,
                include_scale_fabric=False, scale_fabric_weight=1.0,
-               include_texture=False, texture_weight=1.0):
+               include_texture=False, texture_weight=1.0,
+               include_geostat=False, geostat_weight=1.0):
     """Morphological similarity in (0, 1]; 1.0 iff the signatures are identical.
 
     Builds both fingerprint vectors (via :func:`fingerprint_vector`, so dicts
@@ -492,8 +627,21 @@ def similarity(fp_a, fp_b, scales=None, include_landform=False, landform_weight=
     :data:`TEXTURE_SPANS` entry. Each dict comes from its argument via
     :func:`_texture`: a fingerprint dict must have been built with
     ``terrain_fingerprint(..., include_texture=True)`` (else a ``ValueError`` is
-    raised), while a raw array is scanned on the fly. The three opt-in terms are
-    independent and may be combined; with all flags False the behaviour is
+    raised), while a raw array is scanned on the fly.
+
+    OPT-IN geostat term: with ``include_geostat=True`` a weighted geostatistical
+    distance is likewise ADDED to ``d``::
+
+        d_total += geostat_weight * geostat_distance(gs_a, gs_b)
+
+    using :func:`geostat_distance` (range ``[0, 1]``) over the two tiles' geostat
+    dicts -- the variogram log-log roughness-scaling slope and the surface-normal
+    fabric isotropy (each span-normalised by its :data:`GEOSTAT_SPANS` entry) plus the
+    total-variation distance between the two six-class curvature-feature compositions.
+    Each dict comes from its argument via :func:`_geostat`: a fingerprint dict must
+    have been built with ``terrain_fingerprint(..., include_geostat=True)`` (else a
+    ``ValueError`` is raised), while a raw array is scanned on the fly. The four opt-in
+    terms are independent and may be combined; with all flags False the behaviour is
     byte-identical to the morphology-only similarity.
     """
     d = _morph_distance(fp_a, fp_b, scales=scales)
@@ -506,6 +654,9 @@ def similarity(fp_a, fp_b, scales=None, include_landform=False, landform_weight=
     if include_texture:
         tx = texture_distance(_texture(fp_a), _texture(fp_b))
         d = (0.0 if not np.isfinite(d) else d) + float(texture_weight) * tx
+    if include_geostat:
+        gs = geostat_distance(_geostat(fp_a), _geostat(fp_b))
+        d = (0.0 if not np.isfinite(d) else d) + float(geostat_weight) * gs
     if not np.isfinite(d):
         return float("nan")
     return 1.0 / (1.0 + d)
@@ -514,7 +665,7 @@ def similarity(fp_a, fp_b, scales=None, include_landform=False, landform_weight=
 def rank_library(query, library, scales=None, include_landform=False,
                  landform_weight=1.0, include_scale_fabric=False,
                  scale_fabric_weight=1.0, include_texture=False,
-                 texture_weight=1.0):
+                 texture_weight=1.0, include_geostat=False, geostat_weight=1.0):
     """Rank reference terrains by morphological similarity to ``query``.
 
     ``query`` is a fingerprint dict or a raw elevation array; ``library`` is a
@@ -526,25 +677,28 @@ def rank_library(query, library, scales=None, include_landform=False,
     Morphological resemblance only; not a classification or identity claim.
 
     ``include_landform`` / ``landform_weight``, ``include_scale_fabric`` /
-    ``scale_fabric_weight`` and ``include_texture`` / ``texture_weight`` are
-    forwarded to :func:`similarity` to add the opt-in landform, scale/fabric and
-    texture terms. When any is enabled and ``query`` is a raw array it is
-    fingerprinted WITH the matching component, and every library entry must
-    likewise expose that component (a raw array, or a dict built with the
-    corresponding ``include_*`` flag) or a ``ValueError`` is raised. Defaults (all
-    flags False) preserve the existing behaviour exactly.
+    ``scale_fabric_weight``, ``include_texture`` / ``texture_weight`` and
+    ``include_geostat`` / ``geostat_weight`` are forwarded to :func:`similarity` to add
+    the opt-in landform, scale/fabric, texture and geostat terms. When any is enabled
+    and ``query`` is a raw array it is fingerprinted WITH the matching component, and
+    every library entry must likewise expose that component (a raw array, or a dict
+    built with the corresponding ``include_*`` flag) or a ``ValueError`` is raised.
+    Defaults (all flags False) preserve the existing behaviour exactly.
     """
     q = (query if isinstance(query, dict)
          else terrain_fingerprint(query, include_landform=include_landform,
                                   include_scale_fabric=include_scale_fabric,
-                                  include_texture=include_texture))
+                                  include_texture=include_texture,
+                                  include_geostat=include_geostat))
     ranked = [(name, similarity(q, ref, scales=scales,
                                 include_landform=include_landform,
                                 landform_weight=landform_weight,
                                 include_scale_fabric=include_scale_fabric,
                                 scale_fabric_weight=scale_fabric_weight,
                                 include_texture=include_texture,
-                                texture_weight=texture_weight))
+                                texture_weight=texture_weight,
+                                include_geostat=include_geostat,
+                                geostat_weight=geostat_weight))
               for name, ref in library.items()]
 
     def _key(item):

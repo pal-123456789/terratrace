@@ -62,7 +62,8 @@ from . import (study, synthetic, provenance, features, openness, geomorphons,
                iwahashi_pike, drainage, wavelet_roughness, hypsometry,
                normal_roughness, tpi_landform, fractal, lacunarity,
                entropy_terrain, slope_area, twi, convergence, svf,
-               multiscale_tpi)
+               multiscale_tpi, variogram, roughness_length, curvature_classes,
+               fabric_eigen, openness_difference, melton_relief, transect)
 
 # Isolate the morphology math from aggregation smoothing: native == target gives
 # an aggregation factor of 1, so features are computed on the grids as built.
@@ -1153,6 +1154,196 @@ def check_multiscale_tpi_cone_bowl_plane():
                    plane_dominant=plane_dominant)
 
 
+# --- variogram / roughness-length / curvature-class / fabric / openness-diff /
+# --- Melton / transect oracles ----------------------------------------------
+# Six single-tile MORPHOLOGY descriptors plus the transect utility, checked
+# directly (not through the comparison pipeline) against a defining analytic
+# behaviour on synthetic surfaces with a KNOWN answer: a white-noise field is
+# nugget-dominated while a tilted plane's semivariogram rises steeply (log-log
+# slope ~ 2); the RMS-deviation deviogram Hurst is ~1 on a smooth ramp and ~0 on
+# white noise; the Wood (1996) curvature classes recover peak / pit / pass /
+# planar on a dome / bowl / saddle / plane; the Woodcock (1977) fabric is a tight
+# cluster on a plane and near-isotropic on a rough field; the openness-difference
+# slope position is ridge-positive on a cone and valley-negative in a bowl; the
+# Melton (1965) scalars are zero on a flat tile and the elevation-relief ratio
+# cross-checks the hypsometric integral; and a transect across a planar ramp
+# reads back the imposed constant slope. Pure NumPy, deterministic; only pass/fail
+# booleans enter the outcome hash and every asserted bound is decisive (not
+# marginal), so the checks are host-independent. Map-scale morphology descriptors
+# only -- no process, hydrology, traversability, hazard, or mission claim.
+
+
+def check_variogram_whitenoise_vs_plane():
+    """The Matheron (1963) semivariogram signature behaves as its definition
+    requires: (a) an uncorrelated WHITE-NOISE field is NUGGET-DOMINATED -- its
+    semivariogram is flat at the sill from the first lag, so ``nugget`` exceeds
+    half the ``sill`` -- and (b) a smooth tilted PLANE has a steeply RISING
+    semivariogram (``gamma ~ h^2`` along the gradient), so its
+    ``vario_loglog_slope`` is well above 1 (~2). PASS iff both."""
+    white = np.random.default_rng(0).standard_normal((80, 80))
+    sw = variogram.variogram_signature(white)                   # dx defaults to 1.0
+    nugget_ok = (bool(np.isfinite(sw["nugget"])) and bool(np.isfinite(sw["sill"]))
+                 and sw["nugget"] > 0.5 * sw["sill"])
+    plane = synthetic.plane((80, 80), slope_x=0.05, dx=10.0)
+    sp = variogram.variogram_signature(plane, dx=10.0)
+    slope_ok = (bool(np.isfinite(sp["vario_loglog_slope"]))
+                and sp["vario_loglog_slope"] > 1.0)
+    return _result("variogram_whitenoise_vs_plane", nugget_ok and slope_ok,
+                   f"white-noise nugget {sw['nugget']:.4f} > 0.5*sill "
+                   f"{0.5 * sw['sill']:.4f}; tilted-plane vario_loglog_slope "
+                   f"{sp['vario_loglog_slope']:.4f} (> 1.0, gamma ~ h^2)",
+                   white_nugget=float(sw["nugget"]), white_sill=float(sw["sill"]),
+                   plane_loglog_slope=float(sp["vario_loglog_slope"]))
+
+
+def check_roughness_length_ramp_hurst_white_flat():
+    """The Shepard (2001) RMS-deviation (Allan-deviation) roughness behaves as its
+    definition requires: (a) a smooth planar RAMP has ``nu(Dx) ~ Dx`` so its
+    deviogram Hurst sits in ``[0.8, 1.2]`` (~1, long-correlated) and (b) a
+    WHITE-NOISE field decorrelates within one pixel so ``nu(Dx)`` is flat and its
+    deviogram Hurst is ~0 (``< 0.3``). PASS iff both."""
+    ramp = synthetic.plane((80, 80), slope_x=0.1, dx=10.0)
+    white = np.random.default_rng(1).standard_normal((80, 80))
+    h_ramp = roughness_length.roughness_length_signature(ramp, dx=10.0)["hurst_deviogram"]
+    h_white = roughness_length.roughness_length_signature(white)["hurst_deviogram"]
+    ramp_ok = bool(np.isfinite(h_ramp)) and 0.8 <= h_ramp <= 1.2
+    white_ok = bool(np.isfinite(h_white)) and h_white < 0.3
+    return _result("roughness_length_ramp_hurst_white_flat", ramp_ok and white_ok,
+                   f"planar-ramp deviogram Hurst {h_ramp:.4f} (in [0.8, 1.2], "
+                   f"nu ~ Dx) and white-noise deviogram Hurst {h_white:.4f} (< 0.3, "
+                   f"flat nu)",
+                   hurst_ramp=float(h_ramp), hurst_white=float(h_white))
+
+
+def check_curvature_classes_dome_bowl_saddle_plane():
+    """The Wood (1996) morphometric curvature-feature classifier recovers the
+    textbook shapes at a quadratic's centre: a DOME ``-(X^2+Y^2)`` -> 'peak', a
+    BOWL ``+(X^2+Y^2)`` -> 'pit', a SADDLE ``X^2-Y^2`` -> 'pass', and a tilted
+    PLANE is dominated by 'planar' (zero curvature everywhere). ``X=(jj-c)``,
+    ``Y=(ii-c)`` with ``c = n//2``; the centre class is read from
+    :func:`curvature_classes.curvature_class_map` via ``CODE_TO_NAME``. PASS iff
+    all four hold."""
+    n = 81
+    c = n // 2
+    ii, jj = np.indices((n, n))
+    X = (jj - c).astype(float)
+    Y = (ii - c).astype(float)
+    dome = -(X ** 2 + Y ** 2)
+    bowl = X ** 2 + Y ** 2
+    saddle = X ** 2 - Y ** 2
+    dome_name = curvature_classes.CODE_TO_NAME.get(
+        int(curvature_classes.curvature_class_map(dome)[c, c]))
+    bowl_name = curvature_classes.CODE_TO_NAME.get(
+        int(curvature_classes.curvature_class_map(bowl)[c, c]))
+    saddle_name = curvature_classes.CODE_TO_NAME.get(
+        int(curvature_classes.curvature_class_map(saddle)[c, c]))
+    plane = synthetic.plane((80, 80), slope_x=0.03, dx=10.0)
+    plane_dominant = curvature_classes.curvature_class_signature(
+        plane, dx=10.0)["dominant_class"]
+    passed = (dome_name == "peak" and bowl_name == "pit"
+              and saddle_name == "pass" and plane_dominant == "planar")
+    return _result("curvature_classes_dome_bowl_saddle_plane", passed,
+                   f"dome centre {dome_name!r} (peak) bowl centre {bowl_name!r} "
+                   f"(pit) saddle centre {saddle_name!r} (pass) and tilted-plane "
+                   f"dominant class {plane_dominant!r} (planar)",
+                   dome=dome_name, bowl=bowl_name, saddle=saddle_name,
+                   plane_dominant=plane_dominant)
+
+
+def check_fabric_plane_cluster_vs_rough_isotropic():
+    """The Woodcock (1977) surface-normal orientation-tensor fabric behaves as its
+    definition requires: (a) a tilted PLANE has one constant normal everywhere ->
+    a tight CLUSTER fabric (``isotropy < 0.05`` and a large strength
+    ``woodcock_C > 3``) and (b) a seeded ROUGH field disperses the normals with no
+    preferred axis -> markedly MORE isotropic (``isotropy`` above the plane's) and
+    a WEAKER preferred orientation (``woodcock_C`` below the plane's). PASS iff
+    both."""
+    plane = synthetic.plane((80, 80), slope_x=0.02, dx=10.0)
+    rough = synthetic.rough_field((80, 80), amplitude=5.0, seed=3)
+    sp = fabric_eigen.fabric_signature(plane, dx=10.0)
+    sr = fabric_eigen.fabric_signature(rough)
+    plane_cluster = (bool(np.isfinite(sp["isotropy"])) and sp["isotropy"] < 0.05
+                     and bool(np.isfinite(sp["woodcock_C"])) and sp["woodcock_C"] > 3.0)
+    rough_isotropic = (bool(np.isfinite(sr["isotropy"])) and sr["isotropy"] > sp["isotropy"]
+                       and bool(np.isfinite(sr["woodcock_C"]))
+                       and sr["woodcock_C"] < sp["woodcock_C"])
+    return _result("fabric_plane_cluster_vs_rough_isotropic",
+                   plane_cluster and rough_isotropic,
+                   f"plane cluster isotropy {sp['isotropy']:.4f} (< 0.05) "
+                   f"woodcock_C {sp['woodcock_C']:.3f} (> 3); rough isotropy "
+                   f"{sr['isotropy']:.4f} (> plane) woodcock_C {sr['woodcock_C']:.3f} "
+                   f"(< plane)",
+                   plane_isotropy=float(sp["isotropy"]), plane_C=float(sp["woodcock_C"]),
+                   rough_isotropy=float(sr["isotropy"]), rough_C=float(sr["woodcock_C"]))
+
+
+def check_openness_difference_cone_ridge_bowl_valley():
+    """The Yokoyama (2002) openness-difference slope position resolves convex vs
+    concave sites: a radial CONE ``-r`` (convex, peak at centre) has a POSITIVE
+    mean slope position with ``ridge_fraction > valley_fraction``, while a radial
+    BOWL ``+r`` (concave, pit at centre) has a NEGATIVE mean with
+    ``valley_fraction > ridge_fraction``. PASS iff both."""
+    n = 81
+    c = n // 2
+    ii, jj = np.indices((n, n))
+    r = np.hypot(ii - c, jj - c).astype(float)
+    sc = openness_difference.openness_difference_signature(-r)
+    sb = openness_difference.openness_difference_signature(r)
+    cone_ok = (bool(np.isfinite(sc["slopepos_mean"])) and sc["slopepos_mean"] > 0.0
+               and sc["ridge_fraction"] > sc["valley_fraction"])
+    bowl_ok = (bool(np.isfinite(sb["slopepos_mean"])) and sb["slopepos_mean"] < 0.0
+               and sb["valley_fraction"] > sb["ridge_fraction"])
+    return _result("openness_difference_cone_ridge_bowl_valley", cone_ok and bowl_ok,
+                   f"cone slopepos_mean {sc['slopepos_mean']:.3f} (> 0) ridge "
+                   f"{sc['ridge_fraction']:.3f} > valley {sc['valley_fraction']:.3f}; "
+                   f"bowl slopepos_mean {sb['slopepos_mean']:.3f} (< 0) valley "
+                   f"{sb['valley_fraction']:.3f} > ridge {sb['ridge_fraction']:.3f}",
+                   cone_mean=float(sc["slopepos_mean"]), bowl_mean=float(sb["slopepos_mean"]),
+                   cone_ridge=float(sc["ridge_fraction"]), cone_valley=float(sc["valley_fraction"]),
+                   bowl_ridge=float(sb["ridge_fraction"]), bowl_valley=float(sb["valley_fraction"]))
+
+
+def check_melton_flat_zero_and_cross_check_hi():
+    """The Melton (1965) relief scalars behave as their definition requires: (a) a
+    perfectly FLAT tile has zero relief, so ``total_relief_m == 0`` and
+    ``melton_ruggedness == 0``, and (b) on a rough tile the elevation-relief ratio
+    CROSS-CHECKS the hypsometric integral -- ``|elevation_relief_ratio -
+    features.hypsometric_integral(z)| < 0.05`` (two independent code paths agree).
+    PASS iff both."""
+    flat = melton_relief.melton_signature(np.zeros((50, 50)))
+    flat_ok = flat["total_relief_m"] == 0.0 and flat["melton_ruggedness"] == 0.0
+    z = (synthetic.plane((64, 64), slope_x=0.03, dx=10.0)
+         + synthetic.rough_field((64, 64), amplitude=2.0, seed=5))
+    e = melton_relief.melton_signature(z, dx=10.0)["elevation_relief_ratio"]
+    hi = features.hypsometric_integral(z)
+    cross_ok = bool(np.isfinite(e)) and bool(np.isfinite(hi)) and abs(e - hi) < 0.05
+    return _result("melton_flat_zero_and_cross_check_hi", flat_ok and cross_ok,
+                   f"flat tile total_relief_m {flat['total_relief_m']:.3f} and "
+                   f"melton_ruggedness {flat['melton_ruggedness']:.3f} (both 0); "
+                   f"rough-tile elevation_relief_ratio {e:.4f} vs "
+                   f"hypsometric_integral {hi:.4f} (|delta| {abs(e - hi):.4f} < 0.05)",
+                   flat_relief=float(flat["total_relief_m"]),
+                   flat_ruggedness=float(flat["melton_ruggedness"]),
+                   elevation_relief_ratio=float(e), hypsometric_integral=float(hi))
+
+
+def check_transect_plane_constant_slope():
+    """The transect utility reads back a planar ramp's imposed geometry: along a
+    straight +x transect of ``synthetic.plane(slope_x=0.1, dx=10)`` the
+    ``mean_slope`` lands within 5% of the imposed 0.1 and ``relief_m`` is strictly
+    positive (the elevation rises along the track). PASS iff both."""
+    z = synthetic.plane((100, 100), slope_x=0.1, dx=10.0)
+    sig = transect.transect_signature(z, (50, 0), (50, 99), dx=10.0)
+    mean_slope = sig["mean_slope"]
+    relief = sig["relief_m"]
+    slope_ok = bool(np.isfinite(mean_slope)) and abs(mean_slope - 0.1) <= 0.05 * 0.1
+    relief_ok = bool(np.isfinite(relief)) and relief > 0.0
+    return _result("transect_plane_constant_slope", slope_ok and relief_ok,
+                   f"planar-ramp transect mean_slope {mean_slope:.5f} (within 5% of "
+                   f"0.1) and relief_m {relief:.3f} (> 0)",
+                   mean_slope=float(mean_slope), relief_m=float(relief))
+
+
 _CHECKS = (
     check_self_distance_zero,
     check_translation_invariance,
@@ -1198,6 +1389,13 @@ _CHECKS = (
     check_convergence_cone_divergent_bowl_convergent,
     check_svf_flat_is_one_pit_lower,
     check_multiscale_tpi_cone_bowl_plane,
+    check_variogram_whitenoise_vs_plane,
+    check_roughness_length_ramp_hurst_white_flat,
+    check_curvature_classes_dome_bowl_saddle_plane,
+    check_fabric_plane_cluster_vs_rough_isotropic,
+    check_openness_difference_cone_ridge_bowl_valley,
+    check_melton_flat_zero_and_cross_check_hi,
+    check_transect_plane_constant_slope,
 )
 
 

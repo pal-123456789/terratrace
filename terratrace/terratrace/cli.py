@@ -13,6 +13,8 @@ Commands:
   sensitivity run a decision-lens robustness ablation on a synthetic scene
   classify   label synthetic terrains by map-scale morphology type
   confidence print the non-composite decision confidence for a study JSON
+  bank       compute the full geomorphometric descriptor bank for one tile (JSON)
+  transect   emit a transect signature (and optional profile) along a line (JSON)
   version    print the TerraTrace version and schema version
 
 Backward compatibility: the original CLI ran a study directly with options like
@@ -381,6 +383,164 @@ def _cmd_confidence(argv):
     return 0
 
 
+def _synthetic_tile(shape=(48, 48)):
+    """Return a deterministic, well-conditioned synthetic elevation tile.
+
+    A gently tilted plane + a central gaussian dome + seeded roughness, so that
+    slope, relief, curvature, texture and fabric descriptors are all
+    non-degenerate -- mirroring the synthetic scenes used by the classify /
+    sensitivity subcommands. The tile is generated in unit pixel space; the real
+    pixel size (``dx``) is applied later by the descriptor / transect call, so
+    there is no double-counting of ``dx``.
+    """
+    from terratrace import synthetic
+    base = synthetic.plane(shape, slope_x=0.03, slope_y=0.01)
+    dome = synthetic.gaussian_hill(shape, amplitude=12.0, sigma=10.0)
+    rough = synthetic.rough_field(shape, amplitude=1.5, seed=7)
+    return base + dome + rough
+
+
+def _load_tile(path):
+    """Load a 2-D elevation array from ``path``.
+
+    A NumPy ``.npy`` file (loaded with ``allow_pickle=False``, the safe default),
+    a ``.json`` file holding a 2-D array, or -- for any other extension -- a DEM
+    raster via :func:`terratrace.ingest.load_dem_array` (rasterio, lazily
+    imported, so the common/offline paths never need it). Raises ``SystemExit`` on
+    anything that is not a readable, non-empty 2-D array.
+    """
+    import numpy as np
+    ext = os.path.splitext(path)[1].lower()
+    try:
+        if ext == ".npy":
+            arr = np.load(path, allow_pickle=False)
+        elif ext == ".json":
+            with open(path, "r", encoding="utf-8") as fh:
+                arr = json.load(fh)
+        else:
+            from terratrace import ingest
+            arr, _posting_m = ingest.load_dem_array(path)
+    except Exception as exc:
+        raise SystemExit(f"terratrace: cannot load tile from {path!r}: {exc}")
+    arr = np.asarray(arr, dtype=float)
+    if arr.ndim != 2 or min(arr.shape) < 1:
+        raise SystemExit(f"terratrace: input {path!r} is not a non-empty 2-D array")
+    return arr
+
+
+def _resolve_tile(use_synthetic, input_path):
+    """Return a 2-D elevation tile from EXACTLY ONE of the synthetic generator or
+    an input path. ``SystemExit(2)`` if both or neither are selected, so the
+    offline-friendly ``--synthetic`` demo and a real ``--input`` are unambiguous.
+    """
+    if use_synthetic and input_path:
+        raise SystemExit("terratrace: choose only one of --synthetic / --input")
+    if not use_synthetic and not input_path:
+        raise SystemExit("terratrace: provide --synthetic or --input PATH")
+    return _synthetic_tile() if use_synthetic else _load_tile(input_path)
+
+
+def _parse_point(text):
+    """Parse a ``"row,col"`` CLI point into a ``(row, col)`` float tuple."""
+    parts = str(text).split(",")
+    if len(parts) != 2:
+        raise SystemExit(f"terratrace: point {text!r} must be 'row,col'")
+    try:
+        return (float(parts[0]), float(parts[1]))
+    except ValueError:
+        raise SystemExit(f"terratrace: point {text!r} must be 'row,col' numbers")
+
+
+def _emit_json(obj, out_path):
+    """Write ``obj`` as pretty, key-sorted JSON to ``out_path`` (echoing the path)
+    or print it to stdout. Mirrors the ``--out`` convention of the references /
+    report subcommands; in stdout mode nothing but the JSON is printed, so the
+    output pipes cleanly into a JSON parser."""
+    text = json.dumps(obj, indent=2, sort_keys=True)
+    if out_path:
+        with open(out_path, "w", encoding="utf-8") as fh:
+            fh.write(text)
+        print(out_path)
+    else:
+        print(text)
+
+
+def _cmd_bank(argv):
+    """Compute the full geomorphometric descriptor bank for one tile and emit JSON.
+
+    The tile is either a deterministic synthetic scene (``--synthetic``, an
+    offline demo like classify / sensitivity) or a 2-D elevation array loaded from
+    ``--input`` (``.npy`` / JSON 2-D array / DEM raster); exactly one is required.
+    ``--dx`` sets the (square) pixel size in metres; the JSON goes to ``--out``
+    (path echoed) or stdout. This is a READ-ONLY analysis surface --
+    :func:`terratrace.descriptors.descriptor_bank` is a flat bag of map-scale
+    morphology descriptors consulted by NO decision in the engine; no
+    traversability, mechanical, or mission claim is implied."""
+    ap = argparse.ArgumentParser(
+        prog="terratrace bank",
+        description="Compute the full geomorphometric descriptor bank for one tile (JSON).")
+    ap.add_argument("--synthetic", action="store_true",
+                    help="use a deterministic synthetic tile (offline demo)")
+    ap.add_argument("--input", default=None,
+                    help="load the tile from PATH (.npy, JSON 2-D array, or a DEM raster)")
+    ap.add_argument("--dx", type=float, default=1.0,
+                    help="pixel size in metres (default 1.0)")
+    ap.add_argument("--out", default=None,
+                    help="write the JSON to this file instead of stdout")
+    args = ap.parse_args(argv)
+    if args.dx <= 0:
+        raise SystemExit("--dx must be positive")
+    z = _resolve_tile(args.synthetic, args.input)
+    # Lazy import keeps `import terratrace.cli` cheap and dependency-free.
+    from terratrace import descriptors
+    _emit_json(descriptors.descriptor_bank(z, dx=args.dx), args.out)
+    return 0
+
+
+def _cmd_transect(argv):
+    """Emit a transect signature (and optionally the full profile) along p0->p1.
+
+    The tile comes from ``--synthetic`` or ``--input`` (the same loader as
+    ``bank``). ``--p0`` / ``--p1`` are ``row,col`` pixel endpoints (defaults span
+    the synthetic tile corner-to-corner) and ``--dx`` is the pixel size in metres.
+    By default the flat scalar :func:`terratrace.transect.transect_signature` dict
+    is emitted (so ``mean_slope`` etc. are top-level keys); ``--profile`` instead
+    emits ``{"signature": ..., "profile": ...}`` with the full per-station
+    :func:`terratrace.transect.extract_profile`. Output goes to ``--out`` or
+    stdout. Purely geometric map-scale morphology -- see the transect module's
+    claim firewall."""
+    ap = argparse.ArgumentParser(
+        prog="terratrace transect",
+        description="Emit a transect signature (and optional profile) along p0->p1 (JSON).")
+    ap.add_argument("--synthetic", action="store_true",
+                    help="use a deterministic synthetic tile (offline demo)")
+    ap.add_argument("--input", default=None,
+                    help="load the tile from PATH (.npy, JSON 2-D array, or a DEM raster)")
+    ap.add_argument("--p0", default="2,2", help="start point 'row,col' (default 2,2)")
+    ap.add_argument("--p1", default="45,45", help="end point 'row,col' (default 45,45)")
+    ap.add_argument("--dx", type=float, default=1.0,
+                    help="pixel size in metres (default 1.0)")
+    ap.add_argument("--profile", action="store_true",
+                    help="also include the full per-station profile in the output")
+    ap.add_argument("--out", default=None,
+                    help="write the JSON to this file instead of stdout")
+    args = ap.parse_args(argv)
+    if args.dx <= 0:
+        raise SystemExit("--dx must be positive")
+    p0, p1 = _parse_point(args.p0), _parse_point(args.p1)
+    z = _resolve_tile(args.synthetic, args.input)
+    # Lazy import keeps `import terratrace.cli` cheap and dependency-free.
+    from terratrace import transect
+    sig = transect.transect_signature(z, p0, p1, dx=args.dx)
+    if args.profile:
+        out = {"signature": sig,
+               "profile": transect.extract_profile(z, p0, p1, dx=args.dx)}
+    else:
+        out = sig
+    _emit_json(out, args.out)
+    return 0
+
+
 def _cmd_version(argv):
     """Print the package version and the study-schema version."""
     ap = argparse.ArgumentParser(
@@ -403,6 +563,8 @@ _DISPATCH = {
     "sensitivity": _cmd_sensitivity,
     "classify": _cmd_classify,
     "confidence": _cmd_confidence,
+    "bank": _cmd_bank,
+    "transect": _cmd_transect,
     "version": _cmd_version,
 }
 
@@ -424,6 +586,8 @@ def _print_top_help():
     print("  sensitivity run a decision-lens robustness ablation on a synthetic scene")
     print("  classify    label synthetic terrains by map-scale morphology type")
     print("  confidence  print the non-composite decision confidence for a study JSON")
+    print("  bank        compute the full geomorphometric descriptor bank for one tile (JSON)")
+    print("  transect    emit a transect signature (and optional profile) along a line (JSON)")
     print("  version    print the TerraTrace version and schema version")
     print()
     print("Run 'python -m terratrace.cli <command> -h' for a command's options.")

@@ -245,10 +245,10 @@ source and a transformation.
   closer candidate provably dominates and is recommended, a flat/water tile is blocked,
   and the whole pipeline is deterministic. A reproducibility + performance harness pins
   behavioural invariants, checks hash stability, and profiles wall-clock scaling.
-- 613 fixture tests with known analytic answers, all passing, no network required.
+- 686 fixture tests with known analytic answers, all passing, no network required.
 
 ```
-passed=613 failed=0
+passed=686 failed=0
 ```
 
 ## Install
@@ -267,7 +267,7 @@ pip install -r requirements-real.txt      # rasterio + requests (real DEMs)
 ```bash
 PYTHONPATH=. python3 -m terratrace.cli --out artifacts
 PYTHONPATH=. python3 -m terratrace.build_viewer      # writes viewer/index.html
-PYTHONPATH=. python3 tests/run_tests.py              # 613 tests
+PYTHONPATH=. python3 tests/run_tests.py              # 686 tests
 ```
 
 Open `viewer/index.html` in any browser — it is self-contained and works offline.
@@ -283,6 +283,8 @@ PYTHONPATH=. python3 -m terratrace.cli report        # render a Markdown study r
 PYTHONPATH=. python3 -m terratrace.cli report-html   # render a self-contained HTML report
 PYTHONPATH=. python3 -m terratrace.cli dossier       # per-candidate site decision brief
 PYTHONPATH=. python3 -m terratrace.cli confidence    # non-composite decision confidence for a study JSON
+PYTHONPATH=. python3 -m terratrace.cli bank          # full geomorphometric descriptor bank for a tile
+PYTHONPATH=. python3 -m terratrace.cli transect      # extract a swath / elevation profile across a DEM
 PYTHONPATH=. python3 -m terratrace.cli version       # print version + schema
 ```
 
@@ -303,8 +305,9 @@ registry), `POST /compare` (body `{"target_support_m", "n_boot", "significance",
 inputs validated/clamped; `significance` opts in to the permutation block), `POST /validate`
 (scientific-correctness suite), `POST /batch` (synthetic cross-reference batch), `POST /report`
 (study + Markdown report), `POST /dossier` (per-candidate decision briefs), `POST /report.html`
-(the report as a standalone HTML document), and `POST /confidence` (non-composite decision
-confidence for a posted study package). The `n_boot` bootstrap count is capped at 500 and the
+(the report as a standalone HTML document), `POST /confidence` (non-composite decision
+confidence for a posted study package), `POST /bank` (the full geomorphometric descriptor bank
+for a posted tile), and `POST /transect` (a swath / elevation profile across a posted DEM). The `n_boot` bootstrap count is capped at 500 and the
 `n_perm` permutation count at 2000 for interactive responsiveness. The server is
 **unauthenticated and binds to 127.0.0.1 by default** — put auth and rate limiting
 in front of it before exposing it to a network.
@@ -388,8 +391,8 @@ terratrace/
     hillshade.py     Horn shaded-relief PNG data URI (pure stdlib, self-contained)
     dossier.py       per-candidate decision brief (structured dict + Markdown)
     build_viewer.py  self-contained HTML viewer
-    cli.py           unified dispatcher: study / validate / benchmark / report / report-html / dossier / confidence / version
-  tests/             613 fixture tests + dependency-free runner
+    cli.py           unified dispatcher: study / validate / benchmark / report / report-html / dossier / confidence / bank / transect / version
+  tests/             686 fixture tests + dependency-free runner
   artifacts/         generated study package (JSON + checksums + manifest)
   viewer/            generated offline HTML viewer
   config/            AOI configuration for real runs (incl. real_multibody.example.yml)

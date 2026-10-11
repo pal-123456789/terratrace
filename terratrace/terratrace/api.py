@@ -31,6 +31,14 @@ FastAPI needed), so it runs anywhere Python does. Endpoints:
                                study package (the request body IS the study
                                package JSON); returns the verdict + per-signal
                                evidence + caveats as JSON
+    POST /bank              -> full geomorphometric descriptor bank for a POSTed
+                               tile
+                               body: {"z": [[...]], "dx": float}  # dx optional
+                               returns descriptors.descriptor_bank(z, dx) as JSON
+    POST /transect          -> transect signature along p0->p1 of a POSTed tile
+                               body: {"z": [[...]], "p0": [r,c], "p1": [r,c],
+                                      "dx": float}  # dx optional
+                               returns transect.transect_signature(...) as JSON
 
 SECURITY: this server is UNAUTHENTICATED and binds to 127.0.0.1 (localhost) by
 default. Do not expose it to a network without putting authentication and rate
@@ -44,6 +52,8 @@ import argparse
 import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
+import numpy as np
+
 from . import __version__, study, catalog, validation, batch, synthetic
 
 MAX_BOOT = 500             # interactive responsiveness cap for the HTTP endpoint
@@ -55,9 +65,10 @@ LOOPBACK = {"127.0.0.1", "localhost", "::1", "[::1]"}
 ROUTES = ["GET /health", "GET /study", "GET /bodies", "GET /references",
           "POST /compare", "POST /validate", "POST /batch", "POST /report",
           "POST /dossier", "POST /report.html", "POST /sensitivity", "POST /classify",
-          "POST /confidence"]
+          "POST /confidence", "POST /bank", "POST /transect"]
 POST_ROUTES = ("/compare", "/validate", "/batch", "/report", "/dossier",
-               "/report.html", "/sensitivity", "/classify", "/confidence")
+               "/report.html", "/sensitivity", "/classify", "/confidence",
+               "/bank", "/transect")
 
 
 def _clamp(value, lo, hi, default):
@@ -233,6 +244,10 @@ class Handler(BaseHTTPRequestHandler):
                 return self._post_classify(params)
             if route == "/confidence":
                 return self._post_confidence(params)
+            if route == "/bank":
+                return self._post_bank(params)
+            if route == "/transect":
+                return self._post_transect(params)
             return self._post_report(params)
         except Exception:
             return self._send(500, {"error": "internal error"})
@@ -407,6 +422,76 @@ class Handler(BaseHTTPRequestHandler):
         already in the package; it is not a new scientific or mission claim."""
         from . import confidence
         return self._send(200, confidence.decision_confidence(params))
+
+    def _grid_or_400(self, params):
+        """Coerce ``params["z"]`` to a non-empty 2-D float ndarray, or send the
+        matching 400 and return ``None``. Mirrors the engine's own
+        ``np.asarray(z, dtype=float)`` so a ragged / non-numeric / wrong-rank
+        array is rejected cleanly (400) instead of surfacing as a 500."""
+        z = params.get("z")
+        if z is None:
+            self._send(400, {"error": "missing 'z' (a 2-D array of elevations)"})
+            return None
+        try:
+            arr = np.asarray(z, dtype=float)
+        except (TypeError, ValueError):
+            self._send(400, {"error": "'z' must be a numeric 2-D array"})
+            return None
+        if arr.ndim != 2 or min(arr.shape) < 1:
+            self._send(400, {"error": "'z' must be a non-empty 2-D array"})
+            return None
+        return arr
+
+    @staticmethod
+    def _point(value):
+        """Coerce a ``[row, col]`` request value to a ``(row, col)`` float tuple,
+        or ``None`` if it is not a 2-element numeric sequence."""
+        if not isinstance(value, (list, tuple)) or len(value) != 2:
+            return None
+        try:
+            return (float(value[0]), float(value[1]))
+        except (TypeError, ValueError):
+            return None
+
+    def _post_bank(self, params):
+        """Full geomorphometric descriptor bank for a POSTed elevation tile. The
+        body carries a 2-D array ``"z"`` and an optional ``"dx"`` (pixel size in
+        metres, clamped like the other numeric params); returns
+        descriptors.descriptor_bank(z, dx) -- a flat JSON bag of map-scale
+        morphology descriptors. The shared POST security rules apply unchanged
+        (64 KiB body cap, loopback Host allowlist, JSON-object validation); a
+        malformed/non-numeric/wrong-rank ``z`` is a 400 and an oversize body a 413.
+        descriptors is lazy-imported so importing the API stays light. READ-ONLY
+        analysis surface consulted by no decision; no traversability / mechanical /
+        mission claim is implied."""
+        arr = self._grid_or_400(params)
+        if arr is None:
+            return  # a 400 was already sent
+        dx = _clamp(params.get("dx", 1.0), 1e-6, 1e6, 1.0)
+        from . import descriptors
+        return self._send(200, descriptors.descriptor_bank(arr, dx))
+
+    def _post_transect(self, params):
+        """Transect signature along ``p0 -> p1`` of a POSTed elevation tile. The
+        body carries a 2-D array ``"z"``, two ``[row, col]`` pixel endpoints
+        ``"p0"`` / ``"p1"``, and an optional ``"dx"`` (clamped like the other
+        numeric params); returns transect.transect_signature(z, p0, p1, dx) -- the
+        flat scalar summary (length / relief / max & mean slope / elevation gain).
+        The shared POST security rules apply unchanged (64 KiB body cap, loopback
+        Host allowlist, JSON-object validation); a bad ``z`` or a non-2-element
+        ``p0`` / ``p1`` is a 400 and an oversize body a 413. transect is
+        lazy-imported so importing the API stays light. Purely geometric map-scale
+        morphology -- see the transect module's claim firewall."""
+        arr = self._grid_or_400(params)
+        if arr is None:
+            return  # a 400 was already sent
+        p0 = self._point(params.get("p0"))
+        p1 = self._point(params.get("p1"))
+        if p0 is None or p1 is None:
+            return self._send(400, {"error": "'p0' and 'p1' must each be [row, col]"})
+        dx = _clamp(params.get("dx", 1.0), 1e-6, 1e6, 1.0)
+        from . import transect
+        return self._send(200, transect.transect_signature(arr, p0, p1, dx))
 
 
 def make_server(host="127.0.0.1", port=8000):

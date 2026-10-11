@@ -400,6 +400,44 @@ METHOD_REFERENCES = (
                      "398-415."),
         "doi": "10.3390/rs3020398",
     },
+    {
+        "id": "variogram_matheron_1963",
+        "topic": ("Geostatistical semivariogram (range / sill / nugget; spatial "
+                  "structure)"),
+        "citation": ("Matheron, G. (1963). Principles of geostatistics. Economic "
+                     "Geology, 58(8), 1246-1266."),
+        "doi": "10.2113/gsecongeo.58.8.1246",
+    },
+    {
+        "id": "curvature_classes_wood_1996",
+        "topic": ("Morphometric feature classification (curvature-sign feature "
+                  "types)"),
+        "citation": ("Wood, J. (1996). The Geomorphological Characterisation of "
+                     "Digital Elevation Models (PhD thesis). University of "
+                     "Leicester. See also Dikau, R. (1989), The application of a "
+                     "digital relief model to landform analysis, in Three "
+                     "Dimensional Applications in GIS (pp. 51-77)."),
+        "doi": None,
+    },
+    {
+        "id": "fabric_woodcock_1977",
+        "topic": "Surface-normal orientation-tensor fabric (shape & strength)",
+        "citation": ("Woodcock, N. H. (1977). Specification of fabric shapes using "
+                     "an eigenvalue method. Geological Society of America Bulletin, "
+                     "88(9), 1231-1236."),
+        "doi": None,
+    },
+    {
+        "id": "melton_1965",
+        "topic": "Melton ruggedness number & relief ratios",
+        "citation": ("Melton, M. A. (1965). The geomorphic and paleoclimatic "
+                     "significance of alluvial deposits in southern Arizona. "
+                     "Journal of Geology, 73(1), 1-38. See also Pike, R. J., & "
+                     "Wilson, S. E. (1971), Elevation-relief ratio, hypsometric "
+                     "integral, and geomorphic area-altitude analysis, GSA "
+                     "Bulletin 82."),
+        "doi": None,
+    },
 )
 
 
@@ -427,8 +465,11 @@ def method_references():
     gliding-box lacunarity, Plotnick, Gardner & O'Neill 1993; Shannon 1948
     information entropy; the Flint 1974 slope-area concavity scaling; the
     Topographic Wetness Index, Beven & Kirkby 1979; the aspect-field convergence
-    index, Köthe & Lehmeier 1996 / Kiss 2004; and the sky-view factor, Zakšek,
-    Oštir & Kokalj 2011) - and are distinct from the upstream DATA-provider
+    index, Köthe & Lehmeier 1996 / Kiss 2004; the sky-view factor, Zakšek,
+    Oštir & Kokalj 2011; the geostatistical semivariogram, Matheron 1963; the
+    Wood 1996 morphometric feature classes; the Woodcock 1977 surface-normal
+    orientation-tensor fabric; and the Melton 1965 ruggedness number) - and are
+    distinct from the upstream DATA-provider
     credits produced by :func:`references_for`. Returns fresh dict copies in
     declaration order.
     """

@@ -171,3 +171,58 @@ def test_cli_classify_subcommand_exits_zero():
         code = _exit_code(["classify"])
     assert code == 0
     assert buf.getvalue().strip() != ""
+
+
+def test_cli_bank_synthetic_emits_descriptor_bank():
+    # `bank --synthetic` prints the full descriptor bank as JSON to stdout.
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        code = _exit_code(["bank", "--synthetic", "--dx", "10"])
+    assert code == 0
+    bank = json.loads(buf.getvalue())
+    for k in ("slope", "variogram", "melton_relief", "fabric_eigen"):
+        assert k in bank, k
+    # map-valued features are summarised to a five-number distribution dict
+    assert set(bank["slope"]) >= {"mean", "std", "p10", "p50", "p90"}
+
+
+def test_cli_bank_out_writes_json_file():
+    d = tempfile.mkdtemp()
+    out = os.path.join(d, "bank.json")
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        code = _exit_code(["bank", "--synthetic", "--dx", "5", "--out", out])
+    assert code == 0
+    assert os.path.exists(out)
+    bank = json.load(open(out, encoding="utf-8"))
+    assert "slope" in bank and "melton_relief" in bank
+
+
+def test_cli_bank_requires_a_source():
+    # Neither --synthetic nor --input -> a clean non-zero exit (SystemExit).
+    code = _exit_code(["bank"])
+    assert isinstance(code, int) and code != 0
+
+
+def test_cli_transect_synthetic_emits_signature():
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        code = _exit_code(["transect", "--synthetic",
+                           "--p0", "2,2", "--p1", "45,45", "--dx", "10"])
+    assert code == 0
+    sig = json.loads(buf.getvalue())
+    assert "mean_slope" in sig
+    for k in ("length_m", "relief_m", "max_slope", "elev_gain_m"):
+        assert k in sig, k
+
+
+def test_cli_transect_profile_flag_includes_profile():
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        code = _exit_code(["transect", "--synthetic", "--profile", "--dx", "10"])
+    assert code == 0
+    out = json.loads(buf.getvalue())
+    assert "signature" in out and "profile" in out
+    assert "mean_slope" in out["signature"]
+    prof = out["profile"]
+    assert len(prof["distance_m"]) == len(prof["elevation"]) == len(prof["slope"])

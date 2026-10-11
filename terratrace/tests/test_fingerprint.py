@@ -9,7 +9,8 @@ import json
 import numpy as np
 
 from terratrace import (fingerprint, synthetic, spectral, anisotropy,
-                        fractal, entropy_terrain, lacunarity)
+                        fractal, entropy_terrain, lacunarity,
+                        variogram, fabric_eigen, curvature_classes)
 
 
 def _rough(amplitude, seed, shape=(48, 48)):
@@ -454,3 +455,144 @@ def test_rank_library_texture_optin_and_missing_raises():
     except ValueError:
         raised = True
     assert raised, "expected ValueError for a fingerprint lacking a texture block"
+
+
+# --- opt-in geostat battery (variogram slope + fabric isotropy + curvature comp) --
+
+def test_fingerprint_default_has_no_geostat_key():
+    z = (synthetic.plane((48, 48), slope_x=0.2, slope_y=0.1) + _rough(2.0, seed=9))
+    fp = fingerprint.terrain_fingerprint(z)              # include_geostat=False
+    assert fingerprint.GEOSTAT_KEY not in fp
+    assert tuple(fp.keys()) == fingerprint.FINGERPRINT_FIELDS
+
+
+def test_fingerprint_include_geostat_is_additive_and_json():
+    z = (synthetic.plane((48, 48), slope_x=0.2, slope_y=0.1) + _rough(2.0, seed=9))
+    base = fingerprint.terrain_fingerprint(z)
+    withgs = fingerprint.terrain_fingerprint(z, include_geostat=True)
+    # additive: every FINGERPRINT_FIELDS scalar is byte-identical to the default
+    for field in fingerprint.FINGERPRINT_FIELDS:
+        assert withgs[field] == base[field], field
+    gs = withgs[fingerprint.GEOSTAT_KEY]
+    # exactly the documented geostat fields, every value a plain float
+    assert set(gs) == set(fingerprint.GEOSTAT_FIELDS), set(gs)
+    assert all(type(v) is float for v in gs.values()), gs
+    # the six curvature-class fractions form a composition summing to ~1
+    comp_sum = sum(gs[f] for f in fingerprint.GEOSTAT_COMPOSITION_FIELDS)
+    assert abs(comp_sum - 1.0) < 1e-9, comp_sum
+    # JSON round-trips exactly and the build is deterministic
+    assert json.loads(json.dumps(withgs)) == withgs
+    assert fingerprint.terrain_fingerprint(z, include_geostat=True) == withgs
+
+
+def test_fingerprint_geostat_matches_source_signatures():
+    z = (synthetic.plane((48, 48), slope_x=0.1, slope_y=0.2) + _rough(1.5, seed=12))
+    gs = fingerprint.terrain_fingerprint(z, include_geostat=True)[
+        fingerprint.GEOSTAT_KEY]
+    # each stored scalar equals a direct call to its source module (default dx=1)
+    assert gs["vario_loglog_slope"] == float(
+        variogram.variogram_signature(z)["vario_loglog_slope"])
+    assert gs["isotropy"] == float(fabric_eigen.fabric_signature(z)["isotropy"])
+    comp = curvature_classes.curvature_class_signature(z)["composition"]
+    for name in curvature_classes.CLASS_NAMES:
+        assert gs["curv_" + name] == float(comp[name]), name
+    # this rough + tilted fixture leaves the two scalars defined (finite)
+    assert np.isfinite(gs["vario_loglog_slope"]) and np.isfinite(gs["isotropy"])
+    # the six curvature-feature fractions sum to ~1 (a valid composition)
+    total = sum(gs["curv_" + n] for n in curvature_classes.CLASS_NAMES)
+    assert abs(total - 1.0) < 1e-9, total
+
+
+def test_geostat_distance_bounds_symmetry_and_known_values():
+    z = (synthetic.plane((48, 48), slope_x=0.2, slope_y=0.1) + _rough(2.0, seed=14))
+    gs = fingerprint.terrain_fingerprint(z, include_geostat=True)[
+        fingerprint.GEOSTAT_KEY]
+    other = fingerprint.terrain_fingerprint(_rough(6.0, seed=15),
+                                            include_geostat=True)[
+        fingerprint.GEOSTAT_KEY]
+    # identical -> 0.0; general pair -> bounded [0,1], symmetric, plain float
+    assert fingerprint.geostat_distance(gs, gs) == 0.0
+    d = fingerprint.geostat_distance(gs, other)
+    assert type(d) is float and 0.0 <= d <= 1.0, d
+    assert fingerprint.geostat_distance(gs, other) == \
+        fingerprint.geostat_distance(other, gs)
+    # a hand-built pair maximally separated on every axis -> distance 1.0:
+    # both scalars a full span apart and the two compositions fully disjoint.
+    a = {"vario_loglog_slope": 0.0, "isotropy": 0.0,
+         "curv_planar": 1.0, "curv_peak": 0.0, "curv_pit": 0.0,
+         "curv_ridge": 0.0, "curv_channel": 0.0, "curv_pass": 0.0}
+    b = {"vario_loglog_slope": fingerprint.GEOSTAT_SPANS["vario_loglog_slope"],
+         "isotropy": 1.0,
+         "curv_planar": 0.0, "curv_peak": 0.0, "curv_pit": 0.0,
+         "curv_ridge": 0.0, "curv_channel": 0.0, "curv_pass": 1.0}
+    assert abs(fingerprint.geostat_distance(a, b) - 1.0) < 1e-12
+    # all-NaN components -> 0.0 (no information, no penalty), kept finite
+    nan8 = {k: float("nan") for k in fingerprint.GEOSTAT_FIELDS}
+    assert fingerprint.geostat_distance(nan8, nan8) == 0.0
+
+
+def test_similarity_geostat_term_active_and_opt_in_preserves_default():
+    smooth = (synthetic.gaussian_hill((48, 48), amplitude=12.0, sigma=12.0)
+              + _rough(0.3, seed=41))
+    rough_a = _rough(5.0, seed=21)
+    rough_b = _rough(5.0, seed=22)
+    fp_s = fingerprint.terrain_fingerprint(smooth, include_geostat=True)
+    fp_a = fingerprint.terrain_fingerprint(rough_a, include_geostat=True)
+    fp_b = fingerprint.terrain_fingerprint(rough_b, include_geostat=True)
+
+    # self-similarity: identical signatures -> 1.0 (zero distance) even with the
+    # geostat term switched on
+    assert fingerprint.similarity(fp_a, fp_a, include_geostat=True) == 1.0
+
+    # a valid, bounded similarity in (0, 1] with the geostat term active
+    s_diff = fingerprint.similarity(fp_s, fp_a, include_geostat=True)
+    assert type(s_diff) is float and 0.0 < s_diff <= 1.0, s_diff
+
+    # a terrain is more geostat-similar to ITSELF than to a very different one
+    assert fingerprint.similarity(fp_a, fp_a, include_geostat=True) > s_diff
+
+    # discrimination: the geostatistically different pair (smooth vs rough) is LESS
+    # similar than two geostatistically similar tiles (same rough process)
+    s_same = fingerprint.similarity(fp_a, fp_b, include_geostat=True)
+    assert s_diff < s_same, (s_diff, s_same)
+
+    # the term is actually active: for a pair with differing geostat structure it
+    # strictly lowers similarity relative to morphology-only
+    s_morph = fingerprint.similarity(fp_s, fp_a, include_geostat=False)
+    assert fingerprint.similarity(fp_s, fp_a, include_geostat=True) < s_morph
+
+    # opt-out is byte-identical to the pre-existing morphology-only similarity,
+    # and the extra geostat key never perturbs the morphology distance
+    assert s_morph == fingerprint.similarity(fp_s, fp_a)
+    # the default call equals an explicit include_geostat=False (byte-identical)
+    assert fingerprint.similarity(fp_s, fp_a) == \
+        fingerprint.similarity(fp_s, fp_a, include_geostat=False)
+    s_def = fingerprint.terrain_fingerprint(smooth)
+    a_def = fingerprint.terrain_fingerprint(rough_a)
+    assert fingerprint.similarity(fp_s, fp_a) == \
+        fingerprint.similarity(s_def, a_def)
+
+
+def test_rank_library_geostat_optin_and_missing_raises():
+    base_hill = synthetic.gaussian_hill((48, 48), amplitude=12.0, sigma=12.0)
+    library = {
+        "plane": synthetic.plane((48, 48), slope_x=0.05, slope_y=0.0),
+        "moderate_hill": base_hill + _rough(0.8, seed=1),
+        "rough": _rough(10.0, seed=2),
+    }
+    query = base_hill + _rough(0.8, seed=777)
+    # geostat-aware ranking over raw arrays (signatures computed on the fly)
+    ranked = fingerprint.rank_library(query, library, include_geostat=True)
+    assert ranked[0][0] == "moderate_hill", ranked
+    sims = [s for _, s in ranked]
+    assert sims == sorted(sims, reverse=True), sims
+    assert {name for name, _ in ranked} == set(library)
+
+    # a dict fingerprint built WITHOUT the geostat block cannot opt in
+    fp_no_gs = fingerprint.terrain_fingerprint(query)   # include_geostat=False
+    raised = False
+    try:
+        fingerprint.similarity(fp_no_gs, fp_no_gs, include_geostat=True)
+    except ValueError:
+        raised = True
+    assert raised, "expected ValueError for a fingerprint lacking a geostat block"

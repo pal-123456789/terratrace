@@ -56,6 +56,13 @@ _EXPECTED_NAMES = (
     "convergence_cone_divergent_bowl_convergent",
     "svf_flat_is_one_pit_lower",
     "multiscale_tpi_cone_bowl_plane",
+    "variogram_whitenoise_vs_plane",
+    "roughness_length_ramp_hurst_white_flat",
+    "curvature_classes_dome_bowl_saddle_plane",
+    "fabric_plane_cluster_vs_rough_isotropic",
+    "openness_difference_cone_ridge_bowl_valley",
+    "melton_flat_zero_and_cross_check_hi",
+    "transect_plane_constant_slope",
 )
 
 # New line-of-sight morphology oracles added on top of the original battery.

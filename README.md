@@ -8,7 +8,7 @@ This repository holds two things:
 
 | Path | What it is |
 |---|---|
-| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across five robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **613 tests**, no network required. |
+| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across six robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **686 tests**, no network required. |
 | `site/` | A 3D scroll-animated website telling the project story (deployed on Vercel). |
 
 > **Scope / claim firewall.** TerraTrace screens terrain **morphology** between curated
@@ -26,7 +26,7 @@ curvature, vector ruggedness, roughness/Hurst, topographic openness, geomorphon 
 spectral slope, directional fabric, …),
 and ranks candidate terrains by **Pareto dominance** — never a composite "Mars-likeness" score.
 It returns a recommendation only when it survives five independent decision lenses (core,
-extended, geomorphic, landform, texture), reports an honest TIE/INDETERMINATE/BLOCKED state
+extended, geomorphic, landform, texture; a sixth, hydro, is opt-in via `decision_metrics`), reports an honest TIE/INDETERMINATE/BLOCKED state
 otherwise, and carries measurement uncertainty, a spatial block-bootstrap, significance tests,
 a transfer-gap ledger, and a full provenance appendix. On request it also attaches a map-scale
 **scale & fabric** layer — a radially-averaged power spectrum (spectral slope, band roughness,
@@ -45,14 +45,14 @@ viewer are generated per study.
 ```bash
 cd terratrace
 pip install -r requirements.txt            # core (NumPy only)
-python tests/run_tests.py                   # 613 fixtures, offline
+python tests/run_tests.py                   # 686 fixtures, offline
 python scripts/run_validation.py            # scientific-correctness suite
 python -m terratrace.cli --out artifacts    # synthetic study
 python -m terratrace.build_viewer           # viewer/index.html
 ```
 
 Unified CLI: `python -m terratrace.cli {study, batch, validate, benchmark, report, report-html,
-dossier, references, sensitivity, classify, confidence, version}`. Real data (keyless for the planetary
+dossier, references, sensitivity, classify, confidence, bank, transect, version}`. Real data (keyless for the planetary
 bodies; a free OpenTopography key for Earth) runs on a networked machine — see
 `terratrace/REAL-DATA-RUNBOOK.md`. The large DEMs under `terratrace/data/` are git-ignored;
 fetch them with `terratrace/scripts/fetch_real_dems.py`. A single command —

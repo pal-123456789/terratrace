@@ -3,6 +3,42 @@
 Complete build history of TerraTrace, generated from the git commit messages
 (newest first). Each entry is the exact message recorded with that commit.
 
+## Unreleased — Six cited descriptors, a sixth `hydro` decision lens, a transect profiler, and bank/transect interfaces
+
+*Prepared 2026-10-12 by Pal Ghevariya (pending commit — hash assigned at commit time; builds on the pending descriptor batches)*
+
+Six pure-geometry map-scale morphology descriptors join the descriptor bank, a sixth opt-in
+decision lens is added, and a swath/profile extractor plus new CLI / API / fingerprint surfaces
+are exposed. Everything is append-only and decision-gated (off by default), so the default study
+package and its canonical synthetic hash (8f4890…) are byte-unchanged.
+
+- **Six new cited descriptors** (all map-scale morphology, all off by default): a geostatistical
+  semivariogram (range / sill / nugget; Matheron 1963); an RMS / Allan-deviation roughness length
+  (Shepard et al. 2001); Wood (1996) morphometric curvature feature classes; a Woodcock (1977)
+  surface-normal orientation-tensor fabric; an openness-difference slope position (Yokoyama 2002);
+  and the Melton (1965) ruggedness number and relief ratios.
+- **Sixth opt-in decision lens `hydro`** (`decision_metrics="hydro"`): the four core axes plus a
+  Topographic Wetness Index, an aspect convergence index, and a flow-dissection
+  distance-to-reference axis — a flow-geometric robustness lens, not a hydrological claim. The
+  analog-atlas and one-command ablation defaults are unchanged (the five default lenses); hydro is
+  opt-in via `decision_metrics`.
+- **`transect` swath/profile extractor:** a utility that samples an elevation profile / swath
+  across a DEM.
+- **New interfaces:** unified CLI `bank` and `transect` subcommands; stdlib HTTP API `POST /bank`
+  and `POST /transect` (loopback-only, with the same Host-allowlist and body-cap guards as the
+  existing endpoints); and an opt-in `include_geostat` term for the terrain fingerprint.
+
+Validation: +7 scientific-correctness oracles (44 -> 51). References: +4 method citations (23 -> 27)
+— Matheron (1963), Wood (1996) / Dikau (1989), Woodcock (1977), Melton (1965) / Pike & Wilson
+(1971). Suite: 613 -> 686 offline fixture tests.
+
+Claim firewall unchanged: purely geometric map-scale morphology — NOT a hydrological, traversability,
+geologic-equivalence, site-access, or mission-readiness claim; not NASA-endorsed.
+
+686 fixture tests, all passing, no network required.
+
+---
+
 ## Unreleased — Four cited geomorphometry descriptors: Topographic Wetness Index, Convergence Index, Sky-View Factor, two-scale TPI
 
 *Prepared 2026-10-11 by Pal Ghevariya (pending commit — hash assigned at commit time; builds on the pending descriptor batches)*

@@ -52,7 +52,9 @@ def test_bank_keys_types_and_json_serialisable():
                  "kh_roughness", "iwahashi_pike", "drainage",
                  "wavelet", "hypsometry", "normal_roughness", "tpi_landform",
                  "fractal", "lacunarity", "entropy", "slope_area",
-                 "twi", "convergence", "svf", "multiscale_tpi"})
+                 "twi", "convergence", "svf", "multiscale_tpi",
+                 "variogram", "roughness_length", "curvature_classes",
+                 "fabric_eigen", "openness_difference", "melton_relief"})
     assert set(bank) == expected, set(bank) ^ expected
     for key in MAP_KEYS:
         summ = bank[key]

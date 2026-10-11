@@ -22,7 +22,9 @@ from . import (features, openness, geomorphons, spectral, anisotropy,
                kh_roughness, iwahashi_pike, drainage, wavelet_roughness,
                hypsometry, normal_roughness, tpi_landform, fractal,
                lacunarity, entropy_terrain, slope_area, twi, convergence,
-               svf, multiscale_tpi)
+               svf, multiscale_tpi, variogram, roughness_length,
+               curvature_classes, fabric_eigen, openness_difference,
+               melton_relief)
 
 _SUMMARY_KEYS = ("mean", "std", "p10", "p50", "p90")
 
@@ -173,6 +175,31 @@ def descriptor_bank(z, dx=1.0, window=5):
     the ``dominant_class`` name). All four are computed at the bank's ``dx`` and
     stay JSON-serialisable.
 
+    Six further append-only analysis-layer sub-dicts are appended likewise (NOT
+    read by any decision): ``"variogram"`` -- the
+    :func:`terratrace.variogram.variogram_signature` dict (the Matheron (1963)
+    empirical semivariogram structure: ``sill`` / ``nugget`` / ``range_m`` /
+    ``vario_loglog_slope`` / ``aniso_ratio``); ``"roughness_length"`` -- the
+    :func:`terratrace.roughness_length.roughness_length_signature` dict (the
+    Shepard (2001) RMS/Allan-deviation roughness: ``rms_height`` / ``rms_slope``
+    / ``hurst_deviogram`` / ``roughness_length_m``); ``"curvature_classes"`` --
+    the :func:`terratrace.curvature_classes.curvature_class_signature` dict (the
+    Wood (1996) six-class morphometric curvature-feature ``composition`` over
+    planar / peak / pit / ridge / channel / pass and the ``dominant_class``);
+    ``"fabric_eigen"`` -- the :func:`terratrace.fabric_eigen.fabric_signature`
+    dict (the Woodcock (1977) surface-normal orientation-tensor fabric ``eig1`` /
+    ``eig2`` / ``eig3`` / ``woodcock_K`` / ``woodcock_C`` / ``isotropy``);
+    ``"openness_difference"`` -- the
+    :func:`terratrace.openness_difference.openness_difference_signature` dict (the
+    Yokoyama (2002) openness slope-position summary: ``slopepos_mean`` /
+    ``slopepos_std`` / ``slopepos_p10`` / ``slopepos_p90`` and the ``ridge`` /
+    ``valley`` / ``midslope`` fractions); and ``"melton_relief"`` -- the
+    :func:`terratrace.melton_relief.melton_signature` dict (the Melton (1965)
+    ``total_relief_m`` / ``melton_ruggedness`` / ``relief_ratio`` /
+    ``elevation_relief_ratio``). All six are computed at the bank's ``dx`` and
+    stay JSON-serialisable (``nan`` where a descriptor is undefined, e.g. a
+    degenerate / flat tile -- Python ``json`` emits ``NaN``).
+
     These are map-scale morphology descriptors only. No traversability,
     mechanical, or mission claim is implied by any value in the bank.
     """
@@ -278,6 +305,25 @@ def descriptor_bank(z, dx=1.0, window=5):
         "convergence": convergence.convergence_signature(z, dx=dx),
         "svf": svf.svf_signature(z, dx=dx),
         "multiscale_tpi": multiscale_tpi.multiscale_tpi_signature(z, dx=dx),
+        # --- six further append-only analysis-layer sub-dicts (NOT used by the
+        #     study decision; the pipeline never consults the bank). variogram =
+        #     Matheron (1963) geostatistical semivariogram structure (sill /
+        #     nugget / range_m / log-log slope / anisotropy ratio);
+        #     roughness_length = Shepard (2001) RMS/Allan-deviation roughness
+        #     (rms_height / rms_slope / deviogram Hurst / e-folding length);
+        #     curvature_classes = Wood (1996) six-class morphometric
+        #     curvature-feature composition + dominant class; fabric_eigen =
+        #     Woodcock (1977) surface-normal orientation-tensor fabric
+        #     (eigenvalues / K / C / isotropy); openness_difference = Yokoyama
+        #     (2002) openness slope-position (ridge / valley / midslope fractions);
+        #     melton_relief = Melton (1965) ruggedness & relief ratios. All at the
+        #     bank's dx and JSON-serialisable (json emits NaN where undefined). ---
+        "variogram": variogram.variogram_signature(z, dx=dx),
+        "roughness_length": roughness_length.roughness_length_signature(z, dx=dx),
+        "curvature_classes": curvature_classes.curvature_class_signature(z, dx=dx),
+        "fabric_eigen": fabric_eigen.fabric_signature(z, dx=dx),
+        "openness_difference": openness_difference.openness_difference_signature(z, dx=dx),
+        "melton_relief": melton_relief.melton_signature(z, dx=dx),
     }
 
 

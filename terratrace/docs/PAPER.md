@@ -22,7 +22,7 @@ every result. On a real five-world run (Mars MOLA vs three Copernicus GLO-30 Ear
 the method independently re-identifies a documented basalt analog — Craters of the Moon, Idaho
 — as the closest match on the core roughness/relief axes, while honestly reporting that the
 recommendation does not survive every lens. Everything is offline-reproducible from one command
-and covered by 613 automated tests.
+and covered by 686 automated tests.
 
 ## 1. Problem and approach
 
@@ -55,13 +55,13 @@ D8 flow-accumulation surface-dissection texture (a purely geometric routing desc
 bank also carries a Haar wavelet multiscale-energy spectrum, the Strahler hypsometric curve,
 surface-normal-dispersion roughness, and a Weiss (2001) TPI slope-position classification. A Topographic Wetness Index (Beven & Kirkby 1979) and a convergence index (Köthe & Lehmeier 1996) summarise flow-geometric convergence; a sky-view factor (Zakšek et al. 2011) captures hemispherical openness; and a two-scale TPI slope-position classification (Weiss 2001) resolves nested landform position. Finally
 a differential box-counting fractal dimension, gliding-box lacunarity, Shannon terrain entropy,
-and a Flint (1974) slope-vs-contributing-area concavity complete the battery. Distributions are
+and a Flint (1974) slope-vs-contributing-area concavity complete the battery. A geostatistical semivariogram (range/sill/nugget; Matheron 1963) and an RMS/Allan-deviation roughness length (Shepard et al. 2001) summarise spatial structure; Wood (1996) morphometric curvature classes and a Woodcock (1977) surface-normal orientation-tensor fabric add shape descriptors; an openness-difference slope position (Yokoyama 2002) and the Melton (1965) ruggedness number complete the batch. Distributions are
 compared to the reference with scale-normalized Wasserstein/KS distances.
 
 **2.3 Decision: Pareto, not a score.** Candidates become vectors of distances-to-reference and
 are ranked by **Pareto dominance** (peeled non-dominated layers + a dominance matrix). The
 result is one of `RECOMMEND_FOLLOW_UP`, `TIE`, `INDETERMINATE`, `NOT_COMPARABLE`, or `BLOCKED`.
-Five **lenses** — core, extended, geomorphic, landform, texture — are independent axis sets; a
+Six **lenses** — core, extended, geomorphic, landform, texture, hydro — are independent axis sets (the hydro lens adds a Topographic Wetness Index, aspect convergence, and flow-dissection distance-to-reference axes); a
 recommendation that holds under more lenses is more robust, and lens disagreement is surfaced,
 not hidden.
 
@@ -76,7 +76,11 @@ explicitly naming any signal it could not evaluate.
 evidence graph and a transfer-gap ledger, and exports a self-contained bundle (study package,
 Markdown + offline-HTML report, viewer, references, checksums, confidence). A fixed synthetic
 study is byte-reproducible within an environment; portable invariants (not pinned digests) gate
-it across platforms.
+it across platforms. The full geomorphometric descriptor bank and a swath/profile `transect`
+extractor are reachable from the unified CLI (`bank`, `transect`) and the loopback-only HTTP API
+(`POST /bank`, `POST /transect`, the same host-allowlist and body-cap guards as the existing
+endpoints), and the terrain fingerprint carries an opt-in geostatistical similarity term
+(`include_geostat`).
 
 ## 3. Data
 
@@ -125,7 +129,7 @@ confidently where the morphology agrees and abstains where it does not. See `REA
 
 ## 5. Validation
 
-Correctness is pinned by a scientific-correctness suite of 44 oracles that drive the real
+Correctness is pinned by a scientific-correctness suite of 51 oracles that drive the real
 engine on synthetic terrains with known answers: self-distance is zero; slope/relief/ruggedness
 are invariant to a constant offset and to 90° rotation; roughness discrimination is monotone; a
 planted close twin is recovered over an impostor; a water tile is BLOCKED; openness is 90° on a
@@ -150,8 +154,8 @@ vertical-datum error propagation end-to-end into the decision, and a multi-pair 
 
 ```bash
 pip install -r terratrace/requirements.txt      # core: NumPy only
-python terratrace/tests/run_tests.py             # 613 offline tests
-python terratrace/scripts/run_validation.py      # 44 correctness oracles
+python terratrace/tests/run_tests.py             # 686 offline tests
+python terratrace/scripts/run_validation.py      # 51 correctness oracles
 # real five-world study, one command (needs a free OpenTopography key):
 python terratrace/scripts/run_real_analog_study.py --config config/real_multibody.example.yml
 ```
@@ -185,6 +189,10 @@ Flint (1974), *Stream gradient as a function of order, magnitude, and discharge*
 Beven & Kirkby (1979), *A physically based, variable contributing area model of basin hydrology*, Hydrological Sciences Bulletin 24(1).
 Köthe & Lehmeier (1996), *SARA: System zur automatischen Relief-Analyse* (convergence index); see also Kiss (2004), *Determination of drainage network in digital elevation models, utilities and limitations*, J. Hungarian Geomathematics 2.
 Zakšek, Oštir & Kokalj (2011), *Sky-view factor as a relief visualization technique*, Remote Sensing 3(2).
+Matheron (1963), *Principles of geostatistics*, Economic Geology 58(8).
+Wood (1996), *The geomorphological characterisation of digital elevation models*, PhD thesis, University of Leicester; Dikau (1989), *The application of a digital relief model to landform analysis in geomorphology*, in Three-Dimensional Applications in Geographic Information Systems.
+Woodcock (1977), *Specification of fabric shapes using an eigenvalue method*, Geological Society of America Bulletin 88(9).
+Melton (1965), *The geomorphic and paleoclimatic significance of alluvial deposits in southern Arizona*, The Journal of Geology 73(1); Pike & Wilson (1971), *Elevation-relief ratio, hypsometric integral, and geomorphic area-altitude analysis*, Geological Society of America Bulletin 82(4).
 
 *Morphology screening and resampling statistics only — not a traversability, geologic-equivalence, site-access, or mission-readiness claim.*
 
