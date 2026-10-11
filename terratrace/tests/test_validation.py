@@ -52,6 +52,10 @@ _EXPECTED_NAMES = (
     "lacunarity_uniform_one_clustered_higher",
     "entropy_constant_zero_complex_higher",
     "slope_area_concave_positive_theta",
+    "twi_decreases_with_slope",
+    "convergence_cone_divergent_bowl_convergent",
+    "svf_flat_is_one_pit_lower",
+    "multiscale_tpi_cone_bowl_plane",
 )
 
 # New line-of-sight morphology oracles added on top of the original battery.

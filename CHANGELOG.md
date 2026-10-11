@@ -3,6 +3,32 @@
 Complete build history of TerraTrace, generated from the git commit messages
 (newest first). Each entry is the exact message recorded with that commit.
 
+## Unreleased — Four cited geomorphometry descriptors: Topographic Wetness Index, Convergence Index, Sky-View Factor, two-scale TPI
+
+*Prepared 2026-10-11 by Pal Ghevariya (pending commit — hash assigned at commit time; builds on the pending descriptor batches)*
+
+Four pure-geometry map-scale morphology descriptors added to the descriptor bank. All four are
+append-only and decision-gated (off by default), so the default study package is untouched and the
+canonical synthetic study hash is UNCHANGED.
+
+- **Topographic Wetness Index** (Beven & Kirkby 1979): a geometric wetness-propensity index built
+  from contributing-area and local slope — a flow-geometric composite, not a hydrological claim.
+- **Convergence Index** (Köthe & Lehmeier 1996; see also Kiss 2004): aspect-field convergence /
+  divergence of the local terrain.
+- **Sky-View Factor** (Zakšek et al. 2011): the hemispherical visible-sky fraction — a purely
+  geometric openness measure, not an illumination or insolation claim.
+- **Two-scale TPI slope position** (Weiss 2001): nested landform position from two TPI
+  neighbourhoods, extending the existing single-scale TPI (reuses the Weiss 2001 citation).
+
+Validation: +4 scientific-correctness oracles (40 -> 44). Suite: 593 -> 613 offline fixture tests.
+
+Claim firewall unchanged: purely geometric map-scale morphology — NOT a hydrological, illumination,
+traversability, geologic-equivalence, or mission-readiness claim; not NASA-endorsed.
+
+613 fixture tests, all passing, no network required.
+
+---
+
 ## Unreleased — One-command real multi-body analog study: run_real_analog_study.py orchestrator
 
 *Prepared 2026-10-11 by Pal Ghevariya (pending commit — hash assigned at commit time; builds on the pending scale & fabric push)*

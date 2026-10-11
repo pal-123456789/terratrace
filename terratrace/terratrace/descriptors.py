@@ -21,7 +21,8 @@ import numpy as np
 from . import (features, openness, geomorphons, spectral, anisotropy,
                kh_roughness, iwahashi_pike, drainage, wavelet_roughness,
                hypsometry, normal_roughness, tpi_landform, fractal,
-               lacunarity, entropy_terrain, slope_area)
+               lacunarity, entropy_terrain, slope_area, twi, convergence,
+               svf, multiscale_tpi)
 
 _SUMMARY_KEYS = ("mean", "std", "p10", "p50", "p90")
 
@@ -152,6 +153,26 @@ def descriptor_bank(z, dx=1.0, window=5):
     ``lacunarity`` are scale-free; ``entropy`` and ``slope_area`` are computed at
     the bank's ``dx``. All four stay JSON-serialisable.
 
+    Four further append-only analysis-layer sub-dicts are appended likewise (NOT
+    read by any decision; the study pipeline never consults the bank):
+    ``"twi"`` -- the :func:`terratrace.twi.twi_signature` dict (the Beven &
+    Kirkby (1979) Topographic Wetness Index ``ln(a / tan beta)`` summarised to
+    ``twi_mean`` / ``twi_median`` / ``twi_p10`` / ``twi_p90`` / ``twi_std``; a
+    steady-state wetness-PROPENSITY index of the height field, NOT a water claim);
+    ``"convergence"`` -- the
+    :func:`terratrace.convergence.convergence_signature` dict (the Köthe &
+    Lehmeier (1996) / Kiss (2004) aspect-field convergence index in degrees:
+    ``convergence_mean`` / ``convergence_median`` / ``convergence_std`` and the
+    ``convergent_fraction`` / ``divergent_fraction``; CI > 0 divergent, CI < 0
+    convergent); ``"svf"`` -- the :func:`terratrace.svf.svf_signature` dict (the
+    Zakšek, Oštir & Kokalj (2011) sky-view factor summary ``svf_mean`` /
+    ``svf_median`` / ``svf_p10`` / ``svf_p90`` / ``svf_min``, 1 on flat/open
+    ground and < 1 in enclosure); and ``"multiscale_tpi"`` -- the
+    :func:`terratrace.multiscale_tpi.multiscale_tpi_signature` dict (the Weiss
+    (2001) two-scale slope-position ``composition`` over the seven classes and
+    the ``dominant_class`` name). All four are computed at the bank's ``dx`` and
+    stay JSON-serialisable.
+
     These are map-scale morphology descriptors only. No traversability,
     mechanical, or mission claim is implied by any value in the bank.
     """
@@ -242,6 +263,21 @@ def descriptor_bank(z, dx=1.0, window=5):
         "lacunarity": lacunarity.lacunarity_signature(z),
         "entropy": entropy_terrain.entropy_signature(z, dx=dx),
         "slope_area": slope_area.slope_area_signature(z, dx=dx),
+        # --- four further append-only analysis-layer sub-dicts (NOT used by the
+        #     study decision; the pipeline never consults the bank). twi =
+        #     Beven & Kirkby (1979) Topographic Wetness Index ln(a / tan beta)
+        #     summary (a steady-state wetness-PROPENSITY index of the height
+        #     field, not a water/hydrology claim); convergence = Köthe &
+        #     Lehmeier (1996) / Kiss (2004) aspect-field convergence index in
+        #     degrees (CI > 0 divergent, CI < 0 convergent); svf = Zakšek, Oštir
+        #     & Kokalj (2011) sky-view factor summary (1 on flat/open ground,
+        #     < 1 in enclosure); multiscale_tpi = Weiss (2001) two-scale
+        #     slope-position composition + dominant class. All computed at the
+        #     bank's dx and JSON-serialisable. ---
+        "twi": twi.twi_signature(z, dx=dx),
+        "convergence": convergence.convergence_signature(z, dx=dx),
+        "svf": svf.svf_signature(z, dx=dx),
+        "multiscale_tpi": multiscale_tpi.multiscale_tpi_signature(z, dx=dx),
     }
 
 

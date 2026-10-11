@@ -22,7 +22,7 @@ every result. On a real five-world run (Mars MOLA vs three Copernicus GLO-30 Ear
 the method independently re-identifies a documented basalt analog — Craters of the Moon, Idaho
 — as the closest match on the core roughness/relief axes, while honestly reporting that the
 recommendation does not survive every lens. Everything is offline-reproducible from one command
-and covered by 593 automated tests.
+and covered by 613 automated tests.
 
 ## 1. Problem and approach
 
@@ -53,7 +53,7 @@ NASA's global MOLA roughness maps) and the Iwahashi–Pike (2007) three-signatur
 (slope / convexity / texture) nested-means terrain class. Dissection: a depression-filled
 D8 flow-accumulation surface-dissection texture (a purely geometric routing descriptor). The
 bank also carries a Haar wavelet multiscale-energy spectrum, the Strahler hypsometric curve,
-surface-normal-dispersion roughness, and a Weiss (2001) TPI slope-position classification. Finally
+surface-normal-dispersion roughness, and a Weiss (2001) TPI slope-position classification. A Topographic Wetness Index (Beven & Kirkby 1979) and a convergence index (Köthe & Lehmeier 1996) summarise flow-geometric convergence; a sky-view factor (Zakšek et al. 2011) captures hemispherical openness; and a two-scale TPI slope-position classification (Weiss 2001) resolves nested landform position. Finally
 a differential box-counting fractal dimension, gliding-box lacunarity, Shannon terrain entropy,
 and a Flint (1974) slope-vs-contributing-area concavity complete the battery. Distributions are
 compared to the reference with scale-normalized Wasserstein/KS distances.
@@ -125,7 +125,7 @@ confidently where the morphology agrees and abstains where it does not. See `REA
 
 ## 5. Validation
 
-Correctness is pinned by a scientific-correctness suite of 40 oracles that drive the real
+Correctness is pinned by a scientific-correctness suite of 44 oracles that drive the real
 engine on synthetic terrains with known answers: self-distance is zero; slope/relief/ruggedness
 are invariant to a constant offset and to 90° rotation; roughness discrimination is monotone; a
 planted close twin is recovered over an impostor; a water tile is BLOCKED; openness is 90° on a
@@ -150,8 +150,8 @@ vertical-datum error propagation end-to-end into the decision, and a multi-pair 
 
 ```bash
 pip install -r terratrace/requirements.txt      # core: NumPy only
-python terratrace/tests/run_tests.py             # 593 offline tests
-python terratrace/scripts/run_validation.py      # 40 correctness oracles
+python terratrace/tests/run_tests.py             # 613 offline tests
+python terratrace/scripts/run_validation.py      # 44 correctness oracles
 # real five-world study, one command (needs a free OpenTopography key):
 python terratrace/scripts/run_real_analog_study.py --config config/real_multibody.example.yml
 ```
@@ -182,6 +182,9 @@ Sarkar & Chaudhuri (1994), *An efficient differential box-counting approach to c
 Plotnick, Gardner & O'Neill (1993), *Lacunarity indices as measures of landscape texture*, Landscape Ecology 8.
 Shannon (1948), *A mathematical theory of communication*, Bell System Technical Journal 27.
 Flint (1974), *Stream gradient as a function of order, magnitude, and discharge*, Water Resources Research 10.
+Beven & Kirkby (1979), *A physically based, variable contributing area model of basin hydrology*, Hydrological Sciences Bulletin 24(1).
+Köthe & Lehmeier (1996), *SARA: System zur automatischen Relief-Analyse* (convergence index); see also Kiss (2004), *Determination of drainage network in digital elevation models, utilities and limitations*, J. Hungarian Geomathematics 2.
+Zakšek, Oštir & Kokalj (2011), *Sky-view factor as a relief visualization technique*, Remote Sensing 3(2).
 
 *Morphology screening and resampling statistics only — not a traversability, geologic-equivalence, site-access, or mission-readiness claim.*
 

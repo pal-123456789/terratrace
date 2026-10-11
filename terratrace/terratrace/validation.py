@@ -61,7 +61,8 @@ from . import (study, synthetic, provenance, features, openness, geomorphons,
                confidence, spectral, anisotropy, multiscale, kh_roughness,
                iwahashi_pike, drainage, wavelet_roughness, hypsometry,
                normal_roughness, tpi_landform, fractal, lacunarity,
-               entropy_terrain, slope_area)
+               entropy_terrain, slope_area, twi, convergence, svf,
+               multiscale_tpi)
 
 # Isolate the morphology math from aggregation smoothing: native == target gives
 # an aggregation factor of 1, so features are computed on the grids as built.
@@ -1039,6 +1040,119 @@ def check_slope_area_concave_positive_theta():
                    n_bins_used=sig["n_bins_used"])
 
 
+# --- TWI / convergence / sky-view-factor / two-scale-TPI oracles -------------
+# Four single-tile MORPHOLOGY descriptors checked directly (not through the
+# comparison pipeline) against a defining analytic behaviour on synthetic
+# surfaces with a KNOWN answer: the Beven & Kirkby (1979) wetness index is
+# higher on gentler ground at equal contributing area; the Köthe & Lehmeier
+# (1996) / Kiss (2004) convergence index is positive (divergent) on a cone and
+# negative (convergent) in a bowl, ~0 on a plane; the Zakšek (2011) sky-view
+# factor is exactly 1 on flat ground and lower for a deeper pit; and the Weiss
+# (2001) two-scale TPI puts a cone apex in an upper class, a bowl centre in a
+# lower class, and a plane in flat_midslope. Pure NumPy, deterministic; only
+# pass/fail booleans enter the outcome hash and every asserted bound is decisive
+# (not marginal), so the checks are host-independent. Map-scale morphology
+# descriptors only -- no water, hydrology, insolation, hazard, or mission claim.
+
+
+def check_twi_decreases_with_slope():
+    """The Beven & Kirkby (1979) Topographic Wetness Index behaves as its
+    definition requires: ``TWI = ln(a / tan beta)`` grows as the slope falls, so
+    at equal contributing area a GENTLER slope is wetter. A gently tilted plane
+    (slope_x 0.02) therefore has a strictly GREATER mean TWI than a steeply
+    tilted plane (slope_x 0.2) sharing the same flow geometry. PASS iff
+    ``twi_mean(gentle) > twi_mean(steep)``."""
+    g = synthetic.plane((80, 80), slope_x=0.02, dx=10.0)
+    s = synthetic.plane((80, 80), slope_x=0.2, dx=10.0)
+    twi_g = twi.twi_signature(g)["twi_mean"]
+    twi_s = twi.twi_signature(s)["twi_mean"]
+    passed = (bool(np.isfinite(twi_g)) and bool(np.isfinite(twi_s))
+              and twi_g > twi_s)
+    return _result("twi_decreases_with_slope", passed,
+                   f"gentle-slope mean TWI {twi_g:.4f} > steep-slope mean TWI "
+                   f"{twi_s:.4f} (wetter at equal area on gentler ground)",
+                   twi_gentle=float(twi_g), twi_steep=float(twi_s))
+
+
+def check_convergence_cone_divergent_bowl_convergent():
+    """The Köthe & Lehmeier (1996) / Kiss (2004) convergence index resolves the
+    SIGN of the aspect field: a radial CONE (apex high, aspects fan OUTWARD) is
+    DIVERGENT with mean CI > 0; a radial BOWL (centre low, aspects point INWARD)
+    is CONVERGENT with mean CI < 0; and a uniform tilted PLANE (one aspect) is
+    planar with |mean CI| small. PASS iff all three hold."""
+    ii, jj = np.indices((81, 81))
+    r = np.hypot(ii - 40, jj - 40)
+    cone = -r
+    bowl = r
+    plane = synthetic.plane((80, 80), slope_x=0.05, dx=10.0)
+    ci_cone = convergence.convergence_signature(cone)["convergence_mean"]
+    ci_bowl = convergence.convergence_signature(bowl)["convergence_mean"]
+    ci_plane = convergence.convergence_signature(plane)["convergence_mean"]
+    passed = (bool(np.isfinite(ci_cone)) and ci_cone > 0.0
+              and bool(np.isfinite(ci_bowl)) and ci_bowl < 0.0
+              and bool(np.isfinite(ci_plane)) and abs(ci_plane) < 10.0)
+    return _result("convergence_cone_divergent_bowl_convergent", passed,
+                   f"cone mean CI {ci_cone:.3f} (> 0, divergent) bowl {ci_bowl:.3f} "
+                   f"(< 0, convergent) plane {ci_plane:.3f} (|CI| < 10, planar)",
+                   cone_ci=float(ci_cone), bowl_ci=float(ci_bowl),
+                   plane_ci=float(ci_plane))
+
+
+def check_svf_flat_is_one_pit_lower(tol=1e-6):
+    """The Zakšek, Oštir & Kokalj (2011) sky-view factor behaves as its
+    definition requires: a perfectly FLAT surface sees the whole sky
+    (``svf_mean`` within 1e-6 of 1.0), and a radial BOWL encloses the sky so a
+    DEEP bowl has a strictly smaller ``svf_mean`` than a SHALLOW bowl, itself
+    strictly < 1.0. PASS iff both hold."""
+    flat = np.zeros((60, 60))
+    ii, jj = np.indices((60, 60))
+    r = np.hypot(ii - 30, jj - 30)
+    r = r / r.max()
+    shallow = r * 5.0
+    deep = r * 40.0
+    svf_flat = svf.svf_signature(flat)["svf_mean"]
+    svf_shallow = svf.svf_signature(shallow)["svf_mean"]
+    svf_deep = svf.svf_signature(deep)["svf_mean"]
+    flat_one = bool(np.isfinite(svf_flat)) and abs(svf_flat - 1.0) < tol
+    pit_lower = (bool(np.isfinite(svf_deep)) and bool(np.isfinite(svf_shallow))
+                 and svf_deep < svf_shallow < 1.0)
+    return _result("svf_flat_is_one_pit_lower", flat_one and pit_lower,
+                   f"flat-plane svf_mean {svf_flat:.6f} (|.-1| < {tol:g}) and deep "
+                   f"bowl {svf_deep:.4f} < shallow bowl {svf_shallow:.4f} < 1.0",
+                   svf_flat=float(svf_flat), svf_shallow=float(svf_shallow),
+                   svf_deep=float(svf_deep))
+
+
+def check_multiscale_tpi_cone_bowl_plane():
+    """The Weiss (2001) two-scale TPI slope-position classifier recovers the
+    extremes: the apex of a radial CONE (a local high at both scales) lands in an
+    UPPER-position class ('hilltop' or 'upper_slope_ridge'); the centre of a
+    radial BOWL (a local low at both scales) lands in a LOWER-position class
+    ('valley' or 'lower_slope_channel'); and a uniform tilted PLANE is dominated
+    by 'flat_midslope'. The centre-cell class is read from
+    :func:`multiscale_tpi.multiscale_tpi_classes` via the module code->name map.
+    PASS iff all three hold."""
+    ii, jj = np.indices((81, 81))
+    r = np.hypot(ii - 40, jj - 40)
+    cone = -r
+    bowl = r
+    plane = synthetic.plane((80, 80), slope_x=0.05, dx=10.0)
+    cone_code = int(multiscale_tpi.multiscale_tpi_classes(cone)[40, 40])
+    bowl_code = int(multiscale_tpi.multiscale_tpi_classes(bowl)[40, 40])
+    cone_name = multiscale_tpi.CODE_TO_NAME.get(cone_code, "undefined")
+    bowl_name = multiscale_tpi.CODE_TO_NAME.get(bowl_code, "undefined")
+    plane_dominant = multiscale_tpi.multiscale_tpi_signature(plane)["dominant_class"]
+    passed = (cone_name in {"hilltop", "upper_slope_ridge"}
+              and bowl_name in {"valley", "lower_slope_channel"}
+              and plane_dominant == "flat_midslope")
+    return _result("multiscale_tpi_cone_bowl_plane", passed,
+                   f"cone apex class {cone_name!r} (upper) bowl centre class "
+                   f"{bowl_name!r} (lower) plane dominant {plane_dominant!r} "
+                   f"(expected 'flat_midslope')",
+                   cone_class=cone_name, bowl_class=bowl_name,
+                   plane_dominant=plane_dominant)
+
+
 _CHECKS = (
     check_self_distance_zero,
     check_translation_invariance,
@@ -1080,6 +1194,10 @@ _CHECKS = (
     check_lacunarity_uniform_one_clustered_higher,
     check_entropy_constant_zero_complex_higher,
     check_slope_area_concave_positive_theta,
+    check_twi_decreases_with_slope,
+    check_convergence_cone_divergent_bowl_convergent,
+    check_svf_flat_is_one_pit_lower,
+    check_multiscale_tpi_cone_bowl_plane,
 )
 
 

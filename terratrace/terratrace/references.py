@@ -371,6 +371,35 @@ METHOD_REFERENCES = (
                      "969-973."),
         "doi": None,
     },
+    {
+        "id": "twi_beven_kirkby_1979",
+        "topic": ("Topographic Wetness Index (steady-state wetness-propensity "
+                  "index)"),
+        "citation": ("Beven, K. J., & Kirkby, M. J. (1979). A physically based, "
+                     "variable contributing area model of basin hydrology. "
+                     "Hydrological Sciences Bulletin, 24(1), 43-69."),
+        "doi": "10.1080/02626667909491834",
+    },
+    {
+        "id": "convergence_kothe_lehmeier_1996",
+        "topic": "Convergence index (aspect-field convergence/divergence)",
+        "citation": ("Köthe, R., & Lehmeier, F. (1996). SARA - System zur "
+                     "Automatischen Relief-Analyse, User Manual (2nd ed.). "
+                     "University of Göttingen. See also Kiss, R. (2004), "
+                     "Determination of drainage network in digital elevation "
+                     "models, utilities and limitations, Journal of Hungarian "
+                     "Geomathematics, 2, 17-29."),
+        "doi": None,
+    },
+    {
+        "id": "svf_zaksek_2011",
+        "topic": ("Sky-view factor (hemispherical visible-sky fraction; relief "
+                  "visualization)"),
+        "citation": ("Zakšek, K., Oštir, K., & Kokalj, Ž. (2011). Sky-view factor "
+                     "as a relief visualization technique. Remote Sensing, 3(2), "
+                     "398-415."),
+        "doi": "10.3390/rs3020398",
+    },
 )
 
 
@@ -396,9 +425,12 @@ def method_references():
     2004; the Weiss 2001 TPI slope-position landform classification; the
     differential box-counting fractal dimension, Sarkar & Chaudhuri 1994;
     gliding-box lacunarity, Plotnick, Gardner & O'Neill 1993; Shannon 1948
-    information entropy; and the Flint 1974 slope-area concavity scaling) - and
-    are distinct from the upstream DATA-provider credits produced by
-    :func:`references_for`. Returns fresh dict copies in declaration order.
+    information entropy; the Flint 1974 slope-area concavity scaling; the
+    Topographic Wetness Index, Beven & Kirkby 1979; the aspect-field convergence
+    index, Köthe & Lehmeier 1996 / Kiss 2004; and the sky-view factor, Zakšek,
+    Oštir & Kokalj 2011) - and are distinct from the upstream DATA-provider
+    credits produced by :func:`references_for`. Returns fresh dict copies in
+    declaration order.
     """
     return [dict(r) for r in METHOD_REFERENCES]
 
