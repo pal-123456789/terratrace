@@ -59,7 +59,8 @@ import numpy as np
 
 from . import (study, synthetic, provenance, features, openness, geomorphons,
                confidence, spectral, anisotropy, multiscale, kh_roughness,
-               iwahashi_pike, drainage)
+               iwahashi_pike, drainage, wavelet_roughness, hypsometry,
+               normal_roughness, tpi_landform)
 
 # Isolate the morphology math from aggregation smoothing: native == target gives
 # an aggregation factor of 1, so features are computed on the grids as built.
@@ -826,6 +827,105 @@ def check_drainage_flow_conservation_and_dissection():
                    smooth_mean_log_acc=s["mean_log_acc"])
 
 
+# --- wavelet / hypsometry / normal-roughness / TPI-landform oracles ---------
+# Four single-tile MORPHOLOGY descriptors checked directly (not through the
+# comparison pipeline) against a defining analytic behaviour on synthetic
+# surfaces with a KNOWN answer: a period-2 (+/-1) checkerboard puts ALL
+# orthonormal-Haar detail energy at the finest level (its 2x2 approximation is
+# identically zero); a symmetric ramp has hypsometric integral exactly 0.5 and
+# two INDEPENDENT implementations agree to 1e-6; surface-normal roughness is ~0
+# on a tilted plane (every normal parallel) and strictly rises with seeded
+# roughness; and a radial cone apex / bowl centre are the Weiss TPI ridge /
+# valley extremes. Pure NumPy, deterministic; only pass/fail booleans enter the
+# outcome hash and every asserted bound is decisive (not marginal), so the
+# checks are host-independent. Map-scale morphology descriptors only -- no
+# traversability, hazard, geologic, or mission claim.
+_WVT_SHAPE = (64, 64)
+
+
+def check_wavelet_checkerboard_finest():
+    """The orthonormal 2-D Haar wavelet puts ALL detail energy at the FINEST
+    scale for a period-2 (+/-1) checkerboard: the 2x2 Haar approximation of a
+    checkerboard is identically zero, so every coarser level carries no detail
+    and ``wavelet_signature(z)['dominant_level'] == 1`` (Mallat 1989)."""
+    ii, jj = np.indices(_WVT_SHAPE)
+    z = np.where((ii + jj) % 2 == 0, 1.0, -1.0)
+    sig = wavelet_roughness.wavelet_signature(z)
+    dom = sig["dominant_level"]
+    return _result("wavelet_checkerboard_finest", dom == 1,
+                   f"period-2 checkerboard dominant Haar level {dom} (expected 1, "
+                   f"the finest scale); total detail energy "
+                   f"{sig['total_detail_energy']:.3f}",
+                   dominant_level=dom, total_detail_energy=sig["total_detail_energy"])
+
+
+def check_hypsometry_ramp_and_cross_consistency(tol=0.02, cross_tol=1e-6):
+    """A symmetric ramp (``z[i, j] = i``) has hypsometric integral exactly 0.5
+    (balanced area-altitude) AND two INDEPENDENT implementations agree: the
+    Strahler-exact ``hypsometry.hypsometric_integral`` (mean normalized height)
+    matches the engine's robust-quantile ``features.hypsometric_integral`` to
+    within 1e-6 -- a cross-validation of two separate code paths. PASS iff
+    both."""
+    z = np.indices(_WVT_SHAPE)[0].astype(float)        # z[i, j] = i (a ramp)
+    hi = hypsometry.hypsometric_integral(z)
+    hi_feat = features.hypsometric_integral(z)
+    near_half = bool(np.isfinite(hi)) and abs(hi - 0.5) < tol
+    cross = bool(np.isfinite(hi_feat)) and abs(hi - hi_feat) < cross_tol
+    return _result("hypsometry_ramp_and_cross_consistency", near_half and cross,
+                   f"ramp hypsometric integral {hi:.6f} (|.-0.5| < {tol:g}) agrees "
+                   f"with features.hypsometric_integral {hi_feat:.6f} "
+                   f"(|delta| {abs(hi - hi_feat):.2e} < {cross_tol:g})",
+                   integral=float(hi), features_integral=float(hi_feat),
+                   abs_diff=abs(hi - hi_feat))
+
+
+def check_normal_roughness_plane_zero_discriminates(tol=1e-6):
+    """Surface-normal roughness (Hobson 1972; McKean & Roering 2004) behaves as
+    its vector-strength definition requires: a tilted PLANE has every surface
+    normal parallel, so its ``roughness_mean`` ~ 0 (< 1e-6), and a seeded ROUGH
+    surface (that plane plus roughness) has a strictly GREATER ``roughness_mean``
+    than the smooth plane -- the measure discriminates roughness while staying
+    decoupled from the uniform regional tilt. PASS iff both."""
+    plane = synthetic.plane(_SHAPE, slope_x=0.05, slope_y=0.02, dx=_MORPH_DX)
+    rough = plane + synthetic.rough_field(_SHAPE, amplitude=2.0, seed=121)
+    r_plane = normal_roughness.normal_roughness_signature(
+        plane, dx=_MORPH_DX)["roughness_mean"]
+    r_rough = normal_roughness.normal_roughness_signature(
+        rough, dx=_MORPH_DX)["roughness_mean"]
+    plane_zero = bool(np.isfinite(r_plane)) and r_plane < tol
+    discriminates = bool(np.isfinite(r_rough)) and r_rough > r_plane
+    return _result("normal_roughness_plane_zero_discriminates",
+                   plane_zero and discriminates,
+                   f"tilted-plane normal roughness {r_plane:.2e} (< {tol:g}, "
+                   f"parallel normals) and rough-surface {r_rough:.4f} strictly "
+                   f"greater (discriminates roughness)",
+                   plane_roughness=float(r_plane), rough_roughness=float(r_rough))
+
+
+def check_tpi_peak_ridge_pit_valley():
+    """Weiss (2001) TPI slope-position classification recovers the two extremes:
+    the apex of a radial CONE (a local high standing far above its
+    neighbourhood) classifies as 'ridge' (``CLASS_NAMES`` index 5) and the centre
+    of a radial BOWL (a local low) classifies as 'valley' (index 0). PASS iff
+    both centre cells land on the expected extreme class."""
+    ci, cj = _CONE_CENTER
+    cone = _radial_cone(-1.0)                 # apex high (local maximum)
+    bowl = _radial_cone(1.0)                  # centre low (local minimum)
+    apex_code = int(tpi_landform.slope_position_classes(cone, dx=_MORPH_DX)[ci, cj])
+    pit_code = int(tpi_landform.slope_position_classes(bowl, dx=_MORPH_DX)[ci, cj])
+    ridge = tpi_landform.CLASS_NAMES.index("ridge")     # 5
+    valley = tpi_landform.CLASS_NAMES.index("valley")   # 0
+    apex_name = tpi_landform.CLASS_NAMES[apex_code] if apex_code >= 0 else "undefined"
+    pit_name = tpi_landform.CLASS_NAMES[pit_code] if pit_code >= 0 else "undefined"
+    passed = apex_code == ridge and pit_code == valley
+    return _result("tpi_peak_ridge_pit_valley", passed,
+                   f"cone apex slope-position {apex_name!r} (code {apex_code}; "
+                   f"expected 'ridge'={ridge}) and bowl centre {pit_name!r} "
+                   f"(code {pit_code}; expected 'valley'={valley})",
+                   apex_code=apex_code, pit_code=pit_code,
+                   apex_form=apex_name, pit_form=pit_name)
+
+
 _CHECKS = (
     check_self_distance_zero,
     check_translation_invariance,
@@ -859,6 +959,10 @@ _CHECKS = (
     check_kh_roughness_plane_is_zero_rough_discriminates,
     check_iwahashi_pike_texture_and_convexity,
     check_drainage_flow_conservation_and_dissection,
+    check_wavelet_checkerboard_finest,
+    check_hypsometry_ramp_and_cross_consistency,
+    check_normal_roughness_plane_zero_discriminates,
+    check_tpi_peak_ridge_pit_valley,
 )
 
 

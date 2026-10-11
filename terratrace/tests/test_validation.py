@@ -44,6 +44,10 @@ _EXPECTED_NAMES = (
     "kh_roughness_plane_is_zero_rough_discriminates",
     "iwahashi_pike_texture_and_convexity",
     "drainage_flow_conservation_and_dissection",
+    "wavelet_checkerboard_finest",
+    "hypsometry_ramp_and_cross_consistency",
+    "normal_roughness_plane_zero_discriminates",
+    "tpi_peak_ridge_pit_valley",
 )
 
 # New line-of-sight morphology oracles added on top of the original battery.
@@ -73,6 +77,15 @@ _SPECTRAL_ANISO_NAMES = (
     "spectral_parseval",
     "anisotropy_ridges_oriented",
     "anisotropy_isotropic_low",
+)
+
+# Wavelet / hypsometry / normal-roughness / TPI-landform oracles (four new
+# single-tile morphology descriptors wired into the validation battery).
+_NEW_DESCRIPTOR_NAMES = (
+    "wavelet_checkerboard_finest",
+    "hypsometry_ramp_and_cross_consistency",
+    "normal_roughness_plane_zero_discriminates",
+    "tpi_peak_ridge_pit_valley",
 )
 
 _N_CHECKS = len(_EXPECTED_NAMES)
@@ -467,3 +480,54 @@ def test_check_drainage_flow_conservation_and_dissection_passes():
     assert abs(m["outlet_sum"] - m["n_finite"]) < 1e-6, m
     assert m["rough_max_acc_fraction"] > m["smooth_max_acc_fraction"], m
     assert m["rough_mean_log_acc"] < m["smooth_mean_log_acc"], m
+
+
+def test_new_descriptor_oracles_present_and_pass():
+    """The four added wavelet / hypsometry / normal-roughness / TPI-landform
+    oracles are registered in the report and every one passes."""
+    report = _report()
+    present = {c["name"] for c in report["checks"]}
+    for name in _NEW_DESCRIPTOR_NAMES:
+        assert name in present, f"{name!r} not registered in run_validation()"
+        assert _find(report, name)["passed"] is True, _find(report, name)["detail"]
+
+
+def test_check_wavelet_checkerboard_finest_passes():
+    """A period-2 checkerboard puts all Haar detail energy at the finest level."""
+    rec = validation.check_wavelet_checkerboard_finest()
+    assert rec["name"] == "wavelet_checkerboard_finest"
+    assert rec["passed"] is True, rec["detail"]
+    assert rec["metrics"]["dominant_level"] == 1, rec["metrics"]
+
+
+def test_check_hypsometry_ramp_and_cross_consistency_passes():
+    """A symmetric ramp has hypsometric integral ~0.5 and the two independent
+    implementations agree to within 1e-6."""
+    rec = validation.check_hypsometry_ramp_and_cross_consistency()
+    assert rec["name"] == "hypsometry_ramp_and_cross_consistency"
+    assert rec["passed"] is True, rec["detail"]
+    m = rec["metrics"]
+    assert abs(m["integral"] - 0.5) < 0.02, m
+    assert m["abs_diff"] < 1e-6, m
+
+
+def test_check_normal_roughness_plane_zero_discriminates_passes():
+    """Surface-normal roughness is ~0 on a tilted plane and strictly greater on a
+    seeded rough surface."""
+    rec = validation.check_normal_roughness_plane_zero_discriminates()
+    assert rec["name"] == "normal_roughness_plane_zero_discriminates"
+    assert rec["passed"] is True, rec["detail"]
+    m = rec["metrics"]
+    assert m["plane_roughness"] < 1e-6, m
+    assert m["rough_roughness"] > m["plane_roughness"], m
+
+
+def test_check_tpi_peak_ridge_pit_valley_passes():
+    """A radial cone apex classifies as 'ridge' and a radial bowl centre as
+    'valley' (the two Weiss TPI slope-position extremes)."""
+    rec = validation.check_tpi_peak_ridge_pit_valley()
+    assert rec["name"] == "tpi_peak_ridge_pit_valley"
+    assert rec["passed"] is True, rec["detail"]
+    m = rec["metrics"]
+    assert m["apex_form"] == "ridge", m
+    assert m["pit_form"] == "valley", m

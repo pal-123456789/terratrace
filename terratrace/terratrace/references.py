@@ -293,6 +293,49 @@ METHOD_REFERENCES = (
                      "275-370."),
         "doi": None,
     },
+    {
+        "id": "wavelet_mallat_1989",
+        "topic": ("Multiresolution wavelet decomposition (orthonormal 2-D Haar "
+                  "multiscale roughness spectrum)"),
+        "citation": ("Mallat, S. G. (1989). A theory for multiresolution signal "
+                     "decomposition: the wavelet representation. IEEE Transactions "
+                     "on Pattern Analysis and Machine Intelligence, 11(7), 674-693."),
+        "doi": None,
+    },
+    {
+        "id": "hypsometry_strahler_1952",
+        "topic": ("Hypsometric (area-altitude) analysis (hypsometric integral, "
+                  "curve & moments)"),
+        "citation": ("Strahler, A. N. (1952). Hypsometric (area-altitude) analysis "
+                     "of erosional topography. Geological Society of America "
+                     "Bulletin, 63(11), 1117-1142."),
+        "doi": None,
+    },
+    {
+        "id": "normal_roughness_hobson_1972",
+        "topic": "Surface-normal vector-dispersion roughness",
+        "citation": ("Hobson, R. D. (1972). Surface roughness in topography: "
+                     "quantitative approach. In R. J. Chorley (Ed.), Spatial "
+                     "Analysis in Geomorphology (pp. 221-245). Methuen, London."),
+        "doi": None,
+    },
+    {
+        "id": "normal_roughness_mckean_roering_2004",
+        "topic": ("Surface-normal roughness / morphology mapping "
+                  "(vector-strength deficit)"),
+        "citation": ("McKean, J., & Roering, J. (2004). Objective landslide "
+                     "detection and surface morphology mapping using high-resolution "
+                     "airborne laser altimetry. Geomorphology, 57(3-4), 331-351."),
+        "doi": None,
+    },
+    {
+        "id": "tpi_landform_weiss_2001",
+        "topic": ("Topographic Position Index slope-position / landform "
+                  "classification"),
+        "citation": ("Weiss, A. D. (2001). Topographic position and landforms "
+                     "analysis. ESRI User Conference poster, San Diego, CA."),
+        "doi": None,
+    },
 )
 
 
@@ -312,9 +355,12 @@ def method_references():
     adaptation of the Mars/MOLA kilometre-scale roughness metric of Kreslavsky &
     Head 2000; and the depression-filled D8 flow-accumulation dissection-texture
     descriptor, O'Callaghan & Mark 1984 / Barnes, Lehman & Mulla 2014 / Horton
-    1945) - and are distinct from the upstream DATA-provider credits
-    produced by :func:`references_for`. Returns fresh dict copies in declaration
-    order.
+    1945; the orthonormal 2-D Haar multiscale wavelet roughness spectrum, Mallat
+    1989; the Strahler 1952 hypsometric area-altitude analysis; the
+    surface-normal vector-dispersion roughness, Hobson 1972 and McKean & Roering
+    2004; and the Weiss 2001 TPI slope-position landform classification) - and
+    are distinct from the upstream DATA-provider credits produced by
+    :func:`references_for`. Returns fresh dict copies in declaration order.
     """
     return [dict(r) for r in METHOD_REFERENCES]
 

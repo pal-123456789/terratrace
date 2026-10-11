@@ -19,7 +19,8 @@ from __future__ import annotations
 import numpy as np
 
 from . import (features, openness, geomorphons, spectral, anisotropy,
-               kh_roughness, iwahashi_pike, drainage)
+               kh_roughness, iwahashi_pike, drainage, wavelet_roughness,
+               hypsometry, normal_roughness, tpi_landform)
 
 _SUMMARY_KEYS = ("mean", "std", "p10", "p50", "p90")
 
@@ -114,6 +115,24 @@ def descriptor_bank(z, dx=1.0, window=5):
     flow -- NOT a claim of water, fluvial, climate, erosion, or mission processes
     on any body.
 
+    Four further single-tile morphology sub-dicts are appended likewise
+    (append-only analysis layer, NOT read by any decision): ``"wavelet"`` -- the
+    :func:`terratrace.wavelet_roughness.wavelet_signature` dict (orthonormal 2-D
+    Haar multiscale detail-energy spectrum: the per-level ``energy_by_level``
+    fractions, the ``dominant_level``, ``total_detail_energy`` and the
+    ``detail_loglog_slope``; Mallat 1989); ``"hypsometry"`` -- the
+    :func:`terratrace.hypsometry.hypsometric_signature` dict (the Strahler (1952)
+    area-altitude ``integral``, ``skew``, ``kurtosis`` and the 11-point decile
+    ``curve``); ``"normal_roughness"`` -- the
+    :func:`terratrace.normal_roughness.normal_roughness_signature` dict (the
+    surface-normal vector-dispersion roughness ``roughness_mean`` /
+    ``roughness_median`` / ``roughness_p90`` in [0, 1]; Hobson 1972, McKean &
+    Roering 2004); and ``"tpi_landform"`` -- the
+    :func:`terratrace.tpi_landform.tpi_landform_signature` dict (the Weiss (2001)
+    six-class slope-position ``composition`` and ``dominant_class``). All four
+    stay JSON-serialisable; ``wavelet`` and ``hypsometry`` are scale-free, while
+    ``normal_roughness`` and ``tpi_landform`` are computed at the bank's ``dx``.
+
     These are map-scale morphology descriptors only. No traversability,
     mechanical, or mission claim is implied by any value in the bank.
     """
@@ -179,6 +198,19 @@ def descriptor_bank(z, dx=1.0, window=5):
         #     (O'Callaghan & Mark 1984 D8; Barnes et al. 2014 priority flood) --
         #     NOT a water, fluvial, climate, hazard, or mission claim. ---
         "drainage": drainage.drainage_signature(z, dx=dx),
+        # --- four further single-tile morphology sub-dicts (append-only; NOT
+        #     used by the study decision). wavelet = orthonormal 2-D Haar
+        #     multiscale detail-energy spectrum (Mallat 1989); hypsometry =
+        #     Strahler (1952) area-altitude signature (integral / skew / kurtosis
+        #     + decile curve); normal_roughness = surface-normal vector-dispersion
+        #     roughness in [0, 1] (Hobson 1972; McKean & Roering 2004);
+        #     tpi_landform = Weiss (2001) six-class slope-position composition.
+        #     All JSON-serialisable; wavelet & hypsometry are scale-free, the
+        #     other two use the bank's dx. ---
+        "wavelet": wavelet_roughness.wavelet_signature(z),
+        "hypsometry": hypsometry.hypsometric_signature(z),
+        "normal_roughness": normal_roughness.normal_roughness_signature(z, dx=dx),
+        "tpi_landform": tpi_landform.tpi_landform_signature(z, dx=dx),
     }
 
 
