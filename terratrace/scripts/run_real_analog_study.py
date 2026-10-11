@@ -24,8 +24,8 @@ REAL download path stays one flag away on a networked machine:
 Two reporting modes layer on top (same inputs, obtained once, no extra fetch):
 
   --decision-metrics L  Override the config's decision lens (core / extended /
-               geomorphic / landform) for the single study it would otherwise run.
-  --ablation   Run the decision under ALL FOUR lenses on ONE dataset and report
+               geomorphic / landform / texture) for the single study it would otherwise run.
+  --ablation   Run the decision under ALL FIVE lenses on ONE dataset and report
                what each concludes. The "best analog" is lens-dependent -- a
                Pareto TIE under one lens can resolve under another -- so a single
                run surfaces the full tie-break. Prints a table + writes ablation.json.
@@ -104,7 +104,7 @@ def _dry_run(cfg):
 def _synthetic_inputs(cfg):
     """Build the deterministic OFFLINE comparison inputs ONCE (no fetch, no
     rasterio) so the SAME surfaces feed either a single study (_synthetic_package)
-    or the four-lens ablation. Returns (raw, rights, reference_id, target_support_m).
+    or the five-lens ablation. Returns (raw, rights, reference_id, target_support_m).
 
     Each unit gets one gently tilted plane plus seeded roughness. The roughness
     amplitude follows a per-unit ladder (reference smoothest; the first Earth
@@ -232,13 +232,13 @@ def _real_inputs(cfg, skip_fetch):
 
 
 def _run_ablation(raw, rights, native, reference_id, tsm, out):
-    """Run the decision under ALL FOUR lenses on ONE set of comparison inputs and
+    """Run the decision under ALL FIVE lenses on ONE set of comparison inputs and
     report what each concludes. The 'best analog' is lens-dependent: core and the
-    extended / geomorphic / landform morphology axes can rank candidates
+    extended / geomorphic / landform / texture morphology axes can rank candidates
     differently, and a Pareto TIE under one lens may resolve under another -- so a
     single run surfaces the full tie-break rather than one lens's verdict. Prints a
     readable table, writes ablation.json, returns 0. Morphology screening only."""
-    LENSES = ("core", "extended", "geomorphic", "landform")
+    LENSES = ("core", "extended", "geomorphic", "landform", "texture")
     rows = []
     for lens in LENSES:
         pk = study.compare_units(raw, rights, native, reference_id=reference_id,
@@ -251,7 +251,7 @@ def _run_ablation(raw, rights, native, reference_id, tsm, out):
 
     print("")
     print("=" * 78)
-    print("TerraTrace four-lens decision ablation -- SAME data, every decision lens")
+    print("TerraTrace five-lens decision ablation -- SAME data, every decision lens")
     print("=" * 78)
     print(f"reference_id = {reference_id}    target_support_m = {tsm:g} m")
     print(f"{'lens':<11} {'result_state':<22} {'recommended_unit':<18} pareto_layer1")
@@ -317,7 +317,7 @@ def run_from_config(cfg, out="artifacts/real_study", dry_run=False,
     --dry-run returns 0/2). REAL mode may sys.exit on a missing key / DEM.
 
     ablation=True obtains the comparison inputs ONCE (synthetic surfaces, or real
-    DEMs via load_real_units) and runs the decision under all four lenses instead
+    DEMs via load_real_units) and runs the decision under all five lenses instead
     of a single study -- see _run_ablation. decision_metrics (when not None)
     overrides cfg["decision_metrics"] for the single-study path ONLY, applied to a
     shallow copy so the caller's config is never mutated.
@@ -357,13 +357,13 @@ def main(argv=None):
     ap.add_argument("--skip-fetch", action="store_true",
                     help="REAL mode: assume DEMs are already on disk; do not download")
     ap.add_argument("--decision-metrics",
-                    choices=("core", "extended", "geomorphic", "landform"),
+                    choices=("core", "extended", "geomorphic", "landform", "texture"),
                     default=None,
                     help="override the config's decision lens for the single study "
-                         "(ignored under --ablation, which runs all four)")
+                         "(ignored under --ablation, which runs all five)")
     ap.add_argument("--ablation", action="store_true",
-                    help="run the decision under ALL FOUR lenses (core/extended/"
-                         "geomorphic/landform) on ONE dataset; print a table and "
+                    help="run the decision under ALL FIVE lenses (core/extended/"
+                         "geomorphic/landform/texture) on ONE dataset; print a table and "
                          "write ablation.json instead of a single study bundle")
     args = ap.parse_args(argv)
     cfg = _load_config(args.config)

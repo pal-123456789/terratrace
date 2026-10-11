@@ -2,7 +2,7 @@
 #
 # Screens SEVERAL named Mars terrains (each a window cropped from the one global
 # MOLA 463 m file you already downloaded) against the three Earth candidates you
-# already fetched, under all four decision lenses. No new downloads: run it with
+# already fetched, under all five decision lenses. No new downloads: run it with
 #   py scripts/run_analog_atlas.py --config config/mars_regions_atlas.example.yml --skip-fetch
 #
 # This grows the evidence from one Mars window into a cross-terrain catalog:
@@ -17,7 +17,7 @@
 
 target_support_m: 1000.0
 reproject: true
-decision_modes: [core, extended, geomorphic, landform]
+decision_modes: [core, extended, geomorphic, landform, texture]
 
 references:
   - id: mars_jezero                 # Jezero crater (Perseverance) ~77.4E 18.4N

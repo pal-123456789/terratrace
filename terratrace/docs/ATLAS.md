@@ -1,6 +1,6 @@
 # TerraTrace Analog Atlas
 
-Screen **many** planetary reference terrains against **many** Earth candidates across **all four
+Screen **many** planetary reference terrains against **many** Earth candidates across **all five
 decision lenses** in one command, and get a ranked, lens-robustness *catalog* instead of a single
 comparison.
 
@@ -16,7 +16,7 @@ py scripts/run_analog_atlas.py --config config/analog_atlas.example.yml --skip-f
 
 The example screens two Mars MOLA windows against the three Earth candidates already on disk
 (Nevada basin, Craters of the Moon, Andean volcano) under **core / extended / geomorphic /
-landform**. The bundle lands in `artifacts/atlas/`: `atlas.json`, `atlas.md`, and a printed table.
+landform / texture**. The bundle lands in `artifacts/atlas/`: `atlas.json`, `atlas.md`, and a printed table.
 
 - See it offline with no data: add `--synthetic`.
 - Validate a config with zero network: `--dry-run`.

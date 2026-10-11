@@ -34,14 +34,15 @@ min_valid_fraction: 0.5
 # Warp each AOI to its own local azimuthal-equidistant metric grid (correct
 # cross-body comparison). Set false for the simpler same-dx fallback.
 reproject: true
-# All four decision lenses. Each (reference x lens) pairing is one cell; a
+# All five decision lenses. Each (reference x lens) pairing is one cell; a
 # candidate's robustness is how often it stays non-dominated across every cell.
 #   core       slope / relief / ruggedness / connectivity
 #   extended   core + aspect dispersion + hypsometric integral
 #   geomorphic core + curvature / VRM / roughness descriptors
 #   landform   core + geomorphon-composition + topographic-openness descriptors
-# Omit this key to default to all four.
-decision_modes: [core, extended, geomorphic, landform]
+#   texture    core + spectral-slope + box-counting fractal dim + normal-roughness
+# Omit this key to default to all five.
+decision_modes: [core, extended, geomorphic, landform, texture]
 
 # --- References: bounded Mars windows cropped from ONE MOLA 463 m DEM ---------
 # Download 'Mars MGS MOLA DEM 463m' (GeoTIFF) ONCE from USGS Astrogeology:

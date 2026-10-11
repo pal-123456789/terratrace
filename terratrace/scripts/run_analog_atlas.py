@@ -4,8 +4,8 @@
 A single study compares ONE planetary reference window against a slate of Earth
 candidates under one decision lens. The atlas turns that into a systematic,
 agency-usable catalog: it screens SEVERAL planetary reference windows against
-SEVERAL candidate terrains under ALL FOUR decision lenses (core / extended /
-geomorphic / landform) and synthesises the whole grid into a ranked
+SEVERAL candidate terrains under ALL FIVE decision lenses (core / extended /
+geomorphic / landform / texture) and synthesises the whole grid into a ranked
 LENS-ROBUSTNESS catalog -- which candidates stay Pareto non-dominated no matter
 which reference and which morphology lens you pick.
 
@@ -41,7 +41,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from terratrace import batch, preflight, synthetic
 
-DEFAULT_MODES = ("core", "extended", "geomorphic", "landform")
+DEFAULT_MODES = ("core", "extended", "geomorphic", "landform", "texture")
 
 HONEST_NOTE = (
     "NOTE: map-scale terrain-MORPHOLOGY screening across decision lenses only -- a "
@@ -326,7 +326,7 @@ def run_from_config(cfg, out="artifacts/atlas", dry_run=False, synthetic=False,
 def main(argv=None):
     ap = argparse.ArgumentParser(
         description="TerraTrace analog atlas: screen many planetary references "
-                    "against many candidates across all four decision lenses and "
+                    "against many candidates across all five decision lenses and "
                     "emit a ranked lens-robustness catalog (morphology screening only).")
     ap.add_argument("--config", required=True,
                     help="atlas config YAML (see config/analog_atlas.example.yml)")

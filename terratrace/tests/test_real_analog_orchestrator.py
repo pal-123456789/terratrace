@@ -91,7 +91,7 @@ def test_synthetic_end_to_end():
 
 
 def test_ablation_synthetic():
-    # One run, all four decision lenses, SAME offline surfaces. Fully offline
+    # One run, all five decision lenses, SAME offline surfaces. Fully offline
     # (no yaml / rasterio / network): --synthetic ablation uses _synthetic_inputs.
     mod = _load_orchestrator()
     out = tempfile.mkdtemp(prefix="ras_abl_")
@@ -103,8 +103,9 @@ def test_ablation_synthetic():
     with open(abl_path, encoding="utf-8") as fh:
         abl = json.load(fh)
     rows = abl["lenses"]
-    assert len(rows) == 4, f"expected 4 lens rows, got {len(rows)}"
-    assert {r["lens"] for r in rows} == {"core", "extended", "geomorphic", "landform"}
+    assert len(rows) == 5, f"expected 5 lens rows, got {len(rows)}"
+    assert {r["lens"] for r in rows} == {
+        "core", "extended", "geomorphic", "landform", "texture"}
     for r in rows:
         assert r["result_state"] in _VALID_STATES, r["result_state"]
 

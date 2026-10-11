@@ -87,9 +87,11 @@ def test_atlas_synthetic():
     assert len(report["robust_ordering"]) == n_cand, report["robust_ordering"]
     assert set(report["robust_ordering"]) == {c["id"] for c in cfg["candidates"]}
     assert "consensus_shortlist" in report, "report missing consensus_shortlist"
-    assert len(report["decision_modes"]) == 4, report["decision_modes"]
-    # Every (reference x lens) pairing is one cell: n_ref references x 4 lenses.
-    assert report["n_cells"] == n_ref * 4, report["n_cells"]
+    assert len(report["decision_modes"]) == 5, report["decision_modes"]
+    assert set(report["decision_modes"]) == {
+        "core", "extended", "geomorphic", "landform", "texture"}, report["decision_modes"]
+    # Every (reference x lens) pairing is one cell: n_ref references x 5 lenses.
+    assert report["n_cells"] == n_ref * 5, report["n_cells"]
     # Each candidate carries the per-candidate robustness synthesis fields.
     for c in cfg["candidates"]:
         pc = report["per_candidate"][c["id"]]
