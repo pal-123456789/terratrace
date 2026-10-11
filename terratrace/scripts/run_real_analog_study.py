@@ -21,6 +21,15 @@ REAL download path stays one flag away on a networked machine:
                OpenTopography (needs OPENTOPO_API_KEY + rasterio; the Mars MOLA
                reference must already be on disk), then run the real study.
 
+Two reporting modes layer on top (same inputs, obtained once, no extra fetch):
+
+  --decision-metrics L  Override the config's decision lens (core / extended /
+               geomorphic / landform) for the single study it would otherwise run.
+  --ablation   Run the decision under ALL FOUR lenses on ONE dataset and report
+               what each concludes. The "best analog" is lens-dependent -- a
+               Pareto TIE under one lens can resolve under another -- so a single
+               run surfaces the full tie-break. Prints a table + writes ablation.json.
+
 Scientific boundary (claim firewall): map-scale terrain-MORPHOLOGY screening and
 resampling statistics only. Nothing here is a traversability, geologic-
 equivalence, site-access, or mission-readiness claim.
@@ -92,9 +101,10 @@ def _dry_run(cfg):
     _print_preflight(report)
     return 0 if report["ok"] else 2
 
-def _synthetic_package(cfg):
-    """--synthetic: build deterministic OFFLINE surfaces and run the real
-    comparison engine on them (no fetch, no rasterio, no run_real_study).
+def _synthetic_inputs(cfg):
+    """Build the deterministic OFFLINE comparison inputs ONCE (no fetch, no
+    rasterio) so the SAME surfaces feed either a single study (_synthetic_package)
+    or the four-lens ablation. Returns (raw, rights, reference_id, target_support_m).
 
     Each unit gets one gently tilted plane plus seeded roughness. The roughness
     amplitude follows a per-unit ladder (reference smoothest; the first Earth
@@ -119,6 +129,14 @@ def _synthetic_package(cfg):
              + synthetic.rough_field((80, 80), amp, seed=i))
         raw[u["id"]] = z
         rights[u["id"]] = u.get("rights_status", "verified_allowed")
+    return raw, rights, reference_id, tsm
+
+
+def _synthetic_package(cfg):
+    """--synthetic: build the deterministic OFFLINE surfaces (via _synthetic_inputs)
+    and run the real comparison engine on them (no fetch, no rasterio, no
+    run_real_study), honoring the config's depth/decision flags."""
+    raw, rights, reference_id, tsm = _synthetic_inputs(cfg)
     kw = _study_kwargs(cfg)
     return study.compare_units(
         raw, rights, native_posting_m=tsm, reference_id=reference_id,
@@ -187,6 +205,73 @@ def _real_package(cfg, skip_fetch):
         significance=kw["significance"], n_perm=kw["n_perm"],
         terrain_spectra=kw["terrain_spectra"])
 
+
+def _real_inputs(cfg, skip_fetch):
+    """REAL-mode comparison inputs for the ablation: preflight (abort on hard
+    problems, same gate as _real_package), fetch any missing Earth DEMs unless
+    skip_fetch, verify every file is on disk, then load the units ONCE via
+    study.load_real_units (rasterio). Returns (raw, rights, native, reference_id,
+    target_support_m) -- native is the per-unit posting map from the loader."""
+    report = preflight.preflight_config(cfg)
+    _print_preflight(report)
+    if not report["ok"]:
+        sys.exit("[preflight] aborting: fix the problems above "
+                 "(adjust bboxes / bodies / paths in the config) and re-run.")
+    if not skip_fetch:
+        _fetch_missing(cfg)
+    units = [cfg["reference"]] + list(cfg.get("earth_units", []))
+    missing = [u["path"] for u in units if not os.path.exists(u["path"])]
+    if missing:
+        sys.exit("Missing DEM files (fetch on a networked machine, or drop "
+                 "--skip-fetch):\n  " + "\n  ".join(missing))
+    tsm = float(cfg.get("target_support_m", 1000.0))
+    raw, rights, native, ref_ids = study.load_real_units(
+        units, tsm, cfg.get("reproject", True))
+    reference_id = ref_ids[-1]
+    return raw, rights, native, reference_id, tsm
+
+
+def _run_ablation(raw, rights, native, reference_id, tsm, out):
+    """Run the decision under ALL FOUR lenses on ONE set of comparison inputs and
+    report what each concludes. The 'best analog' is lens-dependent: core and the
+    extended / geomorphic / landform morphology axes can rank candidates
+    differently, and a Pareto TIE under one lens may resolve under another -- so a
+    single run surfaces the full tie-break rather than one lens's verdict. Prints a
+    readable table, writes ablation.json, returns 0. Morphology screening only."""
+    LENSES = ("core", "extended", "geomorphic", "landform")
+    rows = []
+    for lens in LENSES:
+        pk = study.compare_units(raw, rights, native, reference_id=reference_id,
+                                 target_support_m=tsm, decision_metrics=lens)
+        fr = pk.get("frontier") or {}
+        layer1 = (fr.get("pareto_layers") or [[]])[0]
+        rows.append({"lens": lens, "result_state": pk["result_state"],
+                     "recommended_unit": pk.get("recommended_unit"),
+                     "pareto_layer1": layer1})
+
+    print("")
+    print("=" * 78)
+    print("TerraTrace four-lens decision ablation -- SAME data, every decision lens")
+    print("=" * 78)
+    print(f"reference_id = {reference_id}    target_support_m = {tsm:g} m")
+    print(f"{'lens':<11} {'result_state':<22} {'recommended_unit':<18} pareto_layer1")
+    print("-" * 78)
+    for r in rows:
+        layer = "{" + ", ".join(str(u) for u in r["pareto_layer1"]) + "}"
+        print(f"{r['lens']:<11} {str(r['result_state']):<22} "
+              f"{str(r['recommended_unit']):<18} {layer}")
+    print("-" * 78)
+
+    os.makedirs(out, exist_ok=True)
+    payload = {"reference_id": reference_id, "target_support_m": tsm, "lenses": rows}
+    path = os.path.join(out, "ablation.json")
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(payload, fh, indent=2, sort_keys=True)
+    print(f"[ablation] wrote {path}")
+    print(HONEST_NOTE)
+    return 0
+
+
 def _print_headline(package, conf, manifest, out):
     """Print the one-screen result summary (honest, no composite score)."""
     phash = package.get("package_hash") or ""
@@ -223,15 +308,33 @@ def _finish(package, out):
 
 
 def run_from_config(cfg, out="artifacts/real_study", dry_run=False,
-                    synthetic=False, skip_fetch=False):
+                    synthetic=False, skip_fetch=False,
+                    decision_metrics=None, ablation=False):
     """Drive the whole pipeline from an already-parsed config DICT.
 
     Factored out of main() with NO YAML/file I/O so the orchestration is
     unit-testable offline without PyYAML. Returns an exit code (0 = clean;
     --dry-run returns 0/2). REAL mode may sys.exit on a missing key / DEM.
+
+    ablation=True obtains the comparison inputs ONCE (synthetic surfaces, or real
+    DEMs via load_real_units) and runs the decision under all four lenses instead
+    of a single study -- see _run_ablation. decision_metrics (when not None)
+    overrides cfg["decision_metrics"] for the single-study path ONLY, applied to a
+    shallow copy so the caller's config is never mutated.
     """
     if dry_run:
         return _dry_run(cfg)
+    if ablation:
+        if synthetic:
+            print("[mode] synthetic ablation (deterministic offline surfaces)")
+            raw, rights, reference_id, tsm = _synthetic_inputs(cfg)
+            native = tsm
+        else:
+            print("[mode] real ablation (download + rasterio)")
+            raw, rights, native, reference_id, tsm = _real_inputs(cfg, skip_fetch)
+        return _run_ablation(raw, rights, native, reference_id, tsm, out)
+    if decision_metrics is not None:
+        cfg = dict(cfg, decision_metrics=decision_metrics)
     if synthetic:
         print("[mode] synthetic (deterministic offline surfaces)")
         package = _synthetic_package(cfg)
@@ -253,10 +356,21 @@ def main(argv=None):
                     help="deterministic offline surfaces (no fetch, no rasterio)")
     ap.add_argument("--skip-fetch", action="store_true",
                     help="REAL mode: assume DEMs are already on disk; do not download")
+    ap.add_argument("--decision-metrics",
+                    choices=("core", "extended", "geomorphic", "landform"),
+                    default=None,
+                    help="override the config's decision lens for the single study "
+                         "(ignored under --ablation, which runs all four)")
+    ap.add_argument("--ablation", action="store_true",
+                    help="run the decision under ALL FOUR lenses (core/extended/"
+                         "geomorphic/landform) on ONE dataset; print a table and "
+                         "write ablation.json instead of a single study bundle")
     args = ap.parse_args(argv)
     cfg = _load_config(args.config)
     return run_from_config(cfg, out=args.out, dry_run=args.dry_run,
-                           synthetic=args.synthetic, skip_fetch=args.skip_fetch)
+                           synthetic=args.synthetic, skip_fetch=args.skip_fetch,
+                           decision_metrics=args.decision_metrics,
+                           ablation=args.ablation)
 
 
 if __name__ == "__main__":

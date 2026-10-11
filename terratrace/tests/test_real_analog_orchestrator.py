@@ -90,6 +90,37 @@ def test_synthetic_end_to_end():
     assert conf.get("verdict"), "confidence.json has no verdict"
 
 
+def test_ablation_synthetic():
+    # One run, all four decision lenses, SAME offline surfaces. Fully offline
+    # (no yaml / rasterio / network): --synthetic ablation uses _synthetic_inputs.
+    mod = _load_orchestrator()
+    out = tempfile.mkdtemp(prefix="ras_abl_")
+    rc = mod.run_from_config(_cfg(), out=out, synthetic=True, ablation=True)
+    assert rc == 0, f"ablation run returned {rc!r}"
+
+    abl_path = os.path.join(out, "ablation.json")
+    assert os.path.exists(abl_path), "ablation.json not written"
+    with open(abl_path, encoding="utf-8") as fh:
+        abl = json.load(fh)
+    rows = abl["lenses"]
+    assert len(rows) == 4, f"expected 4 lens rows, got {len(rows)}"
+    assert {r["lens"] for r in rows} == {"core", "extended", "geomorphic", "landform"}
+    for r in rows:
+        assert r["result_state"] in _VALID_STATES, r["result_state"]
+
+
+def test_decision_metrics_override_synthetic():
+    # --decision-metrics overrides the config's lens ("extended") for the single
+    # study; the resulting package profile must record the override.
+    mod = _load_orchestrator()
+    out = tempfile.mkdtemp(prefix="ras_dm_")
+    rc = mod.run_from_config(_cfg(), out=out, synthetic=True, decision_metrics="core")
+    assert rc == 0, f"override run returned {rc!r}"
+    with open(os.path.join(out, "study.json"), encoding="utf-8") as fh:
+        pkg = json.load(fh)
+    assert pkg["profile"]["decision_metrics"] == "core", pkg["profile"].get("decision_metrics")
+
+
 def test_dry_run_offline():
     # Preflight is fully offline; it returns 0 (clean) / 2 (problems), nothing else.
     mod = _load_orchestrator()

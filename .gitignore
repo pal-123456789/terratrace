@@ -4,6 +4,11 @@
 terratrace/data/mars/mola_463m.tif
 # Safety net: ignore any single raster that is very large.
 terratrace/data/**/*_full.tif
+# Fetched real Earth DEMs (several MB each) — regenerate with fetch_real_dems.py / the orchestrator.
+terratrace/data/earth/
+# Generated study bundles + showcase outputs (reproducible from a run; not source).
+terratrace/artifacts/
+demo/
 
 # Python caches and environments
 __pycache__/
