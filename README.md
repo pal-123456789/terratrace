@@ -66,7 +66,9 @@ On real data (a Mars reference vs a Nevada desert and Craters of the Moon, Idaho
 **core** morphology axes recommend the lava field, but adding the **extended** descriptors
 (aspect dispersion, hypsometric integral) turns the result into an honest **tie** — the "best
 analog" depends on what you intend to test. The tool reports that rather than forcing a winner.
-See `terratrace/docs/VALIDATION.md`.
+See `terratrace/docs/VALIDATION.md`. A full method + results write-up is in
+`terratrace/docs/PAPER.md`, and the real worked example (with the four-lens ablation) in
+`terratrace/docs/REAL-EXAMPLE.md`.
 
 ## Deploy
 
