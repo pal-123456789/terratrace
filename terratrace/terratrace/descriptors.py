@@ -18,7 +18,8 @@ from __future__ import annotations
 
 import numpy as np
 
-from . import features, openness, geomorphons, spectral, anisotropy, kh_roughness, iwahashi_pike
+from . import (features, openness, geomorphons, spectral, anisotropy,
+               kh_roughness, iwahashi_pike, drainage)
 
 _SUMMARY_KEYS = ("mean", "std", "p10", "p50", "p90")
 
@@ -102,6 +103,17 @@ def descriptor_bank(z, dx=1.0, window=5):
     floats + a string-keyed float ``composition`` + an int, complementary to the
     geomorphon landform classifier.
 
+    A surface-dissection texture sub-dict is appended likewise (append-only; NOT
+    read by any decision): ``"drainage"`` -- the
+    :func:`terratrace.drainage.drainage_signature` dict (``channel_fraction``,
+    ``mean_log_acc``, ``max_acc_fraction`` and the ``drainage_density_proxy``)
+    from the depression-filled D8 flow-accumulation field (O'Callaghan & Mark
+    1984 D8 routing; Barnes et al. 2014 priority-flood fill), computed at the
+    bank's ``dx``; a flat dict of plain floats, JSON-serialisable. This is a
+    PURELY GEOMETRIC descriptor of how the surface would route a space-filling
+    flow -- NOT a claim of water, fluvial, climate, erosion, or mission processes
+    on any body.
+
     These are map-scale morphology descriptors only. No traversability,
     mechanical, or mission claim is implied by any value in the bank.
     """
@@ -159,6 +171,14 @@ def descriptor_bank(z, dx=1.0, window=5):
         #     composition ("0".."7") and the dominant class; JSON-serialisable,
         #     complementary to the geomorphon landform classifier. ---
         "iwahashi_pike": iwahashi_pike.iwahashi_pike_signature(z, dx=dx),
+        # --- surface-dissection texture via depression-filled D8 flow
+        #     accumulation (append-only; NOT used by the study decision). The
+        #     drainage_signature flat dict of plain floats (channel_fraction,
+        #     mean_log_acc, max_acc_fraction, drainage_density_proxy), computed at
+        #     the bank's dx. A PURELY GEOMETRIC flow-routing descriptor
+        #     (O'Callaghan & Mark 1984 D8; Barnes et al. 2014 priority flood) --
+        #     NOT a water, fluvial, climate, hazard, or mission claim. ---
+        "drainage": drainage.drainage_signature(z, dx=dx),
     }
 
 

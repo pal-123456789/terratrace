@@ -5,7 +5,7 @@ screening**. These checks establish software/metric correctness, data handling,
 sensitivity, and provenance. They do **not** establish rover traversability,
 autonomy, geologic equivalence, site access, or mission readiness.
 
-## Test suite (509 fixtures, `tests/run_tests.py`)
+## Test suite (522 fixtures, `tests/run_tests.py`)
 
 | Area | What the fixtures prove |
 |---|---|
@@ -55,7 +55,7 @@ Every fixture has a known analytic answer; the runner exits non-zero on any fail
 
 Beyond unit fixtures, `scripts/run_validation.py` drives the **real** comparison
 pipeline on synthetic terrains with known relationships and asserts the engine's
-descriptors, distances, and Pareto decision come out the way geomorphometry requires. All 31
+descriptors, distances, and Pareto decision come out the way geomorphometry requires. All 32
 of these checks pass:
 
 | Check | Property proven |

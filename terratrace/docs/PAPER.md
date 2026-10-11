@@ -22,7 +22,7 @@ every result. On a real five-world run (Mars MOLA vs three Copernicus GLO-30 Ear
 the method independently re-identifies a documented basalt analog — Craters of the Moon, Idaho
 — as the closest match on the core roughness/relief axes, while honestly reporting that the
 recommendation does not survive every lens. Everything is offline-reproducible from one command
-and covered by 509 automated tests.
+and covered by 522 automated tests.
 
 ## 1. Problem and approach
 
@@ -50,7 +50,8 @@ topographic openness. Scale & fabric: the radially-averaged power-spectral slope
 directional-structure-function anisotropy (fabric strength and orientation). Planetary
 roughness: the Kreslavsky–Head (2000) differential-slope baseline roughness (the metric behind
 NASA's global MOLA roughness maps) and the Iwahashi–Pike (2007) three-signature
-(slope / convexity / texture) nested-means terrain class. Distributions are
+(slope / convexity / texture) nested-means terrain class. Dissection: a depression-filled
+D8 flow-accumulation surface-dissection texture (a purely geometric routing descriptor). Distributions are
 compared to the reference with scale-normalized Wasserstein/KS distances.
 
 **2.3 Decision: Pareto, not a score.** Candidates become vectors of distances-to-reference and
@@ -120,7 +121,7 @@ confidently where the morphology agrees and abstains where it does not. See `REA
 
 ## 5. Validation
 
-Correctness is pinned by a scientific-correctness suite of 31 oracles that drive the real
+Correctness is pinned by a scientific-correctness suite of 32 oracles that drive the real
 engine on synthetic terrains with known answers: self-distance is zero; slope/relief/ruggedness
 are invariant to a constant offset and to 90° rotation; roughness discrimination is monotone; a
 planted close twin is recovered over an impostor; a water tile is BLOCKED; openness is 90° on a
@@ -145,8 +146,8 @@ vertical-datum error propagation end-to-end into the decision, and a multi-pair 
 
 ```bash
 pip install -r terratrace/requirements.txt      # core: NumPy only
-python terratrace/tests/run_tests.py             # 509 offline tests
-python terratrace/scripts/run_validation.py      # 31 correctness oracles
+python terratrace/tests/run_tests.py             # 522 offline tests
+python terratrace/scripts/run_validation.py      # 32 correctness oracles
 # real five-world study, one command (needs a free OpenTopography key):
 python terratrace/scripts/run_real_analog_study.py --config config/real_multibody.example.yml
 ```
@@ -166,6 +167,9 @@ Zevenbergen & Thorne (1987), *Quantitative analysis of land surface topography*.
 Efron & Tibshirani (1993), *An Introduction to the Bootstrap*. Good (2005), *Permutation, Parametric, and Bootstrap Tests of Hypotheses*.
 Kreslavsky & Head (2000), *Kilometer-scale roughness of Mars: Results from MOLA data analysis*, JGR‑Planets 105(E11).
 Iwahashi & Pike (2007), *Automated classifications of topography from DEMs by an unsupervised nested-means algorithm and a three-part geometric signature*, Geomorphology 86.
+O'Callaghan & Mark (1984), *The extraction of drainage networks from digital elevation data*, CVGIP 28.
+Barnes, Lehman & Mulla (2014), *Priority-flood: an optimal depression-filling and watershed-labeling algorithm*, Computers & Geosciences 62.
+Horton (1945), *Erosional development of streams and their drainage basins*, GSA Bulletin 56.
 
 *Morphology screening and resampling statistics only — not a traversability, geologic-equivalence, site-access, or mission-readiness claim.*
 

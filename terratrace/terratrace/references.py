@@ -266,6 +266,33 @@ METHOD_REFERENCES = (
                      "Geomorphology, 86(3-4), 409-440."),
         "doi": None,
     },
+    {
+        "id": "d8_ocallaghan_mark_1984",
+        "topic": "D8 single-flow-direction drainage-network extraction",
+        "citation": ("O'Callaghan, J. F., & Mark, D. M. (1984). The extraction of "
+                     "drainage networks from digital elevation data. Computer "
+                     "Vision, Graphics, and Image Processing, 28(3), 323-344."),
+        "doi": None,
+    },
+    {
+        "id": "priority_flood_barnes_2014",
+        "topic": ("Priority-flood depression filling + flow-direction assignment "
+                  "(flow-accumulation dissection texture)"),
+        "citation": ("Barnes, R., Lehman, C., & Mulla, D. (2014). Priority-flood: "
+                     "An optimal depression-filling and watershed-labeling "
+                     "algorithm for digital elevation models. Computers & "
+                     "Geosciences, 62, 117-127."),
+        "doi": None,
+    },
+    {
+        "id": "drainage_density_horton_1945",
+        "topic": "Drainage density (dissection-texture proxy)",
+        "citation": ("Horton, R. E. (1945). Erosional development of streams and "
+                     "their drainage basins: hydrophysical approach to quantitative "
+                     "morphology. Geological Society of America Bulletin, 56(3), "
+                     "275-370."),
+        "doi": None,
+    },
 )
 
 
@@ -283,7 +310,9 @@ def method_references():
     natural-terrain roughness and its directional structure function, Shepard
     et al. 2001; and the differential-slope baseline roughness, a gridded
     adaptation of the Mars/MOLA kilometre-scale roughness metric of Kreslavsky &
-    Head 2000) - and are distinct from the upstream DATA-provider credits
+    Head 2000; and the depression-filled D8 flow-accumulation dissection-texture
+    descriptor, O'Callaghan & Mark 1984 / Barnes, Lehman & Mulla 2014 / Horton
+    1945) - and are distinct from the upstream DATA-provider credits
     produced by :func:`references_for`. Returns fresh dict copies in declaration
     order.
     """

@@ -43,6 +43,7 @@ _EXPECTED_NAMES = (
     "multiscale_identical_is_layer1_all_scales",
     "kh_roughness_plane_is_zero_rough_discriminates",
     "iwahashi_pike_texture_and_convexity",
+    "drainage_flow_conservation_and_dissection",
 )
 
 # New line-of-sight morphology oracles added on top of the original battery.
@@ -443,3 +444,26 @@ def test_check_iwahashi_pike_texture_and_convexity_passes():
     m = rec["metrics"]
     assert m["texture_rough"] > m["texture_smooth"], m
     assert m["dome_convexity"] > m["basin_convexity"], m
+
+
+def test_new_drainage_check_present_and_passes():
+    """The depression-filled D8 flow-accumulation oracle is registered in the
+    report and passes."""
+    report = _report()
+    present = {c["name"] for c in report["checks"]}
+    name = "drainage_flow_conservation_and_dissection"
+    assert name in present, f"{name!r} not registered in run_validation()"
+    assert _find(report, name)["passed"] is True, _find(report, name)["detail"]
+
+
+def test_check_drainage_flow_conservation_and_dissection_passes():
+    """Flow conservation holds exactly (sum of outlet acc == n_finite) and the
+    drainage texture discriminates roughness (rough concentrates flow more and
+    routes less organised accumulation than a smooth plane)."""
+    rec = validation.check_drainage_flow_conservation_and_dissection()
+    assert rec["name"] == "drainage_flow_conservation_and_dissection"
+    assert rec["passed"] is True, rec["detail"]
+    m = rec["metrics"]
+    assert abs(m["outlet_sum"] - m["n_finite"]) < 1e-6, m
+    assert m["rough_max_acc_fraction"] > m["smooth_max_acc_fraction"], m
+    assert m["rough_mean_log_acc"] < m["smooth_mean_log_acc"], m

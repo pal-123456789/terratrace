@@ -7,7 +7,7 @@ import json
 
 import numpy as np
 
-from terratrace import descriptors, synthetic, geomorphons, spectral, anisotropy, kh_roughness, iwahashi_pike
+from terratrace import descriptors, synthetic, geomorphons, spectral, anisotropy, kh_roughness, iwahashi_pike, drainage
 
 MAP_KEYS = ("slope", "relief", "ruggedness", "profile_curvature",
             "plan_curvature", "mean_curvature", "vector_ruggedness")
@@ -47,7 +47,7 @@ def test_bank_keys_types_and_json_serialisable():
                 {"structure_function", "surface_area_ratio",
                  "terrain_ruggedness_index", "landform_fraction",
                  "openness", "geomorphons", "spectral", "anisotropy",
-                 "kh_roughness", "iwahashi_pike"})
+                 "kh_roughness", "iwahashi_pike", "drainage"})
     assert set(bank) == expected, set(bank) ^ expected
     for key in MAP_KEYS:
         summ = bank[key]
@@ -374,4 +374,42 @@ def test_bank_iwahashi_pike_plane_mostly_one_class_rough_spreads():
     assert max(comp_p.values()) > 0.95, comp_p          # plane ~ one class
     n_classes_rough = sum(1 for v in comp_r.values() if v > 0.0)
     assert n_classes_rough >= 4, comp_r                 # rough terrain spreads
+
+
+# --- surface-dissection (depression-filled D8 flow) block wired into the bank --
+
+DRAINAGE_KEYS = {"channel_fraction", "mean_log_acc", "max_acc_fraction",
+                 "drainage_density_proxy"}
+
+
+def test_bank_has_drainage_block_and_json():
+    z = (synthetic.plane((48, 48), slope_x=0.2, slope_y=0.1)
+         + synthetic.rough_field((48, 48), amplitude=1.0, seed=51))
+    bank = descriptors.descriptor_bank(z)
+    assert "drainage" in bank
+
+    dr = bank["drainage"]
+    assert set(dr) == DRAINAGE_KEYS, set(dr)
+    assert all(type(v) is float for v in dr.values()), dr
+    assert all(np.isfinite(v) for v in dr.values()), dr
+    assert 0.0 < dr["max_acc_fraction"] <= 1.0, dr["max_acc_fraction"]
+
+    # the bank's block is exactly the source-module signature (bank dx=1.0)
+    assert dr == drainage.drainage_signature(z, dx=1.0)
+
+    # the whole extended bank still serialises, round-trips and is deterministic
+    assert json.loads(json.dumps(bank))
+    assert descriptors.descriptor_bank(z) == bank
+
+
+def test_bank_drainage_dissection_rough_vs_smooth_plane():
+    # roughness reorganises drainage: a seeded rough surface concentrates flow
+    # more (higher max_acc_fraction) and routes less organised accumulation
+    # (lower mean_log_acc) than a smooth tilted plane (analysis layer only).
+    plane = synthetic.plane((60, 60), slope_x=0.2, slope_y=0.1)
+    rough = plane + synthetic.rough_field((60, 60), amplitude=1.5, seed=53)
+    dp = descriptors.descriptor_bank(plane)["drainage"]
+    dr = descriptors.descriptor_bank(rough)["drainage"]
+    assert dr["max_acc_fraction"] > dp["max_acc_fraction"], (dr, dp)
+    assert dr["mean_log_acc"] < dp["mean_log_acc"], (dr, dp)
 

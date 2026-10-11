@@ -59,7 +59,7 @@ import numpy as np
 
 from . import (study, synthetic, provenance, features, openness, geomorphons,
                confidence, spectral, anisotropy, multiscale, kh_roughness,
-               iwahashi_pike)
+               iwahashi_pike, drainage)
 
 # Isolate the morphology math from aggregation smoothing: native == target gives
 # an aggregation factor of 1, so features are computed on the grids as built.
@@ -769,6 +769,63 @@ def check_iwahashi_pike_texture_and_convexity():
                    dome_convexity=dome_conv, basin_convexity=basin_conv)
 
 
+# --- surface-dissection flow-accumulation oracle ----------------------------
+# A depression-filled D8 flow-accumulation descriptor checked directly (not
+# through the comparison pipeline) against its two defining behaviours on an
+# 80x80 grid: (a) FLOW CONSERVATION on a seeded rough surface -- every finite
+# cell has acc >= 1, max(acc) <= n_finite, and the OUTLET accumulations sum to
+# exactly n_finite (every cell drains to a domain-edge outlet); and (b) DRAINAGE
+# TEXTURE DISCRIMINATES roughness -- a seeded rough surface concentrates flow
+# more than a smooth tilted plane (strictly higher max_acc_fraction) and routes
+# less organised accumulation (strictly lower mean_log_acc). Only the pass/fail
+# boolean enters the outcome hash; the conservation identity is exact and both
+# discrimination gaps are decisive, so the check is deterministic and
+# host-independent. A PURELY GEOMETRIC flow-routing descriptor -- no water,
+# fluvial, climate, hazard, or mission claim.
+_DRAIN_SHAPE = (80, 80)
+
+
+def check_drainage_flow_conservation_and_dissection():
+    """The depression-filled D8 flow descriptor behaves as its definition
+    requires: (a) FLOW CONSERVATION on a seeded rough 80x80 surface -- every
+    finite cell has acc >= 1, max(acc) <= n_finite, and the outlet accumulations
+    sum to exactly n_finite; AND (b) DRAINAGE TEXTURE DISCRIMINATES roughness --
+    a seeded rough surface has a strictly higher peak flow concentration
+    (max_acc_fraction) and a strictly lower organised accumulation
+    (mean_log_acc) than a smooth tilted plane. PASS iff both."""
+    smooth = synthetic.plane(_DRAIN_SHAPE, slope_x=0.05, dx=1.0)
+    rough = smooth + synthetic.rough_field(_DRAIN_SHAPE, amplitude=3.0, seed=111)
+
+    acc = drainage.flow_accumulation(rough)
+    flowdir = drainage.d8_flow_direction(rough)
+    finite = np.isfinite(rough)
+    n = int(finite.sum())
+    max_acc = float(np.nanmax(acc))
+    outlet_sum = float(np.nansum(acc[(flowdir == -1) & finite]))
+    conservation = (bool(np.all(acc[finite] >= 1.0)) and max_acc <= n
+                    and abs(outlet_sum - n) < 1e-6)
+
+    s = drainage.drainage_signature(smooth)
+    r = drainage.drainage_signature(rough)
+    dissection = (bool(np.isfinite(r["max_acc_fraction"]))
+                  and bool(np.isfinite(s["max_acc_fraction"]))
+                  and r["max_acc_fraction"] > s["max_acc_fraction"]
+                  and r["mean_log_acc"] < s["mean_log_acc"])
+
+    return _result("drainage_flow_conservation_and_dissection",
+                   bool(conservation and dissection),
+                   f"conservation: sum(outlet acc)={outlet_sum:.1f} == n_finite={n} "
+                   f"(all acc>=1, max {max_acc:.0f} <= n); dissection: rough "
+                   f"max_acc_fraction {r['max_acc_fraction']:.4f} > smooth "
+                   f"{s['max_acc_fraction']:.4f} and rough mean_log_acc "
+                   f"{r['mean_log_acc']:.4f} < smooth {s['mean_log_acc']:.4f}",
+                   outlet_sum=outlet_sum, n_finite=n,
+                   rough_max_acc_fraction=r["max_acc_fraction"],
+                   smooth_max_acc_fraction=s["max_acc_fraction"],
+                   rough_mean_log_acc=r["mean_log_acc"],
+                   smooth_mean_log_acc=s["mean_log_acc"])
+
+
 _CHECKS = (
     check_self_distance_zero,
     check_translation_invariance,
@@ -801,6 +858,7 @@ _CHECKS = (
     check_multiscale_identical_is_layer1_all_scales,
     check_kh_roughness_plane_is_zero_rough_discriminates,
     check_iwahashi_pike_texture_and_convexity,
+    check_drainage_flow_conservation_and_dissection,
 )
 
 
