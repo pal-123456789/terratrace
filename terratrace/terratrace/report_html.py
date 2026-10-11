@@ -471,6 +471,127 @@ def _landform_html(p):
     return "\n".join(out)
 
 
+def _significance_table_html(p):
+    """Opt-in permutation-significance detail vs the runner-up. Returns '' when the
+    package carries no 'significance' block. When the block was evaluated (carries
+    'per_metric') render a header naming recommended_unit vs runner_up + the overall
+    recommendation_significant flag and a per-metric permutation table; when it is
+    present but ``evaluated`` is False, render one honest line stating why (its
+    'reason'). Every dynamic value is escaped; connectivity is a scalar axis with no
+    p-value, labelled method='scalar'."""
+    sig = p.get("significance")
+    if not isinstance(sig, dict) or not sig:
+        return ""
+    out = ["<h3>Significance vs runner-up</h3>"]
+    if sig.get("evaluated") is False or "per_metric" not in sig:
+        out.append("<p class='note'>Permutation significance was not evaluated: "
+                   f"{_esc(sig.get('reason', 'not evaluated'))}.</p>")
+        return "\n".join(out)
+    rec, runner = sig.get("recommended_unit"), sig.get("runner_up")
+    overall = sig.get("recommendation_significant")
+    out.append(f"<p>One-sided permutation closeness test &mdash; recommended "
+               f"<code>{_esc(rec)}</code> vs runner-up <code>{_esc(runner)}</code> "
+               f"({_num(sig.get('n_perm'))} permutations, seed {_num(sig.get('seed'))}). "
+               f"A negative observed difference means the recommended unit is the closer "
+               f"one; a lower p-value means the closeness gap is less likely under random "
+               f"relabelling. Overall <strong>recommendation significant: "
+               f"{'yes' if overall else 'no'}</strong> "
+               f"({_num(sig.get('n_significant_metrics'))} sample-array metric(s) "
+               f"significant).</p>")
+    out.append("<table><caption>Per-metric permutation test (recommended vs runner-up); "
+               "connectivity is a single scalar, so it carries no p-value.</caption>")
+    out.append("<thead><tr><th scope='col'>metric</th>"
+               "<th scope='col'>observed_diff</th><th scope='col'>p one-sided</th>"
+               "<th scope='col'>p two-sided</th><th scope='col'>effect size</th>"
+               "<th scope='col'>significant</th><th scope='col'>method</th>"
+               "</tr></thead><tbody>")
+    for m in sorted(sig.get("per_metric", {}) or {}):
+        row = sig["per_metric"][m] or {}
+        p1, p2, es = (row.get("p_value_one_sided"), row.get("p_value_two_sided"),
+                      row.get("effect_size"))
+        out.append(f"<tr><th scope='row'>{_esc(m)}</th>"
+                   f"<td class='num'>{_num(row.get('observed_diff'))}</td>"
+                   f"<td class='num'>{_num(p1) if p1 is not None else 'n/a'}</td>"
+                   f"<td class='num'>{_num(p2) if p2 is not None else 'n/a'}</td>"
+                   f"<td class='num'>{_num(es) if es is not None else 'n/a'}</td>"
+                   f"<td>{'&#10003;' if row.get('significant') else '&mdash;'}</td>"
+                   f"<td>{_esc(row.get('method', ''))}</td></tr>")
+    out.append("</tbody></table>")
+    return "\n".join(out)
+_VERDICT_PLAIN = {
+    "robust": "every evaluated robustness signal supports the recommendation.",
+    "qualified": "supported, but by only one signal or with a weak one.",
+    "fragile": "at least one evaluated robustness signal undercuts the recommendation.",
+    "tie": "no single unit was recommended (a tie), so there is nothing to qualify.",
+    "indeterminate": "the ranking depends on declared assumptions.",
+    "blocked": "an eligibility blocker prevents a recommendation.",
+    "not_comparable": "no valid common support, so the units cannot be ranked.",
+    "unverified": "no robustness signal was evaluated for this recommendation.",
+}
+
+
+def _conf_signal_val(key, s):
+    """Value/flag cell text for one evaluated confidence signal (final safe HTML)."""
+    if key == "bootstrap_non_domination":
+        return _pct(s.get("value"))
+    if key == "significance_vs_runner_up":
+        base = "significant" if s.get("significant") else "not significant"
+        pv = s.get("p_value_one_sided")
+        return base + (f", weakest p={_num(pv)}" if pv is not None else "")
+    return "stable" if s.get("stable") else "not stable"
+def _confidence_html(p):
+    """Decision-confidence section (GATED). Returns '' unless a robustness signal
+    was actually computed (``bool(significance) or bool(bootstrap)``), so a study
+    carrying neither block renders byte-for-byte as before. Restates the three
+    independent signals (bootstrap non-domination, permutation significance vs the
+    runner-up, lens/support stability) + one categorical verdict via
+    :func:`confidence.decision_confidence`; there is NO composite score. Escaped."""
+    if not (bool(p.get("significance")) or bool(p.get("bootstrap"))):
+        return ""
+    from terratrace import confidence
+    conf = confidence.decision_confidence(p)
+    verdict = str(conf.get("verdict", ""))
+    out = ["<h2>Decision confidence</h2>", "<div class='result'>",
+           f"<p><strong>Verdict:</strong> <code>{_esc(verdict.upper())}</code> &mdash; "
+           f"{_esc(_VERDICT_PLAIN.get(verdict, 'see the signals below.'))}</p>",
+           f"<p>{_esc(conf.get('rationale', ''))}</p></div>",
+           "<table><caption>Three independent robustness signals &mdash; reported "
+           "separately, with NO composite score.</caption>",
+           "<thead><tr><th scope='col'>signal</th><th scope='col'>evaluated</th>"
+           "<th scope='col'>value / flag</th><th scope='col'>detail</th>"
+           "</tr></thead><tbody>"]
+    signals = conf.get("signals", {}) or {}
+    labels = (("bootstrap_non_domination", "bootstrap non-domination"),
+              ("significance_vs_runner_up", "significance vs runner-up"),
+              ("lens_stability", "lens/support stability"))
+    for key, label in labels:
+        s = signals.get(key, {}) or {}
+        ev = bool(s.get("evaluated"))
+        out.append(f"<tr><th scope='row'>{_esc(label)}</th>"
+                   f"<td>{'yes' if ev else 'no'}</td>"
+                   f"<td>{_conf_signal_val(key, s) if ev else '&mdash;'}</td>"
+                   f"<td>{_esc(s.get('detail', ''))}</td></tr>")
+    out.append("</tbody></table>")
+    caveats = conf.get("caveats", []) or []
+    if caveats:
+        out.append("<p class='note'><strong>Not evaluated</strong> (what this verdict "
+                   "could not check):</p><ul>")
+        out.extend(f"<li>{_esc(c)}</li>" for c in caveats)
+        out.append("</ul>")
+    else:
+        out.append("<p class='note'>All three robustness signals were evaluated.</p>")
+    _sigtab = _significance_table_html(p)
+    if _sigtab:
+        out.append(_sigtab)
+    out.append("<blockquote class='note'>Decision confidence restates existing "
+               "robustness evidence (bootstrap non-domination, a permutation test vs "
+               "the runner-up, and lens/support stability) as independent signals and "
+               "one categorical verdict &mdash; there is no composite score. "
+               "Morphology/statistics only; not a traversability, hazard, or "
+               "mission-readiness claim.</blockquote>")
+    return "\n".join(out)
+
+
 def study_report_html(package):
     """Render a study package as a complete, self-contained HTML document (str).
 
@@ -520,6 +641,9 @@ def study_report_html(package):
     if _lf:
         w(_lf)
     w(_sensitivity_html(p))
+    _conf = _confidence_html(p)
+    if _conf:
+        w(_conf)
     w(_ledger_html(p))
     w(_provenance_html(p, profile))
     w("</main></body></html>")

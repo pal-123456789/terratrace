@@ -31,6 +31,10 @@ _EXPECTED_NAMES = (
     "geomorphon_bowl_pit",
     "geomorphon_tilt_slope",
     "geomorphon_relief_invariance",
+    "significance_clear_winner",
+    "significance_near_tie_is_honest",
+    "confidence_robust_on_clear_winner",
+    "confidence_fragile_or_tie_on_near_tie",
 )
 
 # New line-of-sight morphology oracles added on top of the original battery.
@@ -43,6 +47,14 @@ _MORPH_NAMES = (
     "geomorphon_bowl_pit",
     "geomorphon_tilt_slope",
     "geomorphon_relief_invariance",
+)
+
+# Statistical-layer oracles: resampling significance + decision-confidence verdict.
+_SIG_CONF_NAMES = (
+    "significance_clear_winner",
+    "significance_near_tie_is_honest",
+    "confidence_robust_on_clear_winner",
+    "confidence_fragile_or_tie_on_near_tie",
 )
 
 _N_CHECKS = len(_EXPECTED_NAMES)
@@ -251,3 +263,54 @@ def test_check_geomorphon_relief_invariance_passes():
     assert rec["name"] == "geomorphon_relief_invariance"
     assert rec["passed"] is True, rec["detail"]
     assert rec["metrics"]["forms"] >= 1, rec["metrics"]
+
+
+def test_new_significance_confidence_checks_present_and_pass():
+    """The four significance / decision-confidence oracles are registered in the
+    report and every one passes."""
+    report = _report()
+    present = {c["name"] for c in report["checks"]}
+    for name in _SIG_CONF_NAMES:
+        assert name in present, f"{name!r} not registered in run_validation()"
+        assert _find(report, name)["passed"] is True, _find(report, name)["detail"]
+
+
+def test_check_significance_clear_winner_passes():
+    """A clear single winner's recommendation is permutation-significant and the
+    recommended unit is the closer candidate ('near')."""
+    rec = validation.check_significance_clear_winner()
+    assert rec["name"] == "significance_clear_winner"
+    assert rec["passed"] is True, rec["detail"]
+    assert rec["metrics"]["recommended"] == "near", rec["metrics"]
+    assert rec["metrics"]["recommendation_significant"] is True, rec["metrics"]
+
+
+def test_check_significance_near_tie_is_honest_passes():
+    """A near-tie is reported honestly: not a lone recommendation, or the
+    recommendation is NOT significant (no manufactured significance)."""
+    rec = validation.check_significance_near_tie_is_honest()
+    assert rec["name"] == "significance_near_tie_is_honest"
+    assert rec["passed"] is True, rec["detail"]
+    m = rec["metrics"]
+    assert m["state"] != "RECOMMEND_FOLLOW_UP" or m["recommendation_significant"] is False, m
+
+
+def test_check_confidence_robust_on_clear_winner_passes():
+    """Clear winner -> 'robust' verdict with bootstrap + significance both
+    evaluated and positive (a documented rule over per-signal classes, no score)."""
+    rec = validation.check_confidence_robust_on_clear_winner()
+    assert rec["name"] == "confidence_robust_on_clear_winner"
+    assert rec["passed"] is True, rec["detail"]
+    assert rec["metrics"]["verdict"] == "robust", rec["metrics"]
+    assert rec["metrics"]["significant"] is True, rec["metrics"]
+
+
+def test_check_confidence_fragile_or_tie_on_near_tie_passes():
+    """Near-tie -> the decision confidence is NEVER 'robust' (fragile/qualified/
+    tie/indeterminate only)."""
+    rec = validation.check_confidence_fragile_or_tie_on_near_tie()
+    assert rec["name"] == "confidence_fragile_or_tie_on_near_tie"
+    assert rec["passed"] is True, rec["detail"]
+    assert rec["metrics"]["verdict"] != "robust", rec["metrics"]
+    assert rec["metrics"]["verdict"] in {"fragile", "qualified", "tie",
+                                         "indeterminate"}, rec["metrics"]

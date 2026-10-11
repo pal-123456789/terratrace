@@ -12,6 +12,7 @@ Commands:
   references print the data-sources citation / credits bundle (Markdown)
   sensitivity run a decision-lens robustness ablation on a synthetic scene
   classify   label synthetic terrains by map-scale morphology type
+  confidence print the non-composite decision confidence for a study JSON
   version    print the TerraTrace version and schema version
 
 Backward compatibility: the original CLI ran a study directly with options like
@@ -37,22 +38,35 @@ _SCHEMA_VERSION = "0.1.0"
 
 
 def _cmd_study(argv):
-    """Legacy behaviour: run the synthetic study and write the artifact set."""
+    """Legacy behaviour: run the synthetic study and write the artifact set.
+
+    ``--significance`` opts in to the GATED resampling-significance block on the
+    recommendation (one-sided permutation closeness test vs the runner-up);
+    ``--n-perm`` sets its permutation count. Both are forwarded into the study
+    call. After the study runs, the non-composite decision confidence (verdict +
+    one-line rationale) is printed. Significance is off by default, so the legacy
+    artifact bytes are unchanged unless the flag is given."""
     ap = argparse.ArgumentParser(
         prog="terratrace study",
         description="Run the synthetic reference study and emit a study package.")
     ap.add_argument("--out", default="artifacts", help="output directory")
     ap.add_argument("--target-support-m", type=float, default=100.0)
     ap.add_argument("--native-posting-m", type=float, default=25.0)
+    ap.add_argument("--significance", action="store_true",
+                    help="attach the opt-in permutation-significance block on the recommendation")
+    ap.add_argument("--n-perm", type=int, default=1000,
+                    help="permutation count for --significance (default 1000)")
     args = ap.parse_args(argv)
     if args.target_support_m <= 0 or args.native_posting_m <= 0:
         raise SystemExit("--target-support-m and --native-posting-m must be positive")
+    if args.n_perm <= 0:
+        raise SystemExit("--n-perm must be positive")
 
-    from .study import run_study
     from .provenance import sha256_json
+    from .confidence import decision_confidence
 
-    pkg = run_study(target_support_m=args.target_support_m,
-                    native_posting_m=args.native_posting_m)
+    pkg = _run_synthetic_study(args.target_support_m, args.native_posting_m,
+                               args.significance, args.n_perm)
 
     os.makedirs(args.out, exist_ok=True)
     files = {
@@ -83,11 +97,40 @@ def _cmd_study(argv):
         for name, digest in sorted(checksums.items()):
             fh.write(f"{digest}  {name}\n")
 
+    conf = decision_confidence(pkg)
     print(f"result_state       = {pkg['result_state']}")
     print(f"recommended_unit   = {pkg['recommended_unit']}")
     print(f"package_hash       = {pkg['package_hash'][:16]}...")
+    print(f"decision_confidence= {conf['verdict']}")
+    print(f"confidence_rationale = {conf['rationale']}")
     print(f"artifacts written  -> {args.out}")
     return 0
+
+
+def _run_synthetic_study(target_support_m, native_posting_m, significance, n_perm):
+    """Produce the canonical synthetic study package.
+
+    With significance OFF this is exactly ``study.run_study(...)`` so the legacy
+    artifact bytes are byte-for-byte preserved. With significance ON, the SAME
+    synthetic units/rights are routed through ``study.compare_units`` so the
+    opt-in permutation-significance block can be requested (``run_study`` itself
+    takes no significance arguments). ``significance=False`` attaches nothing, so
+    the two paths produce identical packages when the flag is off.
+    """
+    from .study import run_study
+    if not significance:
+        return run_study(target_support_m=target_support_m,
+                         native_posting_m=native_posting_m)
+    from .study import compare_units, _unit_grid
+    raw = {"mars_reference": _unit_grid("reference"),
+           "earth_close": _unit_grid("earth_close"),
+           "earth_far": _unit_grid("earth_far"),
+           "earth_blocked": _unit_grid("earth_blocked")}
+    rights = {"mars_reference": "verified_allowed", "earth_close": "verified_allowed",
+              "earth_far": "verified_allowed", "earth_blocked": "unknown"}
+    return compare_units(raw, rights, native_posting_m,
+                         target_support_m=target_support_m, min_valid=0.5,
+                         source_label="synthetic", significance=True, n_perm=n_perm)
 
 
 def _cmd_validate(argv):
@@ -292,6 +335,52 @@ def _cmd_classify(argv):
     return 0
 
 
+def _cmd_confidence(argv):
+    """Print the non-composite decision confidence for a study JSON package.
+
+    Loads a study package JSON (same ``--study`` input convention as the report /
+    dossier commands) and prints :func:`terratrace.confidence.decision_confidence`
+    -- the verdict, each independent signal (evaluated flag + detail), and the
+    caveats -- as human-readable text, or as a JSON object with ``--json``. This
+    restates robustness evidence already in the package; it is NOT a new claim and
+    emits no composite score.
+    """
+    ap = argparse.ArgumentParser(
+        prog="terratrace confidence",
+        description="Print the non-composite decision confidence for a study JSON package.")
+    ap.add_argument("--study", default=os.path.join("artifacts", "study.json"),
+                    help="input study JSON (default: artifacts/study.json)")
+    ap.add_argument("--json", action="store_true",
+                    help="emit the full confidence dict as JSON instead of text")
+    args = ap.parse_args(argv)
+    # Lazy import keeps `import terratrace.cli` cheap and dependency-free.
+    from terratrace import confidence
+    try:
+        with open(args.study, "r", encoding="utf-8") as fh:
+            package = json.load(fh)
+    except OSError as exc:
+        sys.stderr.write(
+            f"terratrace confidence: cannot read study file {args.study!r}: {exc}\n")
+        return 2
+    out = confidence.decision_confidence(package)
+    if args.json:
+        print(json.dumps(out, indent=2, sort_keys=True))
+        return 0
+    print(f"verdict:          {out['verdict']}")
+    print(f"result_state:     {out['state']}")
+    print(f"recommended_unit: {out['recommended_unit']}")
+    print(f"rationale:        {out['rationale']}")
+    print("signals:")
+    for name in confidence.SIGNAL_NAMES:
+        s = out["signals"][name]
+        print(f"  {name}: evaluated={s['evaluated']}  {s['detail']}")
+    if out["caveats"]:
+        print("caveats:")
+        for c in out["caveats"]:
+            print(f"  - {c}")
+    return 0
+
+
 def _cmd_version(argv):
     """Print the package version and the study-schema version."""
     ap = argparse.ArgumentParser(
@@ -313,6 +402,7 @@ _DISPATCH = {
     "references": _cmd_references,
     "sensitivity": _cmd_sensitivity,
     "classify": _cmd_classify,
+    "confidence": _cmd_confidence,
     "version": _cmd_version,
 }
 
@@ -333,6 +423,7 @@ def _print_top_help():
     print("  references  print the data-sources citation / credits bundle (Markdown)")
     print("  sensitivity run a decision-lens robustness ablation on a synthetic scene")
     print("  classify    label synthetic terrains by map-scale morphology type")
+    print("  confidence  print the non-composite decision confidence for a study JSON")
     print("  version    print the TerraTrace version and schema version")
     print()
     print("Run 'python -m terratrace.cli <command> -h' for a command's options.")

@@ -264,6 +264,60 @@ a bootstrap confidence interval brackets each distance. The test speaks only abo
 of elevation-sample distributions — it asks whether a closeness gap could arise by chance
 and makes no physical, geologic, or mission claim about either terrain.
 
+## Statistical confidence for the decision
+
+The significance test above compares any two candidates; wiring it into the finished screen
+answers the sharper question an analyst actually asks — *is the recommended unit meaningfully
+closer to the reference than the next-best one?* With `significance=True`, `study.compare_units`
+(and `run_study` / `run_real_study`, which forward it) attaches an opt-in `significance` block: a
+one-sided permutation test (`significance.permutation_closer_test`) of the recommended unit
+against the **runner-up** — the second-closest eligible candidate — run per sample-based
+morphology metric (slope, relief, ruggedness) with the decision's own per-feature scales, each
+reporting one- and two-sided p-values and a standardized effect size. Connectivity is a single
+scalar, so it carries a signed closeness difference rather than a permutation p-value. The block
+also sets `recommendation_significant`, true when at least one metric shows the recommended unit
+both closer and significant at the one-sided 5% level. The test is **off by default**, so when it
+is not requested the frozen `run_study()` package and its provenance hash are byte-for-byte
+unchanged.
+
+`confidence.decision_confidence(package, sensitivity_report=None)` turns that evidence into an
+honest, **non-composite** verdict — it never forms a weighted score. Instead it restates the
+robustness evidence a study already contains as three independent signals, each reported
+separately with its own value and plain-language detail:
+
+- **bootstrap non-domination** — how often the recommended unit stays Pareto non-dominated across
+  the bootstrap resamples (from the `bootstrap` block, present when a study was run with
+  `n_boot > 0`);
+- **significance vs the runner-up** — the permutation `recommendation_significant` flag above;
+- **lens / support stability** — whether the recommendation survives changing the decision lens
+  and common support (from a `sensitivity.ablation_report`).
+
+From the signals that were actually evaluated it returns a single categorical `verdict` —
+`robust`, `qualified`, `fragile`, `tie`, `indeterminate`, `blocked`, `not_comparable`, or
+`unverified` — with a plain-language `rationale` and an explicit `caveats` list naming every
+signal that was **not** evaluated. A recommendation is `robust` only when at least two signals
+were evaluated and all are positive, `fragile` as soon as any evaluated signal is negative, and
+`qualified` when the support is only partial; when the screen did not reach a single-unit
+recommendation the verdict simply mirrors that state. A missing signal degrades to
+"not evaluated" rather than being invented, so the verdict always states exactly how much
+evidence stands behind it.
+
+Both are surfaced end to end: the CLI gains `study --significance --n-perm` and a `confidence`
+subcommand, and the stdlib HTTP API gains `POST /confidence` (plus a `significance` option on the
+study-runner route); the HTML report and the offline viewer render a "Decision confidence" section
+(the verdict, the three signals, the rationale, and the caveats) and a "Significance vs runner-up"
+table, shown only when a robustness signal was actually computed — so the default report is
+unchanged.
+
+The firewall is unchanged: these are distribution-shape resampling statistics and morphology
+screening only. "Decision confidence" means the robustness of the morphology screen's
+recommendation to resampling, to a permutation test against the runner-up, and to changing the
+decision lens or support — and nothing more. It is never a traversability, hazard,
+geologic-equivalence, or mission-readiness claim. The resampling methods follow Efron & Tibshirani
+(1993, *An Introduction to the Bootstrap*, Chapman & Hall) for the bootstrap and Good (2005,
+*Permutation, Parametric, and Bootstrap Tests of Hypotheses*, 3rd ed., Springer) for the
+permutation test.
+
 ## Elevation-error propagation
 
 A morphology distance inherits uncertainty not only from sampling but from the DEM's own

@@ -215,6 +215,20 @@ METHOD_REFERENCES = (
                      "of landforms. Geomorphology, 182, 147-156."),
         "doi": "10.1016/j.geomorph.2012.11.005",
     },
+    {
+        "id": "bootstrap_efron_tibshirani_1993",
+        "topic": "Bootstrap resampling (distance confidence intervals)",
+        "citation": ("Efron, B., & Tibshirani, R. J. (1993). An Introduction to "
+                     "the Bootstrap. Chapman & Hall."),
+        "doi": None,
+    },
+    {
+        "id": "permutation_good_2005",
+        "topic": "Permutation significance testing (closeness vs the runner-up)",
+        "citation": ("Good, P. I. (2005). Permutation, Parametric, and Bootstrap "
+                     "Tests of Hypotheses (3rd ed.). Springer."),
+        "doi": None,
+    },
 )
 
 
@@ -223,8 +237,10 @@ def method_references():
 
     Each record carries exactly ``METHOD_REFERENCE_FIELDS`` (id, topic, citation,
     doi; ``doi`` may be ``None``). These credit the published METHODS TerraTrace
-    implements in-engine - topographic openness (Yokoyama, Shirasawa & Pike 2002)
-    and the geomorphon landform classifier (Jasiewicz & Stepinski 2013) - and are
+    implements in-engine - topographic openness (Yokoyama, Shirasawa & Pike 2002),
+    the geomorphon landform classifier (Jasiewicz & Stepinski 2013), and the
+    resampling statistics behind its honest uncertainty and significance (the
+    bootstrap, Efron & Tibshirani 1993; permutation testing, Good 2005) - and are
     distinct from the upstream DATA-provider credits produced by
     :func:`references_for`. Returns fresh dict copies in declaration order.
     """

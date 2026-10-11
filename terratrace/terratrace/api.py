@@ -8,7 +8,9 @@ FastAPI needed), so it runs anywhere Python does. Endpoints:
     GET  /bodies            -> supported reference bodies + data-source registry
     GET  /references        -> upstream data-source citation / credits catalogue
     POST /compare           -> run a synthetic study with validated parameters
-                               body: {"target_support_m": float, "n_boot": int}
+                               body: {"target_support_m": float, "n_boot": int,
+                                      "significance": bool, "n_perm": int}
+                               (significance opts in to the permutation block)
     POST /validate          -> run the scientific-correctness validation suite
     POST /batch             -> a small synthetic cross-reference batch study
                                body: {"decision_modes": ["core", ...]}
@@ -25,6 +27,10 @@ FastAPI needed), so it runs anywhere Python does. Endpoints:
                                body: {"target_support_m": float}  # optional
     POST /classify          -> terrain-type classifier run on three synthetic
                                grids of increasing roughness (no array upload)
+    POST /confidence        -> non-composite decision confidence for a POSTed
+                               study package (the request body IS the study
+                               package JSON); returns the verdict + per-signal
+                               evidence + caveats as JSON
 
 SECURITY: this server is UNAUTHENTICATED and binds to 127.0.0.1 (localhost) by
 default. Do not expose it to a network without putting authentication and rate
@@ -42,13 +48,16 @@ from . import __version__, study, catalog, validation, batch, synthetic
 
 MAX_BOOT = 500             # interactive responsiveness cap for the HTTP endpoint
                            # (~7 s worst case); the library accepts any n_boot offline.
+MAX_PERM = 2000            # interactive cap on the significance permutation count
+                           # (mirrors MAX_BOOT); the library accepts any n_perm offline.
 MAX_BODY = 1 << 16          # 64 KiB cap on request bodies
 LOOPBACK = {"127.0.0.1", "localhost", "::1", "[::1]"}
 ROUTES = ["GET /health", "GET /study", "GET /bodies", "GET /references",
           "POST /compare", "POST /validate", "POST /batch", "POST /report",
-          "POST /dossier", "POST /report.html", "POST /sensitivity", "POST /classify"]
+          "POST /dossier", "POST /report.html", "POST /sensitivity", "POST /classify",
+          "POST /confidence"]
 POST_ROUTES = ("/compare", "/validate", "/batch", "/report", "/dossier",
-               "/report.html", "/sensitivity", "/classify")
+               "/report.html", "/sensitivity", "/classify", "/confidence")
 
 
 def _clamp(value, lo, hi, default):
@@ -59,6 +68,29 @@ def _clamp(value, lo, hi, default):
     if v != v:  # NaN
         return default
     return max(lo, min(hi, v))
+
+
+def _study_package(target_support_m, n_boot, significance, n_perm):
+    """Run the canonical synthetic study, optionally attaching the opt-in
+    permutation-significance block.
+
+    With ``significance`` off this is exactly ``study.run_study(...)`` so the
+    existing /compare bytes are unchanged. With it on, the SAME synthetic
+    units/rights (mirroring run_study) are routed through ``study.compare_units``
+    so the significance block can be requested (run_study itself takes no
+    significance args). ``significance=False`` attaches nothing, so the two paths
+    agree when the flag is off. Distribution-shape resampling statistics only."""
+    if not significance:
+        return study.run_study(target_support_m=target_support_m, n_boot=n_boot)
+    raw = {"mars_reference": study._unit_grid("reference"),
+           "earth_close": study._unit_grid("earth_close"),
+           "earth_far": study._unit_grid("earth_far"),
+           "earth_blocked": study._unit_grid("earth_blocked")}
+    rights = {"mars_reference": "verified_allowed", "earth_close": "verified_allowed",
+              "earth_far": "verified_allowed", "earth_blocked": "unknown"}
+    return study.compare_units(raw, rights, 25.0, target_support_m=target_support_m,
+                               min_valid=0.5, source_label="synthetic", n_boot=n_boot,
+                               significance=True, n_perm=n_perm)
 
 
 def _synthetic_batch(shape=(48, 48)):
@@ -181,8 +213,11 @@ class Handler(BaseHTTPRequestHandler):
             if route == "/compare":
                 tsm = _clamp(params.get("target_support_m", 100.0), 1.0, 100000.0, 100.0)
                 nb = int(_clamp(params.get("n_boot", 0), 0, MAX_BOOT, 0))
-                pkg = study.run_study(target_support_m=tsm, n_boot=nb)
-                return self._send(200, {"params": {"target_support_m": tsm, "n_boot": nb},
+                sig = bool(params.get("significance", False))
+                npm = int(_clamp(params.get("n_perm", 1000), 1, MAX_PERM, 1000))
+                pkg = _study_package(tsm, nb, sig, npm)
+                return self._send(200, {"params": {"target_support_m": tsm, "n_boot": nb,
+                                                    "significance": sig, "n_perm": npm},
                                         "result": pkg})
             if route == "/validate":
                 return self._post_validate(params)
@@ -196,6 +231,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._post_sensitivity(params)
             if route == "/classify":
                 return self._post_classify(params)
+            if route == "/confidence":
+                return self._post_confidence(params)
             return self._post_report(params)
         except Exception:
             return self._send(500, {"error": "internal error"})
@@ -352,6 +389,24 @@ class Handler(BaseHTTPRequestHandler):
         classes = {label: terrain_classify.classify(grid)["type"]
                    for label, grid in _classify_scenes().items()}
         return self._send(200, {"classes": classes})
+
+    def _post_confidence(self, params):
+        """Compute the non-composite decision confidence for a POSTed study
+        package. The request body IS the study package JSON (the same shape /study
+        and /compare's ``result`` return); this returns
+        confidence.decision_confidence(package) as JSON -- the verdict, the three
+        independent robustness signals, and the caveats. The package is read
+        READ-ONLY and never mutated. confidence is lazy-imported so importing the
+        API stays light.
+
+        The shared POST security rules apply unchanged: the 64 KiB body cap, the
+        JSON-object validation, and the loopback Host allowlist. A full study
+        package WITH inline previews can exceed 64 KiB and will be rejected with
+        413; post the decision-relevant keys (result_state, recommended_unit,
+        bootstrap, significance) for such cases. This restates robustness evidence
+        already in the package; it is not a new scientific or mission claim."""
+        from . import confidence
+        return self._send(200, confidence.decision_confidence(params))
 
 
 def make_server(host="127.0.0.1", port=8000):

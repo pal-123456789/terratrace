@@ -266,7 +266,7 @@ tested scenarios. High values mean the result is assumption-sensitive.</p></sect
 
 {uncertainty_section}
 
-{previews_section}{landform_section}
+{previews_section}{landform_section}{confidence_section}
 
 <section><h2>PROVENANCE</h2>
 <p class="sub">Every value derives from the <strong>{source}</strong> source through a recorded
@@ -378,6 +378,103 @@ def _landform_section(pkg):
         "not traversability, hazard, or geologic-unit identification.</p></section>")
 
 
+def _significance_section_viewer(pkg):
+    """Per-metric permutation-significance table for the viewer; '' when the package
+    carries no 'significance' block. When present but ``evaluated`` is False, render a
+    single honest line stating why. Connectivity is a scalar axis (no p-value)."""
+    sig = pkg.get("significance")
+    if not isinstance(sig, dict) or not sig:
+        return ""
+    e = html.escape
+    if sig.get("evaluated") is False or "per_metric" not in sig:
+        return ("<p class='sub note'>Permutation significance was not evaluated: "
+                + e(str(sig.get("reason", "not evaluated"))) + ".</p>")
+
+    def _f(x):
+        return f"{x:.4g}" if isinstance(x, (int, float)) else "n/a"
+
+    rows = []
+    for m in sorted(sig.get("per_metric", {}) or {}):
+        row = sig["per_metric"][m] or {}
+        mark = "&#10003;" if row.get("significant") else "&mdash;"
+        rows.append(
+            f"<tr><th scope='row'>{e(str(m))}</th>"
+            f"<td>{_f(row.get('observed_diff'))}</td>"
+            f"<td>{_f(row.get('p_value_one_sided'))}</td>"
+            f"<td>{_f(row.get('p_value_two_sided'))}</td>"
+            f"<td>{_f(row.get('effect_size'))}</td>"
+            f"<td>{mark}</td><td>{e(str(row.get('method', '')))}</td></tr>")
+    rec, runner = e(str(sig.get("recommended_unit", ""))), e(str(sig.get("runner_up", "")))
+    overall = "yes" if sig.get("recommendation_significant") else "no"
+    return (
+        "<p class='sub'>Significance vs runner-up: recommended <strong>" + rec +
+        "</strong> vs <strong>" + runner + "</strong> &mdash; one-sided permutation "
+        "closeness test, " + _f(sig.get("n_perm")) + " permutations. Overall "
+        "<strong>recommendation significant: " + overall + "</strong>. A negative "
+        "observed difference means the recommended unit is the closer one; "
+        "connectivity is a single scalar, so it carries no p-value.</p>"
+        "<table><thead><tr><th scope='col'>metric</th><th scope='col'>observed_diff</th>"
+        "<th scope='col'>p one-sided</th><th scope='col'>p two-sided</th>"
+        "<th scope='col'>effect size</th><th scope='col'>significant</th>"
+        "<th scope='col'>method</th></tr></thead><tbody>" + "\n".join(rows) +
+        "</tbody></table>")
+def _confidence_section(pkg):
+    """Decision-confidence panel for the viewer (GATED; mirrors
+    report_html._confidence_html). Returns '' unless a robustness signal was actually
+    computed (``bool(significance) or bool(bootstrap)``). The returned string carries
+    its OWN leading separator, so an empty return keeps the viewer byte-for-byte
+    unchanged (the template places {confidence_section} directly after
+    {landform_section}). Restates three independent signals + one categorical verdict
+    via confidence.decision_confidence; NO composite score. All text escaped."""
+    if not (bool(pkg.get("significance")) or bool(pkg.get("bootstrap"))):
+        return ""
+    from terratrace import confidence
+    conf = confidence.decision_confidence(pkg)
+    e = html.escape
+    verdict = str(conf.get("verdict", ""))
+    signals = conf.get("signals", {}) or {}
+    labels = (("bootstrap_non_domination", "bootstrap non-domination"),
+              ("significance_vs_runner_up", "significance vs runner-up"),
+              ("lens_stability", "lens/support stability"))
+    rows = []
+    for key, label in labels:
+        s = signals.get(key, {}) or {}
+        ev = bool(s.get("evaluated"))
+        val = "&mdash;"
+        if ev and key == "bootstrap_non_domination":
+            v = s.get("value")
+            val = f"{v * 100:.0f}%" if isinstance(v, (int, float)) else "&mdash;"
+        elif ev and key == "significance_vs_runner_up":
+            val = "significant" if s.get("significant") else "not significant"
+            pv = s.get("p_value_one_sided")
+            if isinstance(pv, (int, float)):
+                val += f", weakest p={pv:.4g}"
+        elif ev and key == "lens_stability":
+            val = "stable" if s.get("stable") else "not stable"
+        rows.append(f"<tr><th scope='row'>{e(label)}</th>"
+                    f"<td>{'yes' if ev else 'no'}</td><td>{val}</td>"
+                    f"<td>{e(str(s.get('detail', '')))}</td></tr>")
+    caveats = conf.get("caveats", []) or []
+    cav = ("".join(f"<li>{e(str(c))}</li>" for c in caveats) if caveats
+           else "<li>all three robustness signals were evaluated</li>")
+    return (
+        "\n\n<section><h2>DECISION CONFIDENCE</h2>"
+        "<div class='state'><b>Verdict: " + e(verdict.upper()) + "</b> &mdash; "
+        + e(conf.get("rationale", "")) + "</div>"
+        "<p class='sub'>Three independent robustness signals, reported separately "
+        "with <strong>no composite score</strong>.</p>"
+        "<table><thead><tr><th scope='col'>signal</th><th scope='col'>evaluated</th>"
+        "<th scope='col'>value / flag</th><th scope='col'>detail</th></tr></thead>"
+        "<tbody>" + "\n".join(rows) + "</tbody></table>"
+        "<p class='sub'>Not evaluated:</p><ul class='gaps'>" + cav + "</ul>"
+        + _significance_section_viewer(pkg) +
+        "<p class='sub note'>Decision confidence restates existing robustness evidence "
+        "(bootstrap non-domination, a permutation test vs the runner-up, and "
+        "lens/support stability) as independent signals and one categorical verdict "
+        "&mdash; there is no composite score. Morphology/statistics only; not a "
+        "traversability, hazard, or mission-readiness claim.</p></section>")
+
+
 def build_html(pkg):
     state = pkg["result_state"]
     proto = pkg["draft_protocol"]
@@ -407,6 +504,7 @@ def build_html(pkg):
         uncertainty_section=_uncertainty_section(pkg),
         previews_section=_previews_section(pkg),
         landform_section=_landform_section(pkg),
+        confidence_section=_confidence_section(pkg),
         objective=html.escape(proto["objective"]),
         auth=html.escape(proto["authorization"]),
         phash=html.escape(pkg["package_hash"]),

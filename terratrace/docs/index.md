@@ -41,6 +41,23 @@ provenance-tracked study package.
    and viewer. All of it is off by default, so the synthetic study package and its provenance
    hash are unchanged. These are map-scale morphology descriptors only — not traversability,
    hazard, geologic-unit identification, or mission readiness.
+8. On request, attaches **statistical confidence for the analog decision** (opt-in, gated). A
+   one-sided **permutation test** (`study.compare_units(..., significance=True, n_perm=1000)`)
+   asks whether the recommended unit is genuinely closer to the reference than the **runner-up**
+   (the second-closest candidate), computed per sample-based morphology metric (slope, relief,
+   ruggedness) with the decision's own scales, returning per-metric one/two-sided p-values, an
+   effect size, and a `recommendation_significant` flag — connectivity is a scalar and reported
+   as such. `confidence.decision_confidence()` then restates the robustness evidence already in
+   the study as **three independent signals** — bootstrap non-domination frequency, the
+   permutation significance vs the runner-up, and lens/support stability — and returns a single
+   categorical **verdict** (`robust` / `qualified` / `fragile` / `tie` / `indeterminate` /
+   `blocked` / `not_comparable` / `unverified`) with a plain-language rationale and an explicit
+   list of the signals that were **not** evaluated. There is no weighted score; a missing signal
+   degrades to "not evaluated" rather than being invented. Both are off by default, so the frozen
+   study package and its provenance hash are unchanged, and the HTML report and offline viewer
+   render these only when a robustness signal was actually computed. This is distribution-shape
+   resampling statistics and morphology screening only — never a traversability, hazard,
+   geologic-equivalence, or mission-readiness claim.
 
 ## Quick start
 
@@ -48,7 +65,7 @@ provenance-tracked study package.
 pip install -r requirements.txt
 python -m terratrace.cli --out artifacts        # synthetic, offline
 python -m terratrace.build_viewer               # viewer/index.html
-python tests/run_tests.py                        # 379 fixtures
+python tests/run_tests.py                        # 428 fixtures
 ```
 
 Real data: see the repository `REAL-DATA-RUNBOOK.md`. The only key required is a free

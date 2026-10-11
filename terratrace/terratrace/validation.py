@@ -36,6 +36,19 @@ canonical analytic oracles on synthetic shapes with a KNOWN class:
     tilt 'slope', and -- depending only on elevation DIFFERENCES -- is exactly
     invariant to a vertical offset (identical composition under +100 m).
 
+A fourth group checks the opt-in statistical layer -- resampling significance
+(`study.compare_units(significance=True)`) and the non-composite
+`confidence.decision_confidence` verdict -- on two scenes with a KNOWN honest
+outcome, proving the engine neither over- nor under-states its own confidence:
+
+  * on a clear single-winner scene the recommendation is permutation-significant
+    against the runner-up and the decision confidence is 'robust' (both the
+    bootstrap-non-domination and significance signals evaluate positive);
+  * on a near-tie scene the engine is HONEST -- it either does not reach a lone
+    recommendation or reports the recommendation as NOT significant, and the
+    decision confidence is never 'robust' (it degrades to fragile/qualified or
+    mirrors a tie/indeterminate state).
+
 Each check returns a uniform record; `run_validation()` aggregates them into a
 hashed report that is both a test oracle and a publishable validation artifact.
 Pure NumPy + the engine and its feature descriptors; no network, no rasterio.
@@ -44,7 +57,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from . import study, synthetic, provenance, features, openness, geomorphons
+from . import study, synthetic, provenance, features, openness, geomorphons, confidence
 
 # Isolate the morphology math from aggregation smoothing: native == target gives
 # an aggregation factor of 1, so features are computed on the grids as built.
@@ -400,6 +413,137 @@ def check_geomorphon_relief_invariance():
                    forms=forms)
 
 
+# --- significance + decision-confidence oracles -----------------------------
+# These drive the opt-in statistical layer end-to-end: the resampling
+# significance block (study.compare_units(significance=True)) and the
+# non-composite confidence.decision_confidence verdict, on two deterministic
+# scenes with a KNOWN honest outcome. All seeds are fixed and the permutation /
+# bootstrap counts are modest, so the suite stays fast; only pass/fail booleans
+# enter the outcome hash, so the checks are deterministic and host-independent
+# even though the raw p-values are NumPy-build dependent (the clear scene is
+# decisively significant and the near-tie decisively not, so every asserted
+# BOOLEAN is stable across machines). The scenes mirror the proven fixtures in
+# tests/test_significance_study.py. Distribution-shape resampling statistics
+# only -- no physical, geological, or mission claim.
+_SIG_NATIVE = 10.0           # native == target support (aggregation factor 1)
+_SIG_N_PERM = 400            # modest permutation count (fast, stable booleans)
+_SIG_N_BOOT = 120            # modest bootstrap count for the confidence signal
+
+
+def _sig_plane(shape):
+    """The gently-sloped base plane shared by the significance scenes."""
+    return synthetic.plane(shape, slope_x=0.02, dx=_SIG_NATIVE)
+
+
+def _clear_winner_scene():
+    """A clear single winner: 'near' (roughness 0.9) sits very close to the
+    reference (0.8) while 'far' (4.0) sits far away -> an unambiguous, robust
+    recommendation of 'near' that a permutation test should call significant."""
+    s = (24, 24)
+    return {"ref": _sig_plane(s) + synthetic.rough_field(s, 0.8, 1),
+            "near": _sig_plane(s) + synthetic.rough_field(s, 0.9, 2),
+            "far": _sig_plane(s) + synthetic.rough_field(s, 4.0, 3)}
+
+
+def _near_tie_scene():
+    """A near-tie: 'near' and 'far' SHARE one roughness field (seed 2) at
+    amplitudes 1.0 vs 1.02, so 'near' Pareto-dominates by a hair (-> a lone
+    RECOMMEND_FOLLOW_UP) yet the two distributions are nearly identical, so the
+    permutation test cannot call the closeness gap beyond chance (honest 'not
+    significant')."""
+    s = (16, 16)
+    return {"ref": _sig_plane(s) + synthetic.rough_field(s, 1.0, 1),
+            "near": _sig_plane(s) + synthetic.rough_field(s, 1.0, 2),
+            "far": _sig_plane(s) + synthetic.rough_field(s, 1.02, 2)}
+
+
+def _run_sig(scene, **kw):
+    """Drive the real engine on a significance scene (native == target support,
+    reference id 'ref'), forwarding the significance / bootstrap kwargs."""
+    rights = {u: "verified_allowed" for u in scene}
+    return study.compare_units(scene, rights, _SIG_NATIVE, reference_id="ref",
+                               target_support_m=_SIG_NATIVE, min_valid=0.5,
+                               source_label="validation", **kw)
+
+
+def check_significance_clear_winner():
+    """A clear single winner's recommendation is permutation-significant: on the
+    clear-winner scene the engine recommends the CLOSER candidate ('near') and
+    the opt-in significance block flags the recommendation as significant
+    (closeness gap to the reference beats random relabelling on >= 1 metric)."""
+    pkg = _run_sig(_clear_winner_scene(), significance=True,
+                   n_perm=_SIG_N_PERM, significance_seed=0)
+    sig = pkg.get("significance", {})
+    recommended = pkg.get("recommended_unit")
+    passed = (pkg.get("result_state") == "RECOMMEND_FOLLOW_UP"
+              and recommended == "near"
+              and sig.get("recommended_unit") == "near"
+              and sig.get("recommendation_significant") is True)
+    return _result("significance_clear_winner", passed,
+                   f"state={pkg.get('result_state')} recommended={recommended!r} "
+                   f"(the closer candidate) runner_up={sig.get('runner_up')!r} "
+                   f"recommendation_significant={sig.get('recommendation_significant')} "
+                   f"on {sig.get('n_significant_metrics')} metric(s)",
+                   recommended=recommended,
+                   recommendation_significant=sig.get("recommendation_significant"),
+                   n_significant_metrics=sig.get("n_significant_metrics"))
+
+
+def check_significance_near_tie_is_honest():
+    """A near-tie must be reported honestly: EITHER the engine does not reach a
+    lone RECOMMEND_FOLLOW_UP, OR the recommendation is NOT significant. The two
+    candidates are almost the same distribution, so the permutation test must
+    not manufacture a significant closeness gap (no false positive)."""
+    pkg = _run_sig(_near_tie_scene(), significance=True,
+                   n_perm=_SIG_N_PERM, significance_seed=0)
+    state = pkg.get("result_state")
+    sig = pkg.get("significance", {})
+    rec_sig = sig.get("recommendation_significant")
+    passed = (state != "RECOMMEND_FOLLOW_UP") or (rec_sig is False)
+    return _result("significance_near_tie_is_honest", passed,
+                   f"state={state} recommendation_significant={rec_sig} "
+                   f"(honest iff not a lone RECOMMEND, or not significant)",
+                   state=state, recommendation_significant=rec_sig)
+
+
+def check_confidence_robust_on_clear_winner():
+    """On the clear-winner scene, with BOTH the bootstrap (n_boot) and the
+    permutation-significance blocks present, the non-composite decision
+    confidence returns the 'robust' verdict and both the bootstrap-non-domination
+    and significance signals are evaluated and positive."""
+    pkg = _run_sig(_clear_winner_scene(), significance=True, n_perm=_SIG_N_PERM,
+                   significance_seed=0, n_boot=_SIG_N_BOOT)
+    out = confidence.decision_confidence(pkg)
+    boot = out["signals"]["bootstrap_non_domination"]
+    sg = out["signals"]["significance_vs_runner_up"]
+    passed = (out["verdict"] == "robust"
+              and boot["evaluated"] is True and boot["positive"] is True
+              and sg["evaluated"] is True and sg["significant"] is True)
+    return _result("confidence_robust_on_clear_winner", passed,
+                   f"verdict={out['verdict']!r}; bootstrap(evaluated={boot['evaluated']}, "
+                   f"positive={boot['positive']}, value={boot['value']}); "
+                   f"significance(evaluated={sg['evaluated']}, "
+                   f"significant={sg.get('significant')})",
+                   verdict=out["verdict"], bootstrap_value=boot["value"],
+                   significant=sg.get("significant"))
+
+
+def check_confidence_fragile_or_tie_on_near_tie():
+    """On the near-tie scene the decision confidence must NOT be 'robust': an
+    honest engine downgrades to fragile/qualified (significance negative or only
+    weakly supported) or mirrors a non-recommendation state (tie/indeterminate)."""
+    pkg = _run_sig(_near_tie_scene(), significance=True, n_perm=_SIG_N_PERM,
+                   significance_seed=0, n_boot=_SIG_N_BOOT)
+    out = confidence.decision_confidence(pkg)
+    verdict = out["verdict"]
+    passed = verdict != "robust" and verdict in {
+        "fragile", "qualified", "tie", "indeterminate"}
+    return _result("confidence_fragile_or_tie_on_near_tie", passed,
+                   f"verdict={verdict!r} state={out.get('state')!r} "
+                   f"(must not be 'robust' on a near-tie)",
+                   verdict=verdict, state=out.get("state"))
+
+
 _CHECKS = (
     check_self_distance_zero,
     check_translation_invariance,
@@ -420,6 +564,10 @@ _CHECKS = (
     check_geomorphon_bowl_pit,
     check_geomorphon_tilt_slope,
     check_geomorphon_relief_invariance,
+    check_significance_clear_winner,
+    check_significance_near_tie_is_honest,
+    check_confidence_robust_on_clear_winner,
+    check_confidence_fragile_or_tie_on_near_tie,
 )
 
 

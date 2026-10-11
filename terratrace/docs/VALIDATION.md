@@ -5,7 +5,7 @@ screening**. These checks establish software/metric correctness, data handling,
 sensitivity, and provenance. They do **not** establish rover traversability,
 autonomy, geologic equivalence, site access, or mission readiness.
 
-## Test suite (379 fixtures, `tests/run_tests.py`)
+## Test suite (428 fixtures, `tests/run_tests.py`)
 
 | Area | What the fixtures prove |
 |---|---|
@@ -53,7 +53,7 @@ Every fixture has a known analytic answer; the runner exits non-zero on any fail
 
 Beyond unit fixtures, `scripts/run_validation.py` drives the **real** comparison
 pipeline on synthetic terrains with known relationships and asserts the engine's
-descriptors, distances, and Pareto decision come out the way geomorphometry requires. All 19
+descriptors, distances, and Pareto decision come out the way geomorphometry requires. All 23
 of these checks pass:
 
 | Check | Property proven |
@@ -77,6 +77,10 @@ of these checks pass:
 | geomorphon_bowl_pit | A radial bowl centre classifies as `pit` (the antisymmetric mirror of the peak) |
 | geomorphon_tilt_slope | A uniformly tilted plane classifies dominantly as `slope` |
 | geomorphon_relief_invariance | Adding a uniform +100 m vertical offset leaves the geomorphon composition identical (shape, not height) |
+| significance_clear_winner | On a clear-winner scene the engine recommends the closer candidate and the opt-in permutation block flags `recommendation_significant` true — the closeness gap to the reference beats random relabelling on at least one morphology metric |
+| significance_near_tie_is_honest | On a near-tie scene the test does not manufacture a result: the engine either does not reach a lone recommendation, or reports `recommendation_significant` false, so a coin-flip gap is never dressed up as significant (no false positive) |
+| confidence_robust_on_clear_winner | On the clear-winner scene, with both the bootstrap and significance blocks present, `decision_confidence` returns the `robust` verdict and both the bootstrap-non-domination and significance-vs-runner-up signals are evaluated and positive |
+| confidence_fragile_or_tie_on_near_tie | On the near-tie scene the verdict is never `robust`: it downgrades to `fragile`/`qualified` or mirrors a non-recommendation state (`tie`/`indeterminate`), so weak evidence is reported honestly |
 
 The suite emits a hashed report (`--json`) whose hash covers the pass/fail outcomes,
 so it is a stable, host-independent regression oracle.

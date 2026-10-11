@@ -164,6 +164,26 @@ source and a transformation.
   arise by chance under random relabelling?* — returning a p-value and a standardized
   effect size, plus a bootstrap confidence interval on each distance. Closeness gaps are
   now tested, not merely asserted.
+- **Statistical confidence for the analog decision (opt-in, gated):** `compare_units` /
+  `run_study` / `run_real_study` accept `significance=True, n_perm=1000` to attach a
+  `significance` block — a one-sided permutation test (`significance.permutation_closer_test`)
+  of whether the recommended unit is genuinely closer to the reference than the **runner-up**
+  (the second-closest candidate), computed per sample-based morphology metric (slope, relief,
+  ruggedness) with the decision's own scales, with per-metric one/two-sided p-values, an effect
+  size, and a `recommendation_significant` flag (connectivity is a scalar and reported as such).
+  `confidence.decision_confidence()` then restates the robustness evidence a study already holds
+  as **three independent signals** — bootstrap non-domination frequency, significance vs the
+  runner-up, and lens/support stability — and returns a single **non-composite verdict** (`robust`
+  / `qualified` / `fragile` / `tie` / `indeterminate` / `blocked` / `not_comparable` /
+  `unverified`) with a plain-language rationale and an explicit list of the signals that were
+  **not** evaluated; there is no weighted score, and a missing signal degrades to "not evaluated"
+  rather than being invented. The HTML report and offline viewer render a "Decision confidence"
+  section and a "Significance vs runner-up" table only when a robustness signal was actually
+  computed, the CLI gains `study --significance --n-perm` and a `confidence` subcommand, and the
+  HTTP API gains `POST /confidence`. Both are **off by default**, so the synthetic study package
+  and its gated provenance hash stay byte-unchanged. Distribution-shape resampling statistics and
+  map-scale morphology only — never a traversability, hazard, geologic-equivalence, or mission
+  claim.
 - Cross-reference, multi-lens **batch studies** (`run_batch` / `run_real_batch`): the
   full comparison is rerun for every Mars-reference × decision-lens cell, then
   synthesised into each candidate's layer-1 (non-dominated) frequency across references
@@ -203,10 +223,10 @@ source and a transformation.
   closer candidate provably dominates and is recommended, a flat/water tile is blocked,
   and the whole pipeline is deterministic. A reproducibility + performance harness pins
   behavioural invariants, checks hash stability, and profiles wall-clock scaling.
-- 379 fixture tests with known analytic answers, all passing, no network required.
+- 428 fixture tests with known analytic answers, all passing, no network required.
 
 ```
-passed=379 failed=0
+passed=428 failed=0
 ```
 
 ## Install
@@ -225,7 +245,7 @@ pip install -r requirements-real.txt      # rasterio + requests (real DEMs)
 ```bash
 PYTHONPATH=. python3 -m terratrace.cli --out artifacts
 PYTHONPATH=. python3 -m terratrace.build_viewer      # writes viewer/index.html
-PYTHONPATH=. python3 tests/run_tests.py              # 379 tests
+PYTHONPATH=. python3 tests/run_tests.py              # 428 tests
 ```
 
 Open `viewer/index.html` in any browser — it is self-contained and works offline.
@@ -240,6 +260,7 @@ PYTHONPATH=. python3 -m terratrace.cli benchmark     # reproducibility + scaling
 PYTHONPATH=. python3 -m terratrace.cli report        # render a Markdown study report
 PYTHONPATH=. python3 -m terratrace.cli report-html   # render a self-contained HTML report
 PYTHONPATH=. python3 -m terratrace.cli dossier       # per-candidate site decision brief
+PYTHONPATH=. python3 -m terratrace.cli confidence    # non-composite decision confidence for a study JSON
 PYTHONPATH=. python3 -m terratrace.cli version       # print version + schema
 ```
 
@@ -256,12 +277,13 @@ curl -X POST http://127.0.0.1:8000/compare -H "content-type: application/json" \
 ```
 
 Endpoints: `GET /health`, `GET /study`, `GET /bodies` (supported bodies + source
-registry), `POST /compare` (body `{"target_support_m", "n_boot"}`, inputs
-validated/clamped), `POST /validate` (scientific-correctness suite), `POST /batch`
-(synthetic cross-reference batch), `POST /report` (study + Markdown report), `POST
-/dossier` (per-candidate decision briefs), and `POST /report.html` (the report as a
-standalone HTML document). The `n_boot` bootstrap count is capped at 500 for interactive
-responsiveness. The server is
+registry), `POST /compare` (body `{"target_support_m", "n_boot", "significance", "n_perm"}`,
+inputs validated/clamped; `significance` opts in to the permutation block), `POST /validate`
+(scientific-correctness suite), `POST /batch` (synthetic cross-reference batch), `POST /report`
+(study + Markdown report), `POST /dossier` (per-candidate decision briefs), `POST /report.html`
+(the report as a standalone HTML document), and `POST /confidence` (non-composite decision
+confidence for a posted study package). The `n_boot` bootstrap count is capped at 500 and the
+`n_perm` permutation count at 2000 for interactive responsiveness. The server is
 **unauthenticated and binds to 127.0.0.1 by default** — put auth and rate limiting
 in front of it before exposing it to a network.
 
@@ -332,6 +354,7 @@ terratrace/
     report_html.py   self-contained offline HTML report (study or batch)
     references.py    data sources & credits bundle (citation + licence per source)
     significance.py  permutation test + effect size + bootstrap distance CI
+    confidence.py    non-composite decision confidence (three independent signals -> verdict)
     autocorr.py      spatial autocorrelation length -> data-driven block size
     repro.py         recompute/verify package hash + diff + reproduce check
     coregister.py    translational DEM alignment + vertical-datum offset
@@ -341,8 +364,8 @@ terratrace/
     hillshade.py     Horn shaded-relief PNG data URI (pure stdlib, self-contained)
     dossier.py       per-candidate decision brief (structured dict + Markdown)
     build_viewer.py  self-contained HTML viewer
-    cli.py           unified dispatcher: study / validate / benchmark / report / report-html / dossier / version
-  tests/             379 fixture tests + dependency-free runner
+    cli.py           unified dispatcher: study / validate / benchmark / report / report-html / dossier / confidence / version
+  tests/             428 fixture tests + dependency-free runner
   artifacts/         generated study package (JSON + checksums + manifest)
   viewer/            generated offline HTML viewer
   config/            AOI configuration for real runs

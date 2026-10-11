@@ -3,6 +3,54 @@
 Complete build history of TerraTrace, generated from the git commit messages
 (newest first). Each entry is the exact message recorded with that commit.
 
+## Unreleased — Statistical confidence for the analog decision: permutation significance + non-composite confidence
+
+*Prepared 2026-10-11 by Pal Ghevariya (pending commit — hash assigned at commit time; builds on the CI-fix 7969d18)*
+
+Opt-in statistical confidence for the analog recommendation; every new path is OFF by default and
+gated, so the canonical synthetic study hash is UNCHANGED.
+
+study.py: compare_units (and run_study / run_real_study, which forward it) gain significance=True
++ n_perm (default 1000). When requested they attach a package["significance"] block — a one-sided
+permutation test (significance.permutation_closer_test) of whether the recommended unit is
+genuinely closer to the reference than the RUNNER-UP (the second-closest candidate), computed per
+sample-based morphology metric (slope, relief, ruggedness) with the decision's own scales, with
+per-metric one/two-sided p-values, an effect size, and a recommendation_significant flag.
+Connectivity is a scalar and reported as a signed closeness difference. OFF by default, so the
+frozen run_study() package and its provenance hash are byte-unchanged.
+
+confidence.py (new): decision_confidence(package, sensitivity_report=None) restates the robustness
+evidence a study already holds as THREE independent signals — bootstrap non-domination frequency,
+permutation significance vs the runner-up, and lens/support stability — and returns a single
+NON-COMPOSITE categorical verdict (robust / qualified / fragile / tie / indeterminate / blocked /
+not_comparable / unverified) with a plain-language rationale and an explicit list of the signals
+NOT evaluated. There is no weighted score; a missing signal degrades to "not evaluated" rather
+than being invented.
+
+Surfacing: the HTML report (report_html.py) and offline viewer (build_viewer.py) render a
+"Decision confidence" section (verdict + the three signals + rationale + caveats) and a
+"Significance vs runner-up" table, shown only when a robustness signal was actually computed (so
+the default report/viewer are byte-unchanged). cli.py: study --significance / --n-perm + a new
+confidence subcommand. api.py: new POST /confidence and a significance option on the /compare
+study-runner route (n_perm capped at 2000).
+
+validation.py: +4 scientific-correctness oracles (significance_clear_winner,
+significance_near_tie_is_honest, confidence_robust_on_clear_winner,
+confidence_fragile_or_tie_on_near_tie) — the scientific-correctness suite is now 23 checks, all
+passing.
+
+references.py: added the Efron & Tibshirani (1993) bootstrap and Good (2005) permutation-test
+method citations. README / docs/index.md / docs/method.md / docs/VALIDATION.md updated.
+
+Claim firewall unchanged: distribution-shape resampling statistics and map-scale morphology
+screening only — NOT a traversability, hazard, geologic-equivalence, or mission-readiness claim;
+not NASA-endorsed. "Decision confidence" = robustness of the recommendation to resampling, to a
+permutation test vs the runner-up, and to changing the decision lens/support — nothing more.
+
+428 fixture tests, all passing, no network required.
+
+---
+
 ## Unreleased — Landform / line-of-sight terrain structure: topographic openness + geomorphons
 
 *Prepared 2026-10-11 by Pal Ghevariya (pending commit — hash assigned at commit time)*

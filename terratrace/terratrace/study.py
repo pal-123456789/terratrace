@@ -182,7 +182,8 @@ def _landform_dims(lf, cid, reference_id):
 def compare_units(raw_units, rights, native_posting_m, reference_id="mars_reference",
                   target_support_m=100.0, min_valid=0.5, source_label="synthetic",
                   decision_metrics="core", n_boot=0, bootstrap_method="independent",
-                  block_size=4, vertical_accuracy=None, previews=False, landform=False):
+                  block_size=4, vertical_accuracy=None, previews=False, landform=False,
+                  significance=False, n_perm=1000, significance_seed=0):
     """Run the full comparison on a dict of elevation arrays.
 
     raw_units: {unit_id: 2-D elevation array}
@@ -375,6 +376,67 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
         else:
             package["bootstrap"] = uncertainty.bootstrap_pareto(
                 ref_feats_base, cand_feats_base, n_boot=n_boot, seed=0, extra_dims=extra, scales=scales)
+    # Opt-in, GATED resampling significance (OFF by default, so run_study's
+    # package/hash stays byte-identical). Mirrors the geomorphic/landform opt-in
+    # blocks: lazily imported, attaches a single "significance" key only when
+    # significance=True. DISTRIBUTION-SHAPE resampling statistics only (see
+    # significance.py) -- not a physical, geologic, or mission claim.
+    if significance:
+        if state == "RECOMMEND_FOLLOW_UP" and recommended is not None and len(baseline_vectors) >= 2:
+            from .significance import permutation_closer_test, effect_size
+            # Runner-up = the non-recommended eligible compared candidate with the
+            # smallest sum of its core distance vector (baseline_vectors); ties
+            # broken by unit-id sort order (min on (sum, uid) picks the lexically
+            # first id when the sums tie).
+            others = [u for u in baseline_vectors if u != recommended]
+            runner_up = min(others, key=lambda u: (float(sum(baseline_vectors[u])), u))
+            ref_f, rec_f = ref_feats_base, cand_feats_base[recommended]
+            run_f = cand_feats_base[runner_up]
+            per_metric = {}
+            # Sample-ARRAY metrics (slope/relief/ruggedness) get the permutation
+            # test + standardized effect size, using the SAME per-metric scale the
+            # decision used (scales[m]).
+            for m in ("slope", "relief", "ruggedness"):
+                pt = permutation_closer_test(ref_f[m], rec_f[m], run_f[m], n_perm=n_perm,
+                                             seed=significance_seed, scale=scales[m])
+                per_metric[m] = {
+                    "observed_diff": pt["observed_diff"],
+                    "p_value_one_sided": pt["p_value_one_sided"],
+                    "p_value_two_sided": pt["p_value_two_sided"],
+                    "a_closer": pt["a_closer"], "significant": pt["significant"],
+                    "effect_size": effect_size(ref_f[m], rec_f[m], run_f[m], scale=scales[m]),
+                    "method": "permutation"}
+            # Connectivity is one SCALAR per unit, so a permutation is undefined:
+            # record only the signed scaled difference of the two scaled
+            # connectivity distances (negative => recommended closer), using the
+            # SAME scale _vector uses, plus the a_closer flag. Clearly labelled
+            # method="scalar" and kept apart from the permutation metrics.
+            cs = abs(ref_f["connectivity_scalar"]) + 1e-6
+            d_rec = abs(rec_f["connectivity_scalar"] - ref_f["connectivity_scalar"]) / cs
+            d_run = abs(run_f["connectivity_scalar"] - ref_f["connectivity_scalar"]) / cs
+            conn_obs = float(d_rec - d_run)
+            per_metric["connectivity"] = {"observed_diff": conn_obs,
+                                          "a_closer": bool(conn_obs < 0), "method": "scalar"}
+            # Documented rule: a sample-array metric SUPPORTS the recommendation
+            # iff the recommended is the closer one (a_closer) AND its one-sided
+            # p-value < 0.05; recommendation_significant iff >=1 such metric.
+            sig_ms = [m for m in ("slope", "relief", "ruggedness")
+                      if per_metric[m]["a_closer"] and per_metric[m]["p_value_one_sided"] < 0.05]
+            package["significance"] = {
+                "n_perm": int(n_perm), "seed": int(significance_seed),
+                "reference_id": reference_id, "recommended_unit": recommended,
+                "runner_up": runner_up, "per_metric": per_metric,
+                "n_significant_metrics": int(len(sig_ms)),
+                "recommendation_significant": bool(len(sig_ms) >= 1)}
+        else:
+            if state != "RECOMMEND_FOLLOW_UP":
+                reason = f"decision state {state} is not a single RECOMMEND_FOLLOW_UP"
+            elif recommended is None:
+                reason = "no recommended unit to test"
+            else:
+                reason = f"only {len(baseline_vectors)} eligible compared unit(s); need >= 2"
+            package["significance"] = {"evaluated": False, "state": state,
+                                       "reason": reason, "reference_id": reference_id}
     package["package_hash"] = provenance.sha256_json(
         {k: v for k, v in package.items() if k != "package_hash"})
     return package
@@ -440,7 +502,8 @@ def _unit_vertical_accuracy(unit):
 
 def run_real_study(units, target_support_m=1000.0, min_valid=0.5, reproject=True,
                    decision_metrics="core", n_boot=0, bootstrap_method="independent",
-                   block_size=4, previews=False, landform=False):
+                   block_size=4, previews=False, landform=False,
+                   significance=False, n_perm=1000, significance_seed=0):
     """Compare REAL DEMs.
 
     units: list of dicts with keys: id, path, native_posting_m, rights_status,
@@ -464,6 +527,11 @@ def run_real_study(units, target_support_m=1000.0, min_valid=0.5, reproject=True
     categorical landform and openness preview PNGs. Pass decision_metrics="landform"
     to compare candidates on two extra morphology-dissimilarity axes instead.
     Landform/openness are map-scale morphology descriptors only.
+
+    significance=True opts in to a GATED resampling-significance block on the
+    recommendation (one-sided permutation closeness test on the sample-array
+    metrics slope/relief/ruggedness + a scalar signed difference on connectivity);
+    distribution-shape resampling statistics only, no physical/mission claim.
     """
     raw, rights, native, reference_ids = load_real_units(units, target_support_m, reproject)
     reference_id = reference_ids[-1] if reference_ids else None
@@ -476,7 +544,9 @@ def run_real_study(units, target_support_m=1000.0, min_valid=0.5, reproject=True
                          target_support_m=target_support_m, min_valid=min_valid,
                          source_label=label, decision_metrics=decision_metrics, n_boot=n_boot,
                          bootstrap_method=bootstrap_method, block_size=block_size,
-                         vertical_accuracy=vacc, previews=previews, landform=landform)
+                         vertical_accuracy=vacc, previews=previews, landform=landform,
+                         significance=significance, n_perm=n_perm,
+                         significance_seed=significance_seed)
 
 
 def _build_graph(meta, vectors, state, recommended, source_label, elig_map, flips):
