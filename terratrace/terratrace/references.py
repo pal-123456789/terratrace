@@ -229,6 +229,24 @@ METHOD_REFERENCES = (
                      "Tests of Hypotheses (3rd ed.). Springer."),
         "doi": None,
     },
+    {
+        "id": "spectral_perron_2008",
+        "topic": "Radially-averaged power spectral density (roughness spectrum & spectral slope)",
+        "citation": ("Perron, J. T., Kirchner, J. W., & Dietrich, W. E. (2008). "
+                     "Spectral signatures of characteristic spatial scales and "
+                     "nonfractal structure in landscapes. Journal of Geophysical "
+                     "Research: Earth Surface, 113, F04003."),
+        "doi": None,
+    },
+    {
+        "id": "roughness_shepard_2001",
+        "topic": "Natural-terrain roughness & directional structure function (anisotropy)",
+        "citation": ("Shepard, M. K., Campbell, B. A., Bulmer, M. H., Farr, T. G., "
+                     "Gaddis, L. R., & Plaut, J. J. (2001). The roughness of natural "
+                     "terrain: A planetary and remote sensing perspective. Journal "
+                     "of Geophysical Research: Planets, 106(E12), 32777-32795."),
+        "doi": None,
+    },
 )
 
 
@@ -238,11 +256,15 @@ def method_references():
     Each record carries exactly ``METHOD_REFERENCE_FIELDS`` (id, topic, citation,
     doi; ``doi`` may be ``None``). These credit the published METHODS TerraTrace
     implements in-engine - topographic openness (Yokoyama, Shirasawa & Pike 2002),
-    the geomorphon landform classifier (Jasiewicz & Stepinski 2013), and the
+    the geomorphon landform classifier (Jasiewicz & Stepinski 2013), the
     resampling statistics behind its honest uncertainty and significance (the
-    bootstrap, Efron & Tibshirani 1993; permutation testing, Good 2005) - and are
-    distinct from the upstream DATA-provider credits produced by
-    :func:`references_for`. Returns fresh dict copies in declaration order.
+    bootstrap, Efron & Tibshirani 1993; permutation testing, Good 2005), and the
+    map-scale roughness-spectrum and directional-fabric descriptors (the
+    radially-averaged power spectral density, Perron, Kirchner & Dietrich 2008;
+    natural-terrain roughness and its directional structure function, Shepard
+    et al. 2001) - and are distinct from the upstream DATA-provider credits
+    produced by :func:`references_for`. Returns fresh dict copies in declaration
+    order.
     """
     return [dict(r) for r in METHOD_REFERENCES]
 

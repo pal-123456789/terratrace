@@ -58,6 +58,24 @@ provenance-tracked study package.
    render these only when a robustness signal was actually computed. This is distribution-shape
    resampling statistics and morphology screening only — never a traversability, hazard,
    geologic-equivalence, or mission-readiness claim.
+9. On request, adds a **scale & fabric** layer: two pure-NumPy map-scale roughness descriptors.
+   `spectral.py` computes a **radially-averaged 2-D power spectral density** (detrend the plane,
+   Hann-window, FFT, radially average the periodogram over wavenumber) and reports the log-log
+   **spectral slope** (how power is shared between long and short wavelengths), the **band
+   roughness** (RMS amplitude in long/mid/short wavelength bands), the **peak wavelength**, and a
+   total power that recovers the detrended variance by Parseval. `anisotropy.py` computes the
+   **directional structure function** — the RMS elevation difference along a fan of azimuths — and
+   reports an anisotropy **strength** (0 = isotropic, →1 = strongly lineated), the fabric
+   **orientation** (azimuth of minimum roughness, the strike along which ridges or dunes run), and
+   an isotropy ratio. Both are opt-in and gated: `study.compare_units(..., terrain_spectra=True)`
+   (and `run_real_study(terrain_spectra=True)`) attach `package["spectral"]` and
+   `package["anisotropy"]` per compared unit, the HTML report and offline viewer render a "Scale &
+   fabric" section when present, and `descriptor_bank` and the terrain `fingerprint` gained opt-in
+   spectral/anisotropy terms — all off by default, so the synthetic study package and its
+   provenance hash are unchanged (Perron, Kirchner & Dietrich 2008; Shepard et al. 2001). These
+   summarise the sampled DEM's roughness spectrum and directional structure only — not a
+   traversability, hazard, geologic, or mission-readiness claim, and they say nothing about
+   rock-scale obstacles below the pixel.
 
 ## Quick start
 
@@ -65,7 +83,7 @@ provenance-tracked study package.
 pip install -r requirements.txt
 python -m terratrace.cli --out artifacts        # synthetic, offline
 python -m terratrace.build_viewer               # viewer/index.html
-python tests/run_tests.py                        # 428 fixtures
+python tests/run_tests.py                        # 470 fixtures
 ```
 
 Real data: see the repository `REAL-DATA-RUNBOOK.md`. The only key required is a free

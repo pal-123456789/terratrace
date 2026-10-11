@@ -5,7 +5,7 @@ screening**. These checks establish software/metric correctness, data handling,
 sensitivity, and provenance. They do **not** establish rover traversability,
 autonomy, geologic equivalence, site access, or mission readiness.
 
-## Test suite (428 fixtures, `tests/run_tests.py`)
+## Test suite (470 fixtures, `tests/run_tests.py`)
 
 | Area | What the fixtures prove |
 |---|---|
@@ -46,6 +46,8 @@ autonomy, geologic equivalence, site access, or mission readiness.
 | integration (uncertainty + previews) | `feature_uncertainty` and `previews` are opt-in and absent by default, so the gated synthetic study `package_hash` is unchanged; when supplied they attach to the package and the HTML report and viewer render a "Measurement uncertainty" table and inline hillshade previews |
 | openness / geomorphons | Topographic openness (Yokoyama 2002) is exactly 90° on a flat plane, rises above 90° (positive) at a cone apex and (negative) in a bowl; the geomorphon ternary signature (Jasiewicz & Stepinski 2013) classifies a cone as `peak`, a bowl as `pit`, a tilt as `slope`, and a plane as `flat`, is invariant to a uniform vertical lift and to whole-grid rotation, and its 9×9 spectrum / 10-form composition are deterministic and JSON-serialisable |
 | landform (study + report/viewer) | The opt-in `landform=True` / `decision_metrics="landform"` paths attach a per-unit geomorphon composition + spectrum + openness block (and, with `previews=True`, categorical landform and grayscale openness PNGs); off by default the study package and its gated `package_hash` are byte-unchanged; the HTML report and viewer render a landform-composition table, openness medians, and the two literature citations, and are byte-identical when no landform block is present |
+| spectral / anisotropy | The radially-averaged PSD (Perron 2008) places a single sinusoid's spectral peak at its true wavelength, returns a flat (~zero) log-log slope on white noise, and recovers the detrended variance by Parseval (`total_power`); the directional structure function (Shepard 2001) recovers the orientation and high strength of a lineated (ridged) surface and reports low strength on isotropic noise, with strength bounded in [0,1]; both signatures are deterministic and JSON-serialisable |
+| scale & fabric (study + report/viewer) | The opt-in `terrain_spectra=True` path attaches a per-unit `spectral` + `anisotropy` block for every compared, eligible unit; off by default the study package and its gated `package_hash` are byte-unchanged; the HTML report and offline viewer render a "Scale & fabric" section when the blocks are present and are byte-identical when absent, and `descriptor_bank` + the terrain `fingerprint` carry opt-in spectral/anisotropy terms |
 
 Every fixture has a known analytic answer; the runner exits non-zero on any failure.
 
@@ -53,7 +55,7 @@ Every fixture has a known analytic answer; the runner exits non-zero on any fail
 
 Beyond unit fixtures, `scripts/run_validation.py` drives the **real** comparison
 pipeline on synthetic terrains with known relationships and asserts the engine's
-descriptors, distances, and Pareto decision come out the way geomorphometry requires. All 23
+descriptors, distances, and Pareto decision come out the way geomorphometry requires. All 28
 of these checks pass:
 
 | Check | Property proven |
@@ -81,6 +83,11 @@ of these checks pass:
 | significance_near_tie_is_honest | On a near-tie scene the test does not manufacture a result: the engine either does not reach a lone recommendation, or reports `recommendation_significant` false, so a coin-flip gap is never dressed up as significant (no false positive) |
 | confidence_robust_on_clear_winner | On the clear-winner scene, with both the bootstrap and significance blocks present, `decision_confidence` returns the `robust` verdict and both the bootstrap-non-domination and significance-vs-runner-up signals are evaluated and positive |
 | confidence_fragile_or_tie_on_near_tie | On the near-tie scene the verdict is never `robust`: it downgrades to `fragile`/`qualified` or mirrors a non-recommendation state (`tie`/`indeterminate`), so weak evidence is reported honestly |
+| spectral_sinusoid_peak | A single-wavelength sinusoid (period 8 cells) places the radially-averaged PSD peak at its true wavelength (`peak_wavelength_m` lands within one radial bin, 6-11 m) |
+| spectral_white_noise_flat | Broadband white noise has a ~flat power spectrum, so the log-log `spectral_slope` is ~0 (|slope| < 1) — the descriptor separates scale-free noise from structured terrain |
+| spectral_parseval | The summed spectral power (`total_power`) recovers the detrended variance to within 25% (Parseval), so the spectrum is correctly normalised |
+| anisotropy_ridges_oriented | Parallel ridges (a one-directional sinusoid) are strongly anisotropic (strength > 0.5) with the fabric orientation along the invariant strike (within ±25°) |
+| anisotropy_isotropic_low | Isotropic noise shows no preferred direction: the directional structure function is ~equal in every azimuth, so anisotropy strength < 0.25 |
 
 The suite emits a hashed report (`--json`) whose hash covers the pass/fail outcomes,
 so it is a stable, host-independent regression oracle.

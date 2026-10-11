@@ -183,7 +183,8 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
                   target_support_m=100.0, min_valid=0.5, source_label="synthetic",
                   decision_metrics="core", n_boot=0, bootstrap_method="independent",
                   block_size=4, vertical_accuracy=None, previews=False, landform=False,
-                  significance=False, n_perm=1000, significance_seed=0):
+                  significance=False, n_perm=1000, significance_seed=0,
+                  terrain_spectra=False):
     """Run the full comparison on a dict of elevation arrays.
 
     raw_units: {unit_id: 2-D elevation array}
@@ -318,6 +319,20 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
         # capability, so other modes' packages/hashes are unchanged. Morphology
         # descriptors only (no traversability/hazard/mission claim).
         package["landform"] = {uid: lf[uid] for uid in agg}
+    # Opt-in, GATED per-unit terrain-spectra descriptor block (OFF by default, so
+    # run_study's package/hash stays byte-identical). Mirrors the geomorphic/
+    # landform opt-in blocks: lazily imported, computed on the SAME aggregated grid
+    # at the realized support (agg[uid], dx=dxs[uid]) for each compared/eligible
+    # unit, and attaches the "spectral" + "anisotropy" keys ONLY when
+    # terrain_spectra=True. Map-scale MORPHOLOGY / roughness-spectrum + directional-
+    # fabric descriptors only -- no traversability/hazard/geologic/mission claim.
+    if terrain_spectra:
+        from . import spectral, anisotropy
+        compared = [uid for uid in agg if elig_map[uid][0]]
+        package["spectral"] = {uid: spectral.spectral_signature(agg[uid], dx=dxs[uid])
+                               for uid in compared}
+        package["anisotropy"] = {uid: anisotropy.anisotropy_signature(agg[uid], dx=dxs[uid])
+                                 for uid in compared}
     # Optional, OFF by default so the synthetic study package/hash is byte-unchanged.
     # vertical_accuracy (scalar or {uid: sigma_z}) -> propagated feature uncertainty.
     if vertical_accuracy is not None:
@@ -503,7 +518,8 @@ def _unit_vertical_accuracy(unit):
 def run_real_study(units, target_support_m=1000.0, min_valid=0.5, reproject=True,
                    decision_metrics="core", n_boot=0, bootstrap_method="independent",
                    block_size=4, previews=False, landform=False,
-                   significance=False, n_perm=1000, significance_seed=0):
+                   significance=False, n_perm=1000, significance_seed=0,
+                   terrain_spectra=False):
     """Compare REAL DEMs.
 
     units: list of dicts with keys: id, path, native_posting_m, rights_status,
@@ -532,6 +548,11 @@ def run_real_study(units, target_support_m=1000.0, min_valid=0.5, reproject=True
     recommendation (one-sided permutation closeness test on the sample-array
     metrics slope/relief/ruggedness + a scalar signed difference on connectivity);
     distribution-shape resampling statistics only, no physical/mission claim.
+
+    terrain_spectra=True opts in to a GATED per-unit terrain-spectra block
+    (radially-averaged PSD roughness signature + directional-fabric anisotropy
+    signature) attached under "spectral"/"anisotropy" for each compared/eligible
+    unit; map-scale morphology / roughness-spectrum descriptors only.
     """
     raw, rights, native, reference_ids = load_real_units(units, target_support_m, reproject)
     reference_id = reference_ids[-1] if reference_ids else None
@@ -546,7 +567,7 @@ def run_real_study(units, target_support_m=1000.0, min_valid=0.5, reproject=True
                          bootstrap_method=bootstrap_method, block_size=block_size,
                          vertical_accuracy=vacc, previews=previews, landform=landform,
                          significance=significance, n_perm=n_perm,
-                         significance_seed=significance_seed)
+                         significance_seed=significance_seed, terrain_spectra=terrain_spectra)
 
 
 def _build_graph(meta, vectors, state, recommended, source_label, elig_map, flips):

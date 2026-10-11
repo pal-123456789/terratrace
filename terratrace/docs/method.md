@@ -160,6 +160,56 @@ Photogrammetric Engineering & Remote Sensing 68(3), 257–265; and Jasiewicz, J.
 T. F. (2013), *Geomorphons — a pattern recognition approach to classification and mapping of
 landforms*, Geomorphology 182, 147–156, doi:10.1016/j.geomorph.2012.11.005.
 
+## Scale & fabric: spectral roughness and directional anisotropy
+
+Two further pure-NumPy descriptors summarise *how rough the surface is at each spatial scale*
+and *whether that roughness has a preferred direction*. Both read the same projected metric grid
+and sit in the same non-destructive analysis layer as the descriptors above: computing them
+leaves the default study package and its provenance hash unchanged.
+
+**Radially-averaged power spectral density** (`spectral.py`, after Perron, Kirchner & Dietrich
+2008) fills nodata cells with the finite mean, removes a least-squares best-fit plane so DC and
+tilt do not dominate, applies a separable 2-D Hann window to curb spectral leakage, takes the
+2-D FFT, and radially averages the windowed periodogram over wavenumber `kr = sqrt(kx^2 + ky^2)`
+(the k=0 bin excluded). The periodogram is normalised by the window energy so it integrates back
+to the detrended variance. From that spectrum it reports the log-log **spectral slope** — how
+power is partitioned between long and short wavelengths, fit over a mid-band that drops the
+lowest-k bin and the near-Nyquist tail — the **band roughness** (the RMS amplitude in long-,
+mid-, and short-wavelength thirds of log-k), the **peak wavelength** that carries the most power,
+and a **total power** that recovers the detrended variance by Parseval's theorem. A single
+sinusoid returns its own wavelength as the peak; spatially uncorrelated noise returns a flat
+(~zero) slope.
+
+**Directional structure function** (`anisotropy.py`, after Shepard et al. 2001) measures the RMS
+elevation difference between points separated by a fixed lag along a fan of azimuths binned over
+`[0, 180)`, so a surface whose roughness is the same in every direction looks isotropic while one
+grooved by parallel ridges, dunes, or lineations is rougher across the grain than along it. It
+reports an anisotropy **strength** `(Rmax - Rmin) / (Rmax + Rmin)` in `[0, 1]` (0 = isotropic,
+approaching 1 as the surface becomes strongly lineated), the fabric **orientation** — the azimuth
+of *minimum* roughness, i.e. the strike along which the ridges or dunes run — and an **isotropy**
+ratio `Rmin / Rmax`. Because it is a difference statistic it is NaN-safe and exactly invariant to
+a vertical datum offset.
+
+Both are opt-in and gated. `study.compare_units(..., terrain_spectra=True)` (and
+`run_real_study(terrain_spectra=True)`) attach a per-unit `spectral` and `anisotropy` block to
+the study package for each compared, eligible unit; the HTML report and the offline viewer render
+a **"Scale & fabric"** section when those blocks are present and omit it otherwise; and
+`descriptors.descriptor_bank` and the terrain `fingerprint` gain opt-in spectral/anisotropy terms.
+Everything is off by default, so the synthetic study package and its gated provenance hash are
+byte-unchanged. Five scientific-correctness oracles pin the behaviour: a sinusoid's peak
+wavelength, a white-noise surface's flat spectral slope, and Parseval total-power recovery for the
+spectrum; a ridged surface's recovered orientation and high strength, and an isotropic-noise
+surface's low strength for the fabric.
+
+The claim firewall is unchanged: these summarise the sampled DEM's roughness spectrum and
+directional structure *only*. They are not a traversability, hazard, geologic, or
+mission-readiness claim, and they say nothing about rock-scale obstacles below the pixel.
+References: Perron, J. T., Kirchner, J. W., & Dietrich, W. E. (2008), *Spectral signatures of
+characteristic spatial scales and nonfractal structure in landscapes*, Journal of Geophysical
+Research: Earth Surface 113, F04003; and Shepard, M. K., Campbell, B. A., Bulmer, M. H., Farr,
+T. G., Gaddis, L. R., & Plaut, J. J. (2001), *The roughness of natural terrain: A planetary and
+remote sensing perspective*, Journal of Geophysical Research: Planets 106(E12), 32777–32795.
+
 ## Distances and decision
 
 Per-feature distribution distance uses Wasserstein-1 normalized by a declared scale

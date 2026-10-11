@@ -266,7 +266,7 @@ tested scenarios. High values mean the result is assumption-sensitive.</p></sect
 
 {uncertainty_section}
 
-{previews_section}{landform_section}{confidence_section}
+{previews_section}{landform_section}{scale_fabric_section}{confidence_section}
 
 <section><h2>PROVENANCE</h2>
 <p class="sub">Every value derives from the <strong>{source}</strong> source through a recorded
@@ -376,6 +376,64 @@ def _landform_section(pkg):
         "<p class='sub note'>Map-scale landform morphology (geomorphons, Jasiewicz &amp; "
         "Stepinski 2013) and topographic openness (Yokoyama 2002). Morphology only &mdash; "
         "not traversability, hazard, or geologic-unit identification.</p></section>")
+
+
+def _scale_fabric_section(pkg):
+    """Scale & fabric panel for the viewer (GATED; a lighter mirror of
+    report_html._scale_fabric_html). Returns '' unless the package carries a
+    non-empty 'spectral' or 'anisotropy' block (the opt-in terrain_spectra pass),
+    so a plain study viewer is byte-for-byte unchanged. The returned string carries
+    its OWN leading separator, so an empty return keeps the viewer byte-for-byte
+    unchanged (the template places {scale_fabric_section} between {landform_section}
+    and {confidence_section}). Each sub-table is guarded independently; all escaped."""
+    sp = pkg.get("spectral")
+    an = pkg.get("anisotropy")
+    sp = sp if isinstance(sp, dict) and sp else None
+    an = an if isinstance(an, dict) and an else None
+    if not sp and not an:
+        return ""
+    e = html.escape
+
+    def _f(x):
+        return f"{x:.4g}" if isinstance(x, (int, float)) else "&mdash;"
+
+    out = ["\n\n<section><h2>SCALE &amp; FABRIC (SPECTRAL ROUGHNESS + ANISOTROPY)</h2>"
+           "<p class='sub'>Per-unit roughness spectrum (power-spectral slope + band RMS) "
+           "and directional terrain fabric of each sampled DEM.</p>"]
+    if sp:
+        rows = []
+        for uid in sorted(sp):
+            r = sp[uid] or {}
+            rows.append(
+                f"<tr><th scope='row'>{e(str(uid))}</th>"
+                f"<td>{_f(r.get('spectral_slope'))}</td><td>{_f(r.get('peak_wavelength_m'))}</td>"
+                f"<td>{_f(r.get('roughness_rms'))}</td><td>{_f(r.get('rough_long'))}</td>"
+                f"<td>{_f(r.get('rough_mid'))}</td><td>{_f(r.get('rough_short'))}</td></tr>")
+        out.append("<table><thead><tr><th scope='col'>unit</th>"
+                   "<th scope='col'>spectral slope</th><th scope='col'>peak &lambda; (m)</th>"
+                   "<th scope='col'>RMS</th><th scope='col'>long</th><th scope='col'>mid</th>"
+                   "<th scope='col'>short</th></tr></thead><tbody>" + "\n".join(rows) +
+                   "</tbody></table>")
+    if an:
+        rows = []
+        for uid in sorted(an):
+            r = an[uid] or {}
+            rows.append(
+                f"<tr><th scope='row'>{e(str(uid))}</th>"
+                f"<td>{_f(r.get('strength'))}</td><td>{_f(r.get('orientation_deg'))}</td>"
+                f"<td>{_f(r.get('isotropy'))}</td></tr>")
+        out.append("<table><thead><tr><th scope='col'>unit</th>"
+                   "<th scope='col'>anisotropy strength</th>"
+                   "<th scope='col'>orientation (&deg;)</th>"
+                   "<th scope='col'>isotropy</th></tr></thead><tbody>" + "\n".join(rows) +
+                   "</tbody></table>")
+    out.append("<p class='sub note'>Spectral slope and directional fabric are map-scale "
+               "roughness/morphology descriptors of the sampled DEM. Spectral slope "
+               "summarises how power is shared across wavelengths; anisotropy "
+               "strength/orientation describe directional terrain fabric (ridges, dunes, "
+               "grain). Morphology only &mdash; not a traversability, hazard, or geologic "
+               "claim.</p></section>")
+    return "".join(out)
 
 
 def _significance_section_viewer(pkg):
@@ -504,6 +562,7 @@ def build_html(pkg):
         uncertainty_section=_uncertainty_section(pkg),
         previews_section=_previews_section(pkg),
         landform_section=_landform_section(pkg),
+        scale_fabric_section=_scale_fabric_section(pkg),
         confidence_section=_confidence_section(pkg),
         objective=html.escape(proto["objective"]),
         auth=html.escape(proto["authorization"]),

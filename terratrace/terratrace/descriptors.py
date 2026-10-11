@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from . import features, openness, geomorphons
+from . import features, openness, geomorphons, spectral, anisotropy
 
 _SUMMARY_KEYS = ("mean", "std", "p10", "p50", "p90")
 
@@ -68,6 +68,19 @@ def descriptor_bank(z, dx=1.0, window=5):
     computed at the bank's ``dx`` and stay JSON-serialisable (plain floats /
     nested lists of floats / a form name).
 
+    Two scale/fabric sub-dicts are appended likewise (append-only analysis
+    layer, NOT read by any decision): ``"spectral"`` -- the
+    :func:`terratrace.spectral.spectral_signature` dict (log-log
+    ``spectral_slope``, ``total_power``, ``roughness_rms``,
+    ``peak_wavelength_m`` and the band RMS values
+    ``rough_long``/``rough_mid``/``rough_short``; radially-averaged 2-D PSD) --
+    and ``"anisotropy"`` -- the
+    :func:`terratrace.anisotropy.anisotropy_signature` dict (directional-fabric
+    ``strength``, ``orientation_deg``, ``isotropy`` and ``mean_roughness``;
+    structure-function fabric). Both are computed at the bank's ``dx`` and are
+    flat dicts of plain floats (``nan`` where a descriptor is undefined, e.g. a
+    degenerate / perfectly flat tile), so they stay JSON-serialisable.
+
     These are map-scale morphology descriptors only. No traversability,
     mechanical, or mission claim is implied by any value in the bank.
     """
@@ -104,13 +117,21 @@ def descriptor_bank(z, dx=1.0, window=5):
         #     dominant_form: name}. Both are JSON-serialisable. ---
         "openness": openness.openness_signature(z, dx=dx),
         "geomorphons": geomorphons.geomorphon_signature(z, dx=dx),
+        # --- scale/fabric sub-dicts (append-only; NOT used by the study
+        #     decision). Spectral = radially-averaged 2-D PSD roughness
+        #     signature (slope / band RMS / peak wavelength); anisotropy =
+        #     directional structure-function fabric (strength / orientation /
+        #     isotropy). Both are flat dicts of plain floats, JSON-serialisable. ---
+        "spectral": spectral.spectral_signature(z, dx=dx),
+        "anisotropy": anisotropy.anisotropy_signature(z, dx=dx),
     }
 
 
 # Fixed field order for :func:`bank_vector`; documented so callers can rely
 # on positional meaning for quick tile-to-tile comparison. The first seven
-# entries are frozen; the landform scalars are APPENDED at the end so existing
-# positions never shift.
+# entries are frozen; the landform scalars were APPENDED next, and the
+# scale/fabric scalars are APPENDED after those -- so every earlier position
+# stays stable no matter what is added at the end.
 BANK_VECTOR_FIELDS = (
     "slope.p50",
     "ruggedness.p50",
@@ -128,6 +149,12 @@ BANK_VECTOR_FIELDS = (
     "geomorphons.slope",
     "geomorphons.valley",
     "geomorphons.pit",
+    # --- appended scale/fabric scalars (spectral log-log slope and detrended
+    #     RMS roughness, then the directional-fabric anisotropy strength);
+    #     APPENDED last so all earlier positions stay frozen ---
+    "spectral.spectral_slope",
+    "spectral.roughness_rms",
+    "anisotropy.strength",
 )
 
 
@@ -137,12 +164,14 @@ def bank_vector(z, dx=1.0, window=5):
     The field order is fixed by :data:`BANK_VECTOR_FIELDS`:
     ``(slope p50, ruggedness p50, mean_curvature std, vector_ruggedness p50,
     aspect_dispersion, hypsometric_integral, hurst_exponent,
-    openness positive_median, openness negative_median, and the geomorphon
-    area-fractions of peak / ridge / slope / valley / pit)``. The first seven
-    positions are frozen; the seven landform scalars are APPENDED so earlier
-    positions never move. It is a deterministic, plain-float convenience for
-    quick tile-to-tile comparison and carries the same claim firewall as the
-    bank: map-scale morphology only.
+    openness positive_median, openness negative_median, the geomorphon
+    area-fractions of peak / ridge / slope / valley / pit, and finally the
+    spectral log-log slope, the detrended RMS roughness and the anisotropy
+    fabric strength)``. The first seven positions are frozen; the seven landform
+    scalars were APPENDED next, and the three scale/fabric scalars are APPENDED
+    after those, so earlier positions never move. It is a deterministic,
+    plain-float convenience for quick tile-to-tile comparison and carries the
+    same claim firewall as the bank: map-scale morphology only.
     """
     bank = descriptor_bank(z, dx=dx, window=window)
     comp = bank["geomorphons"]["composition"]
@@ -161,4 +190,7 @@ def bank_vector(z, dx=1.0, window=5):
         comp["slope"],
         comp["valley"],
         comp["pit"],
+        bank["spectral"]["spectral_slope"],
+        bank["spectral"]["roughness_rms"],
+        bank["anisotropy"]["strength"],
     )

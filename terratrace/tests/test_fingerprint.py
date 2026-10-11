@@ -8,7 +8,7 @@ import json
 
 import numpy as np
 
-from terratrace import fingerprint, synthetic
+from terratrace import fingerprint, synthetic, spectral, anisotropy
 
 
 def _rough(amplitude, seed, shape=(48, 48)):
@@ -201,3 +201,125 @@ def test_rank_library_landform_optin_and_missing_spectrum_raises():
     except ValueError:
         raised = True
     assert raised, "expected ValueError for a fingerprint lacking a landform spectrum"
+
+
+# --- opt-in scale/fabric component (spectral slope + band ratios + fabric) ---
+
+def test_fingerprint_default_has_no_scale_fabric_key():
+    z = (synthetic.plane((48, 48), slope_x=0.2, slope_y=0.1) + _rough(2.0, seed=9))
+    fp = fingerprint.terrain_fingerprint(z)              # include_scale_fabric=False
+    assert fingerprint.SCALE_FABRIC_KEY not in fp
+    assert tuple(fp.keys()) == fingerprint.FINGERPRINT_FIELDS
+
+
+def test_fingerprint_include_scale_fabric_is_additive_and_json():
+    z = (synthetic.plane((48, 48), slope_x=0.2, slope_y=0.1) + _rough(2.0, seed=9))
+    base = fingerprint.terrain_fingerprint(z)
+    withsf = fingerprint.terrain_fingerprint(z, include_scale_fabric=True)
+    # additive: every FINGERPRINT_FIELDS scalar is byte-identical to the default
+    for field in fingerprint.FINGERPRINT_FIELDS:
+        assert withsf[field] == base[field], field
+    sf = withsf[fingerprint.SCALE_FABRIC_KEY]
+    assert set(sf) == set(fingerprint.SCALE_FABRIC_FIELDS), set(sf)
+    assert all(type(v) is float for v in sf.values()), sf
+    # the three band ratios form a scale-free wavelength shape summing to ~1
+    ratios = (sf["rough_long_ratio"] + sf["rough_mid_ratio"]
+              + sf["rough_short_ratio"])
+    assert abs(ratios - 1.0) < 1e-9, ratios
+    # JSON round-trips exactly and the build is deterministic
+    assert json.loads(json.dumps(withsf)) == withsf
+    assert fingerprint.terrain_fingerprint(z, include_scale_fabric=True) == withsf
+
+
+def test_fingerprint_scale_fabric_matches_source_signatures():
+    z = (synthetic.plane((48, 48), slope_x=0.1, slope_y=0.2) + _rough(1.5, seed=12))
+    sf = fingerprint.terrain_fingerprint(z, include_scale_fabric=True)[
+        fingerprint.SCALE_FABRIC_KEY]
+    spec = spectral.spectral_signature(z)
+    aniso = anisotropy.anisotropy_signature(z)
+    assert np.isfinite(sf["spectral_slope"]) and np.isfinite(sf["anisotropy_strength"])
+    assert sf["spectral_slope"] == float(spec["spectral_slope"])
+    assert sf["anisotropy_strength"] == float(aniso["strength"])
+    total = spec["rough_long"] + spec["rough_mid"] + spec["rough_short"]
+    assert abs(sf["rough_long_ratio"] - spec["rough_long"] / total) < 1e-12
+
+
+def test_scale_fabric_distance_bounds_symmetry_and_known_values():
+    z = (synthetic.plane((48, 48), slope_x=0.2, slope_y=0.1) + _rough(2.0, seed=14))
+    sf = fingerprint.terrain_fingerprint(z, include_scale_fabric=True)[
+        fingerprint.SCALE_FABRIC_KEY]
+    other = fingerprint.terrain_fingerprint(_rough(6.0, seed=15),
+                                            include_scale_fabric=True)[
+        fingerprint.SCALE_FABRIC_KEY]
+    # identical -> 0.0; general pair -> bounded [0,1], symmetric, plain float
+    assert fingerprint.scale_fabric_distance(sf, sf) == 0.0
+    d = fingerprint.scale_fabric_distance(sf, other)
+    assert type(d) is float and 0.0 <= d <= 1.0, d
+    assert fingerprint.scale_fabric_distance(sf, other) == \
+        fingerprint.scale_fabric_distance(other, sf)
+    # a hand-built pair maximally separated on every axis -> distance 1.0
+    a = {"spectral_slope": 0.0, "rough_long_ratio": 1.0, "rough_mid_ratio": 0.0,
+         "rough_short_ratio": 0.0, "anisotropy_strength": 0.0}
+    b = {"spectral_slope": fingerprint.SCALE_FABRIC_SLOPE_SPAN,
+         "rough_long_ratio": 0.0, "rough_mid_ratio": 0.0, "rough_short_ratio": 1.0,
+         "anisotropy_strength": 1.0}
+    assert abs(fingerprint.scale_fabric_distance(a, b) - 1.0) < 1e-12
+    # all-NaN components -> 0.0 (no information, no penalty), kept finite
+    nan5 = {k: float("nan") for k in fingerprint.SCALE_FABRIC_FIELDS}
+    assert fingerprint.scale_fabric_distance(nan5, nan5) == 0.0
+
+
+def test_similarity_scale_fabric_term_active_and_opt_in_preserves_default():
+    smooth = (synthetic.gaussian_hill((48, 48), amplitude=12.0, sigma=12.0)
+              + _rough(0.3, seed=41))
+    rough_a = _rough(5.0, seed=21)
+    rough_b = _rough(5.0, seed=22)
+    fp_s = fingerprint.terrain_fingerprint(smooth, include_scale_fabric=True)
+    fp_a = fingerprint.terrain_fingerprint(rough_a, include_scale_fabric=True)
+    fp_b = fingerprint.terrain_fingerprint(rough_b, include_scale_fabric=True)
+
+    # identical signatures -> 1.0 even with the scale/fabric term switched on
+    assert fingerprint.similarity(fp_a, fp_a, include_scale_fabric=True) == 1.0
+
+    # same rough process more similar than smooth-vs-rough (scale/fabric-aware)
+    s_same = fingerprint.similarity(fp_a, fp_b, include_scale_fabric=True)
+    s_diff = fingerprint.similarity(fp_s, fp_a, include_scale_fabric=True)
+    assert s_diff < s_same, (s_diff, s_same)
+
+    # the term is actually active: for a pair with differing scale/fabric it
+    # strictly lowers similarity relative to morphology-only
+    s_morph = fingerprint.similarity(fp_s, fp_a, include_scale_fabric=False)
+    assert fingerprint.similarity(fp_s, fp_a, include_scale_fabric=True) < s_morph
+
+    # opt-out is byte-identical to the pre-existing morphology-only similarity,
+    # and the extra scale/fabric key never perturbs the morphology distance
+    assert s_morph == fingerprint.similarity(fp_s, fp_a)
+    s_def = fingerprint.terrain_fingerprint(smooth)
+    a_def = fingerprint.terrain_fingerprint(rough_a)
+    assert fingerprint.similarity(fp_s, fp_a) == \
+        fingerprint.similarity(s_def, a_def)
+
+
+def test_rank_library_scale_fabric_optin_and_missing_raises():
+    base_hill = synthetic.gaussian_hill((48, 48), amplitude=12.0, sigma=12.0)
+    library = {
+        "plane": synthetic.plane((48, 48), slope_x=0.05, slope_y=0.0),
+        "moderate_hill": base_hill + _rough(0.8, seed=1),
+        "rough": _rough(10.0, seed=2),
+    }
+    query = base_hill + _rough(0.8, seed=777)
+    # scale/fabric-aware ranking over raw arrays (signatures computed on the fly)
+    ranked = fingerprint.rank_library(query, library, include_scale_fabric=True)
+    assert ranked[0][0] == "moderate_hill", ranked
+    sims = [s for _, s in ranked]
+    assert sims == sorted(sims, reverse=True), sims
+    assert {name for name, _ in ranked} == set(library)
+
+    # a dict fingerprint built WITHOUT the scale/fabric block cannot opt in
+    fp_no_sf = fingerprint.terrain_fingerprint(query)   # include_scale_fabric=False
+    raised = False
+    try:
+        fingerprint.similarity(fp_no_sf, fp_no_sf, include_scale_fabric=True)
+    except ValueError:
+        raised = True
+    assert raised, "expected ValueError for a fingerprint lacking a scale/fabric block"

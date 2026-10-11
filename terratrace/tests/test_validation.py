@@ -35,6 +35,11 @@ _EXPECTED_NAMES = (
     "significance_near_tie_is_honest",
     "confidence_robust_on_clear_winner",
     "confidence_fragile_or_tie_on_near_tie",
+    "spectral_sinusoid_peak",
+    "spectral_white_noise_flat",
+    "spectral_parseval",
+    "anisotropy_ridges_oriented",
+    "anisotropy_isotropic_low",
 )
 
 # New line-of-sight morphology oracles added on top of the original battery.
@@ -55,6 +60,15 @@ _SIG_CONF_NAMES = (
     "significance_near_tie_is_honest",
     "confidence_robust_on_clear_winner",
     "confidence_fragile_or_tie_on_near_tie",
+)
+
+# Spectral (radially-averaged PSD) + anisotropy (directional fabric) oracles.
+_SPECTRAL_ANISO_NAMES = (
+    "spectral_sinusoid_peak",
+    "spectral_white_noise_flat",
+    "spectral_parseval",
+    "anisotropy_ridges_oriented",
+    "anisotropy_isotropic_low",
 )
 
 _N_CHECKS = len(_EXPECTED_NAMES)
@@ -314,3 +328,54 @@ def test_check_confidence_fragile_or_tie_on_near_tie_passes():
     assert rec["metrics"]["verdict"] != "robust", rec["metrics"]
     assert rec["metrics"]["verdict"] in {"fragile", "qualified", "tie",
                                          "indeterminate"}, rec["metrics"]
+
+
+def test_new_spectral_anisotropy_checks_present_and_pass():
+    """The five added spectral + anisotropy oracles are registered in the report
+    and every one passes."""
+    report = _report()
+    present = {c["name"] for c in report["checks"]}
+    for name in _SPECTRAL_ANISO_NAMES:
+        assert name in present, f"{name!r} not registered in run_validation()"
+        assert _find(report, name)["passed"] is True, _find(report, name)["detail"]
+
+
+def test_check_spectral_sinusoid_peak_passes():
+    """A period-8 sinusoid peaks at ~8 m (within one radial bin: band 6..11)."""
+    rec = validation.check_spectral_sinusoid_peak()
+    assert rec["name"] == "spectral_sinusoid_peak"
+    assert rec["passed"] is True, rec["detail"]
+    assert 6.0 <= rec["metrics"]["peak_wavelength_m"] <= 11.0, rec["metrics"]
+
+
+def test_check_spectral_white_noise_flat_passes():
+    """White noise has a ~flat spectrum: abs(spectral_slope) < 1.0."""
+    rec = validation.check_spectral_white_noise_flat()
+    assert rec["name"] == "spectral_white_noise_flat"
+    assert rec["passed"] is True, rec["detail"]
+    assert abs(rec["metrics"]["spectral_slope"]) < 1.0, rec["metrics"]
+
+
+def test_check_spectral_parseval_passes():
+    """Summed spectral power recovers the detrended variance within 25%."""
+    rec = validation.check_spectral_parseval()
+    assert rec["name"] == "spectral_parseval"
+    assert rec["passed"] is True, rec["detail"]
+    assert rec["metrics"]["rel_error"] <= 0.25, rec["metrics"]
+
+
+def test_check_anisotropy_ridges_oriented_passes():
+    """Parallel ridges are strongly anisotropic, strike ~90 deg (due north)."""
+    rec = validation.check_anisotropy_ridges_oriented()
+    assert rec["name"] == "anisotropy_ridges_oriented"
+    assert rec["passed"] is True, rec["detail"]
+    assert rec["metrics"]["strength"] > 0.5, rec["metrics"]
+    assert abs(rec["metrics"]["orientation_deg"] - 90.0) <= 25.0, rec["metrics"]
+
+
+def test_check_anisotropy_isotropic_low_passes():
+    """Isotropic noise has no preferred direction: strength < 0.25."""
+    rec = validation.check_anisotropy_isotropic_low()
+    assert rec["name"] == "anisotropy_isotropic_low"
+    assert rec["passed"] is True, rec["detail"]
+    assert rec["metrics"]["strength"] < 0.25, rec["metrics"]

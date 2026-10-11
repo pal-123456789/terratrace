@@ -471,6 +471,58 @@ def _landform_html(p):
     return "\n".join(out)
 
 
+_SPECTRAL_COLS = ("spectral_slope", "peak_wavelength_m", "roughness_rms",
+                  "rough_long", "rough_mid", "rough_short")
+_ANISOTROPY_COLS = ("strength", "orientation_deg", "isotropy")
+
+
+def _scale_fabric_html(p):
+    """Scale & fabric section: the opt-in per-unit spectral-roughness and
+    directional-anisotropy blocks (present only when a study is run with
+    ``terrain_spectra=True``). Returns '' unless the package carries a non-empty
+    'spectral' or 'anisotropy' block, so a study without them renders
+    byte-for-byte as before. Each sub-table is guarded independently; every value
+    is number-formatted and every id escaped."""
+    sp = p.get("spectral")
+    an = p.get("anisotropy")
+    sp = sp if isinstance(sp, dict) and sp else None
+    an = an if isinstance(an, dict) and an else None
+    if not sp and not an:
+        return ""
+    out = ["<h2>Scale &amp; fabric (spectral roughness + directional anisotropy)</h2>",
+           "<p>Map-scale roughness spectrum and directional terrain fabric of each unit's "
+           "sampled DEM at the common support.</p>"]
+    if sp:
+        head = "".join(f"<th scope='col'>{_esc(c)}</th>" for c in _SPECTRAL_COLS)
+        out.append("<table><caption>Radially-averaged power-spectral-density descriptors: "
+                   "log-log spectral slope, peak wavelength (m), detrended RMS, and the "
+                   "long/mid/short-band RMS roughness.</caption>")
+        out.append(f"<thead><tr><th scope='col'>unit</th>{head}</tr></thead><tbody>")
+        for uid in sorted(sp):
+            row = sp[uid] or {}
+            cells = "".join(f"<td class='num'>{_num(row.get(c))}</td>" for c in _SPECTRAL_COLS)
+            out.append(f"<tr><th scope='row'>{_esc(uid)}</th>{cells}</tr>")
+        out.append("</tbody></table>")
+    if an:
+        head = "".join(f"<th scope='col'>{_esc(c)}</th>" for c in _ANISOTROPY_COLS)
+        out.append("<table><caption>Directional terrain fabric from the structure "
+                   "function: anisotropy strength (0 isotropic, 1 strongly lineated), "
+                   "fabric-strike orientation (degrees), and isotropy ratio.</caption>")
+        out.append(f"<thead><tr><th scope='col'>unit</th>{head}</tr></thead><tbody>")
+        for uid in sorted(an):
+            row = an[uid] or {}
+            cells = "".join(f"<td class='num'>{_num(row.get(c))}</td>" for c in _ANISOTROPY_COLS)
+            out.append(f"<tr><th scope='row'>{_esc(uid)}</th>{cells}</tr>")
+        out.append("</tbody></table>")
+    out.append("<blockquote class='note'>Spectral slope and directional fabric are "
+               "map-scale roughness/morphology descriptors of the sampled DEM. Spectral "
+               "slope summarises how power is shared across wavelengths; anisotropy "
+               "strength/orientation describe directional terrain fabric (ridges, dunes, "
+               "grain). Morphology only &mdash; not a traversability, hazard, or geologic "
+               "claim.</blockquote>")
+    return "\n".join(out)
+
+
 def _significance_table_html(p):
     """Opt-in permutation-significance detail vs the runner-up. Returns '' when the
     package carries no 'significance' block. When the block was evaluated (carries
@@ -640,6 +692,9 @@ def study_report_html(package):
     _lf = _landform_html(p)
     if _lf:
         w(_lf)
+    _sf = _scale_fabric_html(p)
+    if _sf:
+        w(_sf)
     w(_sensitivity_html(p))
     _conf = _confidence_html(p)
     if _conf:

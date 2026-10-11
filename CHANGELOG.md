@@ -3,6 +3,49 @@
 Complete build history of TerraTrace, generated from the git commit messages
 (newest first). Each entry is the exact message recorded with that commit.
 
+## Unreleased — Scale & fabric: radially-averaged power spectrum + directional terrain anisotropy
+
+*Prepared 2026-10-11 by Pal Ghevariya (pending commit — hash assigned at commit time; builds on the pending significance/confidence push)*
+
+Two pure-NumPy map-scale morphology descriptors + an opt-in integration; the canonical synthetic
+study hash is UNCHANGED (every new path is off by default and gated).
+
+spectral.py (new): radially-averaged 2-D power spectral density (PSD). Detrends the plane,
+Hann-windows, FFTs, and radially averages the periodogram over wavenumber, reporting the log-log
+spectral slope (how power is shared between long and short wavelengths), band roughness (RMS
+amplitude in long/mid/short wavelength bands), the peak wavelength, and a total power that recovers
+the detrended variance by Parseval. A map-scale roughness-spectrum descriptor (after Perron,
+Kirchner & Dietrich 2008).
+
+anisotropy.py (new): directional terrain fabric via the directional structure function (RMS
+elevation difference along a fan of azimuths). Reports anisotropy strength (0 = isotropic, -> 1 =
+strongly lineated), the fabric orientation (azimuth of minimum roughness = the strike along which
+ridges/dunes/grain run), and an isotropy ratio. Relief-invariant and NaN-safe (after Shepard et
+al. 2001).
+
+Integration (all OPT-IN): study.compare_units(..., terrain_spectra=True) (and
+run_real_study(terrain_spectra=True)) attach package["spectral"] and package["anisotropy"] per
+compared/eligible unit; the HTML report (report_html.py) and offline viewer (build_viewer.py)
+render a "Scale & fabric" section when those blocks are present; and descriptors.descriptor_bank
+and the terrain fingerprint gained opt-in spectral/anisotropy terms. With no spectral/anisotropy
+block the report/viewer render byte-identically to before.
+
+validation.py: +5 scientific-correctness oracles (spectral_sinusoid_peak,
+spectral_white_noise_flat, spectral_parseval, anisotropy_ridges_oriented, anisotropy_isotropic_low)
+— the scientific-correctness suite is now 28 checks, all passing.
+
+references.py: added the Perron, Kirchner & Dietrich (2008) power-spectrum and Shepard et al.
+(2001) natural-terrain-roughness method citations (method_references() now returns 6). README /
+docs/index.md / docs/method.md / docs/VALIDATION.md updated.
+
+Claim firewall unchanged: map-scale roughness-spectrum and directional-structure descriptors of
+the sampled DEM only — NOT a traversability, hazard, geologic, or mission-readiness claim; they
+say nothing about rock-scale obstacles below the pixel; not NASA-endorsed.
+
+470 fixture tests, all passing, no network required.
+
+---
+
 ## Unreleased — Statistical confidence for the analog decision: permutation significance + non-composite confidence
 
 *Prepared 2026-10-11 by Pal Ghevariya (pending commit — hash assigned at commit time; builds on the CI-fix 7969d18)*

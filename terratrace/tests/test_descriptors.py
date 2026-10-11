@@ -7,7 +7,7 @@ import json
 
 import numpy as np
 
-from terratrace import descriptors, synthetic, geomorphons
+from terratrace import descriptors, synthetic, geomorphons, spectral, anisotropy
 
 MAP_KEYS = ("slope", "relief", "ruggedness", "profile_curvature",
             "plan_curvature", "mean_curvature", "vector_ruggedness")
@@ -46,7 +46,7 @@ def test_bank_keys_types_and_json_serialisable():
     expected = (set(MAP_KEYS) | set(SCALAR_KEYS) |
                 {"structure_function", "surface_area_ratio",
                  "terrain_ruggedness_index", "landform_fraction",
-                 "openness", "geomorphons"})
+                 "openness", "geomorphons", "spectral", "anisotropy"})
     assert set(bank) == expected, set(bank) ^ expected
     for key in MAP_KEYS:
         summ = bank[key]
@@ -93,7 +93,7 @@ def test_bank_vector_matches_bank_headline_scalars():
          + synthetic.rough_field((40, 40), amplitude=0.8, seed=2))
     bank = descriptors.descriptor_bank(z)
     vec = descriptors.bank_vector(z)
-    assert len(vec) == len(descriptors.BANK_VECTOR_FIELDS) == 14, len(vec)
+    assert len(vec) == len(descriptors.BANK_VECTOR_FIELDS) == 17, len(vec)
     assert all(type(x) is float for x in vec)
     comp = bank["geomorphons"]["composition"]
     expected = (
@@ -111,6 +111,9 @@ def test_bank_vector_matches_bank_headline_scalars():
         comp["slope"],
         comp["valley"],
         comp["pit"],
+        bank["spectral"]["spectral_slope"],
+        bank["spectral"]["roughness_rms"],
+        bank["anisotropy"]["strength"],
     )
     assert vec == expected, (vec, expected)
     # the first seven positions are frozen (headline morphology scalars)
@@ -206,3 +209,81 @@ def test_bank_openness_discriminates_peak_from_pit():
     op_bowl = descriptors.descriptor_bank(bowl)["openness"]
     assert op_cone["positive_median"] > op_bowl["positive_median"], (op_cone, op_bowl)
     assert op_bowl["negative_median"] > op_cone["negative_median"], (op_cone, op_bowl)
+
+
+# --- scale/fabric (spectral + anisotropy) blocks wired into the bank ---------
+
+SPECTRAL_KEYS = {"spectral_slope", "total_power", "roughness_rms",
+                 "peak_wavelength_m", "rough_long", "rough_mid", "rough_short"}
+ANISOTROPY_KEYS = {"strength", "orientation_deg", "isotropy", "mean_roughness"}
+
+
+def test_bank_has_spectral_and_anisotropy_blocks_and_json():
+    z = (synthetic.plane((40, 40), slope_x=0.2, slope_y=0.1)
+         + synthetic.rough_field((40, 40), amplitude=1.0, seed=23))
+    bank = descriptors.descriptor_bank(z)
+    assert "spectral" in bank and "anisotropy" in bank
+
+    sp = bank["spectral"]
+    assert set(sp) == SPECTRAL_KEYS, set(sp)
+    assert all(type(v) is float for v in sp.values()), sp
+
+    an = bank["anisotropy"]
+    assert set(an) == ANISOTROPY_KEYS, set(an)
+    assert all(type(v) is float for v in an.values()), an
+
+    # the bank's blocks are exactly the source module signatures (bank dx=1.0)
+    assert sp == spectral.spectral_signature(z, dx=1.0)
+    assert an == anisotropy.anisotropy_signature(z, dx=1.0)
+
+    # the whole extended bank still serialises, round-trips and is deterministic
+    assert json.loads(json.dumps(bank))
+    assert descriptors.descriptor_bank(z) == bank
+
+
+def test_bank_spectral_roughness_and_power_rough_gt_plane():
+    plane = synthetic.plane((40, 40), slope_x=0.2, slope_y=0.1)
+    rough = plane + synthetic.rough_field((40, 40), amplitude=1.5, seed=29)
+    bp = descriptors.descriptor_bank(plane)["spectral"]
+    br = descriptors.descriptor_bank(rough)["spectral"]
+    # a rough field has larger detrended RMS roughness than a (de-trended) plane
+    assert br["roughness_rms"] > bp["roughness_rms"], (br["roughness_rms"], bp["roughness_rms"])
+    # total spectral power ~ detrended variance -> also larger for the rough field
+    assert br["total_power"] > bp["total_power"], (br["total_power"], bp["total_power"])
+
+
+def test_bank_anisotropy_strength_lineated_gt_isotropic():
+    # Parallel ridges that vary only with the column index j: constant ALONG
+    # rows (azimuth 90 deg) -> near-zero directional roughness there, maximal
+    # across them -> a strongly lineated fabric. Isotropic noise has no
+    # preferred direction, so its fabric strength is far lower.
+    n = 48
+    _, j = np.indices((n, n))
+    lineated = np.sin(2.0 * np.pi * j / 6.0).astype(float)
+    isotropic = synthetic.rough_field((n, n), amplitude=1.0, seed=31)
+    s_lin = descriptors.descriptor_bank(lineated)["anisotropy"]["strength"]
+    s_iso = descriptors.descriptor_bank(isotropic)["anisotropy"]["strength"]
+    assert np.isfinite(s_lin) and np.isfinite(s_iso), (s_lin, s_iso)
+    assert s_lin > s_iso, (s_lin, s_iso)
+
+
+def test_bank_vector_tail_is_scale_fabric_scalars_and_prefix_frozen():
+    z = (synthetic.plane((40, 40), slope_x=0.25, slope_y=0.05)
+         + synthetic.rough_field((40, 40), amplitude=0.9, seed=33))
+    bank = descriptors.descriptor_bank(z)
+    vec = descriptors.bank_vector(z)
+    # the three appended tail fields are the documented scale/fabric scalars
+    assert descriptors.BANK_VECTOR_FIELDS[-3:] == (
+        "spectral.spectral_slope", "spectral.roughness_rms", "anisotropy.strength")
+    assert vec[-3:] == (
+        bank["spectral"]["spectral_slope"],
+        bank["spectral"]["roughness_rms"],
+        bank["anisotropy"]["strength"],
+    )
+    # the frozen first-seven headline positions are untouched by the append
+    assert vec[:7] == (
+        bank["slope"]["p50"], bank["ruggedness"]["p50"],
+        bank["mean_curvature"]["std"], bank["vector_ruggedness"]["p50"],
+        bank["aspect_dispersion"], bank["hypsometric_integral"],
+        bank["hurst_exponent"],
+    )

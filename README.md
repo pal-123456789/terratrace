@@ -8,7 +8,7 @@ This repository holds two things:
 
 | Path | What it is |
 |---|---|
-| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across four robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **428 tests**, no network required. |
+| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across four robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **470 tests**, no network required. |
 | `site/` | A 3D scroll-animated website telling the project story (deployed on Vercel). |
 
 > **Scope / claim firewall.** TerraTrace screens terrain **morphology** between curated
@@ -22,12 +22,17 @@ Loads real elevation models (Mars MOLA; Moon LOLA; Mercury MESSENGER; Ceres Dawn
 Copernicus GLO-30/90, USGS 3DEP, SRTM, NASADEM, ALOS — a 13-product catalog with coverage,
 licence, and vertical-accuracy metadata), warps each AOI to its own local metric grid on the
 correct body, computes map-scale descriptors (slope, relief, ruggedness, connectivity,
-curvature, vector ruggedness, roughness/Hurst, topographic openness, geomorphon landforms, …),
+curvature, vector ruggedness, roughness/Hurst, topographic openness, geomorphon landforms,
+spectral slope, directional fabric, …),
 and ranks candidate terrains by **Pareto dominance** — never a composite "Mars-likeness" score.
 It returns a recommendation only when it survives four independent decision lenses (core,
 extended, geomorphic, landform), reports an honest TIE/INDETERMINATE/BLOCKED state
 otherwise, and carries measurement uncertainty, a spatial block-bootstrap, significance tests,
-a transfer-gap ledger, and a full provenance appendix. Every recommendation can also carry a
+a transfer-gap ledger, and a full provenance appendix. On request it also attaches a map-scale
+**scale & fabric** layer — a radially-averaged power spectrum (spectral slope, band roughness,
+peak wavelength) and a directional-fabric descriptor (anisotropy strength and orientation) per
+unit — rendered as a "Scale & fabric" section in the report and viewer. Every recommendation can
+also carry a
 one-sided **permutation p-value vs the runner-up** (the second-closest candidate) and a
 **non-composite confidence verdict** (`robust` / `qualified` / `fragile` / …) that restates the
 bootstrap, significance, and lens/support evidence as three independent signals — never a
@@ -40,7 +45,7 @@ viewer are generated per study.
 ```bash
 cd terratrace
 pip install -r requirements.txt            # core (NumPy only)
-python tests/run_tests.py                   # 428 fixtures, offline
+python tests/run_tests.py                   # 470 fixtures, offline
 python scripts/run_validation.py            # scientific-correctness suite
 python -m terratrace.cli --out artifacts    # synthetic study
 python -m terratrace.build_viewer           # viewer/index.html

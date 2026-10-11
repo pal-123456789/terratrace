@@ -57,7 +57,8 @@ from __future__ import annotations
 
 import numpy as np
 
-from . import study, synthetic, provenance, features, openness, geomorphons, confidence
+from . import (study, synthetic, provenance, features, openness, geomorphons,
+               confidence, spectral, anisotropy)
 
 # Isolate the morphology math from aggregation smoothing: native == target gives
 # an aggregation factor of 1, so features are computed on the grids as built.
@@ -544,6 +545,101 @@ def check_confidence_fragile_or_tie_on_near_tie():
                    verdict=verdict, state=out.get("state"))
 
 
+# --- spectral (PSD) + anisotropy (fabric) oracles ---------------------------
+# Two map-scale MORPHOLOGY descriptors checked directly (not through the
+# comparison pipeline) against their canonical analytic behaviour on synthetic
+# surfaces with a KNOWN spectrum / fabric:
+#
+#   * a single-wavelength sinusoid puts the radially-averaged PSD peak at that
+#     wavelength; broadband white noise has a ~flat (slope ~ 0) spectrum; and the
+#     summed spectral power recovers the detrended variance (Parseval);
+#   * a one-directional sinusoid (parallel ridges) is strongly anisotropic with
+#     its fabric strike along the invariant axis, while isotropic noise shows no
+#     preferred direction.
+#
+# dx = 1.0, so a wavelength of N cells reads as N metres. Seeds are fixed (the
+# host-independent PCG64 Generator) and only pass/fail booleans enter the outcome
+# hash, so the checks stay deterministic and host-independent even though the raw
+# FFT floats are NumPy-build dependent -- every asserted bound is decisive, not
+# marginal. Pure NumPy. Distribution-of-roughness descriptors only -- no
+# traversability, hazard, geologic, or mission claim.
+_SPEC_DX = 1.0
+
+
+def _col_sinusoid(shape, period):
+    """Unit-amplitude sinusoid varying only along columns (j = +x/east):
+    ``z[i, j] = sin(2*pi*j/period)``. It is constant along rows, so it carries a
+    single spatial wavelength of ``period`` cells and its fabric strike is the
+    invariant row axis (due north, 90 deg in the module's convention)."""
+    jj = np.indices(shape)[1]
+    return np.sin(2.0 * np.pi * jj / float(period))
+
+
+def check_spectral_sinusoid_peak():
+    """A single-wavelength sinusoid (period 8 cells on 64x64) must place the
+    spectral peak at ~8 m: spectral_signature['peak_wavelength_m'] lands within
+    one radial bin of the true wavelength (6 <= peak <= 11)."""
+    z = _col_sinusoid((64, 64), 8.0)
+    peak = float(spectral.spectral_signature(z, dx=_SPEC_DX)["peak_wavelength_m"])
+    passed = bool(np.isfinite(peak)) and 6.0 <= peak <= 11.0
+    return _result("spectral_sinusoid_peak", passed,
+                   f"period-8 sinusoid peak_wavelength_m {peak:.3f} m "
+                   f"(true ~8; within one bin, band 6..11)",
+                   peak_wavelength_m=peak)
+
+
+def check_spectral_white_noise_flat():
+    """Broadband white noise has a ~flat power spectrum, so the log-log spectral
+    slope is ~0: abs(spectral_slope) < 1.0 on a seeded 128x128 Gaussian field."""
+    z = np.random.default_rng(0).normal(size=(128, 128))
+    slope = float(spectral.spectral_slope(z, dx=_SPEC_DX))
+    passed = bool(np.isfinite(slope)) and abs(slope) < 1.0
+    return _result("spectral_white_noise_flat", passed,
+                   f"white-noise spectral_slope {slope:.4f} (|slope| < 1.0)",
+                   spectral_slope=slope)
+def check_spectral_parseval():
+    """Parseval: the summed spectral power must recover the detrended variance.
+    On a seeded 128x128 random surface spectral_signature['total_power'] is
+    within 25% of np.var(spectral.detrend_plane(z))."""
+    z = np.random.default_rng(7).normal(size=(128, 128))
+    total_power = float(spectral.spectral_signature(z, dx=_SPEC_DX)["total_power"])
+    var = float(np.var(spectral.detrend_plane(z)))
+    rel = abs(total_power - var) / var if var > 0.0 else float("inf")
+    return _result("spectral_parseval", bool(np.isfinite(rel)) and rel <= 0.25,
+                   f"total_power {total_power:.5f} vs detrended variance "
+                   f"{var:.5f} (relative error {rel:.4f} <= 0.25)",
+                   total_power=total_power, variance=var, rel_error=rel)
+
+
+def check_anisotropy_ridges_oriented():
+    """Parallel ridges (a column sinusoid, period 12 on 96x96) are strongly
+    anisotropic with their fabric strike along the invariant row axis: anisotropy
+    strength > 0.5 and orientation_deg within +-25 deg of 90 (due north)."""
+    z = _col_sinusoid((96, 96), 12.0)
+    a = anisotropy.anisotropy(z, dx=_SPEC_DX)
+    strength = float(a["strength"])
+    orient = float(a["orientation_deg"])
+    passed = (bool(np.isfinite(strength)) and strength > 0.5
+              and bool(np.isfinite(orient)) and abs(orient - 90.0) <= 25.0)
+    return _result("anisotropy_ridges_oriented", passed,
+                   f"ridge fabric strength {strength:.3f} (> 0.5) orientation "
+                   f"{orient:.1f} deg (|Δ90| <= 25)",
+                   strength=strength, orientation_deg=orient)
+
+
+def check_anisotropy_isotropic_low():
+    """Isotropic noise has no preferred direction: the directional roughness is
+    ~equal in every azimuth, so anisotropy strength < 0.25 on a seeded 96x96
+    Gaussian field."""
+    z = np.random.default_rng(3).normal(size=(96, 96))
+    a = anisotropy.anisotropy(z, dx=_SPEC_DX)
+    strength = float(a["strength"])
+    passed = bool(np.isfinite(strength)) and strength < 0.25
+    return _result("anisotropy_isotropic_low", passed,
+                   f"isotropic-noise anisotropy strength {strength:.4f} (< 0.25)",
+                   strength=strength, orientation_deg=float(a["orientation_deg"]))
+
+
 _CHECKS = (
     check_self_distance_zero,
     check_translation_invariance,
@@ -568,6 +664,11 @@ _CHECKS = (
     check_significance_near_tie_is_honest,
     check_confidence_robust_on_clear_winner,
     check_confidence_fragile_or_tie_on_near_tie,
+    check_spectral_sinusoid_peak,
+    check_spectral_white_noise_flat,
+    check_spectral_parseval,
+    check_anisotropy_ridges_oriented,
+    check_anisotropy_isotropic_low,
 )
 
 
