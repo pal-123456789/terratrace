@@ -101,3 +101,103 @@ def test_library_scales_and_scale_aware_ranking():
     query = base_hill + _rough(0.8, seed=777)
     ranked = fingerprint.rank_library(query, library, scales=scales)
     assert ranked[0][0] == "moderate_hill", ranked
+
+
+# --- opt-in landform component (geomorphon spectrum + TV similarity term) ----
+
+def test_fingerprint_default_has_no_landform_key():
+    z = (synthetic.plane((48, 48), slope_x=0.2, slope_y=0.1) + _rough(2.0, seed=9))
+    fp = fingerprint.terrain_fingerprint(z)                 # include_landform=False
+    assert fingerprint.LANDFORM_SPECTRUM_KEY not in fp
+    assert tuple(fp.keys()) == fingerprint.FINGERPRINT_FIELDS
+
+
+def test_fingerprint_include_landform_is_additive_and_json():
+    z = (synthetic.plane((48, 48), slope_x=0.2, slope_y=0.1) + _rough(2.0, seed=9))
+    base = fingerprint.terrain_fingerprint(z)               # no landform
+    withlf = fingerprint.terrain_fingerprint(z, include_landform=True)
+    # additive: every FINGERPRINT_FIELDS scalar is byte-identical to the default
+    for field in fingerprint.FINGERPRINT_FIELDS:
+        assert withlf[field] == base[field], field
+    spec = withlf[fingerprint.LANDFORM_SPECTRUM_KEY]
+    assert isinstance(spec, list) and len(spec) == 9
+    assert all(isinstance(row, list) and len(row) == 9 for row in spec)
+    assert all(type(v) is float for row in spec for v in row)
+    # normalised spectrum of a non-degenerate surface sums to ~1
+    assert abs(sum(v for row in spec for v in row) - 1.0) < 1e-9
+    # the landform-bearing fingerprint still JSON round-trips exactly
+    assert json.loads(json.dumps(withlf)) == withlf
+    # deterministic
+    assert fingerprint.terrain_fingerprint(z, include_landform=True) == withlf
+
+
+def test_spectrum_tv_bounds_and_known_values():
+    a = [[0.0] * 9 for _ in range(9)]
+    b = [[0.0] * 9 for _ in range(9)]
+    a[0][0] = 1.0                       # all mass in one (n_plus, n_minus) bin
+    b[8][0] = 1.0                       # all mass in a different, disjoint bin
+    assert fingerprint.spectrum_tv(a, a) == 0.0
+    assert abs(fingerprint.spectrum_tv(a, b) - 1.0) < 1e-12
+    # half-overlapping distributions -> tv = 0.5
+    c = [[0.0] * 9 for _ in range(9)]
+    c[0][0] = 0.5
+    c[8][0] = 0.5
+    assert abs(fingerprint.spectrum_tv(a, c) - 0.5) < 1e-12
+    # symmetric and a plain float
+    assert fingerprint.spectrum_tv(a, b) == fingerprint.spectrum_tv(b, a)
+    assert type(fingerprint.spectrum_tv(a, c)) is float
+
+
+def test_similarity_landform_term_active_and_opt_in_preserves_default():
+    plane = synthetic.plane((48, 48), slope_x=0.1, slope_y=0.0)
+    rough_a = _rough(5.0, seed=21)
+    rough_b = _rough(5.0, seed=22)
+    fp_plane = fingerprint.terrain_fingerprint(plane, include_landform=True)
+    fp_a = fingerprint.terrain_fingerprint(rough_a, include_landform=True)
+    fp_b = fingerprint.terrain_fingerprint(rough_b, include_landform=True)
+
+    # identical signatures -> 1.0 even with the landform term switched on
+    assert fingerprint.similarity(fp_a, fp_a, include_landform=True) == 1.0
+
+    # same rough process is more similar than plane-vs-rough (landform-aware)
+    s_same = fingerprint.similarity(fp_a, fp_b, include_landform=True)
+    s_diff = fingerprint.similarity(fp_plane, fp_a, include_landform=True)
+    assert s_diff < s_same, (s_diff, s_same)
+
+    # the landform term is actually active: for a pair with differing spectra it
+    # strictly lowers the similarity relative to morphology-only
+    s_morph = fingerprint.similarity(fp_plane, fp_a, include_landform=False)
+    assert fingerprint.similarity(fp_plane, fp_a, include_landform=True) < s_morph
+
+    # opt-out is byte-identical to the pre-existing morphology-only similarity,
+    # and the extra landform key never perturbs the morphology distance
+    assert s_morph == fingerprint.similarity(fp_plane, fp_a)
+    plane_def = fingerprint.terrain_fingerprint(plane)
+    a_def = fingerprint.terrain_fingerprint(rough_a)
+    assert fingerprint.similarity(fp_plane, fp_a) == \
+        fingerprint.similarity(plane_def, a_def)
+
+
+def test_rank_library_landform_optin_and_missing_spectrum_raises():
+    base_hill = synthetic.gaussian_hill((48, 48), amplitude=12.0, sigma=12.0)
+    library = {
+        "plane": synthetic.plane((48, 48), slope_x=0.05, slope_y=0.0),
+        "moderate_hill": base_hill + _rough(0.8, seed=1),
+        "rough": _rough(10.0, seed=2),
+    }
+    query = base_hill + _rough(0.8, seed=777)
+    # landform-aware ranking over raw arrays (spectra computed on the fly)
+    ranked = fingerprint.rank_library(query, library, include_landform=True)
+    assert ranked[0][0] == "moderate_hill", ranked
+    sims = [s for _, s in ranked]
+    assert sims == sorted(sims, reverse=True), sims
+    assert {name for name, _ in ranked} == set(library)
+
+    # a dict fingerprint built WITHOUT the landform spectrum cannot opt in
+    fp_no_landform = fingerprint.terrain_fingerprint(query)   # include_landform=False
+    raised = False
+    try:
+        fingerprint.similarity(fp_no_landform, fp_no_landform, include_landform=True)
+    except ValueError:
+        raised = True
+    assert raised, "expected ValueError for a fingerprint lacking a landform spectrum"

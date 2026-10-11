@@ -18,7 +18,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from . import features
+from . import features, openness, geomorphons
 
 _SUMMARY_KEYS = ("mean", "std", "p10", "p50", "p90")
 
@@ -58,6 +58,16 @@ def descriptor_bank(z, dx=1.0, window=5):
     used by the window-based features (relief / ruggedness / tpi); vector
     ruggedness keeps its own 3x3 window by construction.
 
+    Two line-of-sight landform sub-dicts are appended (append-only analysis
+    layer, NOT read by any decision): ``"openness"`` -- the
+    :func:`terratrace.openness.openness_signature` dict (positive/negative
+    openness median and p10/p90, Yokoyama 2002) -- and ``"geomorphons"`` -- the
+    :func:`terratrace.geomorphons.geomorphon_signature` dict (``composition``
+    fractions over the 10 forms, the normalised 9x9 ``spectrum`` as a nested
+    list, and the ``dominant_form`` name; Jasiewicz & Stepinski 2013). Both are
+    computed at the bank's ``dx`` and stay JSON-serialisable (plain floats /
+    nested lists of floats / a form name).
+
     These are map-scale morphology descriptors only. No traversability,
     mechanical, or mission claim is implied by any value in the bank.
     """
@@ -87,11 +97,20 @@ def descriptor_bank(z, dx=1.0, window=5):
         "terrain_ruggedness_index": summarize_map(
             features.terrain_ruggedness_index(z, window=window)),
         "landform_fraction": features.landform_fraction(z, window=window),
+        # --- line-of-sight landform sub-dicts (append-only; NOT used by the
+        #     study decision). Openness (Yokoyama 2002) is a flat dict of
+        #     floats; the geomorphon signature (Jasiewicz & Stepinski 2013) is
+        #     {composition: {name: float}, spectrum: 9x9 nested list of floats,
+        #     dominant_form: name}. Both are JSON-serialisable. ---
+        "openness": openness.openness_signature(z, dx=dx),
+        "geomorphons": geomorphons.geomorphon_signature(z, dx=dx),
     }
 
 
 # Fixed field order for :func:`bank_vector`; documented so callers can rely
-# on positional meaning for quick tile-to-tile comparison.
+# on positional meaning for quick tile-to-tile comparison. The first seven
+# entries are frozen; the landform scalars are APPENDED at the end so existing
+# positions never shift.
 BANK_VECTOR_FIELDS = (
     "slope.p50",
     "ruggedness.p50",
@@ -100,6 +119,15 @@ BANK_VECTOR_FIELDS = (
     "aspect_dispersion",
     "hypsometric_integral",
     "hurst_exponent",
+    # --- appended landform scalars (openness medians, then the geomorphon
+    #     area-fractions of peak / ridge / slope / valley / pit) ---
+    "openness.positive_median",
+    "openness.negative_median",
+    "geomorphons.peak",
+    "geomorphons.ridge",
+    "geomorphons.slope",
+    "geomorphons.valley",
+    "geomorphons.pit",
 )
 
 
@@ -108,11 +136,16 @@ def bank_vector(z, dx=1.0, window=5):
 
     The field order is fixed by :data:`BANK_VECTOR_FIELDS`:
     ``(slope p50, ruggedness p50, mean_curvature std, vector_ruggedness p50,
-    aspect_dispersion, hypsometric_integral, hurst_exponent)``. It is a
-    deterministic, plain-float convenience for quick tile-to-tile comparison and
-    carries the same claim firewall as the bank: map-scale morphology only.
+    aspect_dispersion, hypsometric_integral, hurst_exponent,
+    openness positive_median, openness negative_median, and the geomorphon
+    area-fractions of peak / ridge / slope / valley / pit)``. The first seven
+    positions are frozen; the seven landform scalars are APPENDED so earlier
+    positions never move. It is a deterministic, plain-float convenience for
+    quick tile-to-tile comparison and carries the same claim firewall as the
+    bank: map-scale morphology only.
     """
     bank = descriptor_bank(z, dx=dx, window=window)
+    comp = bank["geomorphons"]["composition"]
     return (
         bank["slope"]["p50"],
         bank["ruggedness"]["p50"],
@@ -121,4 +154,11 @@ def bank_vector(z, dx=1.0, window=5):
         bank["aspect_dispersion"],
         bank["hypsometric_integral"],
         bank["hurst_exponent"],
+        bank["openness"]["positive_median"],
+        bank["openness"]["negative_median"],
+        comp["peak"],
+        comp["ridge"],
+        comp["slope"],
+        comp["valley"],
+        comp["pit"],
     )

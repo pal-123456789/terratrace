@@ -19,6 +19,8 @@ STATE_COPY = {
     "NOT_COMPARABLE": "Not comparable at available support",
     "BLOCKED": "Blocked - resolve data or rights first",
 }
+LANDFORM_FORMS = ("flat", "peak", "ridge", "shoulder", "spur", "slope",
+                  "hollow", "footslope", "valley", "pit")
 
 
 def _rows(pkg):
@@ -264,7 +266,7 @@ tested scenarios. High values mean the result is assumption-sensitive.</p></sect
 
 {uncertainty_section}
 
-{previews_section}
+{previews_section}{landform_section}
 
 <section><h2>PROVENANCE</h2>
 <p class="sub">Every value derives from the <strong>{source}</strong> source through a recorded
@@ -318,6 +320,64 @@ def _previews_section(pkg):
             + "".join(figs) + "</section>")
 
 
+def _landform_section(pkg):
+    """Landform-structure panel (geomorphons + topographic openness). Returns ''
+    unless the package carries a non-empty 'landform' block, so a plain study
+    viewer is byte-for-byte unchanged. Lighter than the HTML report."""
+    lf = pkg.get("landform")
+    if not isinstance(lf, dict) or not lf:
+        return ""
+    forms = list(LANDFORM_FORMS)
+    for uid in lf:
+        for f in ((lf[uid] or {}).get("composition") or {}):
+            if f not in forms:
+                forms.append(f)
+    forms = list(LANDFORM_FORMS) + sorted(forms[len(LANDFORM_FORMS):])
+    head = "".join(f"<th scope='col'>{html.escape(str(f))}</th>" for f in forms)
+    rows = []
+    for uid in sorted(lf):
+        rec = lf[uid] or {}
+        comp = rec.get("composition") or {}
+        op = rec.get("openness") or {}
+        cells = []
+        for f in forms:
+            v = comp.get(f)
+            cells.append(f"<td>{v * 100:.1f}%</td>"
+                         if isinstance(v, (int, float)) else "<td>&mdash;</td>")
+        pos, neg = op.get("positive_median"), op.get("negative_median")
+        pos_s = f"{pos:.2f}" if isinstance(pos, (int, float)) else "&mdash;"
+        neg_s = f"{neg:.2f}" if isinstance(neg, (int, float)) else "&mdash;"
+        rows.append(f"<tr><th scope='row'>{html.escape(str(uid))}</th>{''.join(cells)}"
+                    f"<td>{html.escape(str(rec.get('dominant_form', '')))}</td>"
+                    f"<td>{pos_s}</td><td>{neg_s}</td></tr>")
+    figs = []
+    for key, what in (("landform_previews", "categorical landform map"),
+                      ("openness_previews", "positive-openness map")):
+        maps = pkg.get(key)
+        if not isinstance(maps, dict):
+            continue
+        for uid in sorted(maps):
+            uri = maps[uid]
+            if isinstance(uri, str) and uri.startswith("data:image/png;base64,"):
+                figs.append(
+                    f"<figure style='display:inline-block;margin:6px;text-align:center'>"
+                    f"<img alt='{what} of {html.escape(str(uid))}' src='{html.escape(uri)}' "
+                    f"style='width:160px;image-rendering:pixelated'>"
+                    f"<figcaption class='sub'>{html.escape(str(uid))} &mdash; {what}"
+                    f"</figcaption></figure>")
+    return (
+        "\n\n<section><h2>LANDFORM STRUCTURE (GEOMORPHONS + OPENNESS)</h2>"
+        "<p class='sub'>Per-unit geomorphon form composition (% of valid cells), dominant "
+        "form, and median topographic openness (positive = exposed, negative = enclosed).</p>"
+        "<table><thead><tr><th scope='col'>unit</th>" + head +
+        "<th scope='col'>dominant</th><th scope='col'>open+ med</th>"
+        "<th scope='col'>open- med</th></tr></thead><tbody>" + "\n".join(rows) +
+        "</tbody></table>" + "".join(figs) +
+        "<p class='sub note'>Map-scale landform morphology (geomorphons, Jasiewicz &amp; "
+        "Stepinski 2013) and topographic openness (Yokoyama 2002). Morphology only &mdash; "
+        "not traversability, hazard, or geologic-unit identification.</p></section>")
+
+
 def build_html(pkg):
     state = pkg["result_state"]
     proto = pkg["draft_protocol"]
@@ -346,6 +406,7 @@ def build_html(pkg):
         boot_section=_boot_section(pkg),
         uncertainty_section=_uncertainty_section(pkg),
         previews_section=_previews_section(pkg),
+        landform_section=_landform_section(pkg),
         objective=html.escape(proto["objective"]),
         auth=html.escape(proto["authorization"]),
         phash=html.escape(pkg["package_hash"]),

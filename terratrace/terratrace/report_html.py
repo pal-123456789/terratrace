@@ -400,6 +400,77 @@ def _previews_html(p):
     return "\n".join(out)
 
 
+LANDFORM_FORMS = ("flat", "peak", "ridge", "shoulder", "spur", "slope",
+                  "hollow", "footslope", "valley", "pit")
+
+
+def _landform_html(p):
+    """Landform-structure section (geomorphons + topographic openness). Returns ''
+    unless the package carries a non-empty 'landform' block, so a study without it
+    renders byte-for-byte as before. Per unit: the ten geomorphon form fractions as
+    percentages and the dominant form, the positive/negative openness medians with
+    [p10, p90], and any inline landform / openness maps. All text is escaped."""
+    lf = p.get("landform")
+    if not isinstance(lf, dict) or not lf:
+        return ""
+    forms = list(LANDFORM_FORMS)
+    for uid in lf:
+        for f in ((lf[uid] or {}).get("composition") or {}):
+            if f not in forms:
+                forms.append(f)
+    forms = list(LANDFORM_FORMS) + sorted(forms[len(LANDFORM_FORMS):])
+    out = ["<h2>Landform structure (geomorphons + openness)</h2>",
+           "<p>Map-scale landform composition from the geomorphons classifier with "
+           "topographic-openness summaries. Fractions are each unit's share of valid "
+           "cells per geomorphon form (summing to ~100%).</p>"]
+    head = "".join(f"<th scope='col'>{_esc(f)}</th>" for f in forms)
+    out.append("<table><caption>Geomorphon form composition (% of valid cells) and "
+               "dominant form.</caption>")
+    out.append(f"<thead><tr><th scope='col'>unit</th>{head}"
+               "<th scope='col'>dominant</th></tr></thead><tbody>")
+    for uid in sorted(lf):
+        rec = lf[uid] or {}
+        comp = rec.get("composition") or {}
+        cells = "".join(f"<td class='num'>{_pct(comp.get(f))}</td>" for f in forms)
+        out.append(f"<tr><th scope='row'>{_esc(uid)}</th>{cells}"
+                   f"<td>{_esc(rec.get('dominant_form', ''))}</td></tr>")
+    out.append("</tbody></table>")
+    out.append("<table><caption>Topographic openness (Yokoyama 2002): positive = exposure "
+               "above the surface, negative = enclosure below; median [p10, p90].</caption>")
+    out.append("<thead><tr><th scope='col'>unit</th>"
+               "<th scope='col'>positive median [p10, p90]</th>"
+               "<th scope='col'>negative median [p10, p90]</th></tr></thead><tbody>")
+    for uid in sorted(lf):
+        op = (lf[uid] or {}).get("openness") or {}
+        out.append(f"<tr><th scope='row'>{_esc(uid)}</th>"
+                   f"<td class='num'>{_num(op.get('positive_median'))} "
+                   f"[{_num(op.get('positive_p10'))}, {_num(op.get('positive_p90'))}]</td>"
+                   f"<td class='num'>{_num(op.get('negative_median'))} "
+                   f"[{_num(op.get('negative_p10'))}, {_num(op.get('negative_p90'))}]</td></tr>")
+    out.append("</tbody></table>")
+    for key, what in (("landform_previews", "categorical landform map"),
+                      ("openness_previews", "positive-openness (grayscale) map")):
+        maps = p.get(key)
+        if not isinstance(maps, dict):
+            continue
+        imgs = []
+        for uid in sorted(maps):
+            uri = maps[uid]
+            if isinstance(uri, str) and uri.startswith("data:image/png;base64,"):
+                imgs.append(f"<figure><img alt='{_esc(what)} of {_esc(uid)}' "
+                            f"src='{_esc(uri)}'><figcaption>{_esc(uid)} &mdash; "
+                            f"{_esc(what)}</figcaption></figure>")
+        if imgs:
+            out.append("<div class='previews'>")
+            out.extend(imgs)
+            out.append("</div>")
+    out.append("<blockquote class='note'>Map-scale landform morphology (geomorphons, "
+               "Jasiewicz &amp; Stepinski 2013) and topographic openness (Yokoyama 2002). "
+               "Morphology only &mdash; not traversability, hazard, or geologic-unit "
+               "identification.</blockquote>")
+    return "\n".join(out)
+
+
 def study_report_html(package):
     """Render a study package as a complete, self-contained HTML document (str).
 
@@ -445,6 +516,9 @@ def study_report_html(package):
     w(_uncertainty_html(p))
     w(_feature_uncertainty_html(p))
     w(_previews_html(p))
+    _lf = _landform_html(p)
+    if _lf:
+        w(_lf)
     w(_sensitivity_html(p))
     w(_ledger_html(p))
     w(_provenance_html(p, profile))

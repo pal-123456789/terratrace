@@ -122,6 +122,25 @@ source and a transformation.
   landform-fraction mix. All four are surfaced in `descriptors.descriptor_bank`; like the
   other descriptors they sit outside the default decision, so the study package and its
   provenance hash are unchanged.
+- **Line-of-sight terrain structure — topographic openness + geomorphons (opt-in):**
+  `openness.py` computes positive/negative **topographic openness** (Yokoyama, Shirasawa &
+  Pike 2002) from zenith/nadir sight-line angles averaged over eight azimuths — exactly 90° on
+  a flat surface, high on peaks/ridges (positive) or in pits/valleys (negative) — and
+  `geomorphons.py` performs **geomorphon landform classification** (Jasiewicz & Stepinski 2013):
+  a per-cell ternary line-of-sight signature `(n_plus, n_minus)` reduced to the ten common
+  landforms (flat, peak, ridge, shoulder, spur, slope, hollow, footslope, valley, pit). The
+  ternary signature is computed exactly as the method prescribes; the 10-form reduction uses an
+  explicit, antisymmetric rule validated against canonical synthetic landforms — **not** a
+  verbatim copy of any particular GIS lookup table — and a normalised 9×9 geomorphon spectrum is
+  also exposed. Both are pure NumPy and relief/orientation-invariant. They power a fourth, opt-in
+  `decision_metrics="landform"` lens (the core axes plus a geomorphon-spectrum total-variation
+  distance and a topographic-openness distance), optional landform terms in the descriptor bank
+  and terrain fingerprint, and — with `landform=True, previews=True` — a landform-composition
+  table, openness medians, and categorical landform / grayscale openness map previews in the HTML
+  report and offline viewer. Everything is **off by default**, so the synthetic study package and
+  its gated provenance hash stay byte-unchanged. Map-scale **morphology only** — it does not
+  estimate traversability, hazard, geologic-unit identification, or mission readiness, and it is
+  not NASA-endorsed.
 - Common-support aggregation with valid-fraction tracking (missingness never hidden).
 - Distribution distances (Wasserstein-1, KS, quantile fingerprint) with no SciPy.
 - Eligibility filters + Pareto/tie/indeterminate decision (no composite "Mars-likeness"
@@ -184,10 +203,10 @@ source and a transformation.
   closer candidate provably dominates and is recommended, a flat/water tile is blocked,
   and the whole pipeline is deterministic. A reproducibility + performance harness pins
   behavioural invariants, checks hash stability, and profiles wall-clock scaling.
-- 330 fixture tests with known analytic answers, all passing, no network required.
+- 379 fixture tests with known analytic answers, all passing, no network required.
 
 ```
-passed=330 failed=0
+passed=379 failed=0
 ```
 
 ## Install
@@ -206,7 +225,7 @@ pip install -r requirements-real.txt      # rasterio + requests (real DEMs)
 ```bash
 PYTHONPATH=. python3 -m terratrace.cli --out artifacts
 PYTHONPATH=. python3 -m terratrace.build_viewer      # writes viewer/index.html
-PYTHONPATH=. python3 tests/run_tests.py              # 330 tests
+PYTHONPATH=. python3 tests/run_tests.py              # 379 tests
 ```
 
 Open `viewer/index.html` in any browser — it is self-contained and works offline.
@@ -299,6 +318,8 @@ terratrace/
     batch.py         cross-reference, multi-lens batch synthesis
     sensitivity.py   lens / support ablation -> recommendation-stability report
     descriptors.py   full geomorphometric descriptor bank (analysis layer)
+    openness.py      topographic openness (positive/negative, Yokoyama 2002)
+    geomorphons.py   geomorphon landform classification (Jasiewicz & Stepinski 2013)
     terrain_classify.py  rule-based descriptive terrain-type label (map-scale)
     catalog.py       13-source registry: coverage, preference, nodata, vertical accuracy, selection
     preflight.py     fail-fast config-schema + AOI/bbox/size/coverage checks
@@ -321,7 +342,7 @@ terratrace/
     dossier.py       per-candidate decision brief (structured dict + Markdown)
     build_viewer.py  self-contained HTML viewer
     cli.py           unified dispatcher: study / validate / benchmark / report / report-html / dossier / version
-  tests/             330 fixture tests + dependency-free runner
+  tests/             379 fixture tests + dependency-free runner
   artifacts/         generated study package (JSON + checksums + manifest)
   viewer/            generated offline HTML viewer
   config/            AOI configuration for real runs

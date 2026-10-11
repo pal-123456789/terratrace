@@ -5,7 +5,7 @@ screening**. These checks establish software/metric correctness, data handling,
 sensitivity, and provenance. They do **not** establish rover traversability,
 autonomy, geologic equivalence, site access, or mission readiness.
 
-## Test suite (330 fixtures, `tests/run_tests.py`)
+## Test suite (379 fixtures, `tests/run_tests.py`)
 
 | Area | What the fixtures prove |
 |---|---|
@@ -44,6 +44,8 @@ autonomy, geologic equivalence, site access, or mission readiness.
 | terrain_classify | Synthetic flat, rolling, and rough tiles classify as `flat_plain`, `rolling`, and `rough_rugged` as expected; the rule-based label, its evidence, per-type scores, and confidence are deterministic |
 | references | The data-sources credits bundle lists a real citation and licence for every source across all five bodies (Mars, Earth, Moon, Mercury, Ceres), grouped by body; rendering is deterministic |
 | integration (uncertainty + previews) | `feature_uncertainty` and `previews` are opt-in and absent by default, so the gated synthetic study `package_hash` is unchanged; when supplied they attach to the package and the HTML report and viewer render a "Measurement uncertainty" table and inline hillshade previews |
+| openness / geomorphons | Topographic openness (Yokoyama 2002) is exactly 90° on a flat plane, rises above 90° (positive) at a cone apex and (negative) in a bowl; the geomorphon ternary signature (Jasiewicz & Stepinski 2013) classifies a cone as `peak`, a bowl as `pit`, a tilt as `slope`, and a plane as `flat`, is invariant to a uniform vertical lift and to whole-grid rotation, and its 9×9 spectrum / 10-form composition are deterministic and JSON-serialisable |
+| landform (study + report/viewer) | The opt-in `landform=True` / `decision_metrics="landform"` paths attach a per-unit geomorphon composition + spectrum + openness block (and, with `previews=True`, categorical landform and grayscale openness PNGs); off by default the study package and its gated `package_hash` are byte-unchanged; the HTML report and viewer render a landform-composition table, openness medians, and the two literature citations, and are byte-identical when no landform block is present |
 
 Every fixture has a known analytic answer; the runner exits non-zero on any failure.
 
@@ -51,7 +53,7 @@ Every fixture has a known analytic answer; the runner exits non-zero on any fail
 
 Beyond unit fixtures, `scripts/run_validation.py` drives the **real** comparison
 pipeline on synthetic terrains with known relationships and asserts the engine's
-descriptors, distances, and Pareto decision come out the way geomorphometry requires. All
+descriptors, distances, and Pareto decision come out the way geomorphometry requires. All 19
 of these checks pass:
 
 | Check | Property proven |
@@ -67,6 +69,14 @@ of these checks pass:
 | curvature_zero_on_plane | Profile, plan, and mean curvature vanish on a tilted plane and match the analytic paraboloid values (local convexity is measured, not slope) |
 | vrm_discriminates_roughness | The Vector Ruggedness Measure is 0 on a plane and increases with surface roughness within [0,1], decoupled from mean slope |
 | roughness_hurst_sane | The structure function grows with lag and the Hurst scaling exponent stays in [0,1] (1 on a smooth ramp, near 0 on white noise) |
+| openness_flat | Topographic openness (Yokoyama 2002) is exactly 90° at every cell of a flat plane, for both positive and negative openness |
+| openness_peak | At a cone apex positive (sky) openness rises above 90° while negative (ground) openness drops below 90° |
+| openness_pit_mirror | At a bowl centre the mirror holds: negative openness rises above 90° while positive openness drops below it |
+| geomorphon_flat | A flat plane is classified as `flat` in >95% of cells, with `flat` the dominant form |
+| geomorphon_cone_peak | A radial cone apex classifies as `peak` |
+| geomorphon_bowl_pit | A radial bowl centre classifies as `pit` (the antisymmetric mirror of the peak) |
+| geomorphon_tilt_slope | A uniformly tilted plane classifies dominantly as `slope` |
+| geomorphon_relief_invariance | Adding a uniform +100 m vertical offset leaves the geomorphon composition identical (shape, not height) |
 
 The suite emits a hashed report (`--json`) whose hash covers the pass/fail outcomes,
 so it is a stable, host-independent regression oracle.

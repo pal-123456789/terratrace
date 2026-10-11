@@ -32,6 +32,15 @@ provenance-tracked study package.
    a hashed study package, a self-contained viewer, and — on request — a citable Markdown
    or self-contained offline HTML report (which can embed an inline, pure-stdlib hillshade
    terrain preview).
+7. On request, adds a **line-of-sight terrain-structure** layer: **topographic openness**
+   (Yokoyama, Shirasawa & Pike 2002) and **geomorphon landform classification** (Jasiewicz &
+   Stepinski 2013), both pure-NumPy. These power a fourth, opt-in `landform` decision lens —
+   the four core axes plus a geomorphon-spectrum and a topographic-openness distance — and,
+   when a study is run with `landform=True, previews=True`, a landform-composition table,
+   openness medians, and categorical landform / grayscale openness map previews in the report
+   and viewer. All of it is off by default, so the synthetic study package and its provenance
+   hash are unchanged. These are map-scale morphology descriptors only — not traversability,
+   hazard, geologic-unit identification, or mission readiness.
 
 ## Quick start
 
@@ -39,7 +48,7 @@ provenance-tracked study package.
 pip install -r requirements.txt
 python -m terratrace.cli --out artifacts        # synthetic, offline
 python -m terratrace.build_viewer               # viewer/index.html
-python tests/run_tests.py                        # 330 fixtures
+python tests/run_tests.py                        # 379 fixtures
 ```
 
 Real data: see the repository `REAL-DATA-RUNBOOK.md`. The only key required is a free

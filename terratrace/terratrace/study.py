@@ -139,10 +139,50 @@ def _geomorphic_dims(geo, cid, reference_id, scales):
     return (float(nd("mean_curvature")), float(nd("vrm")))
 
 
+def _landform_data(z, dx):
+    """Per-unit landform descriptors for the opt-in 'landform' capability: the
+    geomorphon composition / dominant form / 9x9 (n_plus, n_minus) spectrum
+    (Jasiewicz & Stepinski 2013) and the topographic openness signature
+    (Yokoyama 2002). ``dx`` is the unit's realized common support in metres.
+
+    This is map-scale MORPHOLOGY only - a description of local surface SHAPE and
+    exposure. It makes no traversability, hazard, geologic-unit, or
+    mission-readiness claim. Imported lazily so the opt-in capability stays off
+    the default study path (keeping core/extended/geomorphic hashes untouched)."""
+    from . import geomorphons, openness
+    return {
+        "composition": geomorphons.composition(z, dx=dx, search=8),
+        "dominant_form": geomorphons.geomorphon_signature(z, dx=dx, search=8)["dominant_form"],
+        "openness": openness.openness_signature(z, dx=dx, radius=8),
+        "spectrum": geomorphons.spectrum(z, dx=dx, search=8).tolist(),
+    }
+
+
+def _landform_dims(lf, cid, reference_id):
+    """Two extra Pareto axes for the 'landform' lens, each a candidate->reference
+    morphology DISTANCE (0.0 for the reference against itself, same convention as
+    the other lenses):
+
+    * ``landform_spectrum`` - half the L1 total variation between the two 9x9
+      geomorphon spectra, so it ranges in [0, 1] (0 identical, 1 disjoint);
+    * ``openness`` - the mean absolute difference of the positive and negative
+      openness medians, normalised by 90 degrees into [0, 1].
+
+    Dissimilarity measures only - no traversability/hazard/mission meaning."""
+    spec_c = np.asarray(lf[cid]["spectrum"], dtype=float)
+    spec_r = np.asarray(lf[reference_id]["spectrum"], dtype=float)
+    axis_spectrum = 0.5 * float(np.abs(spec_c - spec_r).sum())
+    oc = lf[cid]["openness"]
+    orf = lf[reference_id]["openness"]
+    axis_openness = (abs(oc["positive_median"] - orf["positive_median"])
+                     + abs(oc["negative_median"] - orf["negative_median"])) / 2.0 / 90.0
+    return (axis_spectrum, axis_openness)
+
+
 def compare_units(raw_units, rights, native_posting_m, reference_id="mars_reference",
                   target_support_m=100.0, min_valid=0.5, source_label="synthetic",
                   decision_metrics="core", n_boot=0, bootstrap_method="independent",
-                  block_size=4, vertical_accuracy=None, previews=False):
+                  block_size=4, vertical_accuracy=None, previews=False, landform=False):
     """Run the full comparison on a dict of elevation arrays.
 
     raw_units: {unit_id: 2-D elevation array}
@@ -179,6 +219,14 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
             geo[uid] = _geomorphic_distributions(a, dxs[uid])
         if reference_id in geo:
             geo_scales = _geomorphic_scales(geo[reference_id])
+    # Landform descriptors (geomorphon composition/spectrum + openness) are
+    # computed ONLY for the opt-in landform capability (flag or decision mode),
+    # on the SAME per-unit aggregated grid at the realized support, so the
+    # core/extended/geomorphic study packages (and their hashes) are untouched.
+    lf = {}
+    if landform or decision_metrics == "landform":
+        for uid, a in agg.items():
+            lf[uid] = _landform_data(a, dxs[uid])
     dx_ref = dxs[reference_id]
     candidate_ids = [u for u in agg if u != reference_id]
     ref_ok, ref_reason = decision.eligibility(meta[reference_id])
@@ -201,6 +249,8 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
                     vec = vec + _extended_dims(extended, cid, reference_id)
                 elif decision_metrics == "geomorphic":
                     vec = vec + _geomorphic_dims(geo, cid, reference_id, geo_scales)
+                elif decision_metrics == "landform":
+                    vec = vec + _landform_dims(lf, cid, reference_id)
                 vecs[cid] = vec
                 if cfg["name"] == "baseline":
                     cand_feats_base[cid] = cand_f
@@ -225,6 +275,8 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
         metric_names += ["aspect_dispersion", "hypsometric_integral"]
     elif decision_metrics == "geomorphic":
         metric_names += ["mean_curvature", "vector_ruggedness"]
+    elif decision_metrics == "landform":
+        metric_names += ["landform_spectrum", "openness"]
     profile = {"task": "map_scale_terrain_route_study", "target_body": "mars",
                "target_support_m": float(target_support_m), "metrics": metric_names,
                "decision_metrics": decision_metrics,
@@ -259,6 +311,12 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
             "vrm_median": (float(np.nanmedian(geo[uid]["vrm"]))
                            if geo[uid]["vrm"].size else float("nan")),
         } for uid in agg}
+    if landform or decision_metrics == "landform":
+        # Per-unit geomorphon composition / dominant form / 9x9 spectrum +
+        # topographic openness signature. Present only for the opt-in landform
+        # capability, so other modes' packages/hashes are unchanged. Morphology
+        # descriptors only (no traversability/hazard/mission claim).
+        package["landform"] = {uid: lf[uid] for uid in agg}
     # Optional, OFF by default so the synthetic study package/hash is byte-unchanged.
     # vertical_accuracy (scalar or {uid: sigma_z}) -> propagated feature uncertainty.
     if vertical_accuracy is not None:
@@ -284,6 +342,19 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
         from . import hillshade
         package["previews"] = {uid: hillshade.hillshade_data_uri(agg[uid], dxs[uid], dxs[uid])
                                for uid in agg}
+    # Landform/openness preview PNGs ride along only when BOTH the landform flag
+    # and previews are on; categorical geomorphon map + grayscale openness field,
+    # one self-contained data-URI per unit. Visualisation aids only.
+    if landform and previews:
+        from . import hillshade, geomorphons, openness
+        package["landform_previews"] = {
+            uid: hillshade.form_map_png_datauri(
+                geomorphons.landforms(agg[uid], dx=dxs[uid], search=8))
+            for uid in agg}
+        package["openness_previews"] = {
+            uid: hillshade.scalar_png_datauri(
+                openness.positive_openness(agg[uid], dx=dxs[uid], radius=8))
+            for uid in agg}
     if n_boot and baseline_vectors and ref_feats_base is not None:
         from . import uncertainty
         extra = None
@@ -291,6 +362,8 @@ def compare_units(raw_units, rights, native_posting_m, reference_id="mars_refere
             extra = {cid: _extended_dims(extended, cid, reference_id) for cid in cand_feats_base}
         elif decision_metrics == "geomorphic":
             extra = {cid: _geomorphic_dims(geo, cid, reference_id, geo_scales) for cid in cand_feats_base}
+        elif decision_metrics == "landform":
+            extra = {cid: _landform_dims(lf, cid, reference_id) for cid in cand_feats_base}
         if bootstrap_method == "block":
             bc = SCENARIOS[0]
             ref_maps = _feature_maps_2d(agg[reference_id], dx_ref, bc["slope_threshold"], bc["relief_alpha"])
@@ -367,7 +440,7 @@ def _unit_vertical_accuracy(unit):
 
 def run_real_study(units, target_support_m=1000.0, min_valid=0.5, reproject=True,
                    decision_metrics="core", n_boot=0, bootstrap_method="independent",
-                   block_size=4, previews=False):
+                   block_size=4, previews=False, landform=False):
     """Compare REAL DEMs.
 
     units: list of dicts with keys: id, path, native_posting_m, rights_status,
@@ -385,6 +458,12 @@ def run_real_study(units, target_support_m=1000.0, min_valid=0.5, reproject=True
     Real studies also attach propagated measurement uncertainty (from each source's
     catalog vertical accuracy, or a unit-level vertical_accuracy_m override) and,
     with previews=True, an inline self-contained hillshade PNG per unit.
+
+    landform=True opts in to the per-unit landform descriptor block (geomorphon
+    composition/spectrum + topographic openness); with previews=True it also adds
+    categorical landform and openness preview PNGs. Pass decision_metrics="landform"
+    to compare candidates on two extra morphology-dissimilarity axes instead.
+    Landform/openness are map-scale morphology descriptors only.
     """
     raw, rights, native, reference_ids = load_real_units(units, target_support_m, reproject)
     reference_id = reference_ids[-1] if reference_ids else None
@@ -397,7 +476,7 @@ def run_real_study(units, target_support_m=1000.0, min_valid=0.5, reproject=True
                          target_support_m=target_support_m, min_valid=min_valid,
                          source_label=label, decision_metrics=decision_metrics, n_boot=n_boot,
                          bootstrap_method=bootstrap_method, block_size=block_size,
-                         vertical_accuracy=vacc, previews=previews)
+                         vertical_accuracy=vacc, previews=previews, landform=landform)
 
 
 def _build_graph(meta, vectors, state, recommended, source_label, elig_map, flips):

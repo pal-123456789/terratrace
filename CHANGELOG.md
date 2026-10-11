@@ -3,6 +3,48 @@
 Complete build history of TerraTrace, generated from the git commit messages
 (newest first). Each entry is the exact message recorded with that commit.
 
+## Unreleased — Landform / line-of-sight terrain structure: topographic openness + geomorphons
+
+*Prepared 2026-10-11 by Pal Ghevariya (pending commit — hash assigned at commit time)*
+
+Two pure-NumPy line-of-sight modules + an opt-in integration; the canonical synthetic study
+hash is UNCHANGED (every new path is off by default and gated).
+
+openness.py: topographic openness (Yokoyama, Shirasawa & Pike 2002) — positive and negative
+openness from the zenith/nadir sight-line angles averaged over eight azimuths. Exactly 90 deg
+on a flat surface; positive openness is high on peaks/ridges (can exceed 90 deg), negative
+openness high in pits/valleys. A map-scale morphology / visualisation descriptor only.
+
+geomorphons.py: geomorphon landform classification (Jasiewicz & Stepinski 2013) — a per-cell
+ternary line-of-sight signature (n_plus, n_minus) reduced to the 10 common landforms (flat,
+peak, ridge, shoulder, spur, slope, hollow, footslope, valley, pit), plus a normalised 9x9
+geomorphon spectrum. Relief- and orientation-invariant. The ternary signature is computed
+exactly as the method prescribes; the 10-form reduction is an explicit, antisymmetric rule
+validated against canonical synthetic landforms, NOT a verbatim copy of any particular GIS
+lookup table.
+
+Integration (all OPT-IN): a fourth decision lens decision_metrics="landform" (the four core
+axes + a geomorphon-spectrum total-variation distance + a topographic-openness distance);
+opt-in landform terms in descriptors.descriptor_bank and the terrain fingerprint; and, when a
+study is run with landform=True + previews=True, a landform-composition table, positive /
+negative openness medians, a categorical landform map PNG and a grayscale openness PNG in the
+HTML report (report_html.py) and the offline viewer (build_viewer.py). With no landform block
+the report/viewer render byte-identically to before.
+
+validation.py: +8 canonical oracles (openness_flat / openness_peak / openness_pit_mirror /
+geomorphon_flat / geomorphon_cone_peak / geomorphon_bowl_pit / geomorphon_tilt_slope /
+geomorphon_relief_invariance) — the scientific-correctness suite is now 19 checks, all passing.
+
+references.py: added the Yokoyama 2002 and Jasiewicz & Stepinski 2013 method citations.
+README / docs/index.md / docs/method.md / docs/VALIDATION.md updated.
+
+Claim firewall unchanged: map-scale morphology only — NOT traversability, hazard,
+geologic-unit identification, or mission readiness; not NASA-endorsed.
+
+379 fixture tests, all passing, no network required.
+
+---
+
 ## bd5c6b8 — Harden: real-path regression test + GitHub Actions CI + accurate landing README
 
 *Committed 2026-10-10 by Pal Ghevariya*

@@ -23,7 +23,29 @@ _EXPECTED_NAMES = (
     "curvature_zero_on_plane",
     "vrm_discriminates_roughness",
     "roughness_hurst_sane",
+    "openness_flat",
+    "openness_peak",
+    "openness_pit_mirror",
+    "geomorphon_flat",
+    "geomorphon_cone_peak",
+    "geomorphon_bowl_pit",
+    "geomorphon_tilt_slope",
+    "geomorphon_relief_invariance",
 )
+
+# New line-of-sight morphology oracles added on top of the original battery.
+_MORPH_NAMES = (
+    "openness_flat",
+    "openness_peak",
+    "openness_pit_mirror",
+    "geomorphon_flat",
+    "geomorphon_cone_peak",
+    "geomorphon_bowl_pit",
+    "geomorphon_tilt_slope",
+    "geomorphon_relief_invariance",
+)
+
+_N_CHECKS = len(_EXPECTED_NAMES)
 
 _REPORT_CACHE = []
 
@@ -43,18 +65,18 @@ def _find(report, name):
 
 
 def test_run_validation_headline_oracle():
-    """The engine is scientifically correct: all 11 checks pass."""
+    """The engine is scientifically correct: all checks pass."""
     report = _report()
     assert report["all_passed"] is True
-    assert report["passed"] == 11
+    assert report["passed"] == _N_CHECKS
     assert report["failed"] == 0
-    assert len(report["checks"]) == 11
+    assert len(report["checks"]) == _N_CHECKS
     assert isinstance(report["package_hash"], str)
     assert report["package_hash"], "package_hash must be a non-empty string"
 
 
 def test_every_check_record_shape_and_names():
-    """Each record has name/passed/detail/metrics, passes, and the 11 names are
+    """Each record has name/passed/detail/metrics, passes, and the names are
     unique and exactly the expected set."""
     report = _report()
     names = []
@@ -67,19 +89,34 @@ def test_every_check_record_shape_and_names():
         assert isinstance(c["passed"], bool), c["name"]
         assert c["passed"] is True, (c["name"], c["detail"])
         names.append(c["name"])
-    assert len(names) == 11
-    assert len(set(names)) == 11, f"duplicate check names: {names}"
+    assert len(names) == _N_CHECKS
+    assert len(set(names)) == _N_CHECKS, f"duplicate check names: {names}"
     assert set(names) == set(_EXPECTED_NAMES), set(names) ^ set(_EXPECTED_NAMES)
 
 
 def test_run_validation_is_deterministic():
-    """Two independent runs agree on package_hash and every per-check outcome."""
+    """Two independent runs agree on package_hash, the ordered (name, passed)
+    sequence of every check, and the pass/fail tallies."""
     first = _report()
     second = validation.run_validation()
     assert first["package_hash"] == second["package_hash"]
+    assert (first["passed"], first["failed"]) == (second["passed"], second["failed"])
+    seq_a = [(c["name"], c["passed"]) for c in first["checks"]]
+    seq_b = [(c["name"], c["passed"]) for c in second["checks"]]
+    assert seq_a == seq_b
     outcomes_a = {c["name"]: c["passed"] for c in first["checks"]}
     outcomes_b = {c["name"]: c["passed"] for c in second["checks"]}
     assert outcomes_a == outcomes_b
+
+
+def test_new_morphology_checks_present_and_pass():
+    """The eight added openness/geomorphon oracles are registered in the report
+    and every one passes."""
+    report = _report()
+    present = {c["name"] for c in report["checks"]}
+    for name in _MORPH_NAMES:
+        assert name in present, f"{name!r} not registered in run_validation()"
+        assert _find(report, name)["passed"] is True, _find(report, name)["detail"]
 
 
 def test_check_self_distance_zero_passes():
@@ -147,3 +184,70 @@ def test_dominance_recovery_metric_rank_and_detail():
     assert rank["near"] == 1, rank
     assert rank["far"] >= 2, rank
     assert "recommended=near" in rec["detail"], rec["detail"]
+
+
+def test_check_openness_flat_passes():
+    """Flat plane: positive and negative openness are 90 deg everywhere."""
+    rec = validation.check_openness_flat()
+    assert rec["name"] == "openness_flat"
+    assert rec["passed"] is True, rec["detail"]
+    m = rec["metrics"]
+    assert m["positive_dev"] < 1e-6 and m["negative_dev"] < 1e-6, m
+
+
+def test_check_openness_peak_passes():
+    """Cone apex: positive openness > 90 and negative openness < 90."""
+    rec = validation.check_openness_peak()
+    assert rec["name"] == "openness_peak"
+    assert rec["passed"] is True, rec["detail"]
+    assert rec["metrics"]["positive"] > 90.0 > rec["metrics"]["negative"], rec["metrics"]
+
+
+def test_check_openness_pit_mirror_passes():
+    """Bowl centre mirrors a peak: negative openness > 90 and positive < 90."""
+    rec = validation.check_openness_pit_mirror()
+    assert rec["name"] == "openness_pit_mirror"
+    assert rec["passed"] is True, rec["detail"]
+    assert rec["metrics"]["negative"] > 90.0 > rec["metrics"]["positive"], rec["metrics"]
+
+
+def test_check_geomorphon_flat_passes():
+    """Flat plane is classified 'flat' almost everywhere."""
+    rec = validation.check_geomorphon_flat()
+    assert rec["name"] == "geomorphon_flat"
+    assert rec["passed"] is True, rec["detail"]
+    assert rec["metrics"]["flat_fraction"] > 0.95, rec["metrics"]
+    assert rec["metrics"]["dominant"] == "flat", rec["metrics"]
+
+
+def test_check_geomorphon_cone_peak_passes():
+    """Cone apex classifies as 'peak' (FORM_NAMES index 1)."""
+    rec = validation.check_geomorphon_cone_peak()
+    assert rec["name"] == "geomorphon_cone_peak"
+    assert rec["passed"] is True, rec["detail"]
+    assert rec["metrics"]["form"] == "peak", rec["metrics"]
+    assert rec["metrics"]["code"] == 1, rec["metrics"]
+
+
+def test_check_geomorphon_bowl_pit_passes():
+    """Bowl centre classifies as 'pit' (the antisymmetric mirror of the apex)."""
+    rec = validation.check_geomorphon_bowl_pit()
+    assert rec["name"] == "geomorphon_bowl_pit"
+    assert rec["passed"] is True, rec["detail"]
+    assert rec["metrics"]["form"] == "pit", rec["metrics"]
+
+
+def test_check_geomorphon_tilt_slope_passes():
+    """A uniform planar tilt is dominated by 'slope'."""
+    rec = validation.check_geomorphon_tilt_slope()
+    assert rec["name"] == "geomorphon_tilt_slope"
+    assert rec["passed"] is True, rec["detail"]
+    assert rec["metrics"]["dominant"] == "slope", rec["metrics"]
+
+
+def test_check_geomorphon_relief_invariance_passes():
+    """Landform composition is exactly invariant to a +100 m vertical offset."""
+    rec = validation.check_geomorphon_relief_invariance()
+    assert rec["name"] == "geomorphon_relief_invariance"
+    assert rec["passed"] is True, rec["detail"]
+    assert rec["metrics"]["forms"] >= 1, rec["metrics"]

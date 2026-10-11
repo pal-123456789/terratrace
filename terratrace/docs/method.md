@@ -104,6 +104,62 @@ layer's claim firewall unchanged: `flat_plain` does not assert the ground is saf
 geological, genetic, lithological, age, hazard, mission, or rover-traversability claim that the
 underlying descriptors do not already carry.
 
+## Line-of-sight terrain structure: topographic openness & geomorphons
+
+Two further descriptors read the surface not through local derivatives but along lines of
+sight, which captures how exposed or enclosed a location is at the map scale. Both are
+pure-NumPy, evaluated with whole-array shifts rather than per-cell loops, and sit in the same
+non-destructive analysis layer as the geomorphometric descriptors above: computing them does
+not change the default study package or its provenance hash.
+
+**Topographic openness** (Yokoyama, Shirasawa & Pike, 2002) casts a ray from each cell along
+eight azimuths and, over a fixed radius, records the steepest sight-line angle in each
+direction. Positive openness is the mean of the eight *zenith* angles and negative openness
+the mean of the eight *nadir* angles. Positive openness is high on convex, exposed features —
+peaks, ridges, spur crests — and can exceed 90° at a summit where every sight line descends;
+negative openness is its mirror, high inside pits, valleys, and channels. On a perfectly flat
+surface both are exactly 90°, and on a uniform planar tilt both remain ~90° because the eight
+directions cancel. It is a morphology and visualisation descriptor, not a measure of anything
+mechanical.
+
+**Geomorphon landform classification** (Jasiewicz & Stepinski, 2013) reduces the same
+eight-direction line-of-sight scan to a *ternary* signature: each direction is compared
+against a small flatness threshold and labelled lower (+), higher (−), or flat, giving a
+per-cell count pair `(n_plus, n_minus)`. Because it depends only on elevation *differences*
+and on direction *counts*, the signature is invariant to a uniform vertical shift and to
+whole-grid rotation. The ternary signature is computed exactly as the published method
+prescribes. The subsequent reduction to the ten common named landforms (flat, peak, ridge,
+shoulder, spur, slope, hollow, footslope, valley, pit) uses an explicit, antisymmetric rule —
+swapping `n_plus` and `n_minus` swaps peak↔pit, ridge↔valley, shoulder↔footslope, spur↔hollow
+and fixes flat and slope — that is validated against canonical synthetic landforms; it is
+**not** a verbatim copy of any particular GIS lookup table, and the documentation says so
+rather than implying bit-for-bit equivalence with a specific implementation. The module also
+exposes a *geomorphon spectrum*: a normalised 9×9 histogram over the `(n_plus, n_minus)`
+counts, a compact distribution of a tile's local forms.
+
+These feed an opt-in, fourth decision lens, `decision_metrics="landform"`, which keeps the
+four core morphology axes and adds two candidate-to-reference distances: half the L1 total
+variation between the two geomorphon spectra (bounded in [0, 1]) and a topographic-openness
+distance. Like the `extended` and `geomorphic` lenses it is computed only when requested, so
+the default `core` study package and its gated provenance hash are unchanged. The same opt-in
+layer surfaces elsewhere: `descriptors.descriptor_bank` appends openness and geomorphon
+sub-dictionaries, the terrain `fingerprint` gains an optional geomorphon-spectrum term, and a
+study run with `landform=True, previews=True` carries a per-unit landform-composition table,
+positive/negative openness medians, and two inline previews — a categorical landform map and a
+grayscale openness field — that the HTML report and the offline viewer render when present and
+omit otherwise. Eight canonical oracles in the validation suite pin the behaviour (openness is
+90° on a plane and rises past 90° on a cone apex / in a bowl; a cone classifies as `peak`, a
+bowl as `pit`, a tilt as `slope`, a plane as `flat`; and the classification is invariant to a
+vertical lift).
+
+The whole layer inherits the engine's claim firewall unchanged: it describes map-scale surface
+*form* only and asserts nothing about traversability, hazard, geologic-unit identity, or
+mission readiness. References: Yokoyama, R., Shirasawa, M., & Pike, R. J. (2002), *Visualizing
+topography by openness: a new application of image processing to digital elevation models*,
+Photogrammetric Engineering & Remote Sensing 68(3), 257–265; and Jasiewicz, J., & Stepinski,
+T. F. (2013), *Geomorphons — a pattern recognition approach to classification and mapping of
+landforms*, Geomorphology 182, 147–156, doi:10.1016/j.geomorph.2012.11.005.
+
 ## Distances and decision
 
 Per-feature distribution distance uses Wasserstein-1 normalized by a declared scale
@@ -120,6 +176,10 @@ shape descriptors decoupled from mean slope). The `extended` and `geomorphic` mo
 opt-in: a recommendation that survives all three independent axis sets is far more defensible
 than one that holds under a single set. Choosing a non-default mode does not alter the `core`
 study package or its provenance hash; the extra descriptors are computed only when requested.
+A fourth, equally opt-in lens, `landform`, keeps the four core axes and adds the two
+line-of-sight structure distances described under *Line-of-sight terrain structure* above — a
+geomorphon-spectrum total-variation distance and a topographic-openness distance; it too is
+computed only when requested and leaves the `core` package and its hash untouched.
 
 ## Sensitivity / ablation
 

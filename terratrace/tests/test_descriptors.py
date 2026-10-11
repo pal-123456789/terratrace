@@ -7,7 +7,7 @@ import json
 
 import numpy as np
 
-from terratrace import descriptors, synthetic
+from terratrace import descriptors, synthetic, geomorphons
 
 MAP_KEYS = ("slope", "relief", "ruggedness", "profile_curvature",
             "plan_curvature", "mean_curvature", "vector_ruggedness")
@@ -45,7 +45,8 @@ def test_bank_keys_types_and_json_serialisable():
     bank = descriptors.descriptor_bank(z)
     expected = (set(MAP_KEYS) | set(SCALAR_KEYS) |
                 {"structure_function", "surface_area_ratio",
-                 "terrain_ruggedness_index", "landform_fraction"})
+                 "terrain_ruggedness_index", "landform_fraction",
+                 "openness", "geomorphons"})
     assert set(bank) == expected, set(bank) ^ expected
     for key in MAP_KEYS:
         summ = bank[key]
@@ -92,8 +93,9 @@ def test_bank_vector_matches_bank_headline_scalars():
          + synthetic.rough_field((40, 40), amplitude=0.8, seed=2))
     bank = descriptors.descriptor_bank(z)
     vec = descriptors.bank_vector(z)
-    assert len(vec) == len(descriptors.BANK_VECTOR_FIELDS) == 7, len(vec)
+    assert len(vec) == len(descriptors.BANK_VECTOR_FIELDS) == 14, len(vec)
     assert all(type(x) is float for x in vec)
+    comp = bank["geomorphons"]["composition"]
     expected = (
         bank["slope"]["p50"],
         bank["ruggedness"]["p50"],
@@ -102,8 +104,22 @@ def test_bank_vector_matches_bank_headline_scalars():
         bank["aspect_dispersion"],
         bank["hypsometric_integral"],
         bank["hurst_exponent"],
+        bank["openness"]["positive_median"],
+        bank["openness"]["negative_median"],
+        comp["peak"],
+        comp["ridge"],
+        comp["slope"],
+        comp["valley"],
+        comp["pit"],
     )
     assert vec == expected, (vec, expected)
+    # the first seven positions are frozen (headline morphology scalars)
+    assert vec[:7] == (
+        bank["slope"]["p50"], bank["ruggedness"]["p50"],
+        bank["mean_curvature"]["std"], bank["vector_ruggedness"]["p50"],
+        bank["aspect_dispersion"], bank["hypsometric_integral"],
+        bank["hurst_exponent"],
+    )
 
 
 # --- added analysis-layer descriptors wired into the bank --------------------
@@ -133,3 +149,60 @@ def test_bank_has_added_descriptors_rough_gt_plane_sar_and_serialises():
     # the whole extended bank still json.dumps and round-trips
     dumped = json.dumps(br)
     assert isinstance(dumped, str) and json.loads(dumped)
+
+
+# --- openness + geomorphon landform blocks wired into the bank ---------------
+
+def test_bank_has_openness_and_geomorphons_blocks_and_json():
+    z = (synthetic.plane((40, 40), slope_x=0.2, slope_y=0.1)
+         + synthetic.rough_field((40, 40), amplitude=1.0, seed=17))
+    bank = descriptors.descriptor_bank(z)
+    assert "openness" in bank and "geomorphons" in bank
+
+    op = bank["openness"]
+    assert set(op) == {"positive_median", "negative_median",
+                       "positive_p10", "positive_p90",
+                       "negative_p10", "negative_p90"}, set(op)
+    assert all(type(v) is float for v in op.values()), op
+
+    gm = bank["geomorphons"]
+    assert set(gm) == {"composition", "spectrum", "dominant_form"}, set(gm)
+    comp = gm["composition"]
+    assert set(comp) == set(geomorphons.FORM_NAMES), set(comp)
+    assert all(type(v) is float for v in comp.values()), comp
+    assert abs(sum(comp.values()) - 1.0) < 1e-9, sum(comp.values())
+    assert gm["dominant_form"] in geomorphons.FORM_NAMES
+    spec = gm["spectrum"]
+    assert isinstance(spec, list) and len(spec) == 9
+    assert all(isinstance(r, list) and len(r) == 9 for r in spec)
+    assert all(type(v) is float for r in spec for v in r)
+
+    # the whole extended bank still serialises, round-trips and is deterministic
+    assert json.loads(json.dumps(bank))
+    assert descriptors.descriptor_bank(z) == bank
+
+
+def test_bank_openness_flat_is_ninety_and_tilt_dominant_form_is_slope():
+    # Yokoyama (2002): a perfectly flat surface has both openness == 90 degrees.
+    flat = synthetic.plane((40, 40), slope_x=0.0, slope_y=0.0)
+    op = descriptors.descriptor_bank(flat)["openness"]
+    assert abs(op["positive_median"] - 90.0) < 1e-6, op["positive_median"]
+    assert abs(op["negative_median"] - 90.0) < 1e-6, op["negative_median"]
+    # a uniform planar tilt is, geomorphologically, a "slope".
+    tilt = synthetic.plane((40, 40), slope_x=0.2, slope_y=0.0)
+    gm = descriptors.descriptor_bank(tilt)["geomorphons"]
+    assert gm["dominant_form"] == "slope", gm["dominant_form"]
+
+
+def test_bank_openness_discriminates_peak_from_pit():
+    # Positive openness is HIGH on a convex apex; negative openness is HIGH in a
+    # concave bowl. Compare the two map-scale summaries additively (analysis
+    # layer only -- no decision claim).
+    n, c = 41, 20
+    i, j = np.indices((n, n))
+    cone = -np.hypot(i - c, j - c).astype(float)   # convex apex at centre
+    bowl = np.hypot(i - c, j - c).astype(float)     # concave low at centre
+    op_cone = descriptors.descriptor_bank(cone)["openness"]
+    op_bowl = descriptors.descriptor_bank(bowl)["openness"]
+    assert op_cone["positive_median"] > op_bowl["positive_median"], (op_cone, op_bowl)
+    assert op_bowl["negative_median"] > op_cone["negative_median"], (op_cone, op_bowl)

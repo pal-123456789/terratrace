@@ -25,6 +25,17 @@ morphology descriptors, independent of the pipeline:
   * the Hurst scaling exponent is ~1 for a smooth linear ramp and ~0 for
     uncorrelated white noise.
 
+A third group checks the two line-of-sight morphology descriptors against their
+canonical analytic oracles on synthetic shapes with a KNOWN class:
+
+  * topographic openness (Yokoyama 2002) is exactly 90 deg everywhere on a flat
+    plane, rises above 90 (positive) / falls below 90 (negative) at a cone apex,
+    and mirrors (negative > 90, positive < 90) at a bowl centre;
+  * geomorphon landform classification (Jasiewicz & Stepinski 2013) labels a
+    flat plane 'flat', a cone apex 'peak', a bowl centre 'pit' and a uniform
+    tilt 'slope', and -- depending only on elevation DIFFERENCES -- is exactly
+    invariant to a vertical offset (identical composition under +100 m).
+
 Each check returns a uniform record; `run_validation()` aggregates them into a
 hashed report that is both a test oracle and a publishable validation artifact.
 Pure NumPy + the engine and its feature descriptors; no network, no rasterio.
@@ -33,7 +44,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from . import study, synthetic, provenance, features
+from . import study, synthetic, provenance, features, openness, geomorphons
 
 # Isolate the morphology math from aggregation smoothing: native == target gives
 # an aggregation factor of 1, so features are computed on the grids as built.
@@ -77,6 +88,40 @@ def _median_finite(arr):
     a = np.asarray(arr, dtype=float).ravel()
     a = a[np.isfinite(a)]
     return float(np.median(a)) if a.size else float("nan")
+
+
+# --- synthetic shapes + helpers for the openness / geomorphon oracles -------
+# These checks exercise the line-of-sight descriptors directly (not through the
+# comparison pipeline). Elevations are built in CELL units with unit spacing, so
+# the sight-line angles depend only on the chosen gradient and are independent
+# of any physical dx. A modest radius/search of 8 on the 96x96 grid keeps every
+# ray well inside the data for the central cells under test.
+_MORPH_DX = 1.0
+_MORPH_LOS = 8                       # openness radius == geomorphon search
+_CONE_SLOPE = 0.2                    # rise per cell -> ~11.3 deg faces (>> flat_deg)
+_CONE_CENTER = (_SHAPE[0] // 2, _SHAPE[1] // 2)
+
+
+def _radial_cone(sign):
+    """A radial cone/bowl centred on a cell of the _SHAPE grid.
+
+    ``sign=-1`` -> apex high (a cone/peak: z decreases with radius); ``sign=+1``
+    -> centre low (a bowl/pit). The centre cell ``_CONE_CENTER`` is the unique
+    extremum and every one of the eight rays leaving it is a constant-gradient
+    face, so the expected openness value and landform class are unambiguous and
+    sit far from any classifier boundary.
+    """
+    ci, cj = _CONE_CENTER
+    ii, jj = np.indices(_SHAPE)
+    radius_cells = np.hypot(ii - ci, jj - cj)
+    return sign * _CONE_SLOPE * radius_cells
+
+
+def _dominant_form(comp):
+    """Most common landform name in a composition dict (FORM_NAMES breaks ties),
+    mirroring geomorphons.geomorphon_signature."""
+    counts = [comp[name] for name in geomorphons.FORM_NAMES]
+    return geomorphons.FORM_NAMES[int(np.argmax(counts))]
 
 
 def check_self_distance_zero(tol=1e-6):
@@ -246,6 +291,115 @@ def check_roughness_hurst_sane(tol=1e-6, noise_max=0.1):
                    hurst_ramp=float(h_ramp), hurst_noise=float(h_noise))
 
 
+def check_openness_flat(tol=1e-6):
+    """A perfectly flat surface has BOTH positive and negative topographic
+    openness equal to exactly 90 deg at every cell: no sight line in any of the
+    eight azimuths goes up or down, so every zenith and nadir angle is 90."""
+    z = synthetic.constant(_SHAPE, 100.0)
+    pos = openness.positive_openness(z, dx=_MORPH_DX, radius=_MORPH_LOS)
+    neg = openness.negative_openness(z, dx=_MORPH_DX, radius=_MORPH_LOS)
+    dev_pos = float(np.nanmax(np.abs(pos - 90.0)))
+    dev_neg = float(np.nanmax(np.abs(neg - 90.0)))
+    worst = max(dev_pos, dev_neg)
+    return _result("openness_flat", worst < tol,
+                   f"flat-plane max |openness-90| positive {dev_pos:.2e} "
+                   f"negative {dev_neg:.2e} (worst {worst:.2e} < tol {tol:g})",
+                   positive_dev=dev_pos, negative_dev=dev_neg)
+
+
+def check_openness_peak():
+    """At a cone apex every sight line descends, so POSITIVE (sky) openness rises
+    above 90 deg while NEGATIVE (ground) openness drops below 90 deg."""
+    ci, cj = _CONE_CENTER
+    z = _radial_cone(-1.0)                       # apex high
+    pos = float(openness.positive_openness(z, dx=_MORPH_DX, radius=_MORPH_LOS)[ci, cj])
+    neg = float(openness.negative_openness(z, dx=_MORPH_DX, radius=_MORPH_LOS)[ci, cj])
+    return _result("openness_peak", pos > 90.0 and neg < 90.0,
+                   f"cone apex positive openness {pos:.3f} (>90) and negative "
+                   f"openness {neg:.3f} (<90)",
+                   positive=pos, negative=neg)
+
+
+def check_openness_pit_mirror():
+    """A pit mirrors a peak: at a bowl centre every sight line ascends, so
+    NEGATIVE openness rises above 90 deg while POSITIVE openness drops below."""
+    ci, cj = _CONE_CENTER
+    z = _radial_cone(1.0)                        # centre low
+    pos = float(openness.positive_openness(z, dx=_MORPH_DX, radius=_MORPH_LOS)[ci, cj])
+    neg = float(openness.negative_openness(z, dx=_MORPH_DX, radius=_MORPH_LOS)[ci, cj])
+    return _result("openness_pit_mirror", neg > 90.0 and pos < 90.0,
+                   f"bowl centre negative openness {neg:.3f} (>90) and positive "
+                   f"openness {pos:.3f} (<90)",
+                   positive=pos, negative=neg)
+
+
+def check_geomorphon_flat():
+    """A flat plane is classified 'flat' over essentially the whole grid: no
+    direction rises or falls past the flatness threshold, so every cell has
+    ternary counts (n_plus, n_minus) == (0, 0)."""
+    z = synthetic.constant(_SHAPE, 100.0)
+    comp = geomorphons.composition(z, dx=_MORPH_DX, search=_MORPH_LOS)
+    frac = comp["flat"]
+    dominant = _dominant_form(comp)
+    return _result("geomorphon_flat", frac > 0.95 and dominant == "flat",
+                   f"flat-plane composition['flat']={frac:.4f} (>0.95), "
+                   f"dominant form {dominant!r}",
+                   flat_fraction=frac, dominant=dominant)
+
+
+def check_geomorphon_cone_peak():
+    """The apex cell of a radial cone classifies as 'peak' (FORM_NAMES index 1):
+    terrain falls away in all eight directions (n_plus == 8)."""
+    ci, cj = _CONE_CENTER
+    code = int(geomorphons.landforms(_radial_cone(-1.0), dx=_MORPH_DX,
+                                     search=_MORPH_LOS)[ci, cj])
+    name = geomorphons.FORM_NAMES[code] if code >= 0 else "unclassified"
+    expected = geomorphons.FORM_NAMES.index("peak")
+    return _result("geomorphon_cone_peak", code == expected,
+                   f"cone apex form {name!r} (code {code}; expected 'peak'={expected})",
+                   code=code, form=name)
+
+
+def check_geomorphon_bowl_pit():
+    """The centre cell of a radial bowl classifies as 'pit' (the antisymmetric
+    mirror of the cone apex): terrain rises in all eight directions."""
+    ci, cj = _CONE_CENTER
+    code = int(geomorphons.landforms(_radial_cone(1.0), dx=_MORPH_DX,
+                                     search=_MORPH_LOS)[ci, cj])
+    name = geomorphons.FORM_NAMES[code] if code >= 0 else "unclassified"
+    expected = geomorphons.FORM_NAMES.index("pit")
+    return _result("geomorphon_bowl_pit", code == expected,
+                   f"bowl centre form {name!r} (code {code}; expected 'pit'={expected})",
+                   code=code, form=name)
+
+
+def check_geomorphon_tilt_slope():
+    """A uniform planar tilt is dominated by 'slope': three directions fall and
+    three rise (the two cross-slope directions are flat), so the interior
+    ternary signature is (n_plus, n_minus) == (3, 3)."""
+    z = synthetic.plane(_SHAPE, slope_x=0.1, dx=_MORPH_DX)
+    comp = geomorphons.composition(z, dx=_MORPH_DX, search=_MORPH_LOS)
+    dominant = _dominant_form(comp)
+    return _result("geomorphon_tilt_slope", dominant == "slope",
+                   f"planar-tilt dominant form {dominant!r} "
+                   f"(slope fraction {comp['slope']:.4f})",
+                   dominant=dominant, slope_fraction=comp["slope"])
+
+
+def check_geomorphon_relief_invariance():
+    """Geomorphons depend only on elevation DIFFERENCES, so a uniform vertical
+    offset must leave the landform composition completely unchanged: the two
+    compositions compare exactly equal (identical class fractions)."""
+    z = synthetic.plane(_SHAPE, slope_x=0.1, dx=_MORPH_DX)
+    base = geomorphons.composition(z, dx=_MORPH_DX, search=_MORPH_LOS)
+    lifted = geomorphons.composition(z + 100.0, dx=_MORPH_DX, search=_MORPH_LOS)
+    forms = sum(1 for v in base.values() if v > 0.0)
+    return _result("geomorphon_relief_invariance", base == lifted,
+                   f"composition over {forms} forms identical under +100 m offset "
+                   f"(equal={base == lifted})",
+                   forms=forms)
+
+
 _CHECKS = (
     check_self_distance_zero,
     check_translation_invariance,
@@ -258,6 +412,14 @@ _CHECKS = (
     check_curvature_zero_on_plane,
     check_vrm_discriminates_roughness,
     check_roughness_hurst_sane,
+    check_openness_flat,
+    check_openness_peak,
+    check_openness_pit_mirror,
+    check_geomorphon_flat,
+    check_geomorphon_cone_peak,
+    check_geomorphon_bowl_pit,
+    check_geomorphon_tilt_slope,
+    check_geomorphon_relief_invariance,
 )
 
 

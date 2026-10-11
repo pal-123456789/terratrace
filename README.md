@@ -8,7 +8,7 @@ This repository holds two things:
 
 | Path | What it is |
 |---|---|
-| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across three robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **330 tests**, no network required. |
+| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across four robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **379 tests**, no network required. |
 | `site/` | A 3D scroll-animated website telling the project story (deployed on Vercel). |
 
 > **Scope / claim firewall.** TerraTrace screens terrain **morphology** between curated
@@ -22,9 +22,10 @@ Loads real elevation models (Mars MOLA; Moon LOLA; Mercury MESSENGER; Ceres Dawn
 Copernicus GLO-30/90, USGS 3DEP, SRTM, NASADEM, ALOS — a 13-product catalog with coverage,
 licence, and vertical-accuracy metadata), warps each AOI to its own local metric grid on the
 correct body, computes map-scale descriptors (slope, relief, ruggedness, connectivity,
-curvature, vector ruggedness, roughness/Hurst, …), and ranks candidate terrains by **Pareto
-dominance** — never a composite "Mars-likeness" score. It returns a recommendation only when it
-survives three independent decision lenses, reports an honest TIE/INDETERMINATE/BLOCKED state
+curvature, vector ruggedness, roughness/Hurst, topographic openness, geomorphon landforms, …),
+and ranks candidate terrains by **Pareto dominance** — never a composite "Mars-likeness" score.
+It returns a recommendation only when it survives four independent decision lenses (core,
+extended, geomorphic, landform), reports an honest TIE/INDETERMINATE/BLOCKED state
 otherwise, and carries measurement uncertainty, a spatial block-bootstrap, significance tests,
 a transfer-gap ledger, and a full provenance appendix. Everything is reproducible and
 hash-anchored; a self-contained HTML report and offline viewer are generated per study.
@@ -34,7 +35,7 @@ hash-anchored; a self-contained HTML report and offline viewer are generated per
 ```bash
 cd terratrace
 pip install -r requirements.txt            # core (NumPy only)
-python tests/run_tests.py                   # 330 fixtures, offline
+python tests/run_tests.py                   # 379 fixtures, offline
 python scripts/run_validation.py            # scientific-correctness suite
 python -m terratrace.cli --out artifacts    # synthetic study
 python -m terratrace.build_viewer           # viewer/index.html

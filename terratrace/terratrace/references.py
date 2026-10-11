@@ -179,3 +179,77 @@ def credits_for_package(package):
             "run, or an unlabelled source); the exact product used in a real study "
             "is pinned in `sources.lock.yml`.\n")
     return md + note
+
+
+# ---------------------------------------------------------------------------
+# Method / algorithm references
+#
+# The records above credit the upstream DATA providers. The records below credit
+# the published METHODS TerraTrace implements directly in NumPy (geomorphometry
+# algorithms), which are a distinct category of citation. They are additive: the
+# data-source bundle (references_for / references_md) is unchanged by this block.
+# ---------------------------------------------------------------------------
+
+#: The exact, stable dict keys every method-reference record carries. ``doi`` may
+#: be ``None`` where the publication predates a registered DOI.
+METHOD_REFERENCE_FIELDS = ("id", "topic", "citation", "doi")
+
+#: Published algorithm references for the in-engine geomorphometric methods, in a
+#: stable declaration order. Each is used only as a documented method; the authors
+#: do not endorse TerraTrace.
+METHOD_REFERENCES = (
+    {
+        "id": "openness_yokoyama_2002",
+        "topic": "Topographic openness (positive & negative)",
+        "citation": ("Yokoyama, R., Shirasawa, M., & Pike, R. J. (2002). "
+                     "Visualizing topography by openness: a new application of "
+                     "image processing to digital elevation models. "
+                     "Photogrammetric Engineering & Remote Sensing, 68(3), 257-265."),
+        "doi": None,
+    },
+    {
+        "id": "geomorphons_jasiewicz_stepinski_2013",
+        "topic": "Geomorphon landform classification",
+        "citation": ("Jasiewicz, J., & Stepinski, T. F. (2013). Geomorphons - a "
+                     "pattern recognition approach to classification and mapping "
+                     "of landforms. Geomorphology, 182, 147-156."),
+        "doi": "10.1016/j.geomorph.2012.11.005",
+    },
+)
+
+
+def method_references():
+    """Return the algorithm/method citations as a list of plain dicts.
+
+    Each record carries exactly ``METHOD_REFERENCE_FIELDS`` (id, topic, citation,
+    doi; ``doi`` may be ``None``). These credit the published METHODS TerraTrace
+    implements in-engine - topographic openness (Yokoyama, Shirasawa & Pike 2002)
+    and the geomorphon landform classifier (Jasiewicz & Stepinski 2013) - and are
+    distinct from the upstream DATA-provider credits produced by
+    :func:`references_for`. Returns fresh dict copies in declaration order.
+    """
+    return [dict(r) for r in METHOD_REFERENCES]
+
+
+def method_references_md(title="Methods & algorithms cited"):
+    """Render the algorithm/method citations as a Markdown section.
+
+    Mirrors :func:`references_md`'s deterministic style but credits the published
+    METHODS implemented in-engine rather than the data providers. Deterministic:
+    identical call -> byte-identical output.
+    """
+    out = []
+    w = out.append
+    w(f"## {title}")
+    w("")
+    w("These credit the published algorithms TerraTrace implements directly in "
+      "NumPy, distinct from the upstream data-provider credits above. Each is used "
+      "only as a documented method; the authors do not endorse TerraTrace.")
+    w("")
+    for r in method_references():
+        line = f"- {r['citation']}"
+        doi = r.get("doi")
+        if doi:
+            line += f" doi:{doi}"
+        w(line)
+    return "\n".join(out).rstrip("\n") + "\n"
