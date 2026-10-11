@@ -48,6 +48,10 @@ _EXPECTED_NAMES = (
     "hypsometry_ramp_and_cross_consistency",
     "normal_roughness_plane_zero_discriminates",
     "tpi_peak_ridge_pit_valley",
+    "fractal_plane_two_rough_higher",
+    "lacunarity_uniform_one_clustered_higher",
+    "entropy_constant_zero_complex_higher",
+    "slope_area_concave_positive_theta",
 )
 
 # New line-of-sight morphology oracles added on top of the original battery.
@@ -86,6 +90,15 @@ _NEW_DESCRIPTOR_NAMES = (
     "hypsometry_ramp_and_cross_consistency",
     "normal_roughness_plane_zero_discriminates",
     "tpi_peak_ridge_pit_valley",
+)
+
+# Fractal / lacunarity / entropy / slope-area oracles (four more single-tile
+# morphology descriptors wired into the validation battery).
+_FBC_NAMES = (
+    "fractal_plane_two_rough_higher",
+    "lacunarity_uniform_one_clustered_higher",
+    "entropy_constant_zero_complex_higher",
+    "slope_area_concave_positive_theta",
 )
 
 _N_CHECKS = len(_EXPECTED_NAMES)
@@ -531,3 +544,57 @@ def test_check_tpi_peak_ridge_pit_valley_passes():
     m = rec["metrics"]
     assert m["apex_form"] == "ridge", m
     assert m["pit_form"] == "valley", m
+
+
+def test_new_fbc_descriptor_oracles_present_and_pass():
+    """The four added fractal / lacunarity / entropy / slope-area oracles are
+    registered in the report and every one passes."""
+    report = _report()
+    present = {c["name"] for c in report["checks"]}
+    for name in _FBC_NAMES:
+        assert name in present, f"{name!r} not registered in run_validation()"
+        assert _find(report, name)["passed"] is True, _find(report, name)["detail"]
+
+
+def test_check_fractal_plane_two_rough_higher_passes():
+    """A tilted plane's box-counting dimension is ~2 and a seeded rough field
+    exceeds a smooth sinusoid's dimension."""
+    rec = validation.check_fractal_plane_two_rough_higher()
+    assert rec["name"] == "fractal_plane_two_rough_higher"
+    assert rec["passed"] is True, rec["detail"]
+    m = rec["metrics"]
+    assert abs(m["plane_dimension"] - 2.0) < 0.25, m
+    assert m["rough_dimension"] > m["sinusoid_dimension"], m
+
+
+def test_check_lacunarity_uniform_one_clustered_higher_passes():
+    """A uniform field has lacunarity exactly 1.0 and a sparse clustered field is
+    gappier than a smooth gradient."""
+    rec = validation.check_lacunarity_uniform_one_clustered_higher()
+    assert rec["name"] == "lacunarity_uniform_one_clustered_higher"
+    assert rec["passed"] is True, rec["detail"]
+    m = rec["metrics"]
+    assert abs(m["uniform"] - 1.0) < 1e-9, m
+    assert m["clustered"] > m["gradient"], m
+
+
+def test_check_entropy_constant_zero_complex_higher_passes():
+    """A constant field has zero slope entropy and a complex multi-scale surface
+    exceeds a single ramp (also zero)."""
+    rec = validation.check_entropy_constant_zero_complex_higher()
+    assert rec["name"] == "entropy_constant_zero_complex_higher"
+    assert rec["passed"] is True, rec["detail"]
+    m = rec["metrics"]
+    assert m["constant"] == 0.0, m
+    assert m["complex"] > m["ramp"], m
+
+
+def test_check_slope_area_concave_positive_theta_passes():
+    """A concave z = c*(D - x)^2 surface has a positive Flint concavity index
+    with a credible log-log fit."""
+    rec = validation.check_slope_area_concave_positive_theta()
+    assert rec["name"] == "slope_area_concave_positive_theta"
+    assert rec["passed"] is True, rec["detail"]
+    m = rec["metrics"]
+    assert m["flint_theta"] > 0.0, m
+    assert m["r2"] > 0.3, m

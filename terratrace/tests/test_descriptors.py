@@ -7,7 +7,9 @@ import json
 
 import numpy as np
 
-from terratrace import descriptors, synthetic, geomorphons, spectral, anisotropy, kh_roughness, iwahashi_pike, drainage
+from terratrace import (descriptors, synthetic, geomorphons, spectral, anisotropy,
+                        kh_roughness, iwahashi_pike, drainage, fractal, lacunarity,
+                        entropy_terrain, slope_area)
 
 MAP_KEYS = ("slope", "relief", "ruggedness", "profile_curvature",
             "plan_curvature", "mean_curvature", "vector_ruggedness")
@@ -48,7 +50,8 @@ def test_bank_keys_types_and_json_serialisable():
                  "terrain_ruggedness_index", "landform_fraction",
                  "openness", "geomorphons", "spectral", "anisotropy",
                  "kh_roughness", "iwahashi_pike", "drainage",
-                 "wavelet", "hypsometry", "normal_roughness", "tpi_landform"})
+                 "wavelet", "hypsometry", "normal_roughness", "tpi_landform",
+                 "fractal", "lacunarity", "entropy", "slope_area"})
     assert set(bank) == expected, set(bank) ^ expected
     for key in MAP_KEYS:
         summ = bank[key]
@@ -413,4 +416,83 @@ def test_bank_drainage_dissection_rough_vs_smooth_plane():
     dr = descriptors.descriptor_bank(rough)["drainage"]
     assert dr["max_acc_fraction"] > dp["max_acc_fraction"], (dr, dp)
     assert dr["mean_log_acc"] < dp["mean_log_acc"], (dr, dp)
+
+
+# --- fractal / lacunarity / entropy / slope-area blocks wired into the bank ---
+
+FRACTAL_KEYS = {"box_count_dimension", "r2", "n_scales"}
+LACUNARITY_KEYS = {"lacunarity_r2", "lacunarity_mean", "lacunarity_loglog_slope"}
+ENTROPY_KEYS = {"slope_entropy", "elevation_entropy",
+                "slope_entropy_norm", "elevation_entropy_norm"}
+SLOPE_AREA_KEYS = {"flint_theta", "r2", "log_ks", "n_bins_used"}
+
+
+def test_bank_has_fractal_lacunarity_entropy_slope_area_blocks_and_json():
+    z = (synthetic.plane((48, 48), slope_x=0.2, slope_y=0.1)
+         + synthetic.rough_field((48, 48), amplitude=1.0, seed=57))
+    bank = descriptors.descriptor_bank(z)
+    for key in ("fractal", "lacunarity", "entropy", "slope_area"):
+        assert key in bank, key
+
+    fr = bank["fractal"]
+    assert set(fr) == FRACTAL_KEYS, set(fr)
+    assert type(fr["box_count_dimension"]) is float and type(fr["r2"]) is float
+    assert type(fr["n_scales"]) is int, type(fr["n_scales"])
+    assert 2.0 <= fr["box_count_dimension"] <= 3.0, fr
+
+    lac = bank["lacunarity"]
+    assert set(lac) == LACUNARITY_KEYS, set(lac)
+    assert all(type(v) is float for v in lac.values()), lac
+    assert lac["lacunarity_r2"] >= 1.0 - 1e-9, lac       # Lambda(r) >= 1 always
+
+    en = bank["entropy"]
+    assert set(en) == ENTROPY_KEYS, set(en)
+    assert all(type(v) is float for v in en.values()), en
+    assert all(np.isfinite(v) and v >= 0.0 for v in en.values()), en
+
+    sa = bank["slope_area"]
+    assert set(sa) == SLOPE_AREA_KEYS, set(sa)
+    for key in ("flint_theta", "r2", "log_ks"):
+        assert type(sa[key]) is float, (key, type(sa[key]))
+    assert type(sa["n_bins_used"]) is int, type(sa["n_bins_used"])
+
+    # each bank block is exactly the source-module signature (bank dx=1.0)
+    assert fr == fractal.fractal_signature(z)
+    assert lac == lacunarity.lacunarity_signature(z)
+    assert en == entropy_terrain.entropy_signature(z, dx=1.0)
+    assert sa == slope_area.slope_area_signature(z, dx=1.0)
+
+    # the whole extended bank still serialises, round-trips and is deterministic
+    assert json.loads(json.dumps(bank))
+    assert descriptors.descriptor_bank(z) == bank
+
+
+def test_bank_fractal_entropy_rough_gt_plane_and_constant_degenerate():
+    # a seeded rough field is more complex / diverse than a smooth tilted plane:
+    # higher box-counting dimension and higher slope entropy. A constant field is
+    # degenerate: fractal dimension exactly 2.0, slope entropy exactly 0 and
+    # gliding-box lacunarity exactly 1.0 (analysis layer only -- no decision).
+    plane = synthetic.plane((64, 64), slope_x=0.05, slope_y=0.02)
+    rough = plane + synthetic.rough_field((64, 64), amplitude=2.0, seed=63)
+    bp = descriptors.descriptor_bank(plane)
+    br = descriptors.descriptor_bank(rough)
+    assert br["fractal"]["box_count_dimension"] > bp["fractal"]["box_count_dimension"], (
+        br["fractal"], bp["fractal"])
+    assert br["entropy"]["slope_entropy"] > bp["entropy"]["slope_entropy"], (
+        br["entropy"], bp["entropy"])
+    const = descriptors.descriptor_bank(synthetic.constant((64, 64), 7.0))
+    assert const["fractal"]["box_count_dimension"] == 2.0, const["fractal"]
+    assert const["entropy"]["slope_entropy"] == 0.0, const["entropy"]
+    assert abs(const["lacunarity"]["lacunarity_r2"] - 1.0) < 1e-9, const["lacunarity"]
+
+
+def test_bank_slope_area_concave_positive_theta():
+    # a concave surface z = c*(D - x)^2 flattens as contributing area grows, so
+    # the Flint (1974) slope-area concavity index is positive with a decent fit.
+    n = 64
+    j = np.indices((n, n))[1].astype(float)
+    z = 0.02 * (float(n) - j) ** 2
+    sa = descriptors.descriptor_bank(z)["slope_area"]
+    assert sa["flint_theta"] > 0.0, sa
+    assert sa["r2"] > 0.3, sa
 

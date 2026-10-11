@@ -336,6 +336,41 @@ METHOD_REFERENCES = (
                      "analysis. ESRI User Conference poster, San Diego, CA."),
         "doi": None,
     },
+    {
+        "id": "fractal_sarkar_chaudhuri_1994",
+        "topic": ("Differential box-counting fractal dimension (surface-complexity "
+                  "roughness index)"),
+        "citation": ("Sarkar, N., & Chaudhuri, B. B. (1994). An efficient "
+                     "differential box-counting approach to compute fractal "
+                     "dimension of images. IEEE Transactions on Systems, Man, and "
+                     "Cybernetics, 24(1), 115-120."),
+        "doi": None,
+    },
+    {
+        "id": "lacunarity_plotnick_1993",
+        "topic": "Gliding-box lacunarity (landscape-texture / gappiness index)",
+        "citation": ("Plotnick, R. E., Gardner, R. H., & O'Neill, R. V. (1993). "
+                     "Lacunarity indices as measures of landscape texture. "
+                     "Landscape Ecology, 8(3), 201-211."),
+        "doi": None,
+    },
+    {
+        "id": "entropy_shannon_1948",
+        "topic": ("Shannon information entropy (slope / elevation distribution "
+                  "diversity)"),
+        "citation": ("Shannon, C. E. (1948). A mathematical theory of "
+                     "communication. Bell System Technical Journal, 27(3), "
+                     "379-423."),
+        "doi": None,
+    },
+    {
+        "id": "slope_area_flint_1974",
+        "topic": "Slope-area scaling (concavity index of the surface)",
+        "citation": ("Flint, J. J. (1974). Stream gradient as a function of order, "
+                     "magnitude, and discharge. Water Resources Research, 10(5), "
+                     "969-973."),
+        "doi": None,
+    },
 )
 
 
@@ -358,7 +393,10 @@ def method_references():
     1945; the orthonormal 2-D Haar multiscale wavelet roughness spectrum, Mallat
     1989; the Strahler 1952 hypsometric area-altitude analysis; the
     surface-normal vector-dispersion roughness, Hobson 1972 and McKean & Roering
-    2004; and the Weiss 2001 TPI slope-position landform classification) - and
+    2004; the Weiss 2001 TPI slope-position landform classification; the
+    differential box-counting fractal dimension, Sarkar & Chaudhuri 1994;
+    gliding-box lacunarity, Plotnick, Gardner & O'Neill 1993; Shannon 1948
+    information entropy; and the Flint 1974 slope-area concavity scaling) - and
     are distinct from the upstream DATA-provider credits produced by
     :func:`references_for`. Returns fresh dict copies in declaration order.
     """

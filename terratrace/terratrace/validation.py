@@ -60,7 +60,8 @@ import numpy as np
 from . import (study, synthetic, provenance, features, openness, geomorphons,
                confidence, spectral, anisotropy, multiscale, kh_roughness,
                iwahashi_pike, drainage, wavelet_roughness, hypsometry,
-               normal_roughness, tpi_landform)
+               normal_roughness, tpi_landform, fractal, lacunarity,
+               entropy_terrain, slope_area)
 
 # Isolate the morphology math from aggregation smoothing: native == target gives
 # an aggregation factor of 1, so features are computed on the grids as built.
@@ -926,6 +927,118 @@ def check_tpi_peak_ridge_pit_valley():
                    apex_form=apex_name, pit_form=pit_name)
 
 
+# --- fractal / lacunarity / entropy / slope-area oracles ---------------------
+# Four single-tile MORPHOLOGY descriptors checked directly (not through the
+# comparison pipeline) against a defining analytic behaviour on synthetic
+# surfaces with a KNOWN answer: the differential box-counting dimension of a
+# tilted plane is ~2 while a seeded rough field exceeds a smooth sinusoid;
+# gliding-box lacunarity is exactly 1 on a uniform field while a sparse
+# clustered field is gappier than a smooth gradient; Shannon slope entropy is 0
+# on a constant field while a complex multi-scale surface exceeds a single ramp
+# (also 0); and the Flint slope-area concavity of a concave z = c*(D - x)^2
+# surface is positive with a credible fit. Pure NumPy, deterministic; only
+# pass/fail booleans enter the outcome hash and every asserted bound is decisive
+# (not marginal), so the checks are host-independent. Map-scale morphology
+# descriptors only -- no traversability, hazard, geologic, or mission claim.
+_FBC_SHAPE = (64, 64)
+
+
+def check_fractal_plane_two_rough_higher():
+    """The differential box-counting dimension (Sarkar & Chaudhuri 1994) behaves
+    as its definition requires: (a) a tilted PLANE measures ~2 (|D - 2| < 0.25;
+    a planar surface carries no space-filling complexity) and (b) a seeded ROUGH
+    field has a strictly GREATER dimension than a smooth single-wavelength
+    SINUSOID -- the measure discriminates surface complexity. PASS iff both."""
+    plane = synthetic.plane(_FBC_SHAPE, slope_x=0.05, slope_y=0.02, dx=1.0)
+    jj = np.indices(_FBC_SHAPE)[1]
+    sinus = np.sin(2.0 * np.pi * jj / 16.0)
+    rough = synthetic.rough_field(_FBC_SHAPE, amplitude=2.0, seed=131)
+    d_plane = fractal.box_counting_dimension(plane)
+    d_sinus = fractal.box_counting_dimension(sinus)
+    d_rough = fractal.box_counting_dimension(rough)
+    plane_two = bool(np.isfinite(d_plane)) and abs(d_plane - 2.0) < 0.25
+    discriminates = (bool(np.isfinite(d_rough)) and bool(np.isfinite(d_sinus))
+                     and d_rough > d_sinus)
+    return _result("fractal_plane_two_rough_higher", plane_two and discriminates,
+                   f"tilted-plane box-counting dimension {d_plane:.4f} "
+                   f"(|.-2| < 0.25) and rough field {d_rough:.4f} > smooth "
+                   f"sinusoid {d_sinus:.4f} (discriminates complexity)",
+                   plane_dimension=float(d_plane), rough_dimension=float(d_rough),
+                   sinusoid_dimension=float(d_sinus))
+
+
+def check_lacunarity_uniform_one_clustered_higher():
+    """Gliding-box lacunarity (Plotnick, Gardner & O'Neill 1993) behaves as its
+    definition requires: (a) a perfectly UNIFORM (constant) field has
+    ``gliding_box_lacunarity(., 2) == 1.0`` (every box carries equal mass, zero
+    variance) and (b) a sparse CLUSTERED field (tall blocks on a flat floor) is
+    gappier -- its Lambda(2) strictly exceeds a smooth GRADIENT's. PASS iff
+    both."""
+    uniform = synthetic.constant(_FBC_SHAPE, 5.0)
+    clustered = np.zeros(_FBC_SHAPE, dtype=float)
+    clustered[::8, ::8] = 10.0                        # sparse tall blocks -> gappy
+    gradient = synthetic.plane(_FBC_SHAPE, slope_x=0.1, dx=1.0)
+    lam_uniform = lacunarity.gliding_box_lacunarity(uniform, 2)
+    lam_clustered = lacunarity.gliding_box_lacunarity(clustered, 2)
+    lam_gradient = lacunarity.gliding_box_lacunarity(gradient, 2)
+    uniform_one = abs(lam_uniform - 1.0) < 1e-9
+    clustered_higher = (bool(np.isfinite(lam_clustered))
+                        and bool(np.isfinite(lam_gradient))
+                        and lam_clustered > lam_gradient)
+    return _result("lacunarity_uniform_one_clustered_higher",
+                   uniform_one and clustered_higher,
+                   f"uniform-field lacunarity {lam_uniform:.6f} (== 1.0) and "
+                   f"clustered {lam_clustered:.4f} > smooth gradient "
+                   f"{lam_gradient:.4f} (gappier)",
+                   uniform=float(lam_uniform), clustered=float(lam_clustered),
+                   gradient=float(lam_gradient))
+
+
+def check_entropy_constant_zero_complex_higher():
+    """Shannon slope entropy (Shannon 1948) behaves as its definition requires:
+    (a) a CONSTANT field has zero slope everywhere, so ``slope_entropy == 0``
+    (all mass in a single histogram bin) and (b) a COMPLEX multi-scale surface
+    has a strictly GREATER slope entropy than a single planar RAMP, whose one
+    constant slope value also gives ``slope_entropy == 0``. PASS iff both."""
+    const = synthetic.constant(_FBC_SHAPE, 7.0)
+    ramp = synthetic.plane(_FBC_SHAPE, slope_x=0.2, dx=1.0)       # one constant slope
+    complex_ = (synthetic.rough_field(_FBC_SHAPE, amplitude=1.0, seed=2)
+                + synthetic.rough_field(_FBC_SHAPE, amplitude=3.0, seed=3))
+    h_const = entropy_terrain.entropy_signature(const, dx=1.0)["slope_entropy"]
+    h_ramp = entropy_terrain.entropy_signature(ramp, dx=1.0)["slope_entropy"]
+    h_complex = entropy_terrain.entropy_signature(complex_, dx=1.0)["slope_entropy"]
+    const_zero = h_const == 0.0
+    complex_higher = bool(np.isfinite(h_complex)) and h_complex > h_ramp
+    return _result("entropy_constant_zero_complex_higher",
+                   const_zero and complex_higher,
+                   f"constant-field slope entropy {h_const:.6f} (== 0) and "
+                   f"complex multi-scale {h_complex:.4f} > single ramp "
+                   f"{h_ramp:.6f} bits",
+                   constant=float(h_const), ramp=float(h_ramp),
+                   complex=float(h_complex))
+
+
+def check_slope_area_concave_positive_theta():
+    """The Flint (1974) slope-area concavity behaves as its definition requires:
+    a CONCAVE surface ``z = c*(D - x)^2`` -- whose gradient flattens as the
+    upslope contributing area grows -- yields a POSITIVE concavity index
+    ``flint_theta > 0`` with a credible log-log fit (``r2 > 0.3``). PASS iff
+    both."""
+    n = _FBC_SHAPE[0]
+    jj = np.indices((n, n))[1].astype(float)
+    z = 0.02 * (float(n) - jj) ** 2
+    sig = slope_area.slope_area_signature(z, dx=1.0)
+    theta = sig["flint_theta"]
+    r2 = sig["r2"]
+    passed = (bool(np.isfinite(theta)) and theta > 0.0
+              and bool(np.isfinite(r2)) and r2 > 0.3)
+    return _result("slope_area_concave_positive_theta", passed,
+                   f"concave z=c*(D-x)^2 Flint concavity theta {theta:.4f} (> 0) "
+                   f"with fit r2 {r2:.4f} (> 0.3) over {sig['n_bins_used']} bins",
+                   flint_theta=float(theta), r2=float(r2),
+                   n_bins_used=sig["n_bins_used"])
+
+
 _CHECKS = (
     check_self_distance_zero,
     check_translation_invariance,
@@ -963,6 +1076,10 @@ _CHECKS = (
     check_hypsometry_ramp_and_cross_consistency,
     check_normal_roughness_plane_zero_discriminates,
     check_tpi_peak_ridge_pit_valley,
+    check_fractal_plane_two_rough_higher,
+    check_lacunarity_uniform_one_clustered_higher,
+    check_entropy_constant_zero_complex_higher,
+    check_slope_area_concave_positive_theta,
 )
 
 

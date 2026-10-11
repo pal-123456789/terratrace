@@ -20,7 +20,8 @@ import numpy as np
 
 from . import (features, openness, geomorphons, spectral, anisotropy,
                kh_roughness, iwahashi_pike, drainage, wavelet_roughness,
-               hypsometry, normal_roughness, tpi_landform)
+               hypsometry, normal_roughness, tpi_landform, fractal,
+               lacunarity, entropy_terrain, slope_area)
 
 _SUMMARY_KEYS = ("mean", "std", "p10", "p50", "p90")
 
@@ -133,6 +134,24 @@ def descriptor_bank(z, dx=1.0, window=5):
     stay JSON-serialisable; ``wavelet`` and ``hypsometry`` are scale-free, while
     ``normal_roughness`` and ``tpi_landform`` are computed at the bank's ``dx``.
 
+    Four further scalar-signature sub-dicts are appended likewise (append-only
+    analysis layer, NOT read by any decision): ``"fractal"`` -- the
+    :func:`terratrace.fractal.fractal_signature` dict (the differential
+    box-counting dimension ``box_count_dimension`` in [2, 3], its fit ``r2`` and
+    the ``n_scales`` used; Sarkar & Chaudhuri 1994); ``"lacunarity"`` -- the
+    :func:`terratrace.lacunarity.lacunarity_signature` dict (the gliding-box
+    ``lacunarity_r2`` = Lambda(2), the curve ``lacunarity_mean`` and the
+    ``lacunarity_loglog_slope``; Plotnick, Gardner & O'Neill 1993); ``"entropy"``
+    -- the :func:`terratrace.entropy_terrain.entropy_signature` dict (the Shannon
+    ``slope_entropy`` / ``elevation_entropy`` in bits and their [0, 1]
+    ``*_norm`` diversity indices; Shannon 1948); and ``"slope_area"`` -- the
+    :func:`terratrace.slope_area.slope_area_signature` dict (the Flint (1974)
+    concavity ``flint_theta``, its fit ``r2``, the ``log_ks`` steepness and
+    ``n_bins_used``; ``flint_theta``/``r2``/``log_ks`` may be ``nan`` on a
+    degenerate / planar input -- Python ``json`` emits ``NaN``). ``fractal`` and
+    ``lacunarity`` are scale-free; ``entropy`` and ``slope_area`` are computed at
+    the bank's ``dx``. All four stay JSON-serialisable.
+
     These are map-scale morphology descriptors only. No traversability,
     mechanical, or mission claim is implied by any value in the bank.
     """
@@ -211,6 +230,18 @@ def descriptor_bank(z, dx=1.0, window=5):
         "hypsometry": hypsometry.hypsometric_signature(z),
         "normal_roughness": normal_roughness.normal_roughness_signature(z, dx=dx),
         "tpi_landform": tpi_landform.tpi_landform_signature(z, dx=dx),
+        # --- four further scalar-signature sub-dicts (append-only; NOT used by
+        #     the study decision). fractal = differential box-counting dimension
+        #     (Sarkar & Chaudhuri 1994); lacunarity = gliding-box lacunarity
+        #     (Plotnick, Gardner & O'Neill 1993); entropy = Shannon slope/elevation
+        #     information entropy (Shannon 1948); slope_area = Flint (1974)
+        #     slope-area concavity (flint_theta may be nan on a degenerate/planar
+        #     input). fractal & lacunarity are scale-free; entropy & slope_area use
+        #     the bank's dx. All JSON-serialisable (json emits NaN). ---
+        "fractal": fractal.fractal_signature(z),
+        "lacunarity": lacunarity.lacunarity_signature(z),
+        "entropy": entropy_terrain.entropy_signature(z, dx=dx),
+        "slope_area": slope_area.slope_area_signature(z, dx=dx),
     }
 
 
