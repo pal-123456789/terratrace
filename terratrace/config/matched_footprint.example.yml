@@ -37,6 +37,9 @@ units:
     native_posting_m: 463.0
     center_lon_e: 150.0
     center_lat: 4.5
+    role: held_out_reference         # NOT a candidate: a 2nd Mars reference for a
+                                     # SEPARATE confirmation run (same-body units would
+                                     # trivially dominate cross-body Earth candidates)
     rights_status: verified_allowed
   - id: earth_craters_of_the_moon    # plausible analog -- basaltic lava field (Idaho)
     path: data/earth/craters_of_the_moon_cop30.tif

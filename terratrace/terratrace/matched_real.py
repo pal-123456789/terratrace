@@ -44,6 +44,32 @@ __all__ = [
 # Defaults for the frozen real-run spec (config/matched_footprint.example.yml).
 _DEFAULT_LENSES = ("core", "extended", "geomorphic", "landform", "texture", "hydro")
 _DEFAULT_MISMATCH_RATIO = 10.0   # reference-extent / candidate-extent for the control
+
+
+def select_compared_units(units, reference_id):
+    """Partition units into the COMPARED set (reference first + candidates) and the
+    HELD-OUT references, so a planetary reference is never 'analog-matched' against
+    another window of the SAME body (which would trivially dominate every cross-body
+    candidate — a contamination that masks the real question). A non-reference unit is
+    HELD OUT iff its ``role`` is ``held_out_reference`` OR it shares the reference's
+    body and is not explicitly ``role: candidate``. Cross-body candidates are compared
+    by default. Pure (no I/O); returns ``(compared_ids, held_out_ids)``.
+    """
+    by_id = {u["id"]: u for u in units}
+    ref = by_id.get(reference_id) or {}
+    ref_body = ref.get("body", "mars")
+    compared, held_out = [reference_id], []
+    for u in units:
+        uid = u["id"]
+        if uid == reference_id:
+            continue
+        role = str(u.get("role", "")).lower()
+        same_body = u.get("body", "earth") == ref_body
+        if role == "held_out_reference" or (same_body and role != "candidate"):
+            held_out.append(uid)
+        else:
+            compared.append(uid)
+    return compared, held_out
 _MISMATCH_MIN_RATIO = 1.5        # below this the mismatched control is not "available"
 _READ_MARGIN = 1.1               # over-read margin so a centred crop is not truncated
 _DEFAULT_N_BOOT = 200            # spatial-block bootstrap resamples for the primary cell
@@ -125,9 +151,17 @@ def load_metric_grids(cfg):
     extent_m = float(cfg["extent_m"])
     mismatch_ratio = float(cfg.get("mismatch_ratio", _DEFAULT_MISMATCH_RATIO))
 
+    compared_ids, held_out_ids = select_compared_units(units, reference_id)
+    if held_out_ids:
+        print("[matched_real] held out (NOT candidates -- same body as reference or "
+              "role=held_out_reference): " + ", ".join(held_out_ids))
+    compared_set = set(compared_ids)
+
     grids, spacings, rights = {}, {}, {}
     for u in units:
         uid = u["id"]
+        if uid not in compared_set:
+            continue
         is_ref = (uid == reference_id) or bool(u.get("is_reference"))
         body = u.get("body", "mars" if is_ref else "earth")
         res = float(u.get("native_posting_m") or (extent_m / 100.0))

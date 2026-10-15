@@ -199,3 +199,28 @@ def test_gated_study_hash_unchanged():
     h2 = study.run_study()["package_hash"]
     assert len(h1) == 64 and all(c in "0123456789abcdef" for c in h1)
     assert h1 == h2
+
+
+def test_select_compared_units_holds_out_same_body_references():
+    """A second window on the SAME body as the reference must be HELD OUT of the
+    candidate pool (else it trivially dominates every cross-body Earth candidate and
+    masks the real question). Earth candidates are compared by default; an explicit
+    role='candidate' can override the same-body hold-out."""
+    units = [{"id": "mars_daedalia", "body": "mars", "is_reference": True},
+             {"id": "mars_elysium", "body": "mars", "role": "held_out_reference"},
+             {"id": "earth_a", "body": "earth"},
+             {"id": "earth_b", "body": "earth"}]
+    compared, held = matched_real.select_compared_units(units, "mars_daedalia")
+    assert compared[0] == "mars_daedalia"
+    assert set(compared) == {"mars_daedalia", "earth_a", "earth_b"}
+    assert held == ["mars_elysium"]
+    # same-body unit with NO explicit role is also held out (safe default)
+    u2 = [{"id": "ref", "body": "mars", "is_reference": True},
+          {"id": "m2", "body": "mars"}, {"id": "e", "body": "earth"}]
+    c2, h2 = matched_real.select_compared_units(u2, "ref")
+    assert h2 == ["m2"] and set(c2) == {"ref", "e"}
+    # explicit role='candidate' keeps a same-body unit in the compared pool
+    u3 = [{"id": "ref", "body": "mars", "is_reference": True},
+          {"id": "m2", "body": "mars", "role": "candidate"}]
+    c3, h3 = matched_real.select_compared_units(u3, "ref")
+    assert "m2" in c3 and h3 == []
