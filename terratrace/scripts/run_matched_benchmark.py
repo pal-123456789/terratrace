@@ -94,6 +94,33 @@ def run_synthetic(out):
     return 0
 
 
+def _load_config(path):
+    """Parse the matched-footprint YAML config into a plain dict.
+
+    PyYAML is imported LAZILY here (not at module top) so the offline --synthetic
+    path and the engine's NumPy-only tests never require yaml; it ships in
+    requirements-real alongside rasterio. Mirrors scripts/run_real_analog_study.py.
+    """
+    import yaml
+    with open(path, encoding="utf-8") as fh:
+        return yaml.safe_load(fh)
+
+
+# Printed when --config is requested but rasterio is unavailable here. The real
+# runner IS implemented (terratrace.matched_real); it is BLOCKED in this environment
+# only because the windowed, per-body reprojected DEM reads need rasterio + the
+# cached DEMs, which live on the data machine.
+_RASTERIO_BLOCKED = (
+    "Real matched-footprint run is BLOCKED here: rasterio is not importable in this\n"
+    "environment, so the windowed, per-body reprojected DEM crops cannot be read.\n"
+    "The runner itself is implemented (terratrace.matched_real.run_real_matched).\n"
+    "On the data machine (rasterio installed; data/mars/mola_463m.tif + "
+    "data/earth/*.tif present)\n"
+    "this exact command runs the experiment end-to-end and writes the evidence bundle.\n"
+    "Frozen protocol + resource estimate: docs/BENCHMARK-PROTOCOL.md\n"
+    "Frozen inputs: config/matched_footprint.example.yml")
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Matched-footprint benchmark (morphology screening only).")
     ap.add_argument("--synthetic", action="store_true", help="run the offline synthetic method-validation experiment")
@@ -103,13 +130,16 @@ def main(argv=None):
     if args.synthetic:
         return run_synthetic(args.out)
     if args.config:
-        print("Real matched-footprint run is not yet implemented in this iteration.\n"
-              "It needs windowed, per-body reprojected crops via rasterio on a machine\n"
-              "that has the DEMs (data/mars/mola_463m.tif, data/earth/*.tif).\n"
-              "Frozen protocol + resource estimate: docs/BENCHMARK-PROTOCOL.md\n"
-              "Frozen inputs: config/matched_footprint.example.yml\n"
-              "Smallest next step: implement crop-on-reprojected-grid, then rerun with --config.")
-        return 2
+        cfg = _load_config(args.config)
+        try:
+            from terratrace import matched_real
+            matched_real.run_real_matched(cfg, out=args.out)
+            return 0
+        except ImportError:
+            # rasterio (the ONLY real-data dependency, isolated in
+            # matched_real.load_metric_grids) is unavailable here -> honest block.
+            print(_RASTERIO_BLOCKED)
+            return 2
     ap.error("specify --synthetic (offline) or --config (real; see BENCHMARK-PROTOCOL.md)")
 
 

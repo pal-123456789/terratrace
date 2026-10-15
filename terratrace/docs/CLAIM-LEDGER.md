@@ -32,3 +32,18 @@ exploratory Craters finding is treated as a hypothesis to test, not to preserve.
 **Next highest-value action:** implement the real runner (windowed, per-body
 reprojected crops) and execute `config/matched_footprint.example.yml` on a
 rasterio-equipped machine to answer claim 6, then record the outcome here.
+
+## Iteration 2 additions (2026-10-15, same branch)
+
+| # | Claim | Type | Evidence | Status | Limits / falsifier |
+|---|---|---|---|---|---|
+| 8 | A real matched-footprint runner exists: windowed per-body **reprojected** crops to a common metric extent, then the matched / mismatched / scale-grid comparison on REAL DEMs, reusing the engine's warp path. | IMPL | `terratrace/matched_real.py`; `scripts/run_matched_benchmark.py --config`; `tests/test_matched_real.py` (10 — offline, via monkeypatched metric grids). | **Implemented; pure core tested.** The `rasterio` read/reproject seam (`load_metric_grids`) is the ONLY part UNTESTED in this sandbox (no rasterio) — it is exercised by the user's real run. | Falsifier: on the data machine the reprojected crops come out wrong (extent/CRS/longitude convention) — verify on first run. |
+| 9 | An **adversarial robustness** mode reports how far a recommendation can be trusted under bounded, justified perturbations (crop-origin shift, support step, correlated-noise/tilt/smoothing, lens family, candidate dropout). | IMPL + METHOD | `terratrace/adversarial.py`; `tests/test_adversarial.py` (5). Synthetic clear winner `B_rough`: stable_fraction 0.69, verdict "qualified"; a near-tie resolves to conflicting winners → "fragile". | Exploratory stress analysis, SEPARATE from confirmatory evidence; a persistent TIE is never "robust" (explicit honest guard). | — |
+| 10 | **Absolute adequacy** is calibrated from the reference's OWN internal variability (held-out sub-windows): a candidate is "adequate" only within that band, else "inadequate"; if the reference can't be split, it reports "absolute morphological adequacy has not been established". | IMPL + METHOD | `terratrace/adequacy.py`; `tests/test_adequacy.py` (6). Twin (same roughness) adequate; 10× smoother impostor inadequate; tiny reference → not established. | NOT a universal analog score; relative to the reference's variability; distinct from the Pareto "best among candidates" question. | — |
+
+**Suite status (honest):** the 686-test baseline is untouched (`git status` shows no
+existing engine or test file modified; gated study hash `8f4890…` unchanged). The
+**+33 new branch tests** (matched_benchmark 12, matched_real 10, adversarial 5,
+adequacy 6) were verified green **directly**. The full ~719-test run exceeds the
+sandbox per-call time cap and is left to **CI on push** — it is NOT claimed as
+locally completed.
