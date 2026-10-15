@@ -1,0 +1,63 @@
+# TerraTrace matched-footprint benchmark -- FROZEN real-run spec (v1, 2026-10-15)
+#
+# Every unit is cropped to the SAME physical extent (MATCHED FOOTPRINT) before
+# aggregation to a common support; support is swept SEPARATELY from extent. This is
+# the confirmatory Mars-Earth protocol for the primary research question; its
+# success/failure conditions are predeclared in docs/BENCHMARK-PROTOCOL.md and were
+# fixed BEFORE any real matched-footprint result was examined.
+#
+# Requires rasterio + the cached DEMs. Read WINDOWED crops only -- never load the
+# 2.1 GB global MOLA fully. Resource estimate: ~5 units x 3 supports, windowed
+# reads, < 2 min wall-clock, < 1 GB RAM. No network, no API key.
+#
+# Scope / claim firewall: map-scale terrain-morphology screening only -- not a
+# traversability, geologic-equivalence, site-access, or mission-readiness claim.
+
+reference_id: mars_daedalia          # Mars volcanic plains = the exploratory-finding context
+extent_m: 40000                      # common physical window side (~40 km) for ALL units
+support_sweep_m: [500, 1000, 2000]   # scale sweep at FIXED extent (true scale experiment)
+min_valid_fraction: 0.5
+decision_metrics: [core, extended, geomorphic, landform, texture, hydro]
+
+# Candidate set chosen for MORPHOLOGICAL reasons (analog / near-miss / control),
+# not fame. A second Mars volcanic-plains reference (Elysium) is held out for
+# spatially-independent confirmation of any Daedalia finding.
+units:
+  - id: mars_daedalia                # Daedalia Planum lava flows (reference)
+    path: data/mars/mola_463m.tif
+    body: mars
+    native_posting_m: 463.0
+    center_lon_e: 226.5
+    center_lat: -21.5
+    is_reference: true
+    rights_status: verified_allowed
+  - id: mars_elysium                 # HELD-OUT 2nd volcanic-plains reference (confirmation)
+    path: data/mars/mola_463m.tif
+    body: mars
+    native_posting_m: 463.0
+    center_lon_e: 150.0
+    center_lat: 4.5
+    role: held_out_reference         # NOT a candidate: a 2nd Mars reference for a
+                                     # SEPARATE confirmation run (same-body units would
+                                     # trivially dominate cross-body Earth candidates)
+    rights_status: verified_allowed
+  - id: earth_craters_of_the_moon    # plausible analog -- basaltic lava field (Idaho)
+    path: data/earth/craters_of_the_moon_cop30.tif
+    body: earth
+    native_posting_m: 30.0
+    rights_status: verified_allowed
+  - id: earth_nevada_basin           # plausible near-miss -- basin-and-range extensional
+    path: data/earth/nevada_basin_cop30.tif
+    body: earth
+    native_posting_m: 30.0
+    rights_status: verified_allowed
+  - id: earth_andean_volcano         # contrasting control -- steep stratovolcano
+    path: data/earth/andean_volcano_cop30.tif
+    body: earth
+    native_posting_m: 30.0
+    rights_status: verified_allowed
+
+# NOTE on Earth units: the cached COP30 tiles are already AOI-sized (~0.3-0.4 deg).
+# The harness crops EVERY unit (Mars and Earth) to the common metric `extent_m`
+# centred on its AOI AFTER per-body reprojection, so footprints are matched in
+# metres, not degrees. Vary `extent_m` in a separate run to probe extent-sensitivity.
