@@ -8,7 +8,7 @@ This repository holds two things:
 
 | Path | What it is |
 |---|---|
-| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across six robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **686 tests**, no network required. |
+| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across six robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **771 tests**, no network required. |
 | `site/` | A 3D scroll-animated website telling the project story (deployed on Vercel). |
 
 > **Scope / claim firewall.** TerraTrace screens terrain **morphology** between curated
@@ -45,7 +45,7 @@ viewer are generated per study.
 ```bash
 cd terratrace
 pip install -r requirements.txt            # core (NumPy only)
-python tests/run_tests.py                   # 686 fixtures, offline
+python tests/run_tests.py                   # 771 fixtures, offline
 python scripts/run_validation.py            # scientific-correctness suite
 python -m terratrace.cli --out artifacts    # synthetic study
 python -m terratrace.build_viewer           # viewer/index.html
@@ -62,14 +62,18 @@ fetch them with `terratrace/scripts/fetch_real_dems.py`. A single command —
 
 ## The headline result
 
-On real data (a Mars reference vs a Nevada desert and Craters of the Moon, Idaho), the four
-**core** morphology axes recommend the lava field, but adding the **extended** descriptors
-(aspect dispersion, hypsometric integral) turns the result into an honest **tie** — the "best
-analog" depends on what you intend to test. The tool reports that rather than forcing a winner.
-See `terratrace/docs/VALIDATION.md`. A full method + results write-up is in
-`terratrace/docs/PAPER.md`, and the real worked example (with the four-lens ablation) in
-`terratrace/docs/REAL-EXAMPLE.md`. The multi-reference, lens-robustness **analog atlas** (one
-command over many references × many candidates) is documented in `terratrace/docs/ATLAS.md`.
+**TerraTrace caught its own false analog.** Exploratory real-data runs (Mars MOLA vs three Earth
+terrains) favoured Craters of the Moon, Idaho — a well-known basalt analog — and it would have been
+easy to stop there. Instead the preference was tested under a protocol **frozen before the data were
+seen**: matched physical footprints, supports at or above MOLA's effective resolution, three held-out
+Martian volcanic plains, and two contrast terrains. It did not survive: the engine abstains for all
+seven Mars references in the honest regime, and Craters is nearest for a cratered highland as readily
+as for volcanic plains — a non-specific "least-dissimilar member of a weak shortlist" effect, not a
+specific analog. Results: `terratrace/docs/RESULTS-v2.md`; frozen protocol:
+`terratrace/docs/BENCHMARK-PROTOCOL-v2.md`; claim-to-evidence ledger: `terratrace/docs/CLAIM-LEDGER.md`.
+The method write-up is `terratrace/docs/PAPER.md`; the earlier exploratory runs remain in
+`terratrace/docs/REAL-EXAMPLE.md` (marked superseded). The multi-reference **analog atlas** is
+documented in `terratrace/docs/ATLAS.md`.
 
 ## Deploy
 

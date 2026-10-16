@@ -107,6 +107,13 @@ decision-confidence verdict, and a full provenance record to every result.
 
 ## 6. The real result (our headline finding)
 
+> **Update 2026-10-16 — this section is superseded.** The finding below was exploratory. A
+> pre-registered, footprint-matched, resolution-aware test (`terratrace/docs/RESULTS-v2.md`) found it
+> does **not** survive: H1 (held-out plains) not supported, the engine abstains in the honest regime,
+> and Craters is nearest for a cratered highland as readily as for volcanic plains — a non-specific
+> shortlist effect. The current headline is that TerraTrace **caught its own false analog** with rules
+> fixed before the data were seen. The original text is kept below as history.
+
 On a **real five-world run** — Mars MOLA 463 m vs three real Copernicus GLO-30 Earth terrains (Nevada
 basin, Craters of the Moon ID, Andean volcano) at 1000 m common support — the method **independently
 re-identifies a documented basalt analog, Craters of the Moon, Idaho**, as the closest match on the

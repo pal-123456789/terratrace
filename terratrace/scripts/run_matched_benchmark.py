@@ -10,10 +10,14 @@ readable evidence bundle (JSON) and prints a readable summary.
     python scripts/run_matched_benchmark.py --synthetic --out artifacts/mf_bench
 
 The REAL Mars-Earth path (``--config``) is the scientific-discovery experiment and
-requires rasterio + the cached DEMs on a networked machine; its protocol is frozen
-in docs/BENCHMARK-PROTOCOL.md and config/matched_footprint.example.yml. The real
-runner (windowed reprojected crops) is the next build and is NOT stubbed here as if
-complete -- running --config prints exactly what is needed.
+requires rasterio + the cached DEMs on the data machine. The config decides which
+protocol runs: ``experiment: matched_footprint_panel_v3`` is the v3 REFERENCE PANEL
+(S / V / R rules, ``panel_v3.run_real_panel_v3``); otherwise a config with a
+``panel`` key is the v2 REFERENCE PANEL (docs/BENCHMARK-PROTOCOL-v2.md,
+config/matched_footprint_v2.yml -> ``matched_real.run_real_panel``); any other config
+is the v1 single-reference run (docs/BENCHMARK-PROTOCOL.md,
+config/matched_footprint.example.yml -> ``matched_real.run_real_matched``). Without
+rasterio, --config prints an honest blocked message and exits 2.
 
 Scope / claim firewall: map-scale terrain-morphology screening only -- not a
 traversability, geologic-equivalence, site-access, or mission-readiness claim.
@@ -120,11 +124,65 @@ _RASTERIO_BLOCKED = (
     "Frozen protocol + resource estimate: docs/BENCHMARK-PROTOCOL.md\n"
     "Frozen inputs: config/matched_footprint.example.yml")
 
+# The same honest block for a v2 (reference-panel) config.
+_RASTERIO_BLOCKED_V2 = (
+    "Real v2 REFERENCE-PANEL run is BLOCKED here: rasterio is not importable in this\n"
+    "environment, so the windowed, per-body reprojected DEM crops cannot be read.\n"
+    "The runner itself is implemented (terratrace.matched_real.run_real_panel).\n"
+    "On the data machine (rasterio installed; data/mars/mola_463m.tif + "
+    "data/earth/*.tif present)\n"
+    "this exact command runs the panel end-to-end and writes matched_panel_real.json.\n"
+    "Frozen protocol + H1-H4 decision rules: docs/BENCHMARK-PROTOCOL-v2.md\n"
+    "Frozen inputs: config/matched_footprint_v2.yml")
+
+# The same honest block for a v3 (S / V / R reference-panel) config.
+_RASTERIO_BLOCKED_V3 = (
+    "Real v3 REFERENCE-PANEL run is BLOCKED here: rasterio is not importable in this\n"
+    "environment, so the windowed, per-body reprojected DEM crops cannot be read.\n"
+    "The runner itself is implemented (terratrace.panel_v3.run_real_panel_v3).\n"
+    "On the data machine (rasterio installed; the MOLA mosaic + the v3 COP30 tiles\n"
+    "present) this exact command runs the panel end-to-end and writes\n"
+    "matched_panel_v3_real.json with the S / V / R verdicts.\n"
+    "Protocol: the frozen v3 protocol named by protocol_path in the config\n"
+    "(proposal: docs/BENCHMARK-PROTOCOL-v3-PROPOSAL.md)")
+
+_V3_EXPERIMENT = "matched_footprint_panel_v3"
+
+
+def _is_v3(cfg):
+    return isinstance(cfg, dict) and cfg.get("experiment") == _V3_EXPERIMENT
+
+
+def _is_panel(cfg):
+    return isinstance(cfg, dict) and "panel" in cfg
+
+
+def dispatch(cfg, out, config_path=None):
+    """Route a loaded config to its REAL runner: ``experiment ==
+    matched_footprint_panel_v3`` -> the v3 reference panel
+    (``panel_v3.run_real_panel_v3``, ``_config_path`` recorded), checked FIRST since a
+    v3 config also has a ``panel`` key; else a ``panel`` key -> the v2 reference panel
+    (``matched_real.run_real_panel``, with ``config_path`` recorded in the bundle);
+    otherwise the v1 single-reference run (``matched_real.run_real_matched``).
+    Raises ImportError when rasterio is unavailable (``main`` turns that into the
+    honest blocked message + exit 2)."""
+    from terratrace import matched_real
+    if _is_v3(cfg):
+        from terratrace import panel_v3
+        if config_path:
+            cfg = dict(cfg, _config_path=config_path)
+        return panel_v3.run_real_panel_v3(cfg, out=out)
+    if _is_panel(cfg):
+        if config_path:
+            cfg = dict(cfg, config_path=config_path)
+        return matched_real.run_real_panel(cfg, out=out)
+    return matched_real.run_real_matched(cfg, out=out)
+
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Matched-footprint benchmark (morphology screening only).")
     ap.add_argument("--synthetic", action="store_true", help="run the offline synthetic method-validation experiment")
-    ap.add_argument("--config", help="real Mars-Earth run (requires rasterio + cached DEMs; see BENCHMARK-PROTOCOL.md)")
+    ap.add_argument("--config", help="real Mars-Earth run (requires rasterio + cached DEMs); experiment 'matched_footprint_panel_v3' runs the v3 reference panel, else a config with a 'panel' key runs the v2 reference panel (BENCHMARK-PROTOCOL-v2.md), otherwise v1 (BENCHMARK-PROTOCOL.md)")
     ap.add_argument("--out", default="artifacts/mf_bench", help="output directory for the evidence bundle")
     args = ap.parse_args(argv)
     if args.synthetic:
@@ -132,13 +190,14 @@ def main(argv=None):
     if args.config:
         cfg = _load_config(args.config)
         try:
-            from terratrace import matched_real
-            matched_real.run_real_matched(cfg, out=args.out)
+            dispatch(cfg, args.out, config_path=args.config)
             return 0
         except ImportError:
             # rasterio (the ONLY real-data dependency, isolated in
-            # matched_real.load_metric_grids) is unavailable here -> honest block.
-            print(_RASTERIO_BLOCKED)
+            # matched_real.load_metric_grids / load_panel_grids) is unavailable here
+            # -> honest block.
+            print(_RASTERIO_BLOCKED_V3 if _is_v3(cfg) else
+                  _RASTERIO_BLOCKED_V2 if _is_panel(cfg) else _RASTERIO_BLOCKED)
             return 2
     ap.error("specify --synthetic (offline) or --config (real; see BENCHMARK-PROTOCOL.md)")
 

@@ -3,6 +3,34 @@
 Complete build history of TerraTrace, generated from the git commit messages
 (newest first). Each entry is the exact message recorded with that commit.
 
+## Unreleased — Matched-footprint benchmark, honest-regime gate, and a frozen v2 reference-panel protocol
+
+*Prepared 2026-10-16 by Pal Ghevariya (research branches `research/matched-footprint-benchmark`, merged as PR #1, and `research/m3-honest-regime`)*
+
+Turns the analog result into a falsifiable experiment instead of a single verdict. Everything is
+additive and gated: no engine module changed, and the default study hash (8f4890…) is unchanged.
+
+- **Matched-footprint harness** (`matched_benchmark.py`): separates spatial *extent* from spatial
+  *support*, records per-unit provenance, adds slope/relief baselines, lens ablation, and a
+  selection-aware (Bonferroni) correction. A synthetic ground truth shows a mismatched footprint
+  can flip the recommended analog, and the matched comparison recovers the correct one.
+- **Real runner** (`matched_real.py`, `run_matched_benchmark.py --config`): windowed per-body
+  reprojected crops of real DEMs. A first real run exposed a candidate-pool contamination bug (a
+  held-out Mars window competed as a candidate); fixed with a test.
+- **Adversarial robustness** (`adversarial.py`) and **absolute adequacy** (`adequacy.py`): how far
+  a recommendation survives bounded perturbations, and whether "best among these" is actually
+  within the reference's own morphological variability.
+- **Honest-regime gate** (`comparability.py`): inspecting the real v1 bundle showed every cell was
+  footprint-mismatched (Earth tiles truncated, ratio 1.63), and the 500/1000 m cells were below MOLA's
+  effective resolution. The v1 Craters-of-the-Moon result is therefore recorded as exploratory.
+- **Resolution-matching control** (`resolution.py`) and **confirmation/specificity panel**
+  (`confirmation.py`), integrated as a v2 reference-panel runner.
+- **Protocol v2 frozen before any v2 result** (`docs/BENCHMARK-PROTOCOL-v2.md`,
+  `config/matched_footprint_v2.yml`): 7 Mars references (held-out volcanic plains + contrast
+  terrains), H1–H4 decision rules, a stopping rule, and stated limitations.
+- Claim-to-evidence ledger (`docs/CLAIM-LEDGER.md`). Suite: 686 -> 771 offline tests, all passing.
+  Validation oracles unchanged at 51.
+
 ## Unreleased — Six cited descriptors, a sixth `hydro` decision lens, a transect profiler, and bank/transect interfaces
 
 *Prepared 2026-10-12 by Pal Ghevariya (pending commit — hash assigned at commit time; builds on the pending descriptor batches)*

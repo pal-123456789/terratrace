@@ -1,5 +1,13 @@
 # TerraTrace — a real five-world worked example
 
+> **⚠ Superseded (2026-10-16).** The runs on this page are **exploratory**: they compared a ~10° Mars
+> window with ~0.4° Earth windows and used supports below MOLA's effective resolution. A
+> pre-registered, footprint-matched, resolution-aware follow-up (`RESULTS-v2.md`) found that the
+> Craters-of-the-Moon preference **does not survive**: the engine abstains in the honest regime and
+> Craters is nearest for a cratered highland as readily as for volcanic plains (a non-specific
+> shortlist effect). The claims below that Craters is "re-identified" or the "consensus analog" are
+> **withdrawn**; the numbers are kept unchanged as a historical record.
+
 **Mars (MOLA) vs three real Earth analog terrains, at a common 1000 m support.**
 
 > **Scope / claim firewall.** This is a map-scale terrain-**morphology** screen between

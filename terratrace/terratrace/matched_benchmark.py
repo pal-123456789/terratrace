@@ -140,6 +140,12 @@ def _run_compare(cropped, native, rights, reference_id, support_m,
         "result_state": pkg.get("result_state"),
         "recommended_unit": pkg.get("recommended_unit"),
         "pareto_layer1": list(layers[0]),
+        # The engine's full BASELINE frontier, passed through unchanged (empty when
+        # the engine built none, i.e. fewer than two eligible candidates): every
+        # Pareto layer, and the pairwise dominance matrix {"a|b": winner or "~"}
+        # over sorted id pairs. Lets callers test relations between candidates.
+        "pareto_layers": [list(layer) for layer in (frontier.get("pareto_layers") or [])],
+        "dominance_matrix": dict(frontier.get("dominance_matrix") or {}),
         "package_hash": pkg.get("package_hash"),
     }
     # Surface the engine's EXISTING uncertainty when it was requested (we do not
