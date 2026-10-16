@@ -71,7 +71,7 @@ extended/texture/hydro -> TIE.
 | 12 | Resolution matching removes a source-smoothing false analog on synthetic ground truth. | METHOD | Method-validated (`resolution.py`, 12 tests): a smooth impostor wins against a coarsely observed reference; after matching, the true twin wins. At 900 m the matched run returned INDETERMINATE rather than the twin. | Depends on the 3× effective-resolution heuristic. |
 | 13 | The panel separates a specific analog relationship from a non-specific "closest member of a weak shortlist" effect. | METHOD | Method-validated (`confirmation.py`, 12 tests; v2 integration, 25 tests in `test_matched_real.py`). | — |
 
-**Suite status (verified locally, all chunks completed):** 771 passed, 0 failed (86 files, run in 8
+**Suite status (verified locally, all chunks completed):** 800 passed, 0 failed (86 files, run in 8
 chunks; none timed out). Validation 51/51. Gated study hash unchanged.
 
 **Next action:** run `config/matched_footprint_v2.yml` on the data machine and record H1–H4 here
@@ -90,6 +90,6 @@ Recorded exactly as produced by the frozen rules: **H1 NOT SUPPORTED** (0/3 conf
 | 15 | Craters' advantage is a non-specific "least-dissimilar member of a weak shortlist" (smoothness) effect. | INTERPRETATION | **Consistent with v2, NOT directly tested** (descriptive analyses 1–4 in `RESULTS-v2.md` are not pre-registered). | Smoothness explanation inferred, not measured against a smoothness-matched control. | v3: a smoothness-matched non-volcanic Earth control does NOT compete with Craters for Mars plains. |
 | 16 | Protocol lesson: the frozen H3 rule ("any change") could not distinguish a recommendation that was *stabilised* by resolution matching from one that was *reversed*. | METHOD | Recorded; verdict NOT altered. | Under matching the nearest candidate was unchanged in all 11 cells; only INDETERMINATE → RECOMMEND. | — |
 
-**Three achievements, kept separate (as of iteration 4):** software correctness — 771 tests green;
+**Three achievements, kept separate (as of iteration 4):** software correctness — 800 tests green;
 method validation — synthetic ground truths for footprint, resolution and specificity controls;
 scientific discovery — **one reproducible negative result** (claim 14); no positive analog claim stands.

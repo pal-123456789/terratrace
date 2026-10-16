@@ -3,6 +3,18 @@
 Complete build history of TerraTrace, generated from the git commit messages
 (newest first). Each entry is the exact message recorded with that commit.
 
+## Unreleased — v3 preparation: class-aware expectations, resolution-change classification, and 800-test gate
+
+*Prepared 2026-10-16 by Pal Ghevariya (v3 proposal remains unfrozen)*
+
+Added the v3-preparation layer without changing the v2 runner or the default decision engine:
+`matched_benchmark` now exposes the existing Pareto layers and dominance matrix; `confirmation`
+can evaluate candidate classes and named S/V expectations; `panel_v3` distinguishes resolution
+stabilisation from reversal and evaluates the proposed smoothness-vs-volcanic hypotheses. The v2
+reference-panel result remains exactly as recorded. The complete offline suite is now **800 passed,
+0 failed**; validation remains 51/51; the gated default study hash is unchanged. Protocol v3 is
+still a proposal, not a frozen experiment.
+
 ## Unreleased — Matched-footprint benchmark, honest-regime gate, and a frozen v2 reference-panel protocol
 
 *Prepared 2026-10-16 by Pal Ghevariya (research branches `research/matched-footprint-benchmark`, merged as PR #1, and `research/m3-honest-regime`)*
