@@ -47,3 +47,32 @@ existing engine or test file modified; gated study hash `8f4890…` unchanged). 
 adequacy 6) were verified green **directly**. The full ~719-test run exceeds the
 sandbox per-call time cap and is left to **CI on push** — it is NOT claimed as
 locally completed.
+
+## Iteration 3 (2026-10-16, branch `research/m3-honest-regime`)
+
+**Real v1 result (Daedalia Planum vs 3 Earth candidates), recorded exactly as produced:** Craters of
+the Moon was the sole core-lens recommendation at 500, 1000 and 2000 m; spatial-block
+non-domination: Craters 1.0, Nevada 0.0, Andes 0.0; the 10x mismatched-footprint control agreed;
+slope-only and relief-only baselines agreed; lens ablation: core/geomorphic/landform -> Craters,
+extended/texture/hydro -> TIE.
+
+**Inspection of that bundle's own provenance (comparability gate) — the caveats that downgrade it:**
+
+| support | regime | detail |
+|---|---|---|
+| 500 m | footprint-mismatched + below-effective-resolution | Earth tiles truncated: Craters 24.4 km, Andes 33.2, Nevada 36.1 vs Mars 39.8 (ratio 1.63); MOLA effective resolution ≈ 1389 m |
+| 1000 m | footprint-mismatched + below-effective-resolution | same |
+| 2000 m | footprint-mismatched | ratio 1.63 |
+
+| # | Claim | Type | Status | Why / falsifier |
+|---|---|---|---|---|
+| 6 (updated) | Craters-of-the-Moon ↔ Daedalia Planum is a footprint-robust morphological analog. | DISCOVERY | **EXPLORATORY — not confirmed.** Consistent with the hypothesis, but no v1 cell was in an honest regime, and both defects favour the smoothest, smallest-window candidate (Craters). | Tested by protocol v2 (frozen before any v2 result): H1 confirmation on 3 held-out plains, H2 specificity on 2 contrast terrains, H3 resolution-matched control, H4 adequacy. |
+| 11 | The comparability gate labels a cell honest only if footprints are truly matched (no truncation, extent ratio ≤ 1.05) and support ≥ every unit's effective resolution. | IMPL | Implemented + tested (`comparability.py`, 13 tests); reproduces the v1 defect from the real numbers. | — |
+| 12 | Resolution matching removes a source-smoothing false analog on synthetic ground truth. | METHOD | Method-validated (`resolution.py`, 12 tests): a smooth impostor wins against a coarsely observed reference; after matching, the true twin wins. At 900 m the matched run returned INDETERMINATE rather than the twin. | Depends on the 3× effective-resolution heuristic. |
+| 13 | The panel separates a specific analog relationship from a non-specific "closest member of a weak shortlist" effect. | METHOD | Method-validated (`confirmation.py`, 12 tests; v2 integration, 25 tests in `test_matched_real.py`). | — |
+
+**Suite status (verified locally, all chunks completed):** 771 passed, 0 failed (86 files, run in 8
+chunks; none timed out). Validation 51/51. Gated study hash unchanged.
+
+**Next action:** run `config/matched_footprint_v2.yml` on the data machine and record H1–H4 here
+exactly as produced (stopping rule in `BENCHMARK-PROTOCOL-v2.md`).
