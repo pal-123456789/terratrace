@@ -169,3 +169,72 @@ def test_block_bootstrap_surfaces_through_harness():
     assert nd is not None and cell.get("bootstrap_method") == "block"
     assert all(0.0 <= f <= 1.0 for f in nd.values())
     assert nd[cell["recommended_unit"]] >= 0.5
+
+
+# --------------------------------------------------------------------------- #
+# Frontier pass-through: the cell carries the engine's FULL baseline frontier  #
+# (every Pareto layer + the pairwise dominance matrix), additively.            #
+# --------------------------------------------------------------------------- #
+_PRE_EXISTING_CELL_KEYS = {"result_state", "recommended_unit", "pareto_layer1",
+                           "package_hash", "mode", "extent_m", "support_m",
+                           "decision_metrics", "reference_id", "provenance"}
+_FRONTIER_KEYS = {"pareto_layers", "dominance_matrix"}
+
+
+def _winner(dom, a, b):
+    """Dominance-matrix entry for a pair (key = the two ids sorted, '|'-joined)."""
+    return dom["|".join(sorted((a, b)))]
+
+
+def test_matched_cell_passes_through_pareto_layers_and_dominance_matrix():
+    scene = _scene()
+    scene["C_mid"] = synthetic.rough_field((_N, _N), amplitude=12.0, seed=4)
+    cell = mb.matched_cell(scene, _DX, "ref", _SMALL_EXTENT_M, _SUPPORT_M,
+                           decision_metrics="core")
+    # Additive only: the pre-existing keys are all still there, plus exactly two.
+    assert set(cell) == _PRE_EXISTING_CELL_KEYS | _FRONTIER_KEYS, sorted(cell)
+    layers, dom = cell["pareto_layers"], cell["dominance_matrix"]
+    assert isinstance(layers, list) and all(isinstance(layer, list) for layer in layers)
+    assert isinstance(dom, dict)
+    assert layers and set(layers[0]) == set(cell["pareto_layer1"]), (layers, cell)
+    cands = sorted(u for u in scene if u != "ref")
+    # Every (eligible) candidate sits in exactly one layer; the reference in none.
+    assert sorted(u for layer in layers for u in layer) == cands, layers
+    # One entry per sorted candidate pair; each value is one of the pair or "~".
+    pairs = {f"{a}|{b}" for i, a in enumerate(cands) for b in cands[i + 1:]}
+    assert set(dom) == pairs, dom
+    for key, v in dom.items():
+        assert v in key.split("|") + ["~"], (key, v)
+    # The matrix and the layers agree: nobody dominates a layer-1 unit, no unit
+    # dominates another in its own layer, and every deeper unit is dominated by
+    # some unit of the layer above (strict Pareto peeling).
+    rank = {u: li for li, layer in enumerate(layers) for u in layer}
+    for u in cands:
+        beaten_by = [o for o in cands if o != u and _winner(dom, u, o) == o]
+        assert all(rank[o] < rank[u] for o in beaten_by), (u, beaten_by, layers)
+        if rank[u] == 0:
+            assert beaten_by == [], (u, beaten_by)
+        else:
+            assert any(rank[o] == rank[u] - 1 for o in beaten_by), (u, beaten_by, layers)
+    back = json.loads(json.dumps(cell, allow_nan=False))
+    assert back["pareto_layers"] == layers and back["dominance_matrix"] == dom
+
+
+def test_frontier_pass_through_empty_when_engine_builds_no_frontier():
+    # One candidate -> the engine builds no frontier: empty list / dict (and the
+    # pre-existing pareto_layer1 behaviour is unchanged: []).
+    scene = _scene()
+    cell = mb.matched_cell({"ref": scene["ref"], "B_rough": scene["B_rough"]}, _DX,
+                           "ref", _SMALL_EXTENT_M, _SUPPORT_M)
+    assert cell["pareto_layers"] == [] and cell["dominance_matrix"] == {}, cell
+    assert cell["pareto_layer1"] == [], cell
+    # The mismatched control carries the same pass-through (shared _run_compare).
+    mism = mb.mismatched_cell(scene, _DX, "ref", _LARGE_EXTENT_M, _SMALL_EXTENT_M,
+                              _SUPPORT_M, decision_metrics="core")
+    assert set(mism["pareto_layers"][0]) == set(mism["pareto_layer1"]), mism
+    assert set(mism["dominance_matrix"]) == {"A_smooth|B_rough"}, mism
+    assert mism["dominance_matrix"]["A_smooth|B_rough"] in ("A_smooth", "B_rough", "~")
+    # The lens ablation still exposes exactly its three keys per lens.
+    la = mb.lens_ablation_matched(scene, _DX, "ref", _SMALL_EXTENT_M, _SUPPORT_M,
+                                  lenses=("core",))
+    assert set(la["core"]) == {"result_state", "recommended_unit", "pareto_layer1"}, la

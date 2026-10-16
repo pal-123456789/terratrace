@@ -280,3 +280,320 @@ def test_default_study_hash_unchanged_by_this_module():
     h = study.run_study()["package_hash"]
     assert len(h) == 64 and all(ch in "0123456789abcdef" for ch in h), h
     assert study.run_study()["package_hash"] == h
+
+
+# --------------------------------------------------------------------------- #
+# CANDIDATE-CLASS hypotheses -- KNOWN Pareto relations on synthetic terrain.    #
+#                                                                               #
+# rough_family = {R1, R2} (amp 30), smooth_family = {S1 (amp 2), S2 (amp 1)}.   #
+# rough_ref is R-like (amp 30), smooth_ref is S-like (amp 1.5). Against         #
+# rough_ref every R is >= 10x closer than every S on slope/relief/ruggedness    #
+# and no worse on connectivity, so EVERY R dominates EVERY S and layer 1 holds  #
+# only R's (against smooth_ref: the mirror image, >= 50x). T is an EXACT copy   #
+# of rough_ref: its distance vector is identically 0, so -- by construction,    #
+# whatever the seeds -- nothing dominates T and T dominates every candidate     #
+# that is not itself a copy. The tests read these relations off each cell's     #
+# baseline frontier before relying on them.                                    #
+# --------------------------------------------------------------------------- #
+_CLS = {"R1": "rough_family", "R2": "rough_family",
+        "S1": "smooth_family", "S2": "smooth_family"}
+_CLS_CANDS = ["R1", "R2", "S1", "S2"]
+_ROUGH, _SMOOTH = ("R1", "R2"), ("S1", "S2")
+
+
+def _class_grids():
+    """Frozen class scene: 4 classed candidates, 2 references, T = rough_ref twin."""
+    def rf(amp, seed):
+        return synthetic.rough_field((_N, _N), amplitude=amp, seed=seed)
+    g = {"R1": rf(30.0, 41), "R2": rf(30.0, 42), "S1": rf(2.0, 43), "S2": rf(1.0, 44),
+         "rough_ref": rf(30.0, 31), "smooth_ref": rf(1.5, 32)}
+    g["T"] = g["rough_ref"].copy()
+    return g
+
+
+def _dom(winner, loser):
+    return {"type": "class_dominates", "winner_class": winner, "loser_class": loser}
+
+
+def _in_l1(cls):
+    return {"type": "class_in_layer1", "class": cls}
+
+
+def _winner(dom, a, b):
+    """Dominance-matrix entry for a pair (key = the two ids sorted, '|'-joined)."""
+    return dom["|".join(sorted((a, b)))]
+
+
+def _class_panel():
+    """Predeclared class hypotheses, frozen BEFORE any result is seen."""
+    return [
+        {"id": "rough_ref", "class": "rough_terrain", "status": "confirmatory",
+         "expect": _dom("rough_family", "smooth_family"),
+         "expects": [dict(_dom("rough_family", "smooth_family"), name="S"),
+                     dict(_in_l1("rough_family"), name="V"),
+                     dict(_in_l1("smooth_family"), name="smooth_in_layer1"),
+                     dict(_dom("smooth_family", "rough_family"), name="reverse"),
+                     {"name": "S1_not_sole", "type": "not_sole", "unit": "S1"}]},
+        {"id": "smooth_ref", "class": "smooth_terrain", "status": "confirmatory",
+         "expects": [dict(_dom("smooth_family", "rough_family"), name="S"),
+                     dict(_in_l1("smooth_family"), name="V"),
+                     dict(_in_l1("rough_family"), name="rough_in_layer1"),
+                     dict(_dom("rough_family", "smooth_family"), name="reverse")]},
+    ]
+
+
+_CLASS_CACHE = {}
+
+
+def _class_run():
+    """The class panel, computed once (with the panel object it was given)."""
+    if "out" not in _CLASS_CACHE:
+        panel = _class_panel()
+        _CLASS_CACHE["panel"] = panel
+        _CLASS_CACHE["out"] = cf.run_reference_panel(
+            _class_grids(), _DX, panel, _CLS_CANDS, _EXTENT_M, _SUPPORTS,
+            candidate_classes=dict(_CLS))
+    return copy.deepcopy(_CLASS_CACHE["out"])
+
+
+def test_class_expectations_hold_and_fail_on_known_pareto_relations():
+    out = _class_run()
+    assert out["candidate_classes"] == _CLS, out["candidate_classes"]
+    refs = _refs(out)
+    # Ground truth first, straight off every cell's baseline frontier.
+    for rid, near, far in (("rough_ref", _ROUGH, _SMOOTH), ("smooth_ref", _SMOOTH, _ROUGH)):
+        for c in refs[rid]["cells"]:
+            assert set(c["pareto_layer1"]) <= set(near), (rid, c["pareto_layer1"])
+            assert all(_winner(c["dominance_matrix"], w, l) == w
+                       for w in near for l in far), (rid, c["dominance_matrix"])
+    want = {"rough_ref": {"S": "holds", "V": "holds", "smooth_in_layer1": "fails",
+                          "reverse": "fails", "S1_not_sole": "holds"},
+            "smooth_ref": {"S": "holds", "V": "holds", "rough_in_layer1": "fails",
+                           "reverse": "fails"}}
+    for rid, outcomes in want.items():
+        got = refs[rid]["expectations"]
+        assert {n: e["outcome"] for n, e in got.items()} == outcomes, (rid, got)
+        for name, outcome in outcomes.items():
+            e = got[name]
+            assert e["error_supports"] == [], e
+            assert e["satisfied_fraction"] == (1.0 if outcome == "holds" else 0.0), e
+            assert [p["support_m"] for p in e["per_support"]] == _SUPPORTS, e
+    # A class type also works as the single `expect` and enters the summary as usual.
+    assert refs["rough_ref"]["expectation"]["outcome"] == "holds"
+    assert refs["rough_ref"]["counts_as_confirmation"] is True
+    s = out["summary"]
+    assert s["classes"]["rough_terrain"]["outcomes"]["holds"] == 1, s
+    json.dumps(out, sort_keys=True, allow_nan=False)
+
+
+def test_class_dominates_fails_when_a_loser_class_member_is_non_dominated():
+    # Put T (rough_ref's exact twin, zero distance vector) in the LOSER class. Every
+    # R still beats S1 and S2, but no R can beat T: one non-dominated loser breaks
+    # "some winner dominates EVERY loser". Conversely T alone makes smooth_family
+    # dominate every rough member (EXISTS one winner), and puts it in layer 1.
+    classes = dict(_CLS, T="smooth_family")
+    panel = [{"id": "rough_ref", "class": "rough_terrain", "status": "confirmatory",
+              "expects": [dict(_dom("rough_family", "smooth_family"), name="S"),
+                          dict(_in_l1("smooth_family"), name="smooth_in_layer1"),
+                          dict(_dom("smooth_family", "rough_family"), name="reverse")]}]
+    out = cf.run_reference_panel(_class_grids(), _DX, panel, _CLS_CANDS + ["T"],
+                                 _EXTENT_M, _SUPPORTS, candidate_classes=classes,
+                                 adequacy=False)
+    r = out["references"][0]
+    for c in r["cells"]:
+        dom = c["dominance_matrix"]
+        assert "T" in c["pareto_layer1"], c["pareto_layer1"]
+        for w in _ROUGH:
+            assert _winner(dom, w, "T") == "T", dom
+            assert all(_winner(dom, w, s) == w for s in _SMOOTH), dom
+    e = r["expectations"]
+    assert e["S"]["outcome"] == "fails" and e["S"]["satisfied_fraction"] == 0.0, e["S"]
+    assert e["smooth_in_layer1"]["outcome"] == "holds", e["smooth_in_layer1"]
+    assert e["reverse"]["outcome"] == "holds", e["reverse"]
+    assert out["candidate_classes"] == classes, out["candidate_classes"]
+
+
+def test_class_rules_exist_forall_and_ignore_recommendation_state():
+    full = {"R1|R2": "R2", "R1|S1": "R1", "R1|S2": "R1",
+            "R2|S1": "R2", "R2|S2": "R2", "S1|S2": "S1"}
+    cells = [
+        # No recommendation, but the BASELINE relations show R2 beating both S.
+        {"support_m": 90.0, "result_state": "INDETERMINATE", "recommended_unit": None,
+         "pareto_layer1": ["R2"], "dominance_matrix": full},
+        # Winners split: R1 beats only S1, R2 beats only S2 -> no ONE winner.
+        {"support_m": 150.0, "result_state": "TIE", "recommended_unit": None,
+         "pareto_layer1": ["R1", "R2"],
+         "dominance_matrix": {"R1|R2": "~", "R1|S1": "R1", "R1|S2": "~",
+                              "R2|S1": "~", "R2|S2": "R2", "S1|S2": "~"}},
+        # S2 absent from the matrix (e.g. ineligible): counts as NOT dominated.
+        {"support_m": 300.0, "result_state": "RECOMMEND_FOLLOW_UP",
+         "recommended_unit": "R1", "pareto_layer1": ["R1"],
+         "dominance_matrix": {"R1|R2": "R1", "R1|S1": "R1", "R2|S1": "R2"}},
+        # ERROR never satisfies, whatever it carries.
+        {"support_m": 600.0, "result_state": "ERROR", "recommended_unit": None,
+         "pareto_layer1": ["R1"], "dominance_matrix": full},
+    ]
+    d = cf.evaluate_expectation(_dom("rough_family", "smooth_family"), cells, _CLS)
+    assert [p["satisfied"] for p in d["per_support"]] == [True, False, False, False], d
+    assert d["outcome"] == "mixed" and d["satisfied_fraction"] == 0.25, d
+    assert d["error_supports"] == [600.0], d
+    assert d["declared"] == _dom("rough_family", "smooth_family"), d
+    l1 = cf.evaluate_expectation(_in_l1("rough_family"), cells, _CLS)
+    assert [p["satisfied"] for p in l1["per_support"]] == [True, True, True, False], l1
+    assert cf.evaluate_expectation(_in_l1("rough_family"), cells[:3], _CLS)["outcome"] == "holds"
+    sm = cf.evaluate_expectation(_in_l1("smooth_family"), cells, _CLS)
+    assert sm["outcome"] == "fails" and sm["satisfied_fraction"] == 0.0, sm
+    # The unit types ignore candidate_classes entirely.
+    for exp in ({"type": "recommends", "unit": "R1"}, {"type": "non_dominated", "unit": "S1"},
+                {"type": "not_sole", "unit": "R1"}):
+        assert cf.evaluate_expectation(exp, cells, _CLS) == cf.evaluate_expectation(exp, cells)
+
+
+def test_multiple_named_expectations_evaluated_and_stored():
+    out = _class_run()
+    assert _CLASS_CACHE["panel"] == _class_panel(), "the predeclared panel must never be edited"
+    refs = _refs(out)
+    for entry in _class_panel():
+        r = refs[entry["id"]]
+        assert sorted(r["expectations"]) == sorted(e["name"] for e in entry["expects"])
+        for e in entry["expects"]:
+            got = r["expectations"][e["name"]]
+            assert got == cf.evaluate_expectation(e, r["cells"], _CLS), (e, got)
+            assert got["declared"] == e, got            # verbatim, name included
+    # The single `expect` is untouched by the named ones: same result as its named twin.
+    rough = refs["rough_ref"]
+    assert rough["expectation"]["declared"] == _class_panel()[0]["expect"]
+
+    def undeclared(e):
+        return {k: v for k, v in e.items() if k != "declared"}
+    assert undeclared(rough["expectation"]) == undeclared(rough["expectations"]["S"])
+    # Named-only reference: `expectation` is not_predeclared and it is not counted
+    # as confirmation (counts_as_confirmation and the summary read `expect` only).
+    smooth = refs["smooth_ref"]
+    assert smooth["expectation"]["outcome"] == "not_predeclared", smooth["expectation"]
+    assert smooth["counts_as_confirmation"] is False
+    s = out["summary"]
+    assert s["classes"]["smooth_terrain"]["outcomes"]["not_predeclared"] == 1, s
+    assert s["confirmatory_outcomes"] == {"holds": 1, "mixed": 0, "fails": 0,
+                                          "not_predeclared": 1}, s
+    # A reference without `expects` gets no `expectations` key at all.
+    assert all("expectations" not in r for r in _run(adequacy=False)["references"])
+
+
+def test_class_and_named_expectation_misdeclarations_fail_fast():
+    g = _class_grids()
+    calls = []
+    real_cell, real_ade = cf._run_cell, cf._run_adequacy
+
+    def counting_cell(*a, **k):
+        calls.append("cell")
+        return real_cell(*a, **k)
+
+    def counting_ade(*a, **k):
+        calls.append("adequacy")
+        return real_ade(*a, **k)
+
+    def entry(**kw):
+        e = {"id": "rough_ref", "class": "rough_terrain", "status": "confirmatory"}
+        e.update(kw)
+        return e
+
+    three = {"R1": "rough_family", "R2": "rough_family", "S1": "smooth_family"}
+    bad = [
+        ([entry(expect=_dom("rough_family", "smooth_family"))], None,
+         "class `expect` without candidate_classes"),
+        ([entry(expects=[dict(_in_l1("rough_family"), name="V")])], None,
+         "class `expects` entry without candidate_classes"),
+        ([entry(expect=_in_l1("basaltic"))], _CLS, "unknown class"),
+        ([entry(expects=[dict(_dom("basaltic", "smooth_family"), name="S")])], _CLS,
+         "unknown winner_class"),
+        ([entry(expects=[dict(_dom("rough_family", "smooth"), name="S")])], _CLS,
+         "unknown loser_class"),
+        ([entry(expect=_dom("rough_family", "rough_family"))], _CLS, "winner == loser"),
+        ([entry(expect=_in_l1("rough_family"))], three, "candidate S2 has no class"),
+        ([entry(expect=None)], three, "candidate S2 has no class (no class expectation)"),
+        ([entry(expect=None)], dict(_CLS, S2=""), "empty class name"),
+        ([entry(expects=[dict(_in_l1("rough_family"), name="V"),
+                         dict(_in_l1("smooth_family"), name="V")])], _CLS,
+         "duplicate expectation names"),
+        ([entry(expects=[_in_l1("rough_family")])], _CLS, "unnamed expectation"),
+        ([entry(expects=dict(_in_l1("rough_family"), name="V"))], _CLS,
+         "`expects` not a list"),
+        ([entry(expects=[{"name": "N", "type": "not_sole", "unit": "W"}])], _CLS,
+         "named unit expectation on a non-candidate"),
+    ]
+    cf._run_cell, cf._run_adequacy = counting_cell, counting_ade
+    try:
+        for panel, classes, what in bad:
+            try:
+                cf.run_reference_panel(g, _DX, panel, _CLS_CANDS, _EXTENT_M, _SUPPORTS,
+                                       candidate_classes=classes)
+            except ValueError:
+                continue
+            raise AssertionError(f"misdeclaration accepted: {what}")
+        assert calls == [], calls                  # rejected BEFORE anything ran
+        # The counter is live: a valid panel does run cells.
+        cf.run_reference_panel(g, _DX, [entry(expect=_in_l1("rough_family"))],
+                               _CLS_CANDS, _EXTENT_M, _SUPPORTS[:1],
+                               candidate_classes=_CLS, adequacy=False)
+        assert calls == ["cell"], calls
+    finally:
+        cf._run_cell, cf._run_adequacy = real_cell, real_ade
+    # evaluate_expectation called directly enforces the same class rules.
+    for exp, classes in ((_in_l1("rough_family"), None), (_in_l1("basaltic"), _CLS),
+                         (_dom("rough_family", "rough_family"), _CLS)):
+        try:
+            cf.evaluate_expectation(exp, [], classes)
+        except ValueError:
+            continue
+        raise AssertionError(f"evaluate_expectation accepted {exp!r} with {classes!r}")
+
+
+_V2_TOP_KEYS = {"extent_m", "supports_m", "decision_metrics", "candidates",
+                "references", "summary", "note"}
+_V2_REF_KEYS = {"id", "class", "status", "counts_as_confirmation", "compared_units",
+                "cells", "adequacy", "expectation"}
+_V2_CELL_KEYS = {"support_m", "result_state", "recommended_unit", "pareto_layer1",
+                 "compared_units", "provenance", "error"}
+_NEW_CELL_KEYS = {"pareto_layers", "dominance_matrix"}
+
+
+def _old_fields_json(out):
+    """Only the pre-existing (v2) fields of a panel output, as canonical JSON."""
+    o = copy.deepcopy(out)
+    o.pop("candidate_classes", None)
+    for r in o["references"]:
+        r.pop("expectations", None)
+        for c in r["cells"]:
+            for k in _NEW_CELL_KEYS:
+                c.pop(k, None)
+    return json.dumps(o, sort_keys=True, allow_nan=False)
+
+
+def test_v2_style_panel_old_fields_byte_identical_with_new_parameters():
+    # Backward compatibility for the frozen v2 experiment: a v2-style panel (single
+    # `expect`, no classes) and the SAME panel with candidate classes + named class
+    # expectations on every reference produce byte-identical pre-existing fields.
+    base = _run()
+    panel = _panel()
+    for p in panel:
+        p["expects"] = [dict(_in_l1("moderate"), name="X_class_in_layer1"),
+                        dict(_dom("moderate", "smooth"), name="X_class_beats_Y")]
+    classes = {"X": "moderate", "Y": "smooth", "Z": "rough", "unused_id": "rough"}
+    extended = _run(panel=panel, candidate_classes=classes)
+    assert _old_fields_json(extended) == _old_fields_json(base)
+    # The v2-style run carries ONLY the pre-existing keys + the two cell pass-throughs.
+    assert set(base) == _V2_TOP_KEYS, sorted(base)
+    for r in base["references"]:
+        assert set(r) == _V2_REF_KEYS, sorted(r)
+        for c in r["cells"]:
+            assert set(c) == _V2_CELL_KEYS | _NEW_CELL_KEYS, sorted(c)
+    # The extended run adds only what was opted into; the stored class map holds
+    # exactly the candidates used (an entry for a non-candidate is ignored).
+    assert set(extended) == _V2_TOP_KEYS | {"candidate_classes"}, sorted(extended)
+    assert all(set(r) == _V2_REF_KEYS | {"expectations"} for r in extended["references"])
+    assert extended["candidate_classes"] == {"X": "moderate", "Y": "smooth", "Z": "rough"}
+    # A sole RECOMMEND of X implies X is in layer 1, so the class twin holds too.
+    for rid in ("plains_a", "plains_b"):
+        assert _refs(extended)[rid]["expectations"]["X_class_in_layer1"]["outcome"] == "holds"
+    assert base["summary"]["specificity"]["verdict"] == "specific"
