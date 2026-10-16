@@ -1,0 +1,72 @@
+# TerraTrace matched-footprint benchmark -- v2 REFERENCE PANEL (FROZEN 2026-10-16)
+#
+# Frozen BEFORE any v2 result was produced. Decision rules + hypotheses live in
+# docs/BENCHMARK-PROTOCOL-v2.md. Do not edit expectations after seeing results;
+# any change must be a NEW versioned file with the reason recorded.
+#
+# Why v2 exists (defects found in the v1 real run, by inspecting its own output):
+#   * footprints were NOT matched: the cached Earth tiles truncated the 40 km window
+#     (Craters 24.4 km, Andes 33.2, Nevada 36.1 vs Mars 39.8 -> ratio 1.63);
+#   * 500 m / 1000 m supports were BELOW Mars MOLA's effective resolution
+#     (~1389 m = 3 x 463 m heuristic) -> Mars detail interpolated, Earth detail real;
+#   * no held-out confirmation, no specificity control, no adequacy, no
+#     source-resolution control.
+# v2 fixes the regime and adds those tests. Map-scale morphology screening only.
+
+experiment: matched_footprint_panel_v2
+extent_m: 24000              # largest window EVERY unit provides untruncated (Craters tile ~24.36 km);
+extent_policy: min_available # runner also shrinks to the min available extent and reports it
+honest_supports_m: [1500, 2000]      # >= support floor (1389 m); 16 and 12 cells/side at 24 km
+diagnostic_supports_m: [500, 1000]   # BELOW the floor -- diagnostics only, never evidence
+res_factor: 3.0              # effective resolution = 3 x source spacing (heuristic, stated)
+resolution_control: true     # re-run with every unit low-passed to the coarsest effective resolution
+adequacy: true               # absolute adequacy vs each reference's own internal variability
+adequacy_support_m: 1500
+adversarial: true            # bounded stress test on the primary reference only
+primary_reference: mars_daedalia
+min_valid_fraction: 0.5
+seed: 0
+
+candidates: [earth_craters_of_the_moon, earth_nevada_basin, earth_andean_volcano]
+
+# Reference panel. status: exploratory = seen before / hypothesis-forming (NEVER counted
+# as confirmation); confirmatory = never analysed by TerraTrace before this freeze.
+# Coordinates are approximate named-feature centres (MOLA 0..360 deg E); a 24 km window
+# samples only a small piece of each unit -- a representativeness limitation, stated.
+panel:
+  - {id: mars_daedalia,  class: volcanic_plains, status: exploratory,
+     expect: {type: recommends, unit: earth_craters_of_the_moon}}      # formed the hypothesis
+  - {id: mars_elysium,   class: volcanic_plains, status: exploratory,
+     expect: {type: recommends, unit: earth_craters_of_the_moon}}      # seen in the v0 mismatched atlas
+  - {id: mars_amazonis,  class: volcanic_plains, status: confirmatory,
+     expect: {type: recommends, unit: earth_craters_of_the_moon}}
+  - {id: mars_syria,     class: volcanic_plains, status: confirmatory,
+     expect: {type: recommends, unit: earth_craters_of_the_moon}}
+  - {id: mars_hesperia,  class: volcanic_plains, status: confirmatory,
+     expect: {type: recommends, unit: earth_craters_of_the_moon}}
+  - {id: mars_noachis,   class: contrast,        status: confirmatory,
+     expect: {type: not_sole,   unit: earth_craters_of_the_moon}}      # cratered highland
+  - {id: mars_coprates,  class: contrast,        status: confirmatory,
+     expect: {type: not_sole,   unit: earth_craters_of_the_moon}}      # Valles Marineris canyon
+
+units:
+  - {id: mars_daedalia, path: data/mars/mola_463m.tif, body: mars, native_posting_m: 463.0,
+     center_lon_e: 226.5, center_lat: -21.5, rights_status: verified_allowed}   # Daedalia Planum lava plains
+  - {id: mars_elysium,  path: data/mars/mola_463m.tif, body: mars, native_posting_m: 463.0,
+     center_lon_e: 150.0, center_lat: 4.5,   rights_status: verified_allowed}   # Elysium Planitia
+  - {id: mars_amazonis, path: data/mars/mola_463m.tif, body: mars, native_posting_m: 463.0,
+     center_lon_e: 196.0, center_lat: 24.8,  rights_status: verified_allowed}   # Amazonis Planitia (young lava plains)
+  - {id: mars_syria,    path: data/mars/mola_463m.tif, body: mars, native_posting_m: 463.0,
+     center_lon_e: 256.0, center_lat: -12.0, rights_status: verified_allowed}   # Syria Planum (Tharsis volcanic plateau)
+  - {id: mars_hesperia, path: data/mars/mola_463m.tif, body: mars, native_posting_m: 463.0,
+     center_lon_e: 109.9, center_lat: -21.4, rights_status: verified_allowed}   # Hesperia Planum (ridged volcanic plains)
+  - {id: mars_noachis,  path: data/mars/mola_463m.tif, body: mars, native_posting_m: 463.0,
+     center_lon_e: 10.0,  center_lat: -45.0, rights_status: verified_allowed}   # Noachis Terra (cratered highland)
+  - {id: mars_coprates, path: data/mars/mola_463m.tif, body: mars, native_posting_m: 463.0,
+     center_lon_e: 298.6, center_lat: -13.4, rights_status: verified_allowed}   # Coprates Chasma (canyon)
+  - {id: earth_craters_of_the_moon, path: data/earth/craters_of_the_moon_cop30.tif, body: earth,
+     native_posting_m: 30.0, rights_status: verified_allowed}   # basaltic lava field, Idaho (plausible analog)
+  - {id: earth_nevada_basin, path: data/earth/nevada_basin_cop30.tif, body: earth,
+     native_posting_m: 30.0, rights_status: verified_allowed}   # basin-and-range (near-miss)
+  - {id: earth_andean_volcano, path: data/earth/andean_volcano_cop30.tif, body: earth,
+     native_posting_m: 30.0, rights_status: verified_allowed}   # steep stratovolcano (contrast control)
