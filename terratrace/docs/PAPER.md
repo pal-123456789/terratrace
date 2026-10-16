@@ -18,10 +18,16 @@ independent descriptor "lenses"** — deliberately refusing to collapse the comp
 composite "likeness" score. When lenses disagree it returns an explicit TIE / INDETERMINATE
 state instead of inventing a winner, and attaches a spatial block-bootstrap, a permutation
 significance test, a non-composite decision-confidence verdict, and a full provenance record to
-every result. On a real five-world run (Mars MOLA vs three Copernicus GLO-30 Earth terrains)
-the method independently re-identifies a documented basalt analog — Craters of the Moon, Idaho
-— as the closest match on the core roughness/relief axes, while honestly reporting that the
-recommendation does not survive every lens. Everything is offline-reproducible from one command
+every result. In exploratory runs on real data (Mars MOLA vs three Copernicus GLO-30 Earth
+terrains) the method favoured a documented basalt analog — Craters of the Moon, Idaho — on the
+core roughness/relief axes. A **pre-registered** follow-up then tested that preference under
+matched physical footprints, supports at or above MOLA's effective resolution, three held-out
+Martian volcanic plains, and two contrast terrains. **The preference did not survive:** in the
+honest regime the engine abstained for all seven Mars references, and Craters was the nearest
+candidate for a cratered highland as readily as for volcanic plains — the signature of a
+non-specific "least-dissimilar member of a weak shortlist" effect rather than a specific analog.
+TerraTrace's contribution is therefore a screening method that **detects its own false analogs**
+with rules fixed before the data are seen. Everything is offline-reproducible from one command
 and covered by 771 automated tests.
 
 ## 1. Problem and approach
@@ -90,7 +96,9 @@ bodies with coverage, licence, and 1-sigma vertical-accuracy metadata; a no-netw
 validates each bounding box, selects the covering product, and sizes the request before any
 download.
 
-## 4. Result: a real five-world screen
+## 4. Results: an exploratory screen, then a pre-registered test
+
+### 4.1 Exploratory screen (not controlled — retained as history)
 
 Mars MOLA versus three real Copernicus GLO-30 Earth terrains at 1000 m support. Distance to the
 Mars reference per axis (lower = closer):
@@ -110,22 +118,40 @@ Four-lens ablation on the **same** data (one command, `--ablation`):
 | geomorphic | RECOMMEND | **Craters of the Moon** | {Craters} |
 | landform | TIE | — | {Craters, Nevada, Andes} |
 
-**Reading.** On raw roughness/relief/ruggedness (core) and on curvature/vector-ruggedness
-(geomorphic), Craters of the Moon is decisively the closest match — the method *independently
-re-identifies a terrain already used as a basalt analog*. Adding aspect-dispersion and
-hypsometric structure (extended), where the Nevada basin matches Mars better and even shares its
-~45° fabric, turns the decision into an honest TIE; the landform lens cannot separate the three.
-The defensible conclusion is therefore **lens-conditional**: *Craters of the Moon is the robust
-analog for surface roughness and local shape; it is not uniquely best for directional/elevation
-structure.* No single number could have said that honestly.
+**Exploratory reading (superseded by 4.2).** On the core and geomorphic lenses Craters of the
+Moon was the closest of the three candidates, which looked like an independent re-identification
+of a known basalt analog; the extended and landform lenses tied. Running the one-command atlas over
+four Mars terrains (Jezero, Gale, Daedalia Planum, Elysium Planitia) kept Craters non-dominated in
+all 16 reference×lens cells. These runs, however, compared a ~10° Mars window with ~0.4° Earth
+windows and used supports below MOLA's effective resolution, so they were treated as a
+**hypothesis to test**, not a result.
 
-**Corroboration at scale.** Running the one-command atlas over four distinct Mars terrains
-(Jezero and Gale crater floors; Daedalia Planum and Elysium Planitia volcanic plains) against the
-same three Earth candidates under all four lenses (16 reference×lens cells) makes the result
-sharper: Craters of the Moon is Pareto non-dominated in **every** cell — the sole consensus analog
-— and is the *decisive* recommendation for the volcanic plains under three of four lenses, while
-the crater floors tie more often (no clean crater-floor analog among the three). The engine points
-confidently where the morphology agrees and abstains where it does not. See `REAL-EXAMPLE.md`.
+### 4.2 Pre-registered matched-footprint test (protocol v2)
+
+The hypothesis was tested under a protocol frozen and committed before the runner existed
+(`docs/BENCHMARK-PROTOCOL-v2.md`): every unit cropped to the same untruncated 24 km window;
+evidence only at supports ≥ MOLA's effective resolution (1.5 and 2 km); three held-out Martian
+volcanic plains (Amazonis, Syria, Hesperia) as confirmation; two contrast terrains (Noachis Terra
+highland, Coprates Chasma canyon) as a specificity control; a resolution-matching control; and an
+absolute-adequacy check against each reference's own variability.
+
+| hypothesis | frozen verdict |
+|---|---|
+| H1 — held-out plains recommend Craters | **not supported** (0 of 3) |
+| H2 — Craters not chosen for contrast terrains | inconclusive (no honest-regime recommendation anywhere) |
+| H3 — not a source-smoothing artifact | not supported (primary changed under resolution matching) |
+| H4 — absolute adequacy | reported (no recommended unit) |
+
+**Reading.** In the honest regime the engine abstained for all seven references. Craters was
+nonetheless the nearest candidate in 11 of 14 cells — **including the cratered highland Noachis
+Terra** — and under resolution matching it became the stable recommendation in those same cells,
+with the engine's own specificity verdict `non_specific`. It also fell outside the own variability
+of Daedalia and Elysium, the two plains the exploratory claim was built on. The most economical
+explanation is a shortlist effect: at kilometre scale Martian terrain is smoother than all three
+Earth tiles, and Craters is simply the smoothest of them. The exploratory analog claim is
+therefore **withdrawn**; full results, including the non-pre-registered descriptive analyses and a
+protocol-design lesson, are in `docs/RESULTS-v2.md`. A direct test of the shortlist explanation
+(smoothness-matched non-volcanic controls, wider windows for power) is proposed as protocol v3.
 
 ## 5. Validation
 
@@ -135,20 +161,26 @@ are invariant to a constant offset and to 90° rotation; roughness discriminatio
 planted close twin is recovered over an impostor; a water tile is BLOCKED; openness is 90° on a
 plane and exceeds 90° at a peak; geomorphons label a cone apex a peak and a basin centre a pit;
 a sinusoid's spectral peak lands at its wavelength; white noise is spectrally flat (Parseval
-holds); a ridged surface reports the correct fabric orientation. The real-data run adds an
-external check: the method re-identifies a documented basalt analog on the core axes without
-being told to.
+holds); a ridged surface reports the correct fabric orientation. Separate synthetic ground truths
+validate the comparison controls themselves: a footprint mismatch that flips the recommended
+analog is detected and corrected; a source-smoothing false analog is removed by resolution
+matching; and a non-specific "wins everywhere" candidate is distinguished from a specific one.
+Passing these tests establishes software and method correctness, not a scientific discovery —
+the real-data hypothesis test is reported separately in §4.2.
 
 ## 6. Limitations and transfer gaps (stated, not hidden)
 
 TerraTrace compares *map-scale morphology of sampled DEMs* and nothing else. It says nothing
 about composition, rock-scale obstacles below the pixel, trafficability, or mission suitability;
-those bounds are reproduced verbatim in every report. Two concrete limits of the worked example:
-the Mars window (~10°) and the Earth windows (~0.4°) differ in footprint by ~15×, so the screen
-mixes regional Mars structure with local Earth structure (a transfer gap the ledger flags; the
-fix is comparable-footprint AOIs); and the independent-pixel bootstrap is optimistic relative to
-the spatial block bootstrap on autocorrelated terrain. Deferred work: DEM co-registration and
-vertical-datum error propagation end-to-end into the decision, and a multi-pair "analog atlas."
+those bounds are reproduced verbatim in every report. Two concrete limits of the exploratory
+example (§4.1): the Mars window (~10°) and the Earth windows (~0.4°) differed in footprint by ~15×,
+and supports below MOLA's effective resolution compared interpolated Mars detail with real Earth
+detail — both corrected in the pre-registered test of §4.2. That test is itself limited: 12–16
+cells per side at 24 km, one source per body (not independent replications), a 3× effective-
+resolution heuristic rather than a measured MOLA transfer function, and only three Earth
+candidates. The independent-pixel bootstrap is optimistic relative to the spatial block bootstrap
+on autocorrelated terrain. Deferred work: DEM co-registration and vertical-datum error propagation
+end-to-end into the decision; wider Earth windows and smoothness-matched controls (protocol v3).
 
 ## 7. Reproducibility
 

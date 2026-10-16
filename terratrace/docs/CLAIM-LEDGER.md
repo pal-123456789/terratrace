@@ -76,3 +76,20 @@ chunks; none timed out). Validation 51/51. Gated study hash unchanged.
 
 **Next action:** run `config/matched_footprint_v2.yml` on the data machine and record H1–H4 here
 exactly as produced (stopping rule in `BENCHMARK-PROTOCOL-v2.md`).
+
+## Iteration 4 — protocol v2 RESULTS (2026-10-16; full write-up `RESULTS-v2.md`)
+
+Recorded exactly as produced by the frozen rules: **H1 NOT SUPPORTED** (0/3 confirmatory plains hold),
+**H2 INCONCLUSIVE** (not evaluable — no honest-regime recommendation anywhere), **H3 NOT SUPPORTED**
+(primary changed under resolution matching), **H4 reported** (no recommended unit to assess).
+
+| # | Claim | Type | Status | Evidence / limits | Falsifier |
+|---|---|---|---|---|---|
+| 6 (final) | Craters of the Moon ↔ Mars volcanic plains is a specific, footprint-robust morphological analog. | DISCOVERY | **NOT SUPPORTED — withdrawn.** | v2 honest regime: abstention at all 14 cells; Craters nearest for a cratered highland (Noachis) as readily as for plains; outside Daedalia's and Elysium's own variability. | A future, pre-registered, adequately powered test with smoothness-matched controls in which Craters beats them for plains but not highlands. |
+| 14 | With MOLA + COP30, these three candidates and 24 km windows, the data do not support a specific Craters–plains relationship; the earlier preference is explained at least in part by footprint mismatch and below-resolution comparison. | DISCOVERY (negative) | **Supported by the frozen v2 protocol (H1) + v1-vs-v2 contrast.** | Low power (12–16 cells/side); one source per body (not independent replications). | Reversal of H1 in an adequately powered re-run of the same frozen design. |
+| 15 | Craters' advantage is a non-specific "least-dissimilar member of a weak shortlist" (smoothness) effect. | INTERPRETATION | **Consistent with v2, NOT directly tested** (descriptive analyses 1–4 in `RESULTS-v2.md` are not pre-registered). | Smoothness explanation inferred, not measured against a smoothness-matched control. | v3: a smoothness-matched non-volcanic Earth control does NOT compete with Craters for Mars plains. |
+| 16 | Protocol lesson: the frozen H3 rule ("any change") could not distinguish a recommendation that was *stabilised* by resolution matching from one that was *reversed*. | METHOD | Recorded; verdict NOT altered. | Under matching the nearest candidate was unchanged in all 11 cells; only INDETERMINATE → RECOMMEND. | — |
+
+**Three achievements, kept separate (as of iteration 4):** software correctness — 771 tests green;
+method validation — synthetic ground truths for footprint, resolution and specificity controls;
+scientific discovery — **one reproducible negative result** (claim 14); no positive analog claim stands.
