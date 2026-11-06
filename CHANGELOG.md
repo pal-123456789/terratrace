@@ -3,6 +3,43 @@
 Complete build history of TerraTrace, generated from the git commit messages
 (newest first). Each entry is the exact message recorded with that commit.
 
+## Unreleased — protocol v3 result: the smoothness explanation is confirmed, and a credential-free Earth-DEM path
+
+*Prepared 2026-11-05 by Pal Ghevariya (v3 pre-specified; see the freeze qualification in `docs/BENCHMARK-PROTOCOL-v3.md`)*
+
+Ran the v3 reference panel on real data and recorded it exactly as produced. **S SUPPORTED**
+(3/3 confirmatory volcanic-plains references place a smooth **non-volcanic** control in Pareto
+layer 1 at every honest support), **V NOT SUPPORTED** (0/3 plains; V holds for both highlands),
+**R SUPPORTED** (0 reversals). All 15 confirmatory honest cells were in the honest regime, unlike
+v2 where none were. So the withdrawn Craters-of-the-Moon preference is now *directly shown* to be
+a smoothness effect: the nearest Earth analog tracks km-scale roughness, not volcanic origin.
+
+Honest qualification, recorded rather than glossed: v3 is **pre-specified, not fully
+pre-registered** — the decision rules were committed on 2026-10-16 before any v3 data existed and
+the config was written 708 s before the result bundle with hashes unchanged since, but the protocol
+*document* was committed after the run.
+
+New in this entry:
+
+- **`terratrace/cop30_cog.py`** — keyless Copernicus GLO-30 access from the public ESA COG mosaic
+  on AWS. No OpenTopography API key is needed any more. Proven **bit-identical** to the
+  OpenTopography COP30 product (max absolute difference 0.0 m, 100 % identical pixels) by
+  `tests/test_cop30_cog.py`.
+- **`scripts/fetch_earth_candidates.py`** — one-command Earth-tile fetch (`--source cog` default,
+  `--source opentopo` for the keyed path), idempotent.
+- **`config/matched_footprint_v3.yml`** — the v3 panel: 3 fresh confirmatory volcanic plains,
+  2 fresh confirmatory highlands, 7 Earth candidates with literature-assigned classes, 60 km extent.
+- **`docs/BENCHMARK-PROTOCOL-v3.md`** (frozen) and **`docs/RESULTS-v3.md`** — the protocol with its
+  coordinate-verification record and the results.
+- Reference-set corrections found by IAU-Gazetteer verification and made **before** any result
+  existed: Solis Lacus is an *albedo feature* (the plain is **Solis Planum**); **Lunae Planum is
+  misclassified as volcanic** (a dissected highland, σ 41 m) and was dropped for **Cerberus Palus**;
+  the proposed Terra Cimmeria point sampled **Martz crater's interior**; the proposed Arabia Terra
+  point sat on **Cassini's rim**.
+
+The complete offline suite is now **816 passed, 0 failed**; validation remains 51/51; the gated
+default study hash `8f4890777ee462a2...` is unchanged. No existing engine or test file was modified.
+
 ## Unreleased — v3 preparation: class-aware expectations, resolution-change classification, and 800-test gate
 
 *Prepared 2026-10-16 by Pal Ghevariya (v3 proposal remains unfrozen)*
