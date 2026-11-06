@@ -150,8 +150,26 @@ of Daedalia and Elysium, the two plains the exploratory claim was built on. The 
 explanation is a shortlist effect: at kilometre scale Martian terrain is smoother than all three
 Earth tiles, and Craters is simply the smoothest of them. The exploratory analog claim is
 therefore **withdrawn**; full results, including the non-pre-registered descriptive analyses and a
-protocol-design lesson, are in `docs/RESULTS-v2.md`. A direct test of the shortlist explanation
-(smoothness-matched non-volcanic controls, wider windows for power) is proposed as protocol v3.
+protocol-design lesson, are in `docs/RESULTS-v2.md`.
+
+**The shortlist explanation was then tested directly (protocol v3).** With two smoothness-matched
+**non-volcanic** controls (Nullarbor limestone, σ ≈ 5 m; Llano Estacado sedimentary plain, σ ≈ 14 m),
+60 km windows for power, and three fresh confirmatory volcanic plains plus two fresh cratered
+highlands, the frozen v3 rules returned **S — supported**: a smooth non-volcanic terrain sits on the
+Pareto front for *every* confirmatory Martian volcanic plain at *every* honest support (3 of 3). And
+**V — not supported**: basaltic origin bought nothing, since no basaltic candidate dominated those
+controls for plains, while the basalts *did* come to the front for the rough highlands. Resolution
+robustness held (0 reversals in 15 confirmatory honest cells; 3 membership changes and 1
+destabilisation, correctly distinguished from reversal). The nearest Earth analog therefore tracks
+**km-scale roughness, not volcanic origin** — the withdrawn Craters preference is explained, and the
+explanation is measured rather than inferred. One caveat is recorded with the result: v3 is
+*pre-specified but not fully pre-registered* (the rules and config were fixed before the data were
+read, but the protocol document was committed after the run). See `docs/RESULTS-v3.md` and
+`docs/BENCHMARK-PROTOCOL-v3.md`.
+
+**Data access.** Earth elevations are read from the **public ESA Copernicus GLO-30 COG mosaic** on
+AWS, with no API key; that path is verified bit-identical to the OpenTopography COP30 product
+(maximum absolute difference 0.0 m), so the keyed service is optional rather than required.
 
 ## 5. Validation
 

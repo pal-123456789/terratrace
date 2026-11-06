@@ -75,6 +75,18 @@ The method write-up is `terratrace/docs/PAPER.md`; the earlier exploratory runs 
 `terratrace/docs/REAL-EXAMPLE.md` (marked superseded). The multi-reference **analog atlas** is
 documented in `terratrace/docs/ATLAS.md`.
 
+**Then the explanation was tested, not asserted.** Protocol v3 added two **smoothness-matched
+non-volcanic** Earth controls — the Nullarbor limestone plain and the Llano Estacado sedimentary
+plain — 60 km windows for statistical power, and three fresh confirmatory Martian volcanic plains
+alongside two fresh cratered highlands. The frozen v3 rules returned **S supported, V not
+supported**: for **every** confirmatory volcanic plain, at **every** honest support, a smooth
+**non-volcanic** terrain is on the Pareto front, while basaltic origin confers no advantage — the
+basalts come to the front only for the *rough* highlands. So the nearest Earth analog tracks
+**km-scale roughness, not volcanic origin**. Resolution robustness held (no reversals in 15
+confirmatory honest cells). Recorded with one honest caveat: v3 is *pre-specified but not fully
+pre-registered*. Results: `terratrace/docs/RESULTS-v3.md`; protocol:
+`terratrace/docs/BENCHMARK-PROTOCOL-v3.md`.
+
 ## Deploy
 
 Static site. On Vercel, import this repo; `vercel.json` serves `site/index.html` at `/` and the
