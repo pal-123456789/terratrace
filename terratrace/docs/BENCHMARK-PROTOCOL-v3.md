@@ -96,7 +96,15 @@ makes "smoothness-matched control" a testable design rather than a label.
 | earth_odadahraun | basaltic | 182.0 | Ódáðahraun, Iceland — basaltic lava field |
 | **earth_nullarbor** | **smooth_control** | **5.2** | Nullarbor Plain — Miocene **limestone**, a former seabed; world's largest single limestone exposure; non-volcanic |
 | **earth_llano_estacado** | **smooth_control** | **14.3** | Llano Estacado — Ogallala / Permian **sedimentary** high plain; non-volcanic |
-| earth_nevada_basin | other | 244 | basin-and-range near-miss; never part of an S or V claim |
+| earth_nevada_basin | other | 562 | basin-and-range near-miss; never part of an S or V claim |
+
+**Measurement provenance (and one correction).** Every σ in this table was re-measured from the
+public GLO-30 COG mosaic at 60 km after the run, in one consistent pass. One figure changed:
+`earth_nevada_basin` was quoted as 244 m when this document was first written and is **562 m** at the
+config's own centre (36.2 N, 115.6 W, which lands on basin-and-range relief, not on a basin floor).
+The correction is recorded rather than silently applied. It is a *descriptive* statistic only — no
+rule reads σ, and Nevada is class `other`, so it is excluded from S and V either way; the verdicts
+are unaffected. All other figures reproduced exactly.
 
 **Why these two controls are the pivot.** S can only be tested if the controls are
 genuinely smooth *and* genuinely non-volcanic. Nullarbor is limestone karst on a

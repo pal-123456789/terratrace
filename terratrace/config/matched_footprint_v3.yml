@@ -65,7 +65,7 @@ candidate_classes:
   earth_nullarbor: smooth_control     # sigma ~5 m  -- limestone, Miocene marine
   earth_llano_estacado: smooth_control # sigma ~14 m -- Ogallala/Permian sedimentary
   earth_odadahraun: basaltic          # sigma ~182 m
-  earth_nevada_basin: other           # sigma ~244 m -- basin-and-range, near-miss
+  earth_nevada_basin: other           # sigma ~562 m -- basin-and-range, near-miss
 
 # --- Reference panel --------------------------------------------------------
 # status: exploratory = seen before / hypothesis-forming (NEVER counted as
