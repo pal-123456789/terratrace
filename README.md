@@ -15,7 +15,7 @@ This repository holds two things:
 
 | Path | What it is |
 |---|---|
-| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across six robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **843 tests**, no network required. |
+| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across six robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **852 tests**, no network required. |
 | `site/` | A 3D scroll-animated website telling the project story (deployed on Vercel). |
 
 **Project deck — 10 slides.** [PDF](TerraTrace-deck.pdf) · [PowerPoint](TerraTrace-deck.pptx) — the whole project: the question, the pipeline across five bodies, the measurement layer, the benchmark that made us withdraw our own finding, the result, the verification evidence, the data path, the claim firewall and the open items.
@@ -89,7 +89,7 @@ example — are kept verbatim under `terratrace/docs/` so the audit trail is int
 ```bash
 cd terratrace
 pip install -r requirements.txt            # core (NumPy only)
-python tests/run_tests.py                   # 843 fixtures, offline
+python tests/run_tests.py                   # 852 fixtures, offline
 python scripts/run_validation.py            # scientific-correctness suite
 python -m terratrace.cli --out artifacts    # synthetic study
 python -m terratrace.build_viewer           # viewer/index.html
@@ -129,10 +129,14 @@ alongside two fresh cratered highlands. The frozen v3 rules returned **S support
 supported**: for **every** confirmatory volcanic plain, at **every** honest support, a smooth
 **non-volcanic** terrain is on the Pareto front, while basaltic origin confers no advantage — the
 basalts come to the front only for the *rough* highlands. So the nearest Earth analog tracks
-**km-scale roughness, not volcanic origin**. Resolution robustness held (no reversals in 15
-confirmatory honest cells). Recorded with one honest caveat: v3 is *pre-specified but not fully
-pre-registered*. Results: `terratrace/docs/RESULTS-v3.md`; protocol:
-`terratrace/docs/BENCHMARK-PROTOCOL-v3.md`.
+**km-scale roughness, not volcanic origin**. Resolution robustness held: of 15
+confirmatory honest cells, 11 unchanged, 3 membership-changed, 1 destabilised and **0 reversed**
+— no outright candidate reversal under the tested resolution-matching control. Recorded with two
+honest caveats: v3 is *pre-specified but not fully pre-registered*, and its confirmatory verdicts
+use the **core decision lens** (the other lenses are not independent replications). Results:
+`terratrace/docs/RESULTS-v3.md`; protocol: `terratrace/docs/BENCHMARK-PROTOCOL-v3.md`; chronology
+and config reconciliation: `terratrace/docs/V3-ARCHIVAL-CLARIFICATION.md`; independent-toolchain
+re-derivation of two descriptors: `terratrace/docs/INDEPENDENT-GIS-REPRODUCTION.md`.
 
 ![The 60 km roughness of the seven Earth candidates, log scale, coloured by the class assigned before the run. The two references that support S sit where the two non-volcanic controls sit, and the basalts sit higher — they win only where the target is rough.](terratrace/docs/figures/roughness-ladder.svg)
 
