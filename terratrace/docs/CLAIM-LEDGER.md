@@ -5,9 +5,11 @@ what would falsify it. Three achievement types are kept separate: **[IMPL]** sof
 correctness, **[METHOD]** empirical method validation, **[DISCOVERY]** a scientific
 result about Mars. Passing tests establishes [IMPL], not [DISCOVERY].
 
-Branch: `research/matched-footprint-benchmark` (local; not pushed). Baseline at start:
+Branch history: this ledger was opened on `research/matched-footprint-benchmark` at iteration 1
+(superseded by `research/m3-honest-regime`, now merged to `main`). Baseline when it was opened:
 `run_validation.py` 51/51 (exit 0), full suite 686 green (verified in chunks; single-run
-exceeds the sandbox tool cap), gated study hash `8f4890777ee462a2…`.
+exceeds the sandbox tool cap), gated study hash `8f4890777ee462a2…`. The suite has since grown to
+**843** green (iteration 5 and the CI-hygiene entries).
 
 | # | Claim | Type | Evidence (experiment) | Status | Uncertainty / limits | Falsifier |
 |---|---|---|---|---|---|---|
@@ -121,9 +123,10 @@ reverses under a 6-px crop-origin shift and under dropping either smooth control
 S pattern is robust (holds at every support, unchanged under resolution matching), but the *single
 top-of-shortlist* pick is a near-tie among similarly smooth terrains and should not be over-read.
 
-**Four achievements, kept separate (as of iteration 5):** software correctness — 817 tests green;
-method validation — synthetic ground truths for footprint, resolution and specificity controls;
-scientific discovery — **one reproducible negative result (claim 14) and one reproducible positive
-mechanism (claims 15/17)**; engineering — a credential-free, bit-identical data path (claim 18).
-Still no claim that any Earth terrain is a mission-relevant Mars analog.
+**Four achievements, kept separate (as of iteration 5):** software correctness — 817 tests green at
+the time of that result, **843** in the shipped tree (the v3 entry added tests after this line was
+written); method validation — synthetic ground truths for footprint, resolution and specificity
+controls; scientific discovery — **one reproducible negative result (claim 14) and one reproducible
+positive mechanism (claims 15/17)**; engineering — a credential-free, bit-identical data path
+(claim 18). Still no claim that any Earth terrain is a mission-relevant Mars analog.
 

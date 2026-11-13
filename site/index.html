@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TerraTrace — Planetary Analog OS</title>
-<meta name="description" content="Mars-to-Earth map-scale terrain-morphology transfer intelligence. Morphology screening only; not a mission-readiness tool.">
+<meta name="description" content="Five-world map-scale terrain-morphology analog screening. A pre-registered benchmark that withdrew its own false analog — and measured why. Morphology screening only; not a mission-readiness tool.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Sora:wght@300;400;600&display=swap" rel="stylesheet">
@@ -89,24 +89,33 @@ h2{font-family:"Space Grotesk";font-weight:600;font-size:clamp(2rem,5vw,3.7rem);
 .chip{font-family:"IBM Plex Mono";font-size:.74rem;color:var(--mut);border:1px solid var(--line);
   padding:9px 13px;border-radius:999px;transition:border-color .25s,color .25s}
 .chip:hover{border-color:var(--cyan);color:var(--cyan)}
-/* animated comparison chart */
-.chart{margin-top:34px;display:grid;gap:16px;max-width:640px}
-.row{display:grid;grid-template-columns:150px 1fr;align-items:center;gap:16px}
-.row .lab{font-family:"IBM Plex Mono";font-size:.76rem;color:var(--mut)}
-.track{position:relative;height:12px;background:rgba(149,166,173,.1);border:1px solid var(--line)}
-.track i{position:absolute;left:0;top:0;bottom:0;width:0;transition:width 1.1s cubic-bezier(.2,.7,.2,1)}
-.track .a{background:linear-gradient(90deg,rgba(236,149,96,.5),var(--oxide2))}
-.track .b{background:linear-gradient(90deg,rgba(69,211,230,.4),var(--cyan));mix-blend-mode:screen}
-.legend{display:flex;gap:22px;font-family:"IBM Plex Mono";font-size:.74rem;color:var(--mut);margin-top:4px}
-.legend .s{display:inline-block;width:10px;height:10px;margin-right:7px;vertical-align:middle}
-.verdict{font-family:"Space Grotesk";font-weight:700;font-size:clamp(2rem,6vw,4rem);
+/* the three-act finding block */
+.acts{margin-top:30px;display:grid;gap:14px;max-width:760px}
+.act{border:1px solid var(--line);border-left:3px solid var(--mut);background:rgba(8,12,19,.58);
+  padding:16px 18px;backdrop-filter:blur(6px)}
+.act .tag{font-family:"IBM Plex Mono";font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mut)}
+.act h4{font-family:"Space Grotesk";font-weight:600;font-size:1.02rem;margin:7px 0 6px}
+.act p{font-size:.88rem;color:var(--mut);font-weight:300}
+.act p b{color:#dfe6e8}
+.act.one{border-left-color:var(--oxide2)} .act.two{border-left-color:var(--violet)}
+.act.three{border-left-color:var(--cyan)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);margin-top:22px;max-width:760px}
+.stat{background:rgba(8,12,19,.74);padding:16px}
+.stat b{display:block;font-family:"Space Grotesk";font-weight:700;font-size:1.5rem;color:var(--cyan);line-height:1.1}
+.stat span{font-family:"IBM Plex Mono";font-size:.64rem;letter-spacing:.1em;color:var(--mut);text-transform:uppercase}
+.verdict{font-family:"Space Grotesk";font-weight:700;font-size:clamp(1.6rem,4.6vw,3rem);
   letter-spacing:-.02em;margin-top:26px}
+pre.cmd{margin-top:22px;max-width:760px;overflow-x:auto;border:1px solid var(--line);
+  background:rgba(8,12,19,.72);padding:16px 18px;font-family:"IBM Plex Mono";font-size:.76rem;
+  line-height:1.9;color:#bcd6da;font-weight:400}
+pre.cmd .p{color:var(--mut)}
 .foot{position:relative;z-index:4;padding:9vh 5vw 14vh;border-top:1px solid var(--line);
   color:#6c7b83;font-size:.82rem;background:rgba(6,9,16,.6);font-weight:300;max-width:900px}
 .reveal{opacity:0;transform:translateY(20px)}
 @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}.mask>span{transform:none}}
-@media(max-width:760px){.nav .links{gap:16px}.console{grid-template-columns:repeat(2,1fr)}
-  section{padding:16vh 7vw}.row{grid-template-columns:110px 1fr}}
+@media(max-width:760px){.nav .links{gap:14px}.console{grid-template-columns:repeat(2,1fr)}
+  section{padding:16vh 7vw}.nav .links a{font-size:.72rem}}
 
 
 </style></head><body>
@@ -125,13 +134,13 @@ h2{font-family:"Space Grotesk";font-weight:600;font-size:clamp(2rem,5vw,3.7rem);
   <a class="brand" href="#top">TerraTrace<span class="dot">.</span></a>
   <div class="links">
     <a href="#method">Method</a><a href="#finding">Finding</a>
-    <a href="/study">Study viewer</a><a href="#open">Open</a>
+    <a href="#evidence">Evidence</a><a href="/study">Study viewer</a>
   </div>
 </nav>
 
 <div class="console">
   <div class="c">Body<b id="c-body">MARS</b></div>
-  <div class="c">Support<b>1000 m · AEQD</b></div>
+  <div class="c">Support<b>1.5 km · AEQD</b></div>
   <div class="c">Lat / Lon<b id="c-ll">—</b></div>
   <div class="c">Progress<b id="c-stage">01 / 06</b><span class="prog" id="c-prog"></span></div>
 </div>
@@ -142,13 +151,14 @@ h2{font-family:"Space Grotesk";font-weight:600;font-size:clamp(2rem,5vw,3.7rem);
     <h1><span class="mask"><span>Which Earth</span></span>
       <span class="mask"><span>is <span class="oxide">Mars</span> —</span></span>
       <span class="mask"><span>and what it <span class="cy">proves</span>.</span></span></h1>
-    <p class="lead reveal">A provenance-first instrument that compares Mars and Earth terrain at a
-      shared metric scale, exposes what cannot transfer, and refuses to fake a winner.</p>
+    <p class="lead reveal">A provenance-first instrument that compares planetary and Earth terrain at a
+      shared metric scale across five worlds, exposes what cannot transfer, and refuses to fake a winner.
+      Its sharpest result is a claim it disproved — its own.</p>
     <div class="scope reveal">Morphology screening only — not rover traversability, autonomy,
       geologic equivalence, site access, or mission readiness. Not NASA-endorsed.</div>
     <div class="btnrow reveal">
       <a class="btn" href="/study">Launch the study viewer</a>
-      <a class="btn ghost" href="#method">How it works</a>
+      <a class="btn ghost" href="#finding">See the finding</a>
     </div>
   </section>
 
@@ -159,61 +169,109 @@ h2{font-family:"Space Grotesk";font-weight:600;font-size:clamp(2rem,5vw,3.7rem);
       Designing a terrestrial test whose result legitimately transfers to a Mars decision
       takes measurable requirements, a shared spatial support, and an honest account of every gap.</p>
   </section>
+
   <section id="method" class="reveal">
     <div class="idx">02 — THE METHOD</div>
-    <h2>One scale.<br>Both worlds.</h2>
-    <p class="sub">Each area of interest is warped to its own local azimuthal-equidistant metric
-      grid — Mars on a 3,396,190 m sphere, Earth on WGS84 — so slope and relief are measured in
-      true, comparable metres. Candidates are ranked by Pareto dominance; a tie is a valid result.</p>
+    <h2>One scale.<br>Five worlds.</h2>
+    <p class="sub">Each area of interest is warped to its own local azimuthal-equidistant metric grid
+      using the correct body — Mars on a 3,396,190 m sphere, the Moon, Mercury, Ceres, and Earth on WGS84
+      — so slope and relief are measured in true, comparable metres. Candidates are ranked by
+      <strong>Pareto dominance across independent descriptor “lenses”</strong>, never a composite score;
+      a tie is a valid result.</p>
     <div class="grid">
       <div class="cell"><div class="k">01 · INGEST</div><h3>Real NASA + ESA data</h3>
-        <p>MOLA MEGDR for Mars; Copernicus GLO-30 / USGS 3DEP for Earth.</p></div>
+        <p>Mars MOLA, Moon LOLA, Mercury MESSENGER, Ceres Dawn; Copernicus GLO-30 for Earth — no API key.</p></div>
       <div class="cell"><div class="k">02 · REPROJECT</div><h3>Per-body metric grid</h3>
-        <p>Correct ellipsoid, correct metres — not a shared-degree hack.</p></div>
+        <p>The correct body radius, true metres — not a shared-degree hack.</p></div>
       <div class="cell"><div class="k">03 · GATE</div><h3>Refuses bad data</h3>
-        <p>Water/sentinel masking; blocks units that are mostly flat zero.</p></div>
+        <p>Water/sentinel masking, flat-tile blocking, and a comparability gate that rejects a cell whose
+          footprints are not truly matched.</p></div>
       <div class="cell"><div class="k">04 · DECIDE</div><h3>Pareto, not a score</h3>
-        <p>Six descriptors; tie / indeterminate / blocked are first-class.</p></div>
+        <p>Six independent lenses; <em>tie</em>, <em>indeterminate</em> and <em>blocked</em> are
+          first-class outcomes, not failures.</p></div>
     </div>
   </section>
 
   <section class="reveal">
     <div class="idx">03 — THE DESCRIPTORS</div>
-    <h2>What "terrain" means<br>at map scale.</h2>
+    <h2>What “terrain” means<br>at map scale.</h2>
     <div class="chips">
       <span class="chip">slope distribution</span><span class="chip">local relief</span>
       <span class="chip">detrended ruggedness</span><span class="chip">low-slope connectivity</span>
       <span class="chip">aspect dispersion</span><span class="chip">hypsometric integral</span>
+      <span class="chip">curvature · VRM</span><span class="chip">roughness / Hurst</span>
+      <span class="chip">topographic openness</span><span class="chip">geomorphon landforms</span>
+      <span class="chip">spectral slope · fabric</span><span class="chip">wetness · convergence</span>
     </div>
-    <p class="sub" style="margin-top:20px">Each is defined, unit-bearing, and traceable to a source
-      through the evidence graph. None is collapsed into a single "Mars-likeness" number.</p>
+    <p class="sub" style="margin-top:20px">Roughly thirty cited descriptor families, each defined,
+      unit-bearing, and traceable to a source through the evidence graph. None is collapsed into a single
+      “Mars-likeness” number.</p>
   </section>
 
   <section id="finding" class="reveal">
     <div class="idx">04 — THE FINDING · REAL DATA</div>
-    <h2>The answer changed when<br>we asked more honestly.</h2>
-    <p class="sub">Distance to the Mars reference per decision set — lower is closer. On the four
-      core axes the lava field leads; add two more descriptors and it becomes a tie.</p>
-    <div class="chart" id="chart">
-      <div class="row"><span class="lab">core · 4 axes</span>
-        <div class="track"><i class="a" data-w="34%"></i><i class="b" data-w="62%"></i></div></div>
-      <div class="row"><span class="lab">+ aspect</span>
-        <div class="track"><i class="a" data-w="78%"></i><i class="b" data-w="30%"></i></div></div>
-      <div class="row"><span class="lab">+ hypsometry</span>
-        <div class="track"><i class="a" data-w="64%"></i><i class="b" data-w="40%"></i></div></div>
+    <h2>The method caught<br>its own false analog.</h2>
+    <p class="sub">It would have been easy to stop at the first answer. Instead we tested it with rules
+      frozen before the data were seen — and it did not survive. So we measured why.</p>
+    <div class="acts">
+      <div class="act one">
+        <span class="tag">Act 1 · Exploratory screen</span>
+        <h4>“Craters of the Moon, Idaho” led</h4>
+        <p>Mars MOLA versus real Earth terrains at a common metric support. On the core
+          roughness/relief axes a documented basalt field was the closest match — it looked like an
+          analog the engine had re-identified on its own.</p>
+      </div>
+      <div class="act two">
+        <span class="tag">Act 2 · Pre-registered test (protocol v2)</span>
+        <h4>…and it did not survive</h4>
+        <p>Matched physical footprints, supports at or above MOLA’s effective resolution, held-out plains
+          plus contrast terrains. The engine abstained for all seven references — and Craters was nearest
+          for a <em>cratered highland</em> just as readily as for volcanic plains. <b>Claim withdrawn.</b></p>
+      </div>
+      <div class="act three">
+        <span class="tag">Act 3 · Measured, not asserted (protocol v3)</span>
+        <h4>The nearest analog tracks roughness, not volcanic origin</h4>
+        <p>Two smoothness-matched <em>non-volcanic</em> controls, 60 km windows, fresh plains and
+          highlands. A smooth non-volcanic terrain sat on the Pareto front for every confirmatory
+          volcanic plain, while basaltic origin bought nothing — the basalts came forward only for the
+          <em>rough</em> highlands.</p>
+      </div>
     </div>
-    <div class="legend"><span><span class="s" style="background:var(--oxide2)"></span>Nevada desert</span>
-      <span><span class="s" style="background:var(--cyan)"></span>Craters of the Moon</span></div>
-    <div class="verdict">A tie is the <span class="cy">honest</span> answer.</div>
-    <p class="sub">The best analog depends on what you intend to test. TerraTrace reports that
-      tension instead of hiding it inside one number.</p>
+    <div class="stats">
+      <div class="stat"><b>3 / 3</b><span>plains · smoothness supported</span></div>
+      <div class="stat"><b>0 / 3</b><span>volcanic specificity</span></div>
+      <div class="stat"><b>15 / 15</b><span>honest-regime cells</span></div>
+      <div class="stat"><b>0</b><span>resolution reversals</span></div>
+    </div>
+    <div class="verdict">Its sharpest result is a claim it <span class="cy">disproved</span>.</div>
+    <p class="sub">One caveat is recorded with the result rather than hidden: v3 is <em>pre-specified but
+      not fully pre-registered</em> — the rules and config were frozen before the data, but the protocol
+      document was committed after the run.</p>
   </section>
+
+  <section id="evidence" class="reveal">
+    <div class="idx">05 — THE EVIDENCE</div>
+    <h2>Every claim points<br>at an experiment.</h2>
+    <p class="sub">Each result is frozen in a dated protocol, reproducible from one command, and mapped to
+      the evidence that would falsify it. Nothing here claims traversability, geologic equivalence, site
+      access, or mission readiness.</p>
+    <div class="btnrow">
+      <a class="btn ghost" href="https://github.com/pal-123456789/terratrace/blob/main/terratrace/docs/RESULTS-v3.md">Protocol v3 results</a>
+      <a class="btn ghost" href="https://github.com/pal-123456789/terratrace/blob/main/terratrace/docs/BENCHMARK-PROTOCOL-v3.md">Frozen protocol</a>
+      <a class="btn ghost" href="https://github.com/pal-123456789/terratrace/blob/main/terratrace/docs/PAPER.md">Method paper</a>
+      <a class="btn ghost" href="https://github.com/pal-123456789/terratrace/blob/main/terratrace/docs/CLAIM-LEDGER.md">Claim ledger</a>
+    </div>
+    <pre class="cmd"><span class="p"># reproduce the protocol-v3 panel — no API key, no account</span>
+python scripts/fetch_earth_candidates.py --config config/matched_footprint_v3.yml --source cog
+python scripts/run_matched_benchmark.py --config config/matched_footprint_v3.yml --out artifacts/mf_panel_v3</pre>
+  </section>
+
   <section id="open" class="reveal">
-    <div class="idx">05 — OPEN &amp; REPRODUCIBLE</div>
+    <div class="idx">06 — OPEN &amp; REPRODUCIBLE</div>
     <h2>Every number<br>has a receipt.</h2>
-    <p class="sub">46 fixture tests, deterministic study hashes, a source lock with SHA-256 and
-      citations, and an evidence graph from source to claim. Open the live study, read the method,
-      or clone the repository.</p>
+    <p class="sub">843 offline tests and 51 scientific-correctness oracles, deterministic study hashes, a
+      source lock with SHA-256 and citations, and an evidence graph from source to claim. The Earth data
+      path is keyless. Open the live study, read the method, or clone the repository.</p>
     <div class="btnrow">
       <a class="btn" href="/study">Open the study viewer</a>
       <a class="btn ghost" href="https://github.com/pal-123456789/terratrace">View the repository</a>
@@ -225,7 +283,8 @@ h2{font-family:"Space Grotesk";font-weight:600;font-size:clamp(2rem,5vw,3.7rem);
   <strong style="color:#aeb8bd">TerraTrace — Planetary Analog OS.</strong> Map-scale terrain-morphology
   screening. It does not estimate rover traversability, validate autonomy, establish geologic
   equivalence, certify site access, or certify mission readiness. Not NASA-endorsed. Data: NASA
-  PDS/MOLA, ESA Copernicus (via OpenTopography), USGS — each under its own terms. MIT-licensed code.
+  PDS/MOLA, LRO/LOLA, MESSENGER, Dawn, ESA Copernicus (public AWS COG mosaic, and via OpenTopography),
+  USGS — each under its own terms. MIT-licensed code.
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -236,7 +295,6 @@ h2{font-family:"Space Grotesk";font-weight:600;font-size:clamp(2rem,5vw,3.7rem);
   var reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
   var loader=document.getElementById("loader");
   window.addEventListener("load",function(){setTimeout(function(){if(loader)loader.classList.add("done");},450);});
-  function fillChart(){document.querySelectorAll("#chart .track i").forEach(function(b){b.style.width=b.getAttribute("data-w");});}
   if(window.gsap){
     if(window.ScrollTrigger)gsap.registerPlugin(ScrollTrigger);
     if(!reduce)gsap.to(".mask>span",{y:"0%",duration:1.15,ease:"expo.out",stagger:.1,delay:.4});
@@ -244,10 +302,9 @@ h2{font-family:"Space Grotesk";font-weight:600;font-size:clamp(2rem,5vw,3.7rem);
     if(window.ScrollTrigger){
       document.querySelectorAll(".reveal").forEach(function(el){
         gsap.to(el,{opacity:1,y:0,duration:.9,ease:"power3.out",scrollTrigger:{trigger:el,start:"top 82%"}});});
-      ScrollTrigger.create({trigger:"#finding",start:"top 72%",once:true,onEnter:fillChart});
-    } else {document.querySelectorAll(".reveal").forEach(function(e){e.style.opacity=1;e.style.transform="none";});fillChart();}
+    } else {document.querySelectorAll(".reveal").forEach(function(e){e.style.opacity=1;e.style.transform="none";});}
   } else {document.querySelectorAll(".mask>span").forEach(function(s){s.style.transform="none";});
-    document.querySelectorAll(".reveal").forEach(function(e){e.style.opacity=1;e.style.transform="none";});fillChart();}
+    document.querySelectorAll(".reveal").forEach(function(e){e.style.opacity=1;e.style.transform="none";});}
   if(window.Lenis&&!reduce){try{var ln=new Lenis({duration:1.15,smoothWheel:true});
     (function raf(t){ln.raf(t);requestAnimationFrame(raf);})();
     if(window.ScrollTrigger)ln.on("scroll",ScrollTrigger.update);}catch(e){}}
@@ -303,6 +360,7 @@ h2{font-family:"Space Grotesk";font-weight:600;font-size:clamp(2rem,5vw,3.7rem);
   var prog=0,target=0,mx=0,my=0,cx=0,cy=0;
   if(!reduce&&window.ScrollTrigger){ScrollTrigger.create({trigger:"main",start:"top top",end:"bottom bottom",
     scrub:true,onUpdate:function(s){target=s.progress;}});}
+  else{target=0.35;}
   if(!reduce){window.addEventListener("pointermove",function(e){
     mx=(e.clientX/window.innerWidth-0.5)*2;my=(e.clientY/window.innerHeight-0.5)*2;},{passive:true});}
   var marsG=new THREE.Color(0xc6613a),earthG=new THREE.Color(0x45d3e6);
@@ -332,10 +390,6 @@ h2{font-family:"Space Grotesk";font-weight:600;font-size:clamp(2rem,5vw,3.7rem);
   window.addEventListener("resize",function(){camera.aspect=window.innerWidth/window.innerHeight;
     camera.updateProjectionMatrix();renderer.setSize(window.innerWidth,window.innerHeight);},{passive:true});
 })();
-
-
 </script>
-
-
 
 </body></html>

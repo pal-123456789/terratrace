@@ -3,6 +3,50 @@
 Complete build history of TerraTrace, generated from the git commit messages
 (newest first). Each entry is the exact message recorded with that commit.
 
+## Unreleased — submission wrap-up: documentation verified against the code, website refreshed
+
+*Prepared 2026-11-13 by Pal Ghevariya*
+
+A pass over **every readable file** (.md / .txt / .pdf / .cff / HTML) to check that the prose matches
+what the engine actually does — because judges and users read the prose first, and a stale number in a
+README is a defect that nothing currently fails on. It is now impossible to ship one silently.
+
+- **New mechanical guard: `scripts/doc_consistency_check.py`** — a CI step *and* always-on tests
+  (`tests/test_doc_consistency.py`). It computes the real numbers from the source (the test count by
+  AST-parsing the test modules exactly as the dependency-free runner discovers them, the oracle count
+  from `validation.py`, the catalog size from `catalog.SOURCES`, the version from `__init__.py`) and
+  fails, naming the file and the offending text, when a canonical document disagrees. It also checks
+  that every `docs/**/*.md` page is reachable from the mkdocs nav, that every relative Markdown link
+  resolves, and that a v3 verdict is never quoted without its pre-specification caveat. **Verified
+  against the bug**: six seeded defects (a stale test count, a stray "3 tests" inside a command name, a
+  removed nav entry, a rotted link, version drift, a stale "13-source") were each observed to exit
+  non-zero and name the culprit; the tree then restored clean.
+- **It immediately found real drift**, which is the point: the root README still advertised a
+  **13-product** catalog (14 since `earth_cop30_cog`), several docs still said **13-source**,
+  `docs/VALIDATION.md` documented only **28 of the 51** correctness oracles, and `docs/method.md`
+  still described **three** decision lenses (five by default plus an opt-in sixth).
+- **Documentation corrected to the shipped reality.** The keyless Copernicus path is now described
+  accurately everywhere — the *matched-footprint benchmark* needs no key, while the multi-body
+  orchestrator and the non-Copernicus Earth products still use OpenTopography (the earlier "Earth is
+  keyless, full stop" was an overclaim). Test counts moved 837 → **843**; the method doc gained the
+  `texture` and `hydro` lenses; `CITATION.cff` moved to **0.3.0**; the superseded v3 *proposal* now
+  carries a banner listing the four reference corrections made before the run; and the dangling
+  `docs/event/eligibility-evidence.md` reference now resolves to a real page.
+- **`terratrace/README.md`'s project layout was rebuilt and completed** — it had been missing the
+  entire matched-footprint benchmark half of the engine (~39 modules and 11 scripts). Every engine
+  module and every script is now named.
+- **The website was brought to the honest story.** `site/index.html` had been showing the *withdrawn*
+  exploratory Craters-of-the-Moon / Nevada tie as "the finding", and claimed "46 fixture tests". It now
+  tells the three-act story — exploratory screen → the pre-registered test that withdrew the claim →
+  protocol v3 that measured why (roughness, not volcanic origin) — with the v3 verdict statistics,
+  links to the protocol / results / paper / ledger, the keyless reproduction command, and the claim
+  firewall intact. Five worlds, not two.
+- **A reading map** now heads the root README, listing every document and what it is, so no readable
+  file is orphaned.
+
+Suite **843 passed, 0 failed**; validation 51/51; the doc-consistency guard and the
+optional-dependency guard both green; gated study hash `8f4890777ee462a2...` unchanged.
+
 ## Unreleased — CI fix: the guard must RUN the tests, not just import them
 
 *Prepared 2026-11-13 by Pal Ghevariya*

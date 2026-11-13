@@ -5,7 +5,7 @@ screening**. These checks establish software/metric correctness, data handling,
 sensitivity, and provenance. They do **not** establish rover traversability,
 autonomy, geologic equivalence, site access, or mission readiness.
 
-## Test suite (837 fixtures, `tests/run_tests.py`)
+## Test suite (843 fixtures, `tests/run_tests.py`)
 
 | Area | What the fixtures prove |
 |---|---|
@@ -18,7 +18,7 @@ autonomy, geologic equivalence, site access, or mission readiness.
 | uncertainty (block) | `block_resample_2d` tiles a 2-D field with block×block patches drawn with replacement, preserving within-block autocorrelation (block=1 degenerates to independent pixels; NaNs carried with their block); the block-bootstrap distance CIs come out **wider** than the independent-pixel bootstrap on an autocorrelated field, and the closer unit holds the higher non-domination frequency |
 | masks | Sentinel/below/above masking to NaN; zero-fraction; input not mutated |
 | reproject | Body-correct CRS strings across five bodies (Mars, Moon, Mercury, Ceres spheres + Earth WGS84), centroid, grid sizing, unknown-body guard; Mercury and Ceres are supported bodies and the Mars/Moon strings are unchanged |
-| catalog | 13-source registry validates across five bodies (keyless Moon LOLA LDEM, Mercury MESSENGER, Ceres Dawn HAMO beside the Mars + Earth products); coverage + body-mismatch; `recommend_source` preference/least-download/keyless; SRTM band excludes >60°N; nodata sentinels; every source carries a positive `vertical_accuracy_m` |
+| catalog | 14-source registry validates across five bodies (keyless Moon LOLA LDEM, Mercury MESSENGER, Ceres Dawn HAMO, and the keyless `earth_cop30_cog` beside the Mars + Earth products); coverage + body-mismatch; `recommend_source` preference/least-download/keyless; SRTM band excludes >60°N; nodata sentinels; every source carries a positive `vertical_accuracy_m` |
 | preflight | bbox well-formedness + body bounds; area/pixel/download sizing; config-schema (dup ids/paths, demtype-vs-dataset); non-US routing |
 | profile | valid/water/NaN fractions; robust relief; advisory vs blocking flags; water==masks.zero_fraction |
 | fetchcache | sha256 matches sourcelock; needs_fetch skip/mismatch; manifest round-trip + update |
@@ -40,7 +40,7 @@ autonomy, geologic equivalence, site access, or mission readiness.
 | hillshade | The shaded relief encodes to a valid, self-contained PNG data URI whose single IDAT stream zlib-decompresses to exactly `height * (width + 1)` bytes (one 0x00 filter byte per scanline); a flat field is uniform, NaN cells render black, an oversized grid downsamples below `max_size`, and the encoded bytes are deterministic |
 | fingerprint_library | A fresh draw of a known process ranks its matching reference first; the cross-body table maps each Earth candidate to the correct planetary reference (Mars-like, Moon-like), fills every candidate × reference cell with a float, and is deterministic |
 | dossier | The recommended unit's dossier is flagged `is_recommended` with non-empty per-axis distances on the declared decision axes; an ineligible unit is blocked with its reason, empty distances, and no frontier/uncertainty — without raising; a bootstrapped run carries non-domination frequencies; the Markdown renders every metric and a verdict word |
-| sensitivity | On a clear-winner synthetic scene the recommended unit is stable across all three decision lenses and across a sweep of common supports (`lens_ablation`, `support_ablation`, and `ablation_report` agree, `overall_stable=True`); the ablation is deterministic |
+| sensitivity | On a clear-winner synthetic scene the recommended unit is stable across all five default decision lenses and across a sweep of common supports (`lens_ablation`, `support_ablation`, and `ablation_report` agree, `overall_stable=True`); the ablation is deterministic |
 | terrain_classify | Synthetic flat, rolling, and rough tiles classify as `flat_plain`, `rolling`, and `rough_rugged` as expected; the rule-based label, its evidence, per-type scores, and confidence are deterministic |
 | references | The data-sources credits bundle lists a real citation and licence for every source across all five bodies (Mars, Earth, Moon, Mercury, Ceres), grouped by body; rendering is deterministic |
 | integration (uncertainty + previews) | `feature_uncertainty` and `previews` are opt-in and absent by default, so the gated synthetic study `package_hash` is unchanged; when supplied they attach to the package and the HTML report and viewer render a "Measurement uncertainty" table and inline hillshade previews |
@@ -88,6 +88,29 @@ of these checks pass:
 | spectral_parseval | The summed spectral power (`total_power`) recovers the detrended variance to within 25% (Parseval), so the spectrum is correctly normalised |
 | anisotropy_ridges_oriented | Parallel ridges (a one-directional sinusoid) are strongly anisotropic (strength > 0.5) with the fabric orientation along the invariant strike (within ±25°) |
 | anisotropy_isotropic_low | Isotropic noise shows no preferred direction: the directional structure function is ~equal in every azimuth, so anisotropy strength < 0.25 |
+| multiscale_identical_is_layer1_all_scales | Scale-resolved screening is self-consistent: on a 3-unit scene (reference, a NEAR twin, and a FAR unit carrying scale-persistent structure) swept over three ascending supports, the NEAR twin is Pareto layer 1 at *every* support |
+| kh_roughness_plane_is_zero_rough_discriminates | The Kreslavsky–Head (2000) differential-slope baseline roughness is ~0 on a tilted plane (< 1e-6°, the second difference of a linear field) and strictly greater on a rough surface |
+| iwahashi_pike_texture_and_convexity | The Iwahashi–Pike (2007) signatures behave as defined: surface texture is strictly greater on a seeded rough field than a smooth plane, and a radial dome reads as a convex location |
+| drainage_flow_conservation_and_dissection | The depression-filled D8 flow descriptor conserves mass (every finite cell has `acc >= 1`, and outlet accumulations sum to exactly the finite-cell count) and its drainage texture discriminates roughness |
+| wavelet_checkerboard_finest | The orthonormal 2-D Haar wavelet puts **all** detail energy at the finest level for a period-2 checkerboard (`dominant_level == 1`; Mallat 1989) |
+| hypsometry_ramp_and_cross_consistency | A symmetric ramp has hypsometric integral exactly 0.5, and two independent implementations — the Strahler-exact and the engine's robust-quantile version — agree |
+| normal_roughness_plane_zero_discriminates | Surface-normal-dispersion roughness is ~0 on a tilted plane (all normals parallel) and strictly greater on a rough surface (Hobson 1972; McKean & Roering 2004) |
+| tpi_peak_ridge_pit_valley | Weiss (2001) TPI slope-position classification recovers the extremes: a radial cone apex classifies as `ridge` and a radial bowl centre as `valley` |
+| fractal_plane_two_rough_higher | The differential box-counting fractal dimension measures ~2 on a tilted plane (`|D − 2| < 0.25`) and is strictly greater on a seeded rough field (Sarkar & Chaudhuri 1994) |
+| lacunarity_uniform_one_clustered_higher | Gliding-box lacunarity is exactly 1.0 on a perfectly uniform field and strictly greater on a sparse clustered field (Plotnick, Gardner & O'Neill 1993) |
+| entropy_constant_zero_complex_higher | Shannon slope entropy is 0 on a constant field and strictly greater on a complex multi-scale surface than on a single planar ramp (Shannon 1948) |
+| slope_area_concave_positive_theta | A concave surface yields a **positive** Flint (1974) slope-area concavity index with a credible log-log fit (`r2 > 0.3`) |
+| twi_decreases_with_slope | The Beven & Kirkby (1979) Topographic Wetness Index `ln(a / tan β)` is strictly greater on a gentler slope at equal contributing area |
+| convergence_cone_divergent_bowl_convergent | The Köthe & Lehmeier (1996) convergence index resolves aspect-sign: > 0 (divergent) on a cone, < 0 (convergent) in a bowl, ~0 on a uniform plane |
+| svf_flat_is_one_pit_lower | The Zakšek, Oštir & Kokalj (2011) sky-view factor is 1.0 on a flat surface, and a deeper bowl has a strictly smaller value than a shallow one |
+| multiscale_tpi_cone_bowl_plane | The two-scale Weiss (2001) TPI classifier puts a cone apex in an upper-position class (`hilltop`/`upper_slope_ridge`) and a bowl centre in a lower one (`valley`/...) |
+| variogram_whitenoise_vs_plane | The Matheron (1963) semivariogram is nugget-dominated on an uncorrelated white-noise field (nugget > half the sill) and steeply rising on a smooth plane |
+| roughness_length_ramp_hurst_white_flat | The Shepard et al. (2001) RMS/Allan-deviation roughness has a deviogram Hurst in [0.8, 1.2] (~1, long-correlated) on a ramp and ~0 (flat, decorrelated) on white noise |
+| curvature_classes_dome_bowl_saddle_plane | Wood (1996) morphometric curvature classes recover the textbook shapes at a quadratic's centre: dome → `peak`, bowl → `pit`, saddle → `pass`, tilted plane → `planar` |
+| fabric_plane_cluster_vs_rough_isotropic | The Woodcock (1977) orientation-tensor fabric is a tight **cluster** on a plane (`isotropy < 0.05`, `C > 3`) and dispersed/isotropic on a seeded rough field |
+| openness_difference_cone_ridge_bowl_valley | The Yokoyama (2002) openness-difference slope position is positive (ridge-dominated) on a convex cone and negative (valley-dominated) in a concave bowl |
+| melton_flat_zero_and_cross_check_hi | The Melton (1965) relief scalars are 0 on a flat tile, and on a rough tile the elevation-relief ratio cross-checks the hypsometric integral (|Δ| < 0.05) |
+| transect_plane_constant_slope | The swath/transect utility reads back a planar ramp's imposed geometry: `mean_slope` within 5% of the imposed 0.1 and strictly positive relief along the track |
 
 The suite emits a hashed report (`--json`) whose hash covers the pass/fail outcomes,
 so it is a stable, host-independent regression oracle.

@@ -1,6 +1,22 @@
 # TerraTrace Benchmark — Protocol v3 PROPOSAL (not frozen)
 
-**Status: PROPOSED 2026-10-16. Not frozen. Nothing here has been run.** It becomes a protocol only when
+> **⚠ SUPERSEDED — the v3 study has been run.** This proposal is the *pre-run* design (2026-10-16).
+> It was replaced by the frozen protocol `BENCHMARK-PROTOCOL-v3.md` and its result `RESULTS-v3.md`.
+> It is kept unchanged as the historical record, but **do not read its design tables as the design
+> that was executed** — the reference set changed during verification, before any v3 data was seen:
+>
+> | proposal here | what v3 actually used | why |
+> |---|---|---|
+> | `mars_lunae` (volcanic plains) | **dropped** | Lunae Planum is a dissected Hesperian **highland** (σ 41 m), not a volcanic plain — misclassified |
+> | `mars_solis` at 25.9 S, 270.2 E | **Solis Planum** at 30.0 S, 278.0 E | "Solis Lacus" is an albedo feature (0 km); the proposal's point straddles the Solis Dorsa fracture belt |
+> | `mars_terra_cimmeria` | **dropped** | the point sampled the interior of **Martz crater** (92.7 km) |
+> | `mars_arabia_terra` | **dropped** | the point sat on **Cassini crater's rim**; USGS centre is inside Acidalia Planitia |
+> | — | **mars_cerberus** (5.78 N, 148.15 E) added | young lava plain replacing the dropped Lunae |
+> | — | fresh highlands **Terra Sabaea** / **Terra Sirenum** | replaced the two dropped highland points |
+>
+> The frozen protocol and `RESULTS-v3.md` are the authority for what was run.
+
+**Status at the time of writing: PROPOSED 2026-10-16. Not frozen. Nothing here had been run.** It becomes a protocol only when
 (1) the remaining coordinates are verified, (2) the engine extensions below are built and tested, and
 (3) it is committed on its own **before** any v3 download is analysed. Until then it can still change.
 

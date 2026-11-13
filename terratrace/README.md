@@ -1,4 +1,4 @@
-# TerraTrace — Planetary Analog Terrain-Transfer Workbench (v0.1)
+# TerraTrace — Planetary Analog Terrain-Transfer Workbench (v0.3)
 
 **Planetary Analog OS** nucleus. TerraTrace compares a Mars reference terrain unit
 with candidate Earth terrain units at a declared common spatial support, shows which
@@ -9,6 +9,21 @@ provenance-tracked study package.
 > map products. It does **not** estimate rover traversability, validate autonomy,
 > establish geological equivalence, certify site access, or certify mission readiness.
 > It is not NASA-endorsed.
+
+## Status — the headline result
+
+TerraTrace **caught its own false analog**, with rules fixed before the data were seen. An exploratory
+real-data screen appeared to endorse **Craters of the Moon, Idaho** as a Mars analog; a matched-footprint
+benchmark **withdrew** that claim (the engine abstains in the honest regime, and Craters is nearest for a
+cratered highland as readily as for volcanic plains); and protocol v3 then **measured** the explanation —
+the nearest Earth analog tracks **km-scale roughness, not volcanic origin** (S **supported**, V **not
+supported**, R **supported**; 15/15 confirmatory honest cells, 0 comparability-gate violations). One
+caveat is recorded with the result rather than hidden: v3 is *pre-specified but not fully pre-registered*
+(the rules and config were frozen before the data, the protocol document was committed after the run).
+See [RESULTS-v3.md](docs/RESULTS-v3.md), its [frozen protocol](docs/BENCHMARK-PROTOCOL-v3.md), and the
+claim-to-evidence ledger [CLAIM-LEDGER.md](docs/CLAIM-LEDGER.md).
+
+**Current: 843 offline tests, 0 failing; 51 scientific-correctness oracles; package version 0.3.0.**
 
 ## Why this exists
 
@@ -78,8 +93,9 @@ source and a transformation.
   bands assume independent per-pixel error, so (like the independent-pixel bootstrap) they are an
   optimistic lower bound — map-scale morphology uncertainty only, no mechanical or mission claim.
 - **Sensitivity / ablation report:** `sensitivity.py` re-runs the finished screen to ask whether
-  the recommendation actually survives the analyst's choices. `lens_ablation` re-runs it under all
-  three decision lenses (`core` / `extended` / `geomorphic`), `support_ablation` re-runs it across
+  the recommendation actually survives the analyst's choices. `lens_ablation` re-runs it under the
+  default decision lenses (`core` / `extended` / `geomorphic` / `landform` / `texture`, plus the opt-in
+  `hydro`), `support_ablation` re-runs it across
   a set of common-support scales, and `ablation_report` combines them into an `overall_stable`
   verdict — reporting whether the same unit is recommended throughout, or flagging that the
   recommendation is fragile. It is a robustness diagnostic over the existing morphology screen and
@@ -91,7 +107,7 @@ source and a transformation.
   scores, and a confidence margin. It is a **descriptive** morphology label only, explicitly
   **not** a geological, genetic, lithological, hazard, or mission/rover classification.
 - **Data sources & credits bundle:** `references.py` (+ `scripts/make_references.py`) reads the
-  13-source catalog and renders a complete, deterministic "Data sources & credits" section —
+  14-source catalog and renders a complete, deterministic "Data sources & credits" section —
   product, provider, citation, and licence per source, grouped by body — so every study is
   properly attributed to its upstream providers (NASA PDS / USGS Astrogeology / ESA Copernicus /
   NASA-JAXA). The exact product a given run ingested stays pinned in `sources.lock.yml`.
@@ -215,7 +231,7 @@ source and a transformation.
 - Evidence graph + content hashing; deterministic study package + a self-contained,
   offline **viewer** that now shows a target-body badge, a per-axis decision matrix, a
   Pareto-frontier panel, and a bootstrap-uncertainty panel.
-- **Data & sources layer (13-source registry):** a citeable **catalog** of real DEM
+- **Data & sources layer (14-source registry):** a citeable **catalog** of real DEM
   products — Mars MOLA, the **Moon LRO LOLA LDEM** (~118 m), **Mercury MESSENGER** (~665 m)
   and **Ceres Dawn HAMO** (~137 m) — all keyless — and for Earth:
   Copernicus GLO-30/90, USGS 3DEP (10 m / 1 m), SRTM GL1/GL3, NASADEM, and ALOS AW3D30 —
@@ -245,10 +261,10 @@ source and a transformation.
   closer candidate provably dominates and is recommended, a flat/water tile is blocked,
   and the whole pipeline is deterministic. A reproducibility + performance harness pins
   behavioural invariants, checks hash stability, and profiles wall-clock scaling.
-- 837 fixture tests with known analytic answers, all passing, no network required.
+- 843 fixture tests with known analytic answers, all passing, no network required.
 
 ```
-passed=800 failed=0
+passed=843 failed=0
 ```
 
 ## Install
@@ -267,7 +283,7 @@ pip install -r requirements-real.txt      # rasterio + requests (real DEMs)
 ```bash
 PYTHONPATH=. python3 -m terratrace.cli --out artifacts
 PYTHONPATH=. python3 -m terratrace.build_viewer      # writes viewer/index.html
-PYTHONPATH=. python3 tests/run_tests.py              # 837 tests
+PYTHONPATH=. python3 tests/run_tests.py              # 843 tests
 ```
 
 Open `viewer/index.html` in any browser — it is self-contained and works offline.
@@ -322,11 +338,12 @@ See [REAL-DATA-RUNBOOK.md](REAL-DATA-RUNBOOK.md). Minimal real stack:
 | Moon | USGS Astrogeology / LRO **LOLA LDEM** (global ~118 m) | 118 m | none |
 | Mercury | USGS Astrogeology / **MESSENGER global DEM** (~665 m) | 665 m | none |
 | Ceres | USGS Astrogeology / **Dawn HAMO global DTM** (~137 m) | 137 m | none |
+| Earth (keyless) | **Copernicus GLO-30 COG mosaic** on AWS Open Data — the matched-footprint benchmark default (`--source cog`) | 30 m | **none** |
 | Earth (global) | **Copernicus GLO-30 / GLO-90** via OpenTopography | 30 / 90 m | free key |
 | Earth (near-global) | **NASADEM**, **SRTM GL1 / GL3**, **ALOS AW3D30** via OpenTopography | 30 / 90 m | free key |
 | Earth (US, higher-res) | **USGS 3DEP** 1/3″ (~10 m) / 1 m lidar via OpenTopography / ImageServer | 10 / 1 m | free key / none |
 
-The full 13-source registry (coverage, preference tier, nodata sentinels, licence,
+The full 14-source registry (coverage, preference tier, nodata sentinels, licence,
 citation, vertical datum) lives in `terratrace/catalog.py`;
 `catalog.recommend_source(bbox, body, target_support_m)` picks the right product for an
 AOI automatically — preferring the best land-morphology product that covers the box and
@@ -353,50 +370,103 @@ real arrays through the identical pipeline used by the synthetic path.
 ```
 terratrace/
   terratrace/        engine package (synthetic + real share one comparison core)
+    # --- comparison core ---------------------------------------------------
+    __init__.py      package version — the single source of truth for pyproject + the manifest
     features.py      slope / relief / ruggedness / connectivity + curvature / VRM / roughness
-    support.py       common-support aggregation
-    distances.py     Wasserstein-1, KS, fingerprints
+    support.py       common-support aggregation (valid-fraction tracked)
+    masks.py         sentinel / water / nodata masking to NaN
+    reproject.py     per-body azimuthal-equidistant metric reprojection (five bodies)
+    distances.py     Wasserstein-1, KS, quantile fingerprints
     decision.py      eligibility, Pareto, tie policy, rank flips
     frontier.py      multi-candidate Pareto layers + dominance matrix
-    gaps.py          transfer-gap taxonomy (T0-T4)
-    provenance.py    evidence graph + hashing
-    protocol.py      draft study protocol
+    uncertainty.py   bootstrap resampling (independent pixels + spatial block)
     study.py         compare_units + run_study + run_real_study
-    batch.py         cross-reference, multi-lens batch synthesis
-    sensitivity.py   lens / support ablation -> recommendation-stability report
-    descriptors.py   full geomorphometric descriptor bank (analysis layer)
-    openness.py      topographic openness (positive/negative, Yokoyama 2002)
+    synthetic.py     deterministic offline terrains for the tests and the gated study
+    regions.py       named multi-region reference / candidate sets
+    gaps.py          transfer-gap taxonomy (T0-T4)
+    provenance.py    evidence graph + content hashing
+    protocol.py      draft study protocol
+    bundle.py        export a study into a self-contained bundle
+    repro.py         recompute / verify a package hash + diff + reproduce check
+    coregister.py    translational DEM alignment + vertical-datum offset
+    errorprop.py     vertical accuracy -> slope / relief / ruggedness uncertainty
+    # --- geomorphometric descriptor bank (analysis layer) ------------------
+    descriptors.py   the full descriptor bank, one call per tile
+    curvature_classes.py  Wood (1996) morphometric curvature classes
+    fabric_eigen.py  Woodcock (1977) surface-normal orientation-tensor fabric
+    openness.py      topographic openness (positive / negative, Yokoyama 2002)
+    openness_difference.py  Yokoyama (2002) slope position from the openness difference
     geomorphons.py   geomorphon landform classification (Jasiewicz & Stepinski 2013)
+    tpi_landform.py  Weiss (2001) single-scale TPI slope-position classes
+    multiscale_tpi.py  Weiss (2001) two-scale nested TPI classes
     spectral.py      radially-averaged 2-D PSD: spectral slope / band roughness / peak wavelength
     anisotropy.py    directional structure function: terrain-fabric strength + orientation
+    multiscale.py    Haar wavelet multiscale-energy spectrum
+    wavelet_roughness.py  wavelet-based multiscale roughness signature
+    variogram.py     Matheron (1963) semivariogram range / sill / nugget
+    roughness_length.py  Shepard (2001) RMS / Allan-deviation roughness length
+    kh_roughness.py  Kreslavsky-Head (2000) baseline roughness (the MOLA-roughness metric)
+    iwahashi_pike.py Iwahashi-Pike (2007) three-signature terrain class
+    normal_roughness.py  surface-normal-dispersion roughness
+    fractal.py       differential box-counting fractal dimension
+    lacunarity.py    gliding-box lacunarity
+    entropy_terrain.py  Shannon slope entropy
+    hypsometry.py    Strahler hypsometric curve + integral
+    slope_area.py    Flint (1974) slope-area concavity
+    drainage.py      depression-filled D8 flow accumulation + dissection texture
+    twi.py           Topographic Wetness Index (Beven & Kirkby 1979)
+    convergence.py   convergence index (Kothe & Lehmeier 1996)
+    svf.py           sky-view factor (Zaksek, Ostir & Kokalj 2011)
+    melton_relief.py Melton (1965) relief scalars + elevation-relief ratio
+    transect.py      swath / elevation-profile extractor
     terrain_classify.py  rule-based descriptive terrain-type label (map-scale)
-    catalog.py       13-source registry: coverage, preference, nodata, vertical accuracy, selection
-    preflight.py     fail-fast config-schema + AOI/bbox/size/coverage checks
-    profile.py       DEM QA report (valid/water/NaN, relief, advisory flags)
-    ingest.py        real DEM download (atomic + retry/backoff) + raster read
-    fetchcache.py    idempotent fetch decisions + sha256 provenance manifest
-    validation.py    scientific-correctness suite (drives the real engine)
-    benchmark.py     reproducibility invariants + wall-clock scaling profile
-    report.py        publication-grade Markdown report (study or batch package)
-    report_html.py   self-contained offline HTML report (study or batch)
-    references.py    data sources & credits bundle (citation + licence per source)
+    hillshade.py     Horn shaded-relief PNG data URI (pure stdlib, self-contained)
+    # --- decision robustness ----------------------------------------------
+    sensitivity.py   lens / support ablation -> recommendation-stability report
     significance.py  permutation test + effect size + bootstrap distance CI
-    confidence.py    non-composite decision confidence (three independent signals -> verdict)
+    confidence.py    non-composite decision confidence (three signals -> verdict)
     autocorr.py      spatial autocorrelation length -> data-driven block size
-    repro.py         recompute/verify package hash + diff + reproduce check
-    coregister.py    translational DEM alignment + vertical-datum offset
+    batch.py         cross-reference, multi-lens batch synthesis
     fingerprint.py   compact morphology signature + similarity + library ranking
     fingerprint_library.py  cross-body fingerprint library + similarity search
-    errorprop.py     vertical-accuracy -> slope / relief / ruggedness uncertainty
-    hillshade.py     Horn shaded-relief PNG data URI (pure stdlib, self-contained)
     dossier.py       per-candidate decision brief (structured dict + Markdown)
+    # --- matched-footprint benchmark (protocol v1 -> v3) -------------------
+    matched_benchmark.py  support-vs-extent harness (synthetic method validation)
+    matched_real.py  real per-body reprojected crops -> matched / mismatched / scale-grid panel
+    comparability.py the honest-regime gate (footprint match + support >= effective resolution)
+    resolution.py    resolution-matching control (source-smoothing false analogs)
+    confirmation.py  per-class S / V confirmation rules + specificity controls
+    adversarial.py   bounded-perturbation robustness stress
+    adequacy.py      absolute adequacy from the reference's own variability
+    panel_v3.py      the v3 confirmatory reference panel + classify_resolution_change
+    # --- data, interfaces, meta -------------------------------------------
+    catalog.py       14-source registry: coverage, preference, nodata, vertical accuracy, selection
+    preflight.py     fail-fast config-schema + AOI/bbox/size/coverage checks
+    profile.py       DEM QA report (valid / water / NaN, relief, advisory flags)
+    ingest.py        real DEM download (atomic + retry/backoff) + raster read
+    fetchcache.py    idempotent fetch decisions + sha256 provenance manifest
+    sourcelock.py    sources.lock.yml: sha256 / size / CRS / bounds / citation per input
+    cop30_cog.py     keyless ESA Copernicus GLO-30 COG reader (windowed HTTP range reads)
+    references.py    data sources & credits bundle (citation + licence per source)
+    report.py        publication-grade Markdown report (study or batch package)
+    report_html.py   self-contained offline HTML report (study or batch)
     build_viewer.py  self-contained HTML viewer
-    cli.py           unified dispatcher: study / validate / benchmark / report / report-html / dossier / confidence / bank / transect / version
-  tests/             837 fixture tests + dependency-free runner
+    cli.py           unified dispatcher: study / validate / benchmark / report / report-html /
+                     dossier / confidence / bank / transect / version
+    api.py           loopback-only stdlib HTTP API
+    validation.py    scientific-correctness suite (51 oracles, drives the real engine)
+    benchmark.py     reproducibility invariants + wall-clock scaling profile
+  tests/             843 tests across 91 modules + a dependency-free runner (house style:
+                     module-level `def test_*`, no pytest)
   artifacts/         generated study package (JSON + checksums + manifest)
-  viewer/            generated offline HTML viewer
-  config/            AOI configuration for real runs (incl. real_multibody.example.yml)
-  scripts/           fetch (+preflight) / profile / validate / benchmark / make_report / make_html_report / make_references / verify_study / fingerprint_search / run / run_batch_study / run_real_analog_study
+  viewer/            generated offline HTML viewer (tracked snapshot; CI regenerates it)
+  config/            AOI configs, incl. matched_footprint_v3.yml and real_multibody.example.yml
+  scripts/           fetch / profile / validate / benchmark / make_reports / make_references /
+                     verify_study / fingerprint_search / export_bundle / inspect_study /
+                     make_source_lock / make_mars_sample / fetch_earth_candidates /
+                     run_matched_benchmark / run_analog_atlas / run_scale_profile / run_batch_study /
+                     run_benchmark / run_validation / run_real_study / run_real_analog_study /
+                     ci_hygiene_check / doc_consistency_check
 ```
 
 ## Scientific method

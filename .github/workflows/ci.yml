@@ -5,6 +5,9 @@ name: CI
 # its useful end-to-end step now lives here as the `e2e` job.
 # tests/test_ci_hygiene.py asserts this file is the only ci.yml and that it still
 # runs the optional-dependency guard, so neither can quietly disappear.
+# The last step of the `tests` job checks that the documentation prose still matches
+# the code (scripts/doc_consistency_check.py): stated test/oracle/source counts, the
+# version in three files, nav coverage, and relative links.
 
 on:
   push:
@@ -43,6 +46,10 @@ jobs:
         env:
           PYTHONPATH: .
         run: python scripts/run_validation.py
+      - name: Documentation consistency (the prose must match the code)
+        env:
+          PYTHONPATH: .
+        run: python scripts/doc_consistency_check.py
 
   e2e:
     name: end-to-end CLI (synthetic study + viewer + reports)

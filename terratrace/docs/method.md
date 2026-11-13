@@ -218,33 +218,42 @@ over the active metric vector; a recommendation is emitted only when one eligibl
 is non-dominated and stable across sensitivity scenarios (pairwise rank-flip <= 0.1).
 Otherwise the result is `TIE`, `INDETERMINATE`, `NOT_COMPARABLE`, or `BLOCKED`.
 
-The decision never collapses the vector into a single "Mars-likeness" number. Three decision
-axis sets are offered as mutually-exclusive robustness lenses: `core` (the four morphology
-metrics, default and gated), `extended` (adds aspect dispersion and hypsometric integral),
-and `geomorphic` (adds Zevenbergen-Thorne mean curvature and the Vector Ruggedness Measure —
-shape descriptors decoupled from mean slope). The `extended` and `geomorphic` modes are
-opt-in: a recommendation that survives all three independent axis sets is far more defensible
-than one that holds under a single set. Choosing a non-default mode does not alter the `core`
-study package or its provenance hash; the extra descriptors are computed only when requested.
-A fourth, equally opt-in lens, `landform`, keeps the four core axes and adds the two
-line-of-sight structure distances described under *Line-of-sight terrain structure* above — a
-geomorphon-spectrum total-variation distance and a topographic-openness distance; it too is
-computed only when requested and leaves the `core` package and its hash untouched.
+The decision never collapses the vector into a single "Mars-likeness" number. Six independent axis
+sets are offered as robustness lenses, five of which are on by default in the atlas and ablation
+tools:
+
+- `core` — the four bulk morphology metrics (slope, relief, ruggedness, connectivity); the default
+  and the one gated into the synthetic study package;
+- `extended` — adds aspect dispersion and the hypsometric integral;
+- `geomorphic` — adds Zevenbergen–Thorne mean curvature and the Vector Ruggedness Measure, shape
+  descriptors decoupled from mean slope;
+- `landform` — keeps the four core axes and adds the two line-of-sight structure distances described
+  under *Line-of-sight terrain structure* above (a geomorphon-spectrum total-variation distance and a
+  topographic-openness distance);
+- `texture` — adds the scale & fabric axes described under *Scale & fabric* above (spectral slope /
+  band roughness and directional-fabric anisotropy);
+- `hydro` — **opt-in only** via `decision_metrics`, adds the flow-geometric axes (Topographic Wetness
+  Index, convergence index, and the flow-dissection distance).
+
+A recommendation that survives several independent axis sets is far more defensible than one that
+holds under a single set. Every non-default lens is computed only when requested, and choosing one
+does not alter the `core` study package or its provenance hash.
 
 ## Sensitivity / ablation
 
 A recommendation is only trustworthy if it survives the analyst's own choices, so `sensitivity.py`
 re-runs the finished screen under those choices and reports whether the answer holds.
-`lens_ablation` re-runs `compare_units` under each of the three decision lenses — `core`,
-`extended`, and `geomorphic` — and `support_ablation` re-runs it across a set of common-support
-scales under one lens; each reports the set of units recommended and whether that set collapses to
-a single unit (every recommending run names the same one, or none recommends). `ablation_report`
-combines the two into an `overall_stable` verdict that is true only when the recommendation is
-stable across lenses *and* across supports (or no support sweep was requested).
+`lens_ablation` re-runs `compare_units` under each of the decision lenses — `core`, `extended`,
+`geomorphic`, `landform`, and `texture` (and `hydro` when it is requested) — and `support_ablation`
+re-runs it across a set of common-support scales under one lens; each reports the set of units
+recommended and whether that set collapses to a single unit (every recommending run names the same
+one, or none recommends). `ablation_report` combines the two into an `overall_stable` verdict that is
+true only when the recommendation is stable across lenses *and* across supports (or no support sweep
+was requested).
 
 This is a robustness *diagnostic* over the existing morphology screen, not a new scientific claim:
 it adds nothing to what the screen already decided and only reports how fragile or stable that
-decision is. A recommendation that is identical under all three independent axis sets and across a
+decision is. A recommendation that is identical under all the independent axis sets and across a
 range of supports is far more defensible than one that depends on a single setting; where the
 ablation disagrees with itself it says so rather than hiding the fragility. The same map-scale
 morphology firewall applies throughout.
@@ -420,8 +429,8 @@ one decision lens, and that study already exists end-to-end. Analog screening is
 defensible when a candidate is tested against several Mars reference regions and under
 several independent decision-axis sets at once, so `batch.py` generalises the single
 study across both. It runs a grid: every (Mars reference × decision mode) cell is a
-complete `compare_units` pipeline, the default modes being the same three lenses used
-elsewhere — `core`, `extended`, and `geomorphic`.
+complete `compare_units` pipeline, the default modes being the same five lenses used
+elsewhere — `core`, `extended`, `geomorphic`, `landform`, and `texture`.
 
 The grid is synthesised rather than scored. For each candidate the batch reports how
 often it is Pareto non-dominated (frontier layer 1) across all cells, how often it is
