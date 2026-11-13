@@ -187,7 +187,18 @@ ul.gaps em{color:#D6A33A;font-style:normal}
 .tc-T3{background:#D6A33A}.tc-T4{background:#7B4056;color:#fff}
 .hash{font-family:ui-monospace,Consolas,monospace;color:#7f9398;font-size:12px;word-break:break-all}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
-@media(max-width:760px){.grid{grid-template-columns:1fr}h1{font-size:34px}}
+/* Narrow viewports — and, equivalently, 200% zoom on a desktop window — must not clip a
+   value. Tables WRAP rather than scroll: a horizontally scrollable region would have to be
+   focusable to stay keyboard-reachable (WCAG 2.1.1), and this document ships no script. */
+@media(max-width:820px){
+ .grid{grid-template-columns:1fr}
+ h1{font-size:34px}
+ .wrap{padding:26px 16px 56px}
+ table{font-size:12.5px}
+ th,td{padding:6px 5px;word-break:break-word}
+ td.vec,.hash{font-size:11px}
+ .sub{font-size:16px}
+}
 .foot{margin-top:40px;color:#789096;font-size:12px}
 .badge{display:inline-block;padding:3px 12px;border-radius:999px;background:#A8513A;color:#fff;
  font-size:12px;font-weight:700;letter-spacing:.16em;border:1px solid #c56a4f}

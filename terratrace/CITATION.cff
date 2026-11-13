@@ -15,9 +15,12 @@ authors:
 keywords:
   - planetary analog
   - Mars
+  - Moon
   - digital elevation model
   - terrain morphology
+  - geomorphometry
   - NASA Space Apps
+  - reproducibility
 references:
   - type: data
     title: "MGS MOLA Mission Experiment Gridded Data Record (MEGDR) / Mars MGS MOLA DEM 463m"

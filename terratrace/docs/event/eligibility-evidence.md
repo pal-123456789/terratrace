@@ -7,6 +7,21 @@ working research tool**, not as a pre-built submission. This page records the po
 trail, so the stance is auditable rather than assumed. The full statement is in
 [`CLEAN-ROOM-NOTE.md`](../../CLEAN-ROOM-NOTE.md).
 
+## The challenge this addresses
+
+The project addresses the NASA Space Apps Challenge 2026 challenge **“Identify Earth Locations that
+Analog the Permanent Moon Base Locations and Mars”**, as recorded in the project's master plan
+(`PLANETARY-ANALOG-OS-MASTER-PLAN.md`, header line, which cites the 2026 challenge and find-a-team
+pages).
+
+Two honesty notes attached to that sentence. First, the official 2026 site confirms there are **14
+challenges**, but its challenge list is client-rendered behind `api.spaceappschallenge.org/graphql`,
+so the list could not be read directly to re-confirm the exact wording — **re-confirm the title
+against the official page at the event**, and correct this line if it differs. Second, the challenge
+spans Moon *and* Mars; this engine supports a Moon reference as well as Mars (five body radii in
+`reproject.py`), so the Moon half is not a stretch goal — but the confirmatory study in
+`docs/RESULTS-v3.md` is Mars-only, which is where the evidence is strongest.
+
 ## Standing position
 
 **This repository is published prior art** — a public, MIT-licensed project whose commit history is the

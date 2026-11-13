@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 316" width="860" height="316" role="img" aria-label="TerraTrace emits one of four states; a tie, a not-comparable or a blocked result is a first-class outcome, not a failure.">
+<rect width="860" height="316" fill="#ffffff"/>
+<text x="28" y="34" font-family="Helvetica,Arial,sans-serif" font-size="19" font-weight="700" fill="#24292F">Four honest outcomes — never one opaque score</text>
+<text x="28" y="58" font-family="Helvetica,Arial,sans-serif" font-size="12.5" fill="#57606A">The engine emits exactly one of these; abstention is a result, not an error.</text>
+<rect x="28" y="92" width="200" height="32" rx="16" fill="#1A7F37"/>
+<text x="128" y="113" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">RECOMMEND</text>
+<text x="248" y="113" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#57606A">one unit is Pareto non-dominated and stable</text>
+<rect x="28" y="138" width="200" height="32" rx="16" fill="#BF8700"/>
+<text x="128" y="159" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">TIE</text>
+<text x="248" y="159" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#57606A">evidence does not separate the candidates</text>
+<rect x="28" y="184" width="200" height="32" rx="16" fill="#8250DF"/>
+<text x="128" y="205" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">NOT COMPARABLE</text>
+<text x="248" y="205" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#57606A">supports or footprints are not matched</text>
+<rect x="28" y="230" width="200" height="32" rx="16" fill="#CF222E"/>
+<text x="128" y="251" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="13" font-weight="700" fill="#ffffff" text-anchor="middle">BLOCKED</text>
+<text x="248" y="251" font-family="Helvetica,Arial,sans-serif" font-size="13" fill="#57606A">data, rights or constraint status incomplete</text>
+</svg>

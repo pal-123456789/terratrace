@@ -24,7 +24,11 @@ nav:
   - Claim-to-evidence ledger: CLAIM-LEDGER.md
   - Analog atlas: ATLAS.md
   - Limitations & claim firewall: limitations.md
+  - Feature definitions & units: FEATURES.md
+  - Accessibility report: ACCESSIBILITY.md
   - Event eligibility evidence: event/eligibility-evidence.md
+  - Master-plan traceability: PLAN-COMPLIANCE.md
+  - Demo script: DEMO.md
   - Paper: PAPER.md
   - Typeset paper (PDF): TerraTrace-paper.pdf
 markdown_extensions:

@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 410" width="860" height="410" role="img" aria-label="Sixty-kilometre roughness of the seven Earth candidates, log scale, coloured by pre-run class. The two smoothest are the non-volcanic controls, which carry the supported hypothesis S.">
+<rect width="860" height="410" fill="#ffffff"/>
+<text x="28" y="34" font-family="Helvetica,Arial,sans-serif" font-size="19" font-weight="700" fill="#24292F">The nearest Earth analog tracks roughness, not volcanic origin</text>
+<text x="28" y="58" font-family="Helvetica,Arial,sans-serif" font-size="12.5" fill="#57606A">60 km elevation sigma per candidate (log scale) · class is the literature label assigned before the run</text>
+<line x1="264.4" y1="86" x2="264.4" y2="300" stroke="#57606A" stroke-width="1" stroke-dasharray="2 4" opacity=".55"/>
+<line x1="233.6" y1="86" x2="233.6" y2="300" stroke="#57606A" stroke-width="1" stroke-dasharray="2 4" opacity=".55"/>
+<line x1="543.8" y1="86" x2="543.8" y2="300" stroke="#57606A" stroke-width="1" stroke-dasharray="2 4" opacity=".55"/>
+<line x1="594.0" y1="86" x2="594.0" y2="300" stroke="#57606A" stroke-width="1" stroke-dasharray="2 4" opacity=".55"/>
+<text x="184" y="114" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="13" fill="#24292F" text-anchor="end">nullarbor</text>
+<rect x="196" y="102" width="470" height="15" fill="#F6F8FA" stroke="#D0D7DE"/>
+<rect x="196" y="102" width="37.6" height="15" fill="#1A7F37"/>
+<text x="680" y="114" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="12.5" fill="#57606A">σ 5 m</text>
+<text x="184" y="144" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="13" fill="#24292F" text-anchor="end">llano_estacado</text>
+<rect x="196" y="132" width="470" height="15" fill="#F6F8FA" stroke="#D0D7DE"/>
+<rect x="196" y="132" width="131.9" height="15" fill="#1A7F37"/>
+<text x="680" y="144" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="12.5" fill="#57606A">σ 14 m</text>
+<text x="184" y="174" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="13" fill="#24292F" text-anchor="end">deccan_traps</text>
+<rect x="196" y="162" width="470" height="15" fill="#F6F8FA" stroke="#D0D7DE"/>
+<rect x="196" y="162" width="207.6" height="15" fill="#0E7490"/>
+<text x="680" y="174" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="12.5" fill="#57606A">σ 32 m</text>
+<text x="184" y="204" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="13" fill="#24292F" text-anchor="end">snake_river_plain</text>
+<rect x="196" y="192" width="470" height="15" fill="#F6F8FA" stroke="#D0D7DE"/>
+<rect x="196" y="192" width="307.2" height="15" fill="#0E7490"/>
+<text x="680" y="204" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="12.5" fill="#57606A">σ 95 m</text>
+<text x="184" y="234" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="13" fill="#24292F" text-anchor="end">harrat_khaybar</text>
+<rect x="196" y="222" width="470" height="15" fill="#F6F8FA" stroke="#D0D7DE"/>
+<rect x="196" y="222" width="313.7" height="15" fill="#0E7490"/>
+<text x="680" y="234" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="12.5" fill="#57606A">σ 102 m</text>
+<text x="184" y="264" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="13" fill="#24292F" text-anchor="end">odadahraun</text>
+<rect x="196" y="252" width="470" height="15" fill="#F6F8FA" stroke="#D0D7DE"/>
+<rect x="196" y="252" width="366.8" height="15" fill="#0E7490"/>
+<text x="680" y="264" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="12.5" fill="#57606A">σ 182 m</text>
+<text x="184" y="294" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="13" fill="#24292F" text-anchor="end">nevada_basin</text>
+<rect x="196" y="282" width="470" height="15" fill="#F6F8FA" stroke="#D0D7DE"/>
+<rect x="196" y="282" width="470.0" height="15" fill="#6E56CF"/>
+<text x="680" y="294" font-family="ui-monospace,Menlo,Consolas,monospace" font-size="12.5" fill="#57606A">σ 562 m</text>
+<rect x="28" y="323" width="11" height="11" rx="2" fill="#1A7F37"/>
+<text x="46" y="332" font-family="Helvetica,Arial,sans-serif" font-size="11.5" fill="#57606A">smooth control · non-volcanic</text>
+<rect x="258" y="323" width="11" height="11" rx="2" fill="#0E7490"/>
+<text x="276" y="332" font-family="Helvetica,Arial,sans-serif" font-size="11.5" fill="#57606A">basaltic (pre-run label)</text>
+<rect x="488" y="323" width="11" height="11" rx="2" fill="#6E56CF"/>
+<text x="506" y="332" font-family="Helvetica,Arial,sans-serif" font-size="11.5" fill="#57606A">other</text>
+<line x1="28" y1="352" x2="54" y2="352" stroke="#57606A" stroke-width="1" stroke-dasharray="2 4" opacity=".55"/>
+<text x="62" y="356" font-family="Helvetica,Arial,sans-serif" font-size="11.5" fill="#57606A">dotted guides: Mars references — arcadia σ 7 m, cerberus σ 5 m, terra_sabaea σ 148 m, terra_sirenum σ 256 m</text>
+<text x="28" y="384" font-family="Helvetica,Arial,sans-serif" font-size="12" fill="#57606A">The two references that support S — Arcadia (σ 7 m) and Cerberus (σ 5 m) — sit where the two non-volcanic controls sit. The basalts win only where the target is rough.</text>
+</svg>

@@ -36,9 +36,13 @@ event. Because we are building now (weeks ahead), this repository is framed as a
 project / prior art** (open source), not an official submission unless it is rebuilt or substantially
 extended during the event window. This is deliberate and stated openly in the repo.
 
-**Open item:** we have not yet pinned TerraTrace to one of the 14 official 2026 challenge titles. Our
-problem (below) is self-defined under the planetary-science / open-data theme; mapping it to the
-best-fitting official challenge is a recommended near-term step (I can pull the exact 2026 list).
+**Challenge mapping (closed 2026-11-13):** TerraTrace is pinned to the 2026 challenge recorded in
+[`PLANETARY-ANALOG-OS-MASTER-PLAN.md`](PLANETARY-ANALOG-OS-MASTER-PLAN.md) — *“Identify Earth
+Locations that Analog the Permanent Moon Base Locations and Mars”* — now stated in the README and in
+[`terratrace/docs/event/eligibility-evidence.md`](terratrace/docs/event/eligibility-evidence.md). The
+official site confirms 14 challenges for 2026 but renders its list client-side, so the exact wording
+should be re-confirmed against the official page at the event. The project also supports a Moon
+reference, so the Moon half of the challenge is covered by the engine.
 
 ## 2. The problem statement we chose
 
@@ -215,11 +219,18 @@ a time, each increment cited, tested, gated, and pushed green. Recent arc:
 > matched-footprint **v2/v3** benchmark (bounded, comparable 60 km units; support ≥ effective
 > resolution; abstention under the honest regime), and the keyless COG path removed the download/key
 > blocker entirely. Still open: wiring `hydro` into the atlas/ablation *defaults* (it remains opt-in by
-> design, so the gated hash is untouched), propagating co-registration/vertical-datum error end-to-end
-> into the decision, and mapping the project to one of the official 2026 challenge titles. On that
-> last one: the official site confirms **14 challenges** for 2026, but its list is client-rendered
-> behind `api.spaceappschallenge.org/graphql`, so the specific title still has to be pinned at the
-> event — recorded so it is not mistaken for done.
+> design, so the gated hash is untouched), and propagating co-registration/vertical-datum error
+> end-to-end into the decision.
+>
+> **The challenge title is no longer open** — the master plan (header line) names it: *“Identify Earth
+> Locations that Analog the Permanent Moon Base Locations and Mars”*. It is now recorded in the README
+> and in [`docs/event/eligibility-evidence.md`](terratrace/docs/event/eligibility-evidence.md), with
+> one honest qualification: the official 2026 site confirms 14 challenges but its list is
+> client-rendered behind a GraphQL API, so the wording should be re-confirmed at the event.
+>
+> Every requirement in the master plan, its 23-module library, and the S/E/U backlog has now been
+> traced item by item in [`terratrace/docs/PLAN-COMPLIANCE.md`](terratrace/docs/PLAN-COMPLIANCE.md),
+> which also names the six items that are genuinely not delivered.
 
 - **Make the new science matter to the decision & the demo:** wire the `hydro` lens into the atlas/
   ablation defaults; add a report/viewer panel that visualizes the new descriptors + a transect figure.
