@@ -52,7 +52,12 @@ pip install -r requirements-real.txt    # rasterio, requests, PyYAML
 `--synthetic` and `--dry-run` do not need rasterio, requests, or a key — they run
 on the base install (NumPy + PyYAML). The full real run needs all three.
 
-### 1b. The one required key (env var only)
+### 1b. The OpenTopography key (env var only — the benchmark path does not need it)
+
+The *multi-body analog orchestrator* on this page fetches its Earth candidates from OpenTopography,
+which needs a free key. (The **matched-footprint benchmark** in §7 is **keyless**: it reads the public
+ESA Copernicus GLO-30 COG mosaic straight from AWS Open Data — already verified bit-identical to the
+OpenTopography product — so it needs no account and no key.)
 
 Create a free OpenTopography account and copy an API key
 (`https://portal.opentopography.org` -> My Account -> API key), then export it:
@@ -208,6 +213,26 @@ python3 scripts/export_bundle.py --study artifacts/study.json --out artifacts/bu
 `viewer/index.html`; `export_bundle.py` packages that study.json into the same
 bundle layout (study.json, report.md, report.html, viewer, REFERENCES,
 CHECKSUMS).
+
+## 7. The keyless matched-footprint benchmark (protocol v3)
+
+The panel benchmark whose result is written up in `docs/RESULTS-v3.md` reproduces in **two commands
+with no API key and no account**: the Earth candidates come from the public ESA Copernicus GLO-30 COG
+mosaic on AWS Open Data.
+
+```bash
+python3 scripts/fetch_earth_candidates.py --config config/matched_footprint_v3.yml --source cog
+python3 scripts/run_matched_benchmark.py --config config/matched_footprint_v3.yml --out artifacts/mf_panel_v3
+```
+
+`--source cog` (the default) streams 1° GLO-30 tiles with HTTP range reads against the COG mosaic —
+it never downloads the global mosaic and it needs no key. `--source opentopo` selects the older keyed
+path instead. The Mars side is the same single global MOLA 463 m GeoTIFF (`data/mars/mola_463m.tif`);
+both bodies need `rasterio`.
+
+The run writes the panel JSON, a Markdown report, and the comparability-gate summary under
+`artifacts/mf_panel_v3/`. The frozen decision rules are in `docs/BENCHMARK-PROTOCOL-v3.md`; the
+result is in `docs/RESULTS-v3.md`.
 
 ## Data terms and citation (required)
 

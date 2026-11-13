@@ -28,7 +28,7 @@ candidate for a cratered highland as readily as for volcanic plains — the sign
 non-specific "least-dissimilar member of a weak shortlist" effect rather than a specific analog.
 TerraTrace's contribution is therefore a screening method that **detects its own false analogs**
 with rules fixed before the data are seen. Everything is offline-reproducible from one command
-and covered by 837 automated tests.
+and covered by 843 automated tests.
 
 ## 1. Problem and approach
 
@@ -91,7 +91,8 @@ endpoints), and the terrain fingerprint carries an opt-in geostatistical similar
 ## 3. Data
 
 Mars reference: MGS **MOLA 463 m** (USGS Astrogeology, keyless). Earth candidates: **Copernicus
-GLO-30** via OpenTopography. The engine's source catalog carries 13 products across the five
+GLO-30**, read either via OpenTopography or keylessly from the public AWS COG mosaic (§4.2). The
+engine's source catalog carries 14 products across the five
 bodies with coverage, licence, and 1-sigma vertical-accuracy metadata; a no-network preflight
 validates each bounding box, selects the covering product, and sizes the request before any
 download.
@@ -204,7 +205,7 @@ end-to-end into the decision; wider Earth windows and smoothness-matched control
 
 ```bash
 pip install -r terratrace/requirements.txt      # core: NumPy only
-python terratrace/tests/run_tests.py             # 837 offline tests
+python terratrace/tests/run_tests.py             # 843 offline tests
 python terratrace/scripts/run_validation.py      # 51 correctness oracles
 # real five-world study, one command (needs a free OpenTopography key):
 python terratrace/scripts/run_real_analog_study.py --config config/real_multibody.example.yml

@@ -8,7 +8,7 @@ This repository holds two things:
 
 | Path | What it is |
 |---|---|
-| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across six robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **837 tests**, no network required. |
+| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across six robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **843 tests**, no network required. |
 | `site/` | A 3D scroll-animated website telling the project story (deployed on Vercel). |
 
 > **Scope / claim firewall.** TerraTrace screens terrain **morphology** between curated
@@ -19,7 +19,7 @@ This repository holds two things:
 ## What it does
 
 Loads real elevation models (Mars MOLA; Moon LOLA; Mercury MESSENGER; Ceres Dawn; Earth
-Copernicus GLO-30/90, USGS 3DEP, SRTM, NASADEM, ALOS — a 13-product catalog with coverage,
+Copernicus GLO-30/90, USGS 3DEP, SRTM, NASADEM, ALOS — a 14-product catalog with coverage,
 licence, and vertical-accuracy metadata), warps each AOI to its own local metric grid on the
 correct body, computes map-scale descriptors (slope, relief, ruggedness, connectivity,
 curvature, vector ruggedness, roughness/Hurst, topographic openness, geomorphon landforms,
@@ -40,20 +40,52 @@ weighted score, and never a traversability, hazard, geologic-equivalence, or mis
 claim. Everything is reproducible and hash-anchored; a self-contained HTML report and offline
 viewer are generated per study.
 
+## Where to read what
+
+Every claim in this repository is written down, and `terratrace/scripts/doc_consistency_check.py`
+— a CI step, backed by always-on tests in the suite — **fails the build if the prose drifts from
+the code**: a stale test
+count, a documentation page missing from the nav, a relative link that no longer resolves, or a
+version that disagrees between `__init__.py`, `pyproject.toml` and `CITATION.cff`.
+
+| Document | What it is |
+|---|---|
+| [`README.md`](README.md) | This file — what the project is, and how to run it |
+| [`terratrace/README.md`](terratrace/README.md) | The engine: every capability, the CLI, the HTTP API, the layout |
+| [`terratrace/docs/method.md`](terratrace/docs/method.md) | Every descriptor and every decision lens, in full |
+| [`terratrace/docs/RESULTS-v3.md`](terratrace/docs/RESULTS-v3.md) | **The current headline result** |
+| [`terratrace/docs/BENCHMARK-PROTOCOL-v3.md`](terratrace/docs/BENCHMARK-PROTOCOL-v3.md) | Its frozen protocol, including the pre-specification caveat |
+| [`terratrace/docs/RESULTS-v2.md`](terratrace/docs/RESULTS-v2.md) | The pre-registered test that withdrew the earlier claim |
+| [`terratrace/docs/PAPER.md`](terratrace/docs/PAPER.md) · [PDF](terratrace/docs/TerraTrace-paper.pdf) | The methods paper (typeset PDF included) |
+| [`terratrace/docs/CLAIM-LEDGER.md`](terratrace/docs/CLAIM-LEDGER.md) | Every claim → its experiment, status, uncertainty, falsifier |
+| [`terratrace/docs/VALIDATION.md`](terratrace/docs/VALIDATION.md) | The whole test suite and all 51 scientific-correctness oracles |
+| [`terratrace/docs/limitations.md`](terratrace/docs/limitations.md) | The claim firewall and the honest limits |
+| [`terratrace/docs/ATLAS.md`](terratrace/docs/ATLAS.md) | The multi-reference, multi-lens analog atlas |
+| [`terratrace/REAL-DATA-RUNBOOK.md`](terratrace/REAL-DATA-RUNBOOK.md) | Running it on real data — keyless |
+| [`terratrace/CLEAN-ROOM-NOTE.md`](terratrace/CLEAN-ROOM-NOTE.md) · [`eligibility-evidence.md`](terratrace/docs/event/eligibility-evidence.md) | The event-eligibility stance and its evidence trail |
+| [`CHANGELOG.md`](CHANGELOG.md) | The full build history |
+| [`TerraTrace-PROJECT-BRIEF.md`](TerraTrace-PROJECT-BRIEF.md) | An internal strategic brief (dated; not the submission) |
+
+The dated records — the v1/v2 protocols, the superseded v3 proposal, and the exploratory worked
+example — are kept verbatim under `terratrace/docs/` so the audit trail is intact.
+
 ## Run the engine
 
 ```bash
 cd terratrace
 pip install -r requirements.txt            # core (NumPy only)
-python tests/run_tests.py                   # 837 fixtures, offline
+python tests/run_tests.py                   # 843 fixtures, offline
 python scripts/run_validation.py            # scientific-correctness suite
 python -m terratrace.cli --out artifacts    # synthetic study
 python -m terratrace.build_viewer           # viewer/index.html
 ```
 
 Unified CLI: `python -m terratrace.cli {study, batch, validate, benchmark, report, report-html,
-dossier, references, sensitivity, classify, confidence, bank, transect, version}`. Real data is
-keyless for the planetary bodies **and for Earth** (see below) — no account, no API key. The large
+dossier, references, sensitivity, classify, confidence, bank, transect, version}`. Every planetary
+body is keyless (Mars MOLA, Moon LOLA, Mercury MESSENGER, Ceres Dawn), and — see below — so is the
+**matched-footprint benchmark's** Earth path, which reads the public ESA Copernicus GLO-30 COG mosaic
+on AWS with no account. (The multi-body analog orchestrator and the non-Copernicus Earth products use
+OpenTopography, which needs a free `OPENTOPO_API_KEY`.) The large
 DEMs under `terratrace/data/` are git-ignored; fetch them with
 `terratrace/scripts/fetch_real_dems.py`. A single command —
 `terratrace/scripts/run_real_analog_study.py` — runs the whole real multi-body pipeline end to end

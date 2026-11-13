@@ -1,11 +1,13 @@
 cff-version: 1.2.0
 message: "If you use TerraTrace, please cite it and the underlying NASA/ESA/USGS data."
 title: "TerraTrace - Planetary Analog Terrain-Transfer Workbench"
-abstract: "A provenance-first tool that compares a Mars reference terrain unit with
-  Earth terrain units at a common metric support, exposes transfer gaps, and emits a
-  reproducible study package. Morphology screening only; not a mission-readiness tool."
-version: 0.1.0
-date-released: 2026-11-15
+abstract: "A provenance-first tool that compares a planetary reference terrain unit with
+  candidate Earth terrain units at a common metric support, exposes transfer gaps, and
+  emits a reproducible study package. Ships a frozen, pre-registered matched-footprint
+  benchmark that withdraws its own exploratory analog claim. Morphology screening only;
+  not a mission-readiness tool."
+version: 0.3.0
+date-released: 2026-11-13
 license: MIT
 authors:
   - family-names: Ghevariya

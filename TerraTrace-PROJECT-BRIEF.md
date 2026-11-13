@@ -1,20 +1,26 @@
 # TerraTrace — Project Brief for Strategic Review
 
+> **⚠ INTERNAL WORKING BRIEF — not the submission, and not the current public statement.**
+> This is a strategic brief written for our own review. For the project as it actually ships, read the
+> root [`README.md`](README.md), [`terratrace/docs/index.md`](terratrace/docs/index.md), and above all
+> [`terratrace/docs/RESULTS-v3.md`](terratrace/docs/RESULTS-v3.md). Sections below are kept as written
+> with dated supersede notes; where a number here disagrees with the README, **the README is current**.
+
 > **Purpose of this document.** A complete, honest briefing on our NASA Space Apps 2026 project so a
 > senior reviewer can judge it and suggest how to push it to the next level. It states what the
 > project is, the problem it solves, how it works, what is built, what the real result is, where it is
 > weak, and what we are considering next. Nothing here is inflated — the credibility of the project
 > rests on rigor and honest claims, so this brief is written the same way.
 
-**Snapshot (as of 2026-10-12)**
+**Snapshot (as of 2026-10-12 — see the note above; the numbers below have since moved)**
 
 | | |
 |---|---|
 | Project | **TerraTrace** — reproducible, uncertainty-aware, multi-lens morphological analog screening across five worlds |
-| Repo | `github.com/pal-123456789/terratrace` · HEAD `b31a547` · **CI green** on Python 3.10/3.11/3.12 |
-| Scale | 5 planetary bodies · ~30 descriptor families · 6 decision lenses · **686 tests**, 0 failing · **51** validation oracles · **27** method citations |
+| Repo | `github.com/pal-123456789/terratrace` · HEAD `b31a547` at the time of writing · **CI green** on Python 3.10/3.11/3.12 |
+| Scale | 5 planetary bodies · ~30 descriptor families · 6 decision lenses · **686 → 843** tests across the arc · **51** validation oracles · **27** method citations |
 | Engine | Pure-NumPy core (no SciPy/rasterio needed offline); dependency-free test runner |
-| Status | Engine deep and green; one strong real-data result captured; positioned as public research / prior art |
+| Status | Engine deep and green; the exploratory real-data finding was withdrawn and its mechanism measured under protocol v3 — see `terratrace/docs/RESULTS-v3.md`; positioned as public research / prior art |
 
 ---
 
@@ -103,7 +109,7 @@ decision-confidence verdict, and a full provenance record to every result.
 
 **Interfaces & tooling:** unified CLI (incl. new `bank`, `transect`); loopback-only HTTP API (incl. `POST /bank`, `/transect`); self-contained HTML report + offline interactive viewer; pure-stdlib hillshade/PNG encoder; one-command real-study orchestrator (preflight → fetch → study → confidence → bundle); multi-reference **analog atlas**; scale-resolved profile; swath/transect profiler.
 
-**Data & ingest:** Mars **MOLA 463 m** (USGS Astrogeology, keyless); Earth **Copernicus GLO-30** (OpenTopography, free key). A source catalog of 13 products across the five bodies with coverage, licence, and 1-sigma vertical-accuracy metadata; a no-network preflight validates each bounding box, picks the covering product, and sizes the request before any download.
+**Data & ingest:** Mars **MOLA 463 m** (USGS Astrogeology, keyless); Earth **Copernicus GLO-30** — via OpenTopography (free key) **or keylessly** from the public AWS COG mosaic (`--source cog`, the matched-benchmark default). A source catalog of **14** products across the five bodies with coverage, licence, and 1-sigma vertical-accuracy metadata; a no-network preflight validates each bounding box, picks the covering product, and sizes the request before any download.
 
 ## 6. The real result (our headline finding)
 
@@ -111,8 +117,21 @@ decision-confidence verdict, and a full provenance record to every result.
 > pre-registered, footprint-matched, resolution-aware test (`terratrace/docs/RESULTS-v2.md`) found it
 > does **not** survive: H1 (held-out plains) not supported, the engine abstains in the honest regime,
 > and Craters is nearest for a cratered highland as readily as for volcanic plains — a non-specific
-> shortlist effect. The current headline is that TerraTrace **caught its own false analog** with rules
-> fixed before the data were seen. The original text is kept below as history.
+> shortlist effect. The headline became that TerraTrace **caught its own false analog** with rules
+> fixed before the data were seen.
+>
+> **Update 2026-11-05 — the explanation was then measured, not asserted.** Protocol v3
+> (`terratrace/docs/BENCHMARK-PROTOCOL-v3.md` → `RESULTS-v3.md`) added two smoothness-matched
+> **non-volcanic** Earth controls, 60 km windows, and three fresh confirmatory plains plus two fresh
+> highlands. The frozen rules returned **S supported / V not supported / R supported**: a smooth
+> **non-volcanic** terrain sits on the Pareto front for every confirmatory Martian volcanic plain at
+> every honest support, while basaltic origin confers no advantage (the basalts come to the front only
+> for the *rough* highlands). So the nearest Earth analog tracks **km-scale roughness, not volcanic
+> origin**. 15/15 confirmatory honest cells were in-regime, 0 comparability-gate violations. One
+> honest caveat: v3 is *pre-specified but not fully pre-registered* (rules and config frozen before the
+> data; the protocol document committed after the run).
+>
+> The original exploratory text is kept below as history.
 
 On a **real five-world run** — Mars MOLA 463 m vs three real Copernicus GLO-30 Earth terrains (Nevada
 basin, Craters of the Moon ID, Andean volcano) at 1000 m common support — the method **independently
@@ -160,11 +179,19 @@ a time, each increment cited, tested, gated, and pushed green. Recent arc:
 - **Multi-world & scale:** 5 bodies; multi-reference analog atlas; scale-resolved analog profile.
 - **Interfaces:** unified CLI, loopback API, HTML report + offline viewer, one-command real-study
   orchestrator, publication-grade methods paper (`docs/PAPER.md` → typeset PDF).
-- **Last three pushes:** `c3e016b` five-lens atlas/ablation; `84ac241` descriptor batch (wetness,
+- **Last three pushes (Day 26–29):** `c3e016b` five-lens atlas/ablation; `84ac241` descriptor batch (wetness,
   convergence, sky-view factor, two-scale TPI); `b31a547` finale (semivariogram, roughness-length,
   curvature classes, normal-fabric eigen-analysis, openness-difference, Melton ruggedness, a swath
   transect tool, a 6th "hydro" decision lens, `bank`/`transect` CLI+API, and a geostatistical fingerprint
   term). Suite 583 → **686** tests across these, gated hash unchanged throughout.
+- **Then the research arc (2026-10-16 → 2026-11-05):** a matched-footprint benchmark harness (spatial
+  support vs extent, a comparability gate, resolution matching, specificity controls); protocol **v2**
+  (frozen *before* any v2 data — it withdrew the Craters claim); engine extensions (adversarial
+  robustness, absolute adequacy, per-class confirmation rules, and the `classify_resolution_change` fix
+  that separates stabilisation from reversal); and protocol **v3** (S supported / V not supported /
+  R supported). Plus a **keyless** Copernicus GLO-30 COG Earth path proven **bit-identical** to
+  OpenTopography, and CI hygiene that actually **runs** the tests with optional dependencies blocked.
+  Suite 686 → **843**; validation 51/51 throughout; gated study hash unchanged.
 
 ## 9. Honest limitations & transfer gaps (stated, not hidden)
 
@@ -184,6 +211,13 @@ a time, each increment cited, tested, gated, and pushed green. Recent arc:
 
 ## 10. What we are considering next
 
+> **Status 2026-11-13.** Two of these were since acted on: the real evidence was strengthened by the
+> matched-footprint **v2/v3** benchmark (bounded, comparable 60 km units; support ≥ effective
+> resolution; abstention under the honest regime), and the keyless COG path removed the download/key
+> blocker entirely. Still open: wiring `hydro` into the atlas/ablation *defaults* (it remains opt-in by
+> design, so the gated hash is untouched), propagating co-registration/vertical-datum error end-to-end
+> into the decision, and mapping the project to one of the official 2026 challenge titles.
+
 - **Make the new science matter to the decision & the demo:** wire the `hydro` lens into the atlas/
   ablation defaults; add a report/viewer panel that visualizes the new descriptors + a transect figure.
 - **Strengthen the real evidence (highest leverage):** widen the real atlas with more Earth candidates
@@ -195,6 +229,9 @@ a time, each increment cited, tested, gated, and pushed green. Recent arc:
   brief + a short narrated demo; keep the methods paper current.
 
 ## 11. Questions we want the senior reviewer to answer
+
+*(Kept for the record. The ones we could answer from our own evidence we did, rather than waiting —
+see `terratrace/docs/RESULTS-v2.md` and `RESULTS-v3.md`.)*
 
 1. **Thesis:** Is "no composite likeness score — Pareto dominance + explicit TIE/INDETERMINATE + honest
    confidence" the right differentiator for a NASA-judged audience, or should we *also* offer a defensible

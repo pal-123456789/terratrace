@@ -1,5 +1,5 @@
 site_name: TerraTrace - Planetary Analog OS
-site_description: Mars-vs-Earth map-scale terrain-morphology transfer audit
+site_description: Five-world map-scale terrain-morphology analog screening, with a frozen pre-registered benchmark that withdraws its own false analog
 theme:
   name: material
   palette:
@@ -14,13 +14,19 @@ nav:
   - Home: index.md
   - Method: method.md
   - Validation & ablations: VALIDATION.md
-  - Benchmark protocol v3: BENCHMARK-PROTOCOL-v3.md
+  - Benchmark protocol v3 (frozen): BENCHMARK-PROTOCOL-v3.md
   - Benchmark results v3: RESULTS-v3.md
+  - Benchmark protocol v2: BENCHMARK-PROTOCOL-v2.md
   - Benchmark results v2: RESULTS-v2.md
+  - Benchmark protocol v1: BENCHMARK-PROTOCOL.md
+  - Benchmark v3 proposal (superseded): BENCHMARK-PROTOCOL-v3-PROPOSAL.md
+  - Real worked example (exploratory, superseded): REAL-EXAMPLE.md
   - Claim-to-evidence ledger: CLAIM-LEDGER.md
   - Analog atlas: ATLAS.md
   - Limitations & claim firewall: limitations.md
+  - Event eligibility evidence: event/eligibility-evidence.md
   - Paper: PAPER.md
+  - Typeset paper (PDF): TerraTrace-paper.pdf
 markdown_extensions:
   - admonition
   - tables

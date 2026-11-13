@@ -10,6 +10,18 @@ provenance-tracked study package.
     validate autonomy, establish geological equivalence, certify site access, or
     certify mission readiness. It is not NASA-endorsed.
 
+!!! abstract "Where this stands today — the headline result"
+    An exploratory real-data run appeared to endorse **Craters of the Moon, Idaho** as a Mars
+    analog. A matched-footprint benchmark **withdrew** that claim, and protocol v3 then *measured*
+    the explanation: the nearest Earth analog tracks **km-scale roughness, not volcanic origin**
+    (S **supported**, V **not supported**, R **supported**; 15/15 confirmatory honest cells, 0
+    comparability-gate violations). TerraTrace's contribution is a screening method that
+    **detects its own false analogs** with rules fixed before the data were seen. Read
+    [Benchmark results v3](RESULTS-v3.md) and its [frozen protocol](BENCHMARK-PROTOCOL-v3.md);
+    one honest caveat is recorded there — v3 is *pre-specified but not fully pre-registered*
+    (the rules and config were frozen before the data, the protocol document was committed after
+    the run).
+
 ## What it does
 
 1. Loads real DEMs for one of **five reference bodies (Earth, Mars, Moon, Mercury,
@@ -83,18 +95,22 @@ provenance-tracked study package.
 pip install -r requirements.txt
 python -m terratrace.cli --out artifacts        # synthetic, offline
 python -m terratrace.build_viewer               # viewer/index.html
-python tests/run_tests.py                        # 837 fixtures
+python tests/run_tests.py                        # 843 fixtures
 ```
 
-Real data: see the repository `REAL-DATA-RUNBOOK.md`. The only key required is a free
-OpenTopography API key (Mars MOLA needs none).
+Real data: see the repository `REAL-DATA-RUNBOOK.md`. **The matched-footprint benchmark path needs no
+API key at all** — Mars MOLA is keyless, and its Earth candidates are read from the public ESA
+Copernicus GLO-30 COG mosaic on AWS Open Data (`--source cog`, verified bit-identical to the
+OpenTopography COP30 product). The multi-body analog orchestrator, and the non-Copernicus Earth
+products (NASADEM, SRTM, ALOS, USGS 3DEP), use OpenTopography and need a free `OPENTOPO_API_KEY`.
 
 ## Why it is credible
 
 Validated at the level it claims, with an automatic degeneracy gate, a water-contamination
 ablation, and a core-vs-extended robustness ablation that turns an over-confident
 recommendation into an honest tie. A **sensitivity ablation** goes further, reporting whether the
-recommendation stays stable across all three decision lenses and a sweep of common supports.
+recommendation stays stable across the decision lenses — five by default (`core`, `extended`,
+`geomorphic`, `landform`, `texture`) plus the opt-in sixth (`hydro`) — and a sweep of common supports.
 Every catalog source carries an approximate 1-sigma vertical accuracy that `errorprop.py`
 propagates into honest slope/relief/ruggedness uncertainty (an optimistic lower bound under the
 independent-pixel assumption); on request the study carries those **per-source
