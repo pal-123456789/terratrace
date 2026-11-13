@@ -123,7 +123,7 @@ lede(s3, "Five stages, each one a place where an analog study usually overclaims
 const steps = [
   ["01", "Catalog", "14 products with coverage, licence and vertical accuracy — body, CRS and datum asserted by tests."],
   ["02", "Support", "Each window reprojected onto its own body's metric grid. Nominal posting (30 m GLO-30, 463 m MOLA) is NOT the compared resolution: the common effective support is 3x source spacing, declared before the run."],
-  ["03", "Describe", "40 cited descriptor families — 200 scalar outputs — computed in pure NumPy."],
+  ["03", "Describe", "40 cited descriptor families — ~210 scalar values — computed in pure NumPy."],
   ["04", "Compare", "Pareto dominance across axes chosen per lens. A single composite score does not exist in the code."],
   ["05", "Refuse", "Eligibility filters run first; a gap ledger and a provenance graph travel with every result."],
 ];
@@ -175,12 +175,12 @@ s4.addText([
 const s5 = pres.addSlide({ masterName: "MAIN", sectionTitle: "Method" });
 kicker(s5, "The benchmark, including the part that went against us");
 s5.addText("We withdrew our own headline finding", { placeholder: "title" });
-lede(s5, "Three acts, each one published before the next was run — so the record shows the order in which we knew things.", 1.62, 0.4, 12.1);
+lede(s5, "Three acts, recorded in the order they happened: Act II is pre-registered, Act III is pre-specified.", 1.62, 0.34, 12.1);
 
 const acts = [
-  ["Act I · exploratory", "A real multi-region atlas suggested an analog we liked.", "Screened as a hypothesis, not a result."],
-  ["Act II · pre-registered", "A matched-footprint test to falsify it.", "It failed. The claim was withdrawn."],
-  ["Act III · measured why", "Protocol v3 asked what actually explained the match.", "Roughness, not volcanic origin."],
+  ["Act I · exploratory", "A real multi-region atlas suggested an analog we liked.", "Published 2026-10-11. Screened as a hypothesis — never as a result."],
+  ["Act II · pre-registered", "A matched-footprint test to falsify it.", "Protocol frozen 2026-10-16 before any v2 result. It failed; the claim was withdrawn."],
+  ["Act III · pre-specified", "Protocol v3 asked what actually explained the match.", "Rules and config predate the 2026-11-05 run. The protocol document does not."],
 ];
 acts.forEach((a, i) => {
   const x = M + i * (3.98 + 0.22);
@@ -202,7 +202,7 @@ pres.addSection({ title: "Result" });
 /* =========================================================== 6 · finding === */
 const s6 = pres.addSlide({ masterName: "MAIN", sectionTitle: "Result" });
 kicker(s6, "The result");
-s6.addText("Roughness tracks the class; volcanic origin does not", { placeholder: "title" });
+s6.addText("Within this panel and lens: roughness tracks the class, origin does not", { placeholder: "title" });
 
 s6.addChart(pres.ChartType.bar, [{
   name: "σ (m)",
@@ -219,23 +219,24 @@ s6.addChart(pres.ChartType.bar, [{
   valGridLine: { color: RULE, size: 1 }, catGridLine: { style: "none" },
   chartArea: { fill: { color: BG } }, plotArea: { fill: { color: BG } },
 });
-s6.addText("σ = measured roughness of each Earth candidate at 60 km support. Teal = smooth non-volcanic controls, amber = basaltic, grey = neither. Log scale.", {
+s6.addText("σ = measured roughness of each Earth candidate at 60 km support (teal = smooth non-volcanic control, amber = basaltic, grey = neither; log scale). S = smoothness/shortlist, V = volcanic specificity, R = resolution robustness.", {
   x: M - 0.06, y: 6.32, w: 7.5, h: 0.42, fontFace: BODY, fontSize: 10.5, color: MUTE, lineSpacing: 13, margin: 0, isTextBox: true, valign: "top" });
 
-card(s6, 8.5, 1.86, 4.22, 2.36);
-s6.addText("S — SUPPORTED", { x: 8.78, y: 2.02, w: 3.7, h: 0.3, fontFace: BODY, fontSize: 12, bold: true, color: ACC, charSpacing: 1.0, margin: 0, isTextBox: true });
-s6.addText("A smooth non-volcanic control holds Pareto layer 1 at every honest support (1500, 2000, 3000 m), for all three volcanic-plains references.", {
-  x: 8.78, y: 2.36, w: 3.7, h: 1.0, fontFace: BODY, fontSize: 11.5, color: MUTE, lineSpacing: 15, margin: 0, isTextBox: true, valign: "top" });
-s6.addText("V — NOT SUPPORTED", { x: 8.78, y: 3.32, w: 3.7, h: 0.3, fontFace: BODY, fontSize: 12, bold: true, color: WARM, charSpacing: 1.0, margin: 0, isTextBox: true });
-s6.addText("Basaltic origin buys nothing beyond roughness.", { x: 8.78, y: 3.64, w: 3.7, h: 0.5, fontFace: BODY, fontSize: 11.5, color: MUTE, lineSpacing: 15, margin: 0, isTextBox: true, valign: "top" });
+card(s6, 8.5, 1.82, 4.22, 2.36);
+s6.addText("S — SUPPORTED", { x: 8.78, y: 1.96, w: 3.7, h: 0.28, fontFace: BODY, fontSize: 12, bold: true, color: ACC, charSpacing: 1.0, margin: 0, isTextBox: true });
+s6.addText("A smooth non-volcanic control holds Pareto layer 1 at every honest support, for all three volcanic-plains references.", {
+  x: 8.78, y: 2.26, w: 3.7, h: 0.66, fontFace: BODY, fontSize: 11, color: MUTE, lineSpacing: 14, margin: 0, isTextBox: true, valign: "top" });
+s6.addText("V — NOT SUPPORTED", { x: 8.78, y: 3.02, w: 3.7, h: 0.28, fontFace: BODY, fontSize: 12, bold: true, color: WARM, charSpacing: 1.0, margin: 0, isTextBox: true });
+s6.addText("It did not establish the pre-declared volcanic-specific advantage, over this panel and lens.", {
+  x: 8.78, y: 3.32, w: 3.7, h: 0.72, fontFace: BODY, fontSize: 11, color: MUTE, lineSpacing: 14, margin: 0, isTextBox: true, valign: "top" });
 
-card(s6, 8.5, 4.42, 4.22, 2.36);
-s6.addText("R — SUPPORTED", { x: 8.78, y: 4.58, w: 3.7, h: 0.3, fontFace: BODY, fontSize: 12, bold: true, color: ACC, charSpacing: 1.0, margin: 0, isTextBox: true });
-s6.addText("Of 15 confirmatory cells: 11 unchanged, 1 destabilised, 3 membership-changed, 0 reversed. The destabilised cell is mars_solis at 1500 m, where matching the footprint turns a single recommendation into a TIE.", {
-  x: 8.78, y: 4.92, w: 3.7, h: 0.72, fontFace: BODY, fontSize: 11.5, color: MUTE, lineSpacing: 15, margin: 0, isTextBox: true, valign: "top" });
-s6.addText("Where it is soft", { x: 8.78, y: 5.66, w: 3.7, h: 0.3, fontFace: BODY, fontSize: 12, bold: true, color: WARM, charSpacing: 1.0, margin: 0, isTextBox: true });
-s6.addText("The single top pick is a near-tie: it reverses on a 6-px crop shift. The class result is robust; the ranking is not.", {
-  x: 8.78, y: 5.98, w: 3.7, h: 0.72, fontFace: BODY, fontSize: 11.5, color: MUTE, lineSpacing: 15, margin: 0, isTextBox: true, valign: "top" });
+card(s6, 8.5, 4.34, 4.22, 2.44);
+s6.addText("R — SUPPORTED", { x: 8.78, y: 4.48, w: 3.7, h: 0.28, fontFace: BODY, fontSize: 12, bold: true, color: ACC, charSpacing: 1.0, margin: 0, isTextBox: true });
+s6.addText("Of 15 confirmatory cells: 11 unchanged, 1 destabilised, 3 membership-changed, 0 reversed. The destabilised cell is mars_solis at 1500 m.", {
+  x: 8.78, y: 4.78, w: 3.7, h: 0.78, fontFace: BODY, fontSize: 11, color: MUTE, lineSpacing: 14, margin: 0, isTextBox: true, valign: "top" });
+s6.addText("Where it is soft", { x: 8.78, y: 5.64, w: 3.7, h: 0.28, fontFace: BODY, fontSize: 12, bold: true, color: WARM, charSpacing: 1.0, margin: 0, isTextBox: true });
+s6.addText("The top pick is a near-tie; it reverses on a 6-px crop shift. The class result is robust, the ranking is not.", {
+  x: 8.78, y: 5.94, w: 3.7, h: 0.74, fontFace: BODY, fontSize: 11, color: MUTE, lineSpacing: 14, margin: 0, isTextBox: true, valign: "top" });
 
 pres.addSection({ title: "Evidence" });
 /* ====================================================== 7 · verification === */
@@ -244,11 +245,11 @@ kicker(s7, "Evidence");
 s7.addText("Claims are cheap; these are checked", { placeholder: "title" });
 let BUILD_COMMIT = "uncommitted";
 try { BUILD_COMMIT = require("child_process").execSync("git rev-parse --short HEAD", { cwd: __dirname }).toString().trim(); } catch (e) {}
-s7.addText(`Tested commit ${BUILD_COMMIT} · CI: github.com/pal-123456789/terratrace/actions`, {
+s7.addText(`${BUILD_COMMIT} = the tested implementation commit; the deck is rebuilt after it · CI: github.com/pal-123456789/terratrace/actions`, {
   x: M, y: 6.48, w: 12.1, h: 0.32, fontFace: "Courier New", fontSize: 11, color: ACC, margin: 0, isTextBox: true });
 lede(s7, "Every number below is produced by a command in the repository, and the documentation guard fails the build if the prose disagrees with the code.", 1.62, 0.42, 12.1);
 
-stat(s7, M, 2.26, 3.7, "852", "offline tests — no network, no fixtures downloaded, run by a dependency-free runner", ACC);
+stat(s7, M, 2.26, 3.7, "854", "offline tests — no network, no fixtures downloaded, run by a dependency-free runner", ACC);
 stat(s7, M + 3.95, 2.26, 3.7, "51", "scientific-correctness oracles over analytic surfaces with known answers", ACC);
 stat(s7, M + 7.9, 2.26, 4.2, "2", "independent runs that reproduce the canonical artifact hash", ACC);
 
@@ -271,7 +272,7 @@ s7.addText([
 const s8 = pres.addSlide({ masterName: "MAIN", sectionTitle: "Evidence" });
 kicker(s8, "Data and provenance");
 s8.addText("A keyless path to real 30 m Earth data", { placeholder: "title" });
-lede(s8, "The benchmark runs with no credentials at all, and the artifact carries the trail back to the source.", 1.62, 0.4, 8.2);
+lede(s8, "The benchmark runs with no credentials at all.", 1.62, 0.34, 8.2);
 
 card(s8, M, 2.2, 8.2, 1.86);
 s8.addText("Copernicus GLO-30 on AWS Open Data", { x: M + 0.28, y: 2.36, w: 7.6, h: 0.3, fontFace: HEAD, fontSize: 15, bold: true, color: INK, margin: 0, isTextBox: true });
@@ -286,8 +287,11 @@ s8.addText([
   { text: "The whole canonical flow runs offline; no live dependency sits in the demo path.", options: { bullet: true } },
 ], { x: M + 0.28, y: 4.4, w: 7.6, h: 1.86, fontFace: BODY, fontSize: 12, color: MUTE, lineSpacing: 16, margin: 0, isTextBox: true, paraSpaceAfter: 7 });
 
-panel(s8, "mars_panel.png", 9.42, 2.2, 3.3, 3.1, "Mars reference terrain · MOLA, 463 m/px nominal", WARM);
-s8.addText("Five bodies, each reprojected onto its own metric grid and compared at a common effective support, never at nominal posting.", { x: 9.42, y: 5.72, w: 3.3, h: 0.95, fontFace: BODY, fontSize: 11.5, color: MUTE, lineSpacing: 15, margin: 0, isTextBox: true, valign: "top" });
+panel(s8, "mars_panel.png", 9.42, 2.2, 3.3, 2.05, "Mars reference terrain · MOLA, 463 m/px nominal", WARM);
+card(s8, 9.42, 4.66, 3.3, 1.72, "101826");
+s8.addText("Independent toolchain check", { x: 9.66, y: 4.78, w: 2.9, h: 0.28, fontFace: HEAD, fontSize: 12.5, bold: true, color: INK, margin: 0, isTextBox: true });
+s8.addText("3x3 relief: within 0.0001 m\nSlope means: within 0.016 deg\nCell-size and window-anchor assumptions: documented differences\nReprojection: not independently reproduced\nExternal reviewer: none yet", { x: 9.66, y: 5.08, w: 2.9, h: 1.22, fontFace: BODY, fontSize: 9.5, color: MUTE, lineSpacing: 12, margin: 0, isTextBox: true, valign: "top" });
+s8.addText("Five bodies, each reprojected onto its own metric grid and compared at a common effective support, never at nominal posting.", { x: 9.42, y: 6.46, w: 3.3, h: 0.46, fontFace: BODY, fontSize: 11.5, color: MUTE, lineSpacing: 15, margin: 0, isTextBox: true, valign: "top" });
 
 /* ========================================================== 9 · firewall === */
 const s9 = pres.addSlide({ masterName: "MAIN", sectionTitle: "Evidence" });

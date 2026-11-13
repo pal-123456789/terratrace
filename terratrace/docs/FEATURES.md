@@ -5,8 +5,12 @@ carry **a definition, a unit, a physical window, a source, and a stated limitati
 that contract.
 
 Two facts to hold on to. First, the numbers below are the ones the engine actually emits: the table
-was written against `descriptors.descriptor_bank()`, which returns **40 descriptor families and 200
-scalar outputs** on a single tile — the groupings here are the same groupings the code uses. Second,
+was written against `descriptors.descriptor_bank()`, which returns **40 descriptor families** and
+around **210 scalar values** on a single tile. The family count is exact and asserted by a test. The
+scalar count is not fixed, because several families return a value per band or per window — it
+measured 213–215 across 48×48 to 128×128 windows — so it is quoted approximately rather than pinned.
+(An earlier revision of this page stated exactly 200, which was wrong.) The groupings here are the
+same groupings the code uses. Second,
 **none of these is a traversability, hazard, geologic-equivalence, site-access, or mission-readiness
 measurement.** Every row’s right-hand column says what it *cannot* support; that boundary is the
 point of the table, not a disclaimer bolted onto it.
