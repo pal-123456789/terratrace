@@ -3,6 +3,38 @@
 Complete build history of TerraTrace, generated from the git commit messages
 (newest first). Each entry is the exact message recorded with that commit.
 
+## Unreleased — CI repair: the documentation guard now checks what a clone actually has
+
+*Prepared 2026-11-13 by Pal Ghevariya*
+
+The previous commit went red on all three Pythons (`passed=842 failed=1`). The defect was in the
+**guard**, not in the project: it asserted a relative link to `PLANETARY-ANALOG-OS-MASTER-PLAN.md`,
+which is deliberately git-ignored and held locally — so the file existed on the author's disk and
+nowhere else. A green local run proved nothing about a thinner environment, which is the same lesson
+`ci_hygiene_check` was built for, one layer up.
+
+- **A link check must resolve against the *tracked* file set.** "It exists here" is not "a reader can
+  open it". The guard now asks `git ls-files` once and fails with *"exists here but is NOT TRACKED, so
+  a clone will not have it"* — naming the exact reason rather than a bare "does not resolve". A
+  directory counts as reachable when tracked files live beneath it, so a link to `figures/` is valid.
+- **A second bug in the same hardening, caught by running it rather than by trusting it:** paths
+  containing `..` were compared un-normalised, so `terratrace/docs/../CLEAN-ROOM-NOTE.md` — a tracked
+  file — was reported broken. Fixed by resolving the path before the comparison.
+- **It now audits only tracked documents,** because a broken link inside a deliberately unpublished
+  document is not a defect a reader can ever meet.
+- **What it found once it could see straight:** three links into unpublished documents, and its own
+  link count falling from **103** to **71**. That difference is precisely the links into internal
+  documents that no reader of the repository can follow — the audit had been partly measuring the
+  author's disk.
+
+**Verified against the CI environment, not the author's tree.** The repository was exported to a tree
+containing **only tracked files** (263 of 263, verified identical to the index) with a fresh git, and no
+git-ignored file present. There the guard exits 0 and all six `test_doc_consistency.py` tests pass,
+including `test_relative_links_resolve` — the one CI failed. Re-introducing the original link makes it
+exit 1 and name it; a link to a file that does not exist is caught likewise.
+
+Verified: doc-consistency guard OK (843 tests, 51 oracles, 14 catalog sources, 71 links).
+
 ## Unreleased — master-plan traceability, real figures, and a stale-viewer defect
 
 *Prepared 2026-11-13 by Pal Ghevariya*
@@ -41,7 +73,7 @@ audited against the code, item by item, and the plan's release package was compl
   eligibility page, with the honest qualification that the official list is client-rendered and the
   wording should be re-confirmed at the event.
 
-Verified: 843 tests / 0 failed; validation 51/51; doc-consistency guard OK (100 links, site included);
+Verified: 843 tests / 0 failed; validation 51/51; doc-consistency guard OK (103 links, site included);
 viewer ↦ study reproduction and site-wrapper reproducibility both re-checked.
 
 ## Unreleased — polish pass: the result made visible, the wrapper made reproducible

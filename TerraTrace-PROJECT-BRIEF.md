@@ -36,9 +36,10 @@ event. Because we are building now (weeks ahead), this repository is framed as a
 project / prior art** (open source), not an official submission unless it is rebuilt or substantially
 extended during the event window. This is deliberate and stated openly in the repo.
 
-**Challenge mapping (closed 2026-11-13):** TerraTrace is pinned to the 2026 challenge recorded in
-[`PLANETARY-ANALOG-OS-MASTER-PLAN.md`](PLANETARY-ANALOG-OS-MASTER-PLAN.md) — *“Identify Earth
-Locations that Analog the Permanent Moon Base Locations and Mars”* — now stated in the README and in
+**Challenge mapping (closed 2026-11-13):** TerraTrace is pinned to the 2026 challenge recorded in the
+project's master plan (`PLANETARY-ANALOG-OS-MASTER-PLAN.md` — kept locally and deliberately **not**
+published in this repository) — *“Identify Earth Locations that Analog the Permanent Moon Base
+Locations and Mars”* — now stated in the README and in
 [`terratrace/docs/event/eligibility-evidence.md`](terratrace/docs/event/eligibility-evidence.md). The
 official site confirms 14 challenges for 2026 but renders its list client-side, so the exact wording
 should be re-confirmed against the official page at the event. The project also supports a Moon

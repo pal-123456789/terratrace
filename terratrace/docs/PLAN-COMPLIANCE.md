@@ -1,7 +1,9 @@
 # Master-plan traceability — what the plan asked for, and what exists
 
 This is an audit of **`PLANETARY-ANALOG-OS-MASTER-PLAN.md`** (the 785-line master plan) and the
-23-module plan library against the code in this repository. It exists because the plan and the
+23-module plan library against the code in this repository. **Neither the plan nor its library is
+published here** — they are internal documents held locally — so they are referenced by name and
+never by link. This page exists because the plan and the
 implementation diverged on purpose — the plan is dated 2026-10-08 and the engine grew well past it —
 and a divergence nobody has written down is indistinguishable from an omission.
 
