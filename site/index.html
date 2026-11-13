@@ -117,6 +117,20 @@ h2{font-family:"Space Grotesk";font-weight:600;font-size:clamp(2rem,5vw,3.7rem);
 .aside .mini{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
 .aside .mini span{font-family:"IBM Plex Mono";font-size:.7rem;letter-spacing:.06em;color:var(--mut);
   border:1px solid var(--line);border-radius:999px;padding:4px 11px}
+/* the six resolution-change classes, all of them including the two zeros: a breakdown that lists
+   only the categories that "did something" reads as the whole account and is not one */
+.ledger{margin-top:16px;border:1px solid var(--line);border-radius:4px;overflow:hidden;
+  font-family:"IBM Plex Mono";font-size:.74rem;max-width:1000px}
+.ledger .lhead{display:flex;flex-wrap:wrap;gap:0;background:rgba(8,12,19,.58);border-bottom:1px solid var(--line);
+  padding:9px 14px;color:var(--mut);letter-spacing:.14em;text-transform:uppercase;font-size:.64rem}
+.ledger .lrow{display:grid;grid-template-columns:repeat(6,1fr);gap:0}
+.ledger .lcell{border-right:1px solid var(--line);padding:12px 10px;text-align:center}
+.ledger .lcell:last-child{border-right:0}
+.ledger .lcell b{display:block;font-family:"Space Grotesk";font-size:1.24rem;color:#dfe6e8;margin-bottom:3px}
+.ledger .lcell span{color:var(--mut);letter-spacing:.08em;text-transform:uppercase;font-size:.6rem}
+.ledger .lcell.nonzero b{color:var(--cyan)}
+.ledger .lcell.flag b{color:var(--oxide2)}
+.ledger .lfoot{padding:9px 14px;color:var(--mut);border-top:1px solid var(--line);font-size:.68rem}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
   background:var(--line);border:1px solid var(--line);margin-top:22px;max-width:760px}
 .stat{background:rgba(8,12,19,.74);padding:16px}
@@ -263,6 +277,19 @@ pre.cmd .p{color:var(--mut)}
       <div class="stat"><b>0 / 3</b><span>volcanic specificity</span></div>
       <div class="stat"><b>15 / 15</b><span>honest-regime cells</span></div>
       <div class="stat"><b>0</b><span>resolution reversals</span></div>
+    </div>
+    <div class="ledger" role="table" aria-label="Protocol v3 resolution-change classes">
+      <div class="lhead"><span>Every resolution-change class, including the two that are zero</span></div>
+      <div class="lrow">
+        <div class="lcell"><b>11</b><span>unchanged</span></div>
+        <div class="lcell"><b>0</b><span>stabilised</span></div>
+        <div class="lcell nonzero"><b>1</b><span>destabilised</span></div>
+        <div class="lcell"><b>0</b><span>reversed</span></div>
+        <div class="lcell nonzero"><b>3</b><span>membership changed</span></div>
+        <div class="lcell"><b>0</b><span>error</span></div>
+      </div>
+      <div class="lfoot">15 / 15 confirmatory cells accounted for, 11 + 0 + 1 + 0 + 3 + 0 = 15. The
+        destabilised cell is Mars Solis at 1500 m; it is in this table, not omitted from it.</div>
     </div>
     <div class="verdict">Its sharpest result is a claim it <span class="cy">disproved</span>.</div>
     <p class="sub">One caveat is recorded with the result rather than hidden: v3 is <em>pre-specified but
