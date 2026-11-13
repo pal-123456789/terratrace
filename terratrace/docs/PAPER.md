@@ -67,7 +67,9 @@ compared to the reference with scale-normalized Wasserstein/KS distances.
 **2.3 Decision: Pareto, not a score.** Candidates become vectors of distances-to-reference and
 are ranked by **Pareto dominance** (peeled non-dominated layers + a dominance matrix). The
 result is one of `RECOMMEND_FOLLOW_UP`, `TIE`, `INDETERMINATE`, `NOT_COMPARABLE`, or `BLOCKED`.
-Six **lenses** — core, extended, geomorphic, landform, texture, hydro — are independent axis sets (the hydro lens adds a Topographic Wetness Index, aspect convergence, and flow-dissection distance-to-reference axes); a
+Six **lenses** — core, extended, geomorphic, landform, texture, hydro — are **distinct but
+correlated** axis sets, each containing the four core bulk metrics and adding to them, so
+agreement between lenses is a robustness read rather than an independent replication (the hydro lens adds a Topographic Wetness Index, aspect convergence, and flow-dissection distance-to-reference axes); a
 recommendation that holds under more lenses is more robust, and lens disagreement is surfaced,
 not hidden.
 

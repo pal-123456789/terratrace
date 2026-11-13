@@ -84,7 +84,8 @@ decision-confidence verdict, and a full provenance record to every result.
 3. **Decision = Pareto, not a score.** Candidates become vectors of distances-to-reference and are
    ranked by Pareto dominance (peeled non-dominated layers + a dominance matrix). The result is one of
    `RECOMMEND_FOLLOW_UP`, `TIE`, `INDETERMINATE`, `NOT_COMPARABLE`, or `BLOCKED`. **Six lenses** (core /
-   extended / geomorphic / landform / texture / hydro) are independent axis sets; a recommendation that
+   extended / geomorphic / landform / texture / hydro) are **distinct** axis sets, all built on the
+   four core bulk metrics; a recommendation that
    holds under more lenses is more robust, and lens disagreement is surfaced, not hidden.
 4. **Uncertainty, significance, confidence.** A spatial moving-block bootstrap gives
    autocorrelation-aware distance intervals and a non-domination frequency; a one-sided permutation test

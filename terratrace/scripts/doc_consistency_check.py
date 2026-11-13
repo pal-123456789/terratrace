@@ -414,6 +414,24 @@ def check_claims(problems):
                 )
 
 
+# "N independent lenses/axis sets" reads as independent replications of the same finding. The six
+# lens sets each contain the core metrics and add to them, so they are correlated by construction and
+# agreement between them is a robustness read, not confirmation. The wording drifted in once and is
+# cheap to prevent, so it is a check rather than a note.
+LENS_OVERCLAIM = re.compile(r"\b\w+\s+independent\s+(?:axis|lens|metric)", re.I)
+
+
+def check_lens_wording(problems):
+    for path in _docs_files():
+        text = _probe(path.read_text(encoding="utf-8", errors="replace"))
+        for m in LENS_OVERCLAIM.finditer(text):
+            problems.append(
+                f"claims: {path.relative_to(REPO)} calls lenses/axis sets "
+                f"{m.group(0)!r} independent — they share the core metrics, so they are correlated "
+                f"by construction and cannot confirm each other"
+            )
+
+
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
     quiet = "--quiet" in argv
@@ -423,6 +441,7 @@ def main(argv=None):
     check_nav(problems)
     n_links = check_links(problems)
     check_claims(problems)
+    check_lens_wording(problems)
 
     if not quiet:
         print(f"doc consistency: {tests} tests across {modules} modules, {oracles} oracles, "
