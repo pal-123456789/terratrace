@@ -17,7 +17,9 @@ It checks, against the tree it is run in:
 2. **VERSION** — ``terratrace.__version__`` == ``pyproject.toml`` == ``CITATION.cff``.
 3. **NAV**     — every ``docs/**/*.md`` page is reachable from ``mkdocs.yml``, and every nav
    entry points at a file that exists.
-4. **LINKS**   — every relative Markdown link resolves to a real path.
+4. **LINKS**   — every relative Markdown link resolves; and on the website, every internal
+   ``href`` resolves through the ``vercel.json`` rewrites and every ``#fragment`` has a real
+   target (a page can look fine in the repo and still 404 in the browser).
 5. **CLAIMS**  — the frozen benchmark verdicts quoted in the live docs still match
    ``docs/RESULTS-v3.md`` (a headline that silently loses its caveat is a defect too).
 
@@ -178,6 +180,13 @@ def check_nav(problems):
 
 
 def check_links(problems):
+    """Relative Markdown links, and the site's internal HTML links + fragments.
+
+    The second half matters because the deployed site routes through ``vercel.json``:
+    ``/`` and ``/study`` and ``/viewer`` are rewrites, not directories, so a page can look
+    fine in the repo and 404 in the browser. The rewrite table is read from
+    ``vercel.json`` itself, so adding a page without wiring a route is a failure here.
+    """
     n = 0
     for path in _docs_files():
         text = path.read_text(encoding="utf-8", errors="replace")
@@ -191,6 +200,52 @@ def check_links(problems):
             n += 1
             if not (path.parent / rel).exists():
                 problems.append(f"links: {path.relative_to(REPO)} -> {tgt!r} does not resolve")
+
+    # --- the website ---------------------------------------------------------
+    vercel = REPO / "vercel.json"
+    routes, clean = {}, False
+    if vercel.exists():
+        cfg = vercel.read_text(encoding="utf-8")
+        clean = '"cleanUrls": true' in cfg
+        for m in re.finditer(r'"source"\s*:\s*"([^"]+)"\s*,\s*"destination"\s*:\s*"([^"]+)"', cfg):
+            routes[m.group(1)] = m.group(2).lstrip("/")
+
+    def _target(route):
+        if route in routes:
+            return REPO / routes[route]
+        cand = REPO / route.lstrip("/")
+        if cand.is_dir():
+            return cand / "index.html"
+        if cand.suffix:
+            return cand
+        if clean and (cand.parent / (cand.name + ".html")).exists():
+            return cand.parent / (cand.name + ".html")
+        return cand / "index.html"
+
+    pages = sorted(REPO.glob("site/**/*.html"))
+    for page in pages:
+        text = page.read_text(encoding="utf-8", errors="replace")
+        for m in re.finditer(r'href="([^"]+)"', text):
+            href = m.group(1)
+            if "://" in href or href.startswith("mailto:") or href.startswith("data:"):
+                continue
+            route, _, frag = href.partition("#")
+            n += 1
+            if not route:                       # same-page fragment
+                ids = set(re.findall(r'id="([^"]+)"', text))
+                if frag and frag not in ids:
+                    problems.append(f"site: {page.name} -> {href!r} has no target id in that page")
+                continue
+            tgt = _target(route)
+            if not tgt.exists():
+                problems.append(
+                    f"site: {page.relative_to(REPO)} -> {href!r} resolves to "
+                    f"{tgt.relative_to(REPO)} which does not exist (is the route wired?)")
+            elif frag:
+                ids = set(re.findall(r'id="([^"]+)"', tgt.read_text(encoding="utf-8", errors="replace")))
+                if frag not in ids:
+                    problems.append(
+                        f"site: {page.relative_to(REPO)} -> {href!r} has no target id in {tgt.name}")
     return n
 
 

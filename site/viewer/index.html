@@ -1,0 +1,710 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Raw study output — TerraTrace</title>
+<style>
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:#0A1118;color:#EAF0F1;
+ font-family:'Segoe UI',Helvetica,Arial,sans-serif;line-height:1.55}
+.wrap{max-width:1040px;margin:0 auto;padding:40px 28px 72px}
+.eyebrow{color:#9BE4E9;letter-spacing:.22em;font-size:13px}
+h1{font-family:Georgia,'Times New Roman',serif;font-size:46px;margin:.2em 0 .1em;font-weight:600}
+.sub{color:#B7C5C8;font-size:19px;max-width:62ch}
+.ribbon{margin:22px 0;padding:12px 16px;border:1px solid #30454D;border-left:4px solid #A8513A;
+ background:#121F26;border-radius:8px;color:#E7E1D5;font-size:15px}
+.state{margin:26px 0;padding:18px 20px;border-radius:12px;background:#122a24;border:1px solid #2f6b52}
+.state b{color:#8FCA9B}
+section{margin:34px 0}
+h2{font-size:16px;letter-spacing:.12em;color:#9BE4E9;border-bottom:1px solid #26343b;padding-bottom:6px}
+table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid #1f2c33}
+thead th{color:#9fb0b5;font-weight:600}
+tbody th{color:#EAF0F1;font-weight:600}
+td{font-variant-numeric:tabular-nums;color:#CBD6D9}
+td.vec{font-family:ui-monospace,Consolas,monospace;color:#9BE4E9;font-size:13px}
+ul.gaps{list-style:none;padding:0;margin:12px 0}
+ul.gaps li{padding:9px 0;border-bottom:1px solid #1f2c33;font-size:14px;color:#CBD6D9}
+ul.gaps em{color:#D6A33A;font-style:normal}
+.tc{display:inline-block;min-width:30px;text-align:center;border-radius:5px;padding:1px 7px;margin-right:8px;
+ font-size:12px;font-weight:700;color:#0A1118}
+.tc-T0{background:#4C8B69}.tc-T1{background:#38B5C5}.tc-T2{background:#A8513A;color:#fff}
+.tc-T3{background:#D6A33A}.tc-T4{background:#7B4056;color:#fff}
+.hash{font-family:ui-monospace,Consolas,monospace;color:#7f9398;font-size:12px;word-break:break-all}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}h1{font-size:34px}}
+.foot{margin-top:40px;color:#789096;font-size:12px}
+
+/* site wrapper — added by the site, NOT part of the engine's output */
+.sitebar{position:sticky;top:0;z-index:99;background:#0A1118;border-bottom:1px solid #2b3c44;
+ font-family:'Segoe UI',Helvetica,Arial,sans-serif;color:#B7C5C8;font-size:13px}
+.sitebar .in{max-width:1040px;margin:0 auto;padding:10px 28px;display:flex;gap:14px;
+ align-items:center;flex-wrap:wrap}
+.sitebar a{color:#9BE4E9;text-decoration:none}
+.sitebar a:hover{text-decoration:underline}
+.sitebar .tag{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#D6A33A;
+ border:1px solid #4a3a1d;padding:3px 8px;border-radius:4px}
+.sitebar .sp{flex:1}
+.sitebar code{font-family:ui-monospace,Consolas,monospace;color:#CBD6D9}
+</style></head>
+<body>
+<div class="sitebar"><div class="in">
+  <a href="/">&#8592; TerraTrace</a>
+  <span class="tag">engine output</span>
+  <span>Archived real-data run &mdash; package <code>terratrace-v0.1.0-real</code>, 1000&nbsp;m support,
+    result <b>TIE</b>. The current result is <a href="/study">protocol v3</a>.</span>
+  <span class="sp"></span>
+  <a href="/study">Protocol v3 results</a>
+  <a href="https://github.com/pal-123456789/terratrace">Repository</a>
+</div></div>
+<main class="wrap">
+<p class="eyebrow">PLANETARY ANALOG OS / TERRATRACE v0.1</p>
+<h1>Map-scale morphology transfer audit</h1>
+<p class="sub">A reproducible comparison of a Mars reference terrain unit with
+candidate Earth terrain units at a declared common support of 1000.0 m.</p>
+<div class="ribbon"><strong>Scope.</strong> This screens terrain morphology only.
+It does not estimate rover traversability, validate autonomy, establish geological
+equivalence, certify site access, or certify mission readiness.</div>
+
+<div class="state"><b>Result: TIE</b> &mdash; Tie - evidence does not separate candidates.
+No single unit is recommended; see the result state and sensitivity below.</div>
+
+<section><h2>MORPHOLOGY COMPARISON (normalized distance to reference)</h2>
+<p class="sub">Decision axes (extended): slope, relief, ruggedness, connectivity, aspect_dispersion, hypsometric_integral. Lower is closer.
+A star marks a recommended follow-up unit. No single composite "Mars-likeness"
+score is produced; ranking is by Pareto dominance, and a tie is a valid result.</p>
+<table><thead><tr><th scope="col">Earth terrain unit</th>
+<th scope="col">distance vector</th><th scope="col">valid</th>
+<th scope="col">zero</th><th scope="col">eligibility</th>
+</tr></thead><tbody>
+<tr><th scope='row'>earth_candidate_a</th><td class='vec'>[1.330, 1.378, 1.454, 0.030, 0.011, 0.142]</td><td>0.99</td><td>0.00</td><td>eligible</td></tr>
+<tr><th scope='row'>earth_candidate_b</th><td class='vec'>[0.746, 0.776, 0.759, 0.018, 0.390, 0.281]</td><td>1.00</td><td>0.00</td><td>eligible</td></tr>
+</tbody></table></section>
+
+<section><h2>EXTENDED MORPHOLOGY DESCRIPTORS</h2>
+<table><thead><tr><th scope="col">unit</th>
+<th scope="col">aspect dispersion</th><th scope="col">hypsometric integral</th>
+</tr></thead><tbody>
+<tr><th scope='row'>earth_candidate_a</th><td>0.885</td><td>0.385</td></tr>
+<tr><th scope='row'>earth_candidate_b</th><td>0.485</td><td>0.246</td></tr>
+<tr><th scope='row'>mars_reference</th><td>0.874</td><td>0.527</td></tr>
+</tbody></table>
+<p class="sub">Aspect dispersion: 0 = one downslope direction, 1 = isotropic.
+Hypsometric integral: elevation-distribution shape (0.5 = symmetric). Reported
+for transparency; included in the decision only when decision axes = extended.</p></section>
+
+<div class="grid">
+<section><h2>SENSITIVITY (pairwise rank-flip fraction)</h2>
+<table><thead><tr><th scope="col">pair</th><th scope="col">flip</th></tr></thead>
+<tbody><tr><th scope='row'>earth_candidate_a|earth_candidate_b</th><td>0.06</td></tr></tbody></table>
+<p class="sub">0.00 means the pairwise comparison never changed sign across the
+tested scenarios. High values mean the result is assumption-sensitive.</p></section>
+
+<section><h2>DRAFT STUDY PROTOCOL</h2>
+<p class="sub">Collect discriminating data because current evidence does not separate the candidate units.</p>
+<div class="ribbon">NOT_AUTHORIZED: access, ecology, and safety unverified</div></section>
+</div>
+
+<section><h2>WHAT THIS COMPARISON CANNOT ESTABLISH</h2>
+<ul class="gaps">
+<li><span class='tc tc-T0'>T0</span> <strong>topographic_morphology</strong> &mdash; Map-scale slope/relief/ruggedness comparable at declared support. <em>Do not infer rock-scale obstacles or wheel-scale hazards.</em></li>
+<li><span class='tc tc-T1'>T1</span> <strong>low_slope_connectivity</strong> &mdash; Broad corridor structure is comparable at declared support. <em>Not a traversable route or path guarantee.</em></li>
+<li><span class='tc tc-T2'>T2</span> <strong>gravity</strong> &mdash; Mars surface gravity (~0.38 g) is not reproduced on Earth. <em>Do not infer mobility, slip, or stability transfer.</em></li>
+<li><span class='tc tc-T2'>T2</span> <strong>atmosphere_pressure</strong> &mdash; Mars atmospheric density/pressure is not reproduced. <em>Do not infer dust lofting, aero-thermal, or EDL behaviour.</em></li>
+<li><span class='tc tc-T3'>T3</span> <strong>regolith_mechanics</strong> &mdash; Mechanical soil behaviour is not inferred from a DEM. <em>Do not claim traction, sinkage, or bearing equivalence.</em></li>
+<li><span class='tc tc-T2'>T2</span> <strong>radiation</strong> &mdash; Surface radiation environment is not reproduced. <em>Do not infer radiation effects from terrain.</em></li>
+<li><span class='tc tc-T3'>T3</span> <strong>thermal_cycle</strong> &mdash; Diurnal/seasonal thermal regime is not inferred from terrain. <em>Do not infer thermal survival.</em></li>
+<li><span class='tc tc-T3'>T3</span> <strong>illumination</strong> &mdash; Illumination geometry is context only unless modelled. <em>Do not infer power or imaging performance.</em></li>
+<li><span class='tc tc-T3'>T3</span> <strong>communications</strong> &mdash; Relay/line-of-sight geometry is not inferred from terrain. <em>Do not infer link availability.</em></li>
+<li><span class='tc tc-T4'>T4</span> <strong>site_access</strong> &mdash; Field access/permission is not implied by public data. <em>Do not present as an authorized test site.</em></li>
+<li><span class='tc tc-T4'>T4</span> <strong>ecology_community</strong> &mdash; Ecological and community governance must be verified. <em>Do not plan field work without authorization.</em></li>
+</ul></section>
+
+<section><h2>DATA SOURCES &amp; CITATIONS</h2>
+<ul class="gaps">
+<li><strong>Mars:</strong> Smith, D. E., et al. Mars Global Surveyor MOLA Mission Experiment Gridded Data Record (MEGDR); USGS Astrogeology &#x27;Mars MGS MOLA DEM 463m&#x27;. NASA PDS Geosciences Node. <em>NASA PDS / USGS public data; attribution required; cite product + version.</em></li>
+<li><strong>Earth:</strong> ESA Copernicus GLO-30 Digital Elevation Model, distributed by OpenTopography. (c) ESA. Attribution required. <em>Copernicus data; free use with attribution; see OpenTopography terms.</em></li>
+</ul></section>
+
+<section><h2>UNCERTAINTY (BOOTSTRAP, n=300)</h2><p class='sub'>Feature distributions resampled with replacement. Non-domination frequency is how often each unit is Pareto non-dominated across resamples; a single clear winner appears in 0% of resamples. Slope-distance shown as median [95% CI].</p><table><thead><tr><th scope='col'>unit</th><th scope='col'>non-dominated</th><th scope='col'>clear winner</th><th scope='col'>slope distance</th></tr></thead><tbody><tr><th scope='row'>earth_candidate_a</th><td>100%</td><td>0%</td><td>1.33 <span style='color:#7f9398'>[1.25–1.40]</span></td></tr>
+<tr><th scope='row'>earth_candidate_b</th><td>100%</td><td>0%</td><td>0.75 <span style='color:#7f9398'>[0.71–0.78]</span></td></tr></tbody></table></section>
+
+<section><h2>PROVENANCE</h2>
+<p class="sub">Every value derives from the <strong>real_dem_aeqd</strong> source through a recorded
+transformation and resolves in the evidence graph. Package hash:</p>
+<p class="hash">577a7041a04091a950f2ae319c302b45576722c2a014a6d8dce4e95ddcdc6e60</p></section>
+
+<details><summary>Raw study package (JSON)</summary>
+<pre class="hash">{
+  &quot;baseline_vectors&quot;: {
+    &quot;earth_candidate_a&quot;: [
+      1.3301819691374828,
+      1.3781920971237565,
+      1.4540619222913125,
+      0.029584445088408257,
+      0.011167686139968325,
+      0.14166930568496394
+    ],
+    &quot;earth_candidate_b&quot;: [
+      0.745934518862815,
+      0.7756599864495671,
+      0.7592894864610598,
+      0.017631627148054326,
+      0.3895190264738422,
+      0.2809340868772813
+    ]
+  },
+  &quot;bootstrap&quot;: {
+    &quot;decisive_freq&quot;: 0.0,
+    &quot;n_boot&quot;: 300,
+    &quot;note&quot;: &quot;CIs assume independent pixels; spatial autocorrelation makes them optimistic.&quot;,
+    &quot;seed&quot;: 0,
+    &quot;units&quot;: {
+      &quot;earth_candidate_a&quot;: {
+        &quot;clear_winner_freq&quot;: 0.0,
+        &quot;distance_ci&quot;: {
+          &quot;relief&quot;: [
+            1.3201247518249393,
+            1.3779842094467631,
+            1.4268355784053537
+          ],
+          &quot;ruggedness&quot;: [
+            1.3712296736422735,
+            1.45826315662497,
+            1.5396096481389627
+          ],
+          &quot;slope&quot;: [
+            1.2511972245949887,
+            1.3309072280453262,
+            1.4026700184421432
+          ]
+        },
+        &quot;nondominated_freq&quot;: 1.0
+      },
+      &quot;earth_candidate_b&quot;: {
+        &quot;clear_winner_freq&quot;: 0.0,
+        &quot;distance_ci&quot;: {
+          &quot;relief&quot;: [
+            0.7476751805183154,
+            0.7764404965920995,
+            0.8020613580566384
+          ],
+          &quot;ruggedness&quot;: [
+            0.7238551159788048,
+            0.7603240900675199,
+            0.7906987025736079
+          ],
+          &quot;slope&quot;: [
+            0.7112412001057482,
+            0.745605976538253,
+            0.7798641192449766
+          ]
+        },
+        &quot;nondominated_freq&quot;: 1.0
+      }
+    }
+  },
+  &quot;draft_protocol&quot;: {
+    &quot;acceptance_criteria&quot;: [
+      &quot;feature distributions within predeclared tolerance at common support&quot;,
+      &quot;result stable across declared sensitivity scenarios&quot;,
+      &quot;no eligibility blocker (data, rights, ecology, safety)&quot;
+    ],
+    &quot;authorization&quot;: &quot;NOT_AUTHORIZED: access, ecology, and safety unverified&quot;,
+    &quot;hypothesis&quot;: &quot;At the declared common support, candidate terrain reproduces the reference slope/relief/ruggedness/connectivity distributions within stated tolerances.&quot;,
+    &quot;measurements_required_next&quot;: [
+      &quot;higher-resolution terrain survey to assess sub-support structure&quot;,
+      &quot;surface material/geotechnical characterization (separate study)&quot;,
+      &quot;illumination and visibility modelling (separate study)&quot;,
+      &quot;field access, ecological, and community authorization review&quot;
+    ],
+    &quot;objective&quot;: &quot;Collect discriminating data because current evidence does not separate the candidate units.&quot;,
+    &quot;profile&quot;: {
+      &quot;claim_maturity&quot;: &quot;prototype_morphology_only&quot;,
+      &quot;decision_metrics&quot;: &quot;extended&quot;,
+      &quot;metrics&quot;: [
+        &quot;slope&quot;,
+        &quot;relief&quot;,
+        &quot;ruggedness&quot;,
+        &quot;connectivity&quot;,
+        &quot;aspect_dispersion&quot;,
+        &quot;hypsometric_integral&quot;
+      ],
+      &quot;source_label&quot;: &quot;real_dem_aeqd&quot;,
+      &quot;target_body&quot;: &quot;mars&quot;,
+      &quot;target_support_m&quot;: 1000.0,
+      &quot;task&quot;: &quot;map_scale_terrain_route_study&quot;
+    },
+    &quot;recommended_unit&quot;: null,
+    &quot;rejection_criteria&quot;: [
+      &quot;ranking reverses under reasonable support/threshold changes&quot;,
+      &quot;valid-data fraction below declared minimum&quot;,
+      &quot;access or governance status cannot be verified&quot;
+    ],
+    &quot;result_state&quot;: &quot;TIE&quot;,
+    &quot;status&quot;: &quot;draft&quot;,
+    &quot;stop_conditions&quot;: [
+      &quot;permission not granted&quot;,
+      &quot;protected-area or community constraint&quot;,
+      &quot;safety or environmental risk&quot;
+    ],
+    &quot;transfer_boundary&quot;: &quot;Morphology comparison only. The following conditions are not established by this result and bound every downstream claim.&quot;
+  },
+  &quot;eligibility&quot;: {
+    &quot;earth_candidate_a&quot;: {
+      &quot;eligible&quot;: true,
+      &quot;reason&quot;: &quot;eligible&quot;
+    },
+    &quot;earth_candidate_b&quot;: {
+      &quot;eligible&quot;: true,
+      &quot;reason&quot;: &quot;eligible&quot;
+    },
+    &quot;mars_reference&quot;: {
+      &quot;eligible&quot;: true,
+      &quot;reason&quot;: &quot;eligible&quot;
+    }
+  },
+  &quot;evidence_graph&quot;: {
+    &quot;edges&quot;: [
+      {
+        &quot;from&quot;: &quot;mars_reference&quot;,
+        &quot;rel&quot;: &quot;represented_by&quot;,
+        &quot;to&quot;: &quot;src:real_dem_aeqd&quot;
+      },
+      {
+        &quot;from&quot;: &quot;earth_candidate_a&quot;,
+        &quot;rel&quot;: &quot;represented_by&quot;,
+        &quot;to&quot;: &quot;src:real_dem_aeqd&quot;
+      },
+      {
+        &quot;from&quot;: &quot;earth_candidate_b&quot;,
+        &quot;rel&quot;: &quot;represented_by&quot;,
+        &quot;to&quot;: &quot;src:real_dem_aeqd&quot;
+      },
+      {
+        &quot;from&quot;: &quot;c:elig:mars_reference&quot;,
+        &quot;rel&quot;: &quot;about&quot;,
+        &quot;to&quot;: &quot;mars_reference&quot;
+      },
+      {
+        &quot;from&quot;: &quot;c:elig:earth_candidate_a&quot;,
+        &quot;rel&quot;: &quot;about&quot;,
+        &quot;to&quot;: &quot;earth_candidate_a&quot;
+      },
+      {
+        &quot;from&quot;: &quot;c:elig:earth_candidate_b&quot;,
+        &quot;rel&quot;: &quot;about&quot;,
+        &quot;to&quot;: &quot;earth_candidate_b&quot;
+      },
+      {
+        &quot;from&quot;: &quot;c:earth_candidate_a&quot;,
+        &quot;rel&quot;: &quot;about&quot;,
+        &quot;to&quot;: &quot;earth_candidate_a&quot;
+      },
+      {
+        &quot;from&quot;: &quot;c:earth_candidate_b&quot;,
+        &quot;rel&quot;: &quot;about&quot;,
+        &quot;to&quot;: &quot;earth_candidate_b&quot;
+      }
+    ],
+    &quot;nodes&quot;: [
+      {
+        &quot;claim_status&quot;: &quot;C3&quot;,
+        &quot;id&quot;: &quot;src:real_dem_aeqd&quot;,
+        &quot;product_id&quot;: &quot;real_dem_aeqd&quot;,
+        &quot;provider&quot;: &quot;TerraTrace real_dem_aeqd&quot;,
+        &quot;terms&quot;: &quot;see source_lock / dataset terms&quot;,
+        &quot;type&quot;: &quot;SourceProduct&quot;,
+        &quot;version&quot;: &quot;0.1.0&quot;
+      },
+      {
+        &quot;id&quot;: &quot;tr:common_support&quot;,
+        &quot;inputs&quot;: [
+          &quot;src:real_dem_aeqd&quot;
+        ],
+        &quot;method&quot;: &quot;block_aggregate+features&quot;,
+        &quot;params&quot;: {
+          &quot;metrics&quot;: [
+            &quot;slope&quot;,
+            &quot;relief&quot;,
+            &quot;ruggedness&quot;,
+            &quot;connectivity&quot;
+          ]
+        },
+        &quot;type&quot;: &quot;Transformation&quot;
+      },
+      {
+        &quot;claim_status&quot;: &quot;C3&quot;,
+        &quot;id&quot;: &quot;c:elig:mars_reference&quot;,
+        &quot;supported_by&quot;: [
+          &quot;src:real_dem_aeqd&quot;
+        ],
+        &quot;text&quot;: &quot;mars_reference eligibility=True: eligible&quot;,
+        &quot;type&quot;: &quot;Claim&quot;
+      },
+      {
+        &quot;claim_status&quot;: &quot;C3&quot;,
+        &quot;id&quot;: &quot;c:elig:earth_candidate_a&quot;,
+        &quot;supported_by&quot;: [
+          &quot;src:real_dem_aeqd&quot;
+        ],
+        &quot;text&quot;: &quot;earth_candidate_a eligibility=True: eligible&quot;,
+        &quot;type&quot;: &quot;Claim&quot;
+      },
+      {
+        &quot;claim_status&quot;: &quot;C3&quot;,
+        &quot;id&quot;: &quot;c:elig:earth_candidate_b&quot;,
+        &quot;supported_by&quot;: [
+          &quot;src:real_dem_aeqd&quot;
+        ],
+        &quot;text&quot;: &quot;earth_candidate_b eligibility=True: eligible&quot;,
+        &quot;type&quot;: &quot;Claim&quot;
+      },
+      {
+        &quot;feature&quot;: &quot;morphology_distance_vector&quot;,
+        &quot;generated_by&quot;: &quot;tr:common_support&quot;,
+        &quot;id&quot;: &quot;m:earth_candidate_a&quot;,
+        &quot;type&quot;: &quot;FeatureMeasurement&quot;,
+        &quot;uncertainty&quot;: {
+          &quot;valid_fraction&quot;: 0.9921921921921922
+        },
+        &quot;unit&quot;: &quot;normalized&quot;,
+        &quot;value&quot;: [
+          1.3301819691374828,
+          1.3781920971237565,
+          1.4540619222913125,
+          0.029584445088408257,
+          0.011167686139968325,
+          0.14166930568496394
+        ],
+        &quot;window_m&quot;: 1000.0
+      },
+      {
+        &quot;claim_status&quot;: &quot;C3&quot;,
+        &quot;id&quot;: &quot;c:earth_candidate_a&quot;,
+        &quot;supported_by&quot;: [
+          &quot;m:earth_candidate_a&quot;
+        ],
+        &quot;text&quot;: &quot;earth_candidate_a morphology distance to reference at common support&quot;,
+        &quot;type&quot;: &quot;Claim&quot;
+      },
+      {
+        &quot;feature&quot;: &quot;morphology_distance_vector&quot;,
+        &quot;generated_by&quot;: &quot;tr:common_support&quot;,
+        &quot;id&quot;: &quot;m:earth_candidate_b&quot;,
+        &quot;type&quot;: &quot;FeatureMeasurement&quot;,
+        &quot;uncertainty&quot;: {
+          &quot;valid_fraction&quot;: 1.0
+        },
+        &quot;unit&quot;: &quot;normalized&quot;,
+        &quot;value&quot;: [
+          0.745934518862815,
+          0.7756599864495671,
+          0.7592894864610598,
+          0.017631627148054326,
+          0.3895190264738422,
+          0.2809340868772813
+        ],
+        &quot;window_m&quot;: 1000.0
+      },
+      {
+        &quot;claim_status&quot;: &quot;C3&quot;,
+        &quot;id&quot;: &quot;c:earth_candidate_b&quot;,
+        &quot;supported_by&quot;: [
+          &quot;m:earth_candidate_b&quot;
+        ],
+        &quot;text&quot;: &quot;earth_candidate_b morphology distance to reference at common support&quot;,
+        &quot;type&quot;: &quot;Claim&quot;
+      },
+      {
+        &quot;claim_status&quot;: &quot;C3&quot;,
+        &quot;id&quot;: &quot;c:sensitivity&quot;,
+        &quot;supported_by&quot;: [
+          &quot;c:earth_candidate_a&quot;,
+          &quot;c:earth_candidate_b&quot;
+        ],
+        &quot;text&quot;: &quot;pairwise rank-flip matrix across scenarios: {&#x27;earth_candidate_a|earth_candidate_b&#x27;: 0.05555555555555555}&quot;,
+        &quot;type&quot;: &quot;Claim&quot;
+      },
+      {
+        &quot;claim_status&quot;: &quot;C3&quot;,
+        &quot;id&quot;: &quot;c:result&quot;,
+        &quot;supported_by&quot;: [
+          &quot;c:earth_candidate_a&quot;,
+          &quot;c:earth_candidate_b&quot;,
+          &quot;c:sensitivity&quot;
+        ],
+        &quot;text&quot;: &quot;result=TIE; recommended=None&quot;,
+        &quot;type&quot;: &quot;Claim&quot;
+      },
+      {
+        &quot;claim_status&quot;: &quot;C3&quot;,
+        &quot;id&quot;: &quot;c:protocol&quot;,
+        &quot;supported_by&quot;: [
+          &quot;c:result&quot;
+        ],
+        &quot;text&quot;: &quot;draft study protocol (not an authorization)&quot;,
+        &quot;type&quot;: &quot;Claim&quot;
+      }
+    ]
+  },
+  &quot;extended_metrics&quot;: {
+    &quot;earth_candidate_a&quot;: {
+      &quot;aspect_dispersion&quot;: 0.8853425418070451,
+      &quot;hypsometric_integral&quot;: 0.3848371225839129,
+      &quot;tpi_dispersion&quot;: 97.24059631315762
+    },
+    &quot;earth_candidate_b&quot;: {
+      &quot;aspect_dispersion&quot;: 0.4846558291932346,
+      &quot;hypsometric_integral&quot;: 0.2455723413915956,
+      &quot;tpi_dispersion&quot;: 16.299588392221175
+    },
+    &quot;mars_reference&quot;: {
+      &quot;aspect_dispersion&quot;: 0.8741748556670768,
+      &quot;hypsometric_integral&quot;: 0.5265064282688768,
+      &quot;tpi_dispersion&quot;: 48.93406477247951
+    }
+  },
+  &quot;package_hash&quot;: &quot;577a7041a04091a950f2ae319c302b45576722c2a014a6d8dce4e95ddcdc6e60&quot;,
+  &quot;pairwise_flip_matrix&quot;: {
+    &quot;earth_candidate_a|earth_candidate_b&quot;: 0.05555555555555555
+  },
+  &quot;profile&quot;: {
+    &quot;claim_maturity&quot;: &quot;prototype_morphology_only&quot;,
+    &quot;decision_metrics&quot;: &quot;extended&quot;,
+    &quot;metrics&quot;: [
+      &quot;slope&quot;,
+      &quot;relief&quot;,
+      &quot;ruggedness&quot;,
+      &quot;connectivity&quot;,
+      &quot;aspect_dispersion&quot;,
+      &quot;hypsometric_integral&quot;
+    ],
+    &quot;source_label&quot;: &quot;real_dem_aeqd&quot;,
+    &quot;target_body&quot;: &quot;mars&quot;,
+    &quot;target_support_m&quot;: 1000.0,
+    &quot;task&quot;: &quot;map_scale_terrain_route_study&quot;
+  },
+  &quot;prohibited_claims&quot;: [
+    &quot;Do not infer rock-scale obstacles or wheel-scale hazards.&quot;,
+    &quot;Not a traversable route or path guarantee.&quot;,
+    &quot;Do not infer mobility, slip, or stability transfer.&quot;,
+    &quot;Do not infer dust lofting, aero-thermal, or EDL behaviour.&quot;,
+    &quot;Do not claim traction, sinkage, or bearing equivalence.&quot;,
+    &quot;Do not infer radiation effects from terrain.&quot;,
+    &quot;Do not infer thermal survival.&quot;,
+    &quot;Do not infer power or imaging performance.&quot;,
+    &quot;Do not infer link availability.&quot;,
+    &quot;Do not present as an authorized test site.&quot;,
+    &quot;Do not plan field work without authorization.&quot;
+  ],
+  &quot;recommended_unit&quot;: null,
+  &quot;result_state&quot;: &quot;TIE&quot;,
+  &quot;scenario_names&quot;: [
+    &quot;baseline&quot;,
+    &quot;stricter_slope&quot;,
+    &quot;robust_relief&quot;,
+    &quot;lenient&quot;
+  ],
+  &quot;scenario_vectors&quot;: [
+    {
+      &quot;earth_candidate_a&quot;: [
+        1.3301819691374828,
+        1.3781920971237565,
+        1.4540619222913125,
+        0.029584445088408257,
+        0.011167686139968325,
+        0.14166930568496394
+      ],
+      &quot;earth_candidate_b&quot;: [
+        0.745934518862815,
+        0.7756599864495671,
+        0.7592894864610598,
+        0.017631627148054326,
+        0.3895190264738422,
+        0.2809340868772813
+      ]
+    },
+    {
+      &quot;earth_candidate_a&quot;: [
+        1.3301819691374828,
+        1.3781920971237565,
+        1.4540619222913125,
+        0.16986964498256005,
+        0.011167686139968325,
+        0.14166930568496394
+      ],
+      &quot;earth_candidate_b&quot;: [
+        0.745934518862815,
+        0.7756599864495671,
+        0.7592894864610598,
+        0.05938546983795205,
+        0.3895190264738422,
+        0.2809340868772813
+      ]
+    },
+    {
+      &quot;earth_candidate_a&quot;: [
+        1.3301819691374828,
+        1.1276745443016343,
+        1.4540619222913125,
+        0.029584445088408257,
+        0.011167686139968325,
+        0.14166930568496394
+      ],
+      &quot;earth_candidate_b&quot;: [
+        0.745934518862815,
+        0.6553825017882614,
+        0.7592894864610598,
+        0.017631627148054326,
+        0.3895190264738422,
+        0.2809340868772813
+      ]
+    },
+    {
+      &quot;earth_candidate_a&quot;: [
+        1.3301819691374828,
+        1.1276745443016343,
+        1.4540619222913125,
+        0.000734606296849171,
+        0.011167686139968325,
+        0.14166930568496394
+      ],
+      &quot;earth_candidate_b&quot;: [
+        0.745934518862815,
+        0.6553825017882614,
+        0.7592894864610598,
+        0.003798701834201123,
+        0.3895190264738422,
+        0.2809340868772813
+      ]
+    }
+  ],
+  &quot;schema_version&quot;: &quot;0.1.0&quot;,
+  &quot;transfer_gap_ledger&quot;: {
+    &quot;gaps&quot;: [
+      {
+        &quot;category&quot;: &quot;topographic_morphology&quot;,
+        &quot;class&quot;: &quot;T0&quot;,
+        &quot;prohibited&quot;: &quot;Do not infer rock-scale obstacles or wheel-scale hazards.&quot;,
+        &quot;statement&quot;: &quot;Map-scale slope/relief/ruggedness comparable at declared support.&quot;
+      },
+      {
+        &quot;category&quot;: &quot;low_slope_connectivity&quot;,
+        &quot;class&quot;: &quot;T1&quot;,
+        &quot;prohibited&quot;: &quot;Not a traversable route or path guarantee.&quot;,
+        &quot;statement&quot;: &quot;Broad corridor structure is comparable at declared support.&quot;
+      },
+      {
+        &quot;category&quot;: &quot;gravity&quot;,
+        &quot;class&quot;: &quot;T2&quot;,
+        &quot;prohibited&quot;: &quot;Do not infer mobility, slip, or stability transfer.&quot;,
+        &quot;statement&quot;: &quot;Mars surface gravity (~0.38 g) is not reproduced on Earth.&quot;
+      },
+      {
+        &quot;category&quot;: &quot;atmosphere_pressure&quot;,
+        &quot;class&quot;: &quot;T2&quot;,
+        &quot;prohibited&quot;: &quot;Do not infer dust lofting, aero-thermal, or EDL behaviour.&quot;,
+        &quot;statement&quot;: &quot;Mars atmospheric density/pressure is not reproduced.&quot;
+      },
+      {
+        &quot;category&quot;: &quot;regolith_mechanics&quot;,
+        &quot;class&quot;: &quot;T3&quot;,
+        &quot;prohibited&quot;: &quot;Do not claim traction, sinkage, or bearing equivalence.&quot;,
+        &quot;statement&quot;: &quot;Mechanical soil behaviour is not inferred from a DEM.&quot;
+      },
+      {
+        &quot;category&quot;: &quot;radiation&quot;,
+        &quot;class&quot;: &quot;T2&quot;,
+        &quot;prohibited&quot;: &quot;Do not infer radiation effects from terrain.&quot;,
+        &quot;statement&quot;: &quot;Surface radiation environment is not reproduced.&quot;
+      },
+      {
+        &quot;category&quot;: &quot;thermal_cycle&quot;,
+        &quot;class&quot;: &quot;T3&quot;,
+        &quot;prohibited&quot;: &quot;Do not infer thermal survival.&quot;,
+        &quot;statement&quot;: &quot;Diurnal/seasonal thermal regime is not inferred from terrain.&quot;
+      },
+      {
+        &quot;category&quot;: &quot;illumination&quot;,
+        &quot;class&quot;: &quot;T3&quot;,
+        &quot;prohibited&quot;: &quot;Do not infer power or imaging performance.&quot;,
+        &quot;statement&quot;: &quot;Illumination geometry is context only unless modelled.&quot;
+      },
+      {
+        &quot;category&quot;: &quot;communications&quot;,
+        &quot;class&quot;: &quot;T3&quot;,
+        &quot;prohibited&quot;: &quot;Do not infer link availability.&quot;,
+        &quot;statement&quot;: &quot;Relay/line-of-sight geometry is not inferred from terrain.&quot;
+      },
+      {
+        &quot;category&quot;: &quot;site_access&quot;,
+        &quot;class&quot;: &quot;T4&quot;,
+        &quot;prohibited&quot;: &quot;Do not present as an authorized test site.&quot;,
+        &quot;statement&quot;: &quot;Field access/permission is not implied by public data.&quot;
+      },
+      {
+        &quot;category&quot;: &quot;ecology_community&quot;,
+        &quot;class&quot;: &quot;T4&quot;,
+        &quot;prohibited&quot;: &quot;Do not plan field work without authorization.&quot;,
+        &quot;statement&quot;: &quot;Ecological and community governance must be verified.&quot;
+      }
+    ],
+    &quot;note&quot;: &quot;Morphology comparison only. The following conditions are not established by this result and bound every downstream claim.&quot;,
+    &quot;result_state&quot;: &quot;TIE&quot;
+  },
+  &quot;unit_metadata&quot;: {
+    &quot;earth_candidate_a&quot;: {
+      &quot;data_present&quot;: true,
+      &quot;min_valid_fraction&quot;: 0.5,
+      &quot;rights_status&quot;: &quot;verified_allowed&quot;,
+      &quot;support&quot;: {
+        &quot;aggregation&quot;: &quot;mean&quot;,
+        &quot;factor&quot;: 1,
+        &quot;native_posting_m&quot;: 1000.0,
+        &quot;target_support_m&quot;: 1000.0,
+        &quot;valid_fraction&quot;: 0.9921921921921922
+      },
+      &quot;support_valid&quot;: true,
+      &quot;valid_fraction&quot;: 0.9921921921921922,
+      &quot;zero_fraction&quot;: 0.0,
+      &quot;zero_fraction_max&quot;: 0.6
+    },
+    &quot;earth_candidate_b&quot;: {
+      &quot;data_present&quot;: true,
+      &quot;min_valid_fraction&quot;: 0.5,
+      &quot;rights_status&quot;: &quot;verified_allowed&quot;,
+      &quot;support&quot;: {
+        &quot;aggregation&quot;: &quot;mean&quot;,
+        &quot;factor&quot;: 1,
+        &quot;native_posting_m&quot;: 1000.0,
+        &quot;target_support_m&quot;: 1000.0,
+        &quot;valid_fraction&quot;: 1.0
+      },
+      &quot;support_valid&quot;: true,
+      &quot;valid_fraction&quot;: 1.0,
+      &quot;zero_fraction&quot;: 0.0,
+      &quot;zero_fraction_max&quot;: 0.6
+    },
+    &quot;mars_reference&quot;: {
+      &quot;data_present&quot;: true,
+      &quot;min_valid_fraction&quot;: 0.5,
+      &quot;rights_status&quot;: &quot;verified_allowed&quot;,
+      &quot;support&quot;: {
+        &quot;aggregation&quot;: &quot;mean&quot;,
+        &quot;factor&quot;: 1,
+        &quot;native_posting_m&quot;: 1000.0,
+        &quot;target_support_m&quot;: 1000.0,
+        &quot;valid_fraction&quot;: 1.0
+      },
+      &quot;support_valid&quot;: true,
+      &quot;valid_fraction&quot;: 1.0,
+      &quot;zero_fraction&quot;: 0.0,
+      &quot;zero_fraction_max&quot;: 0.6
+    }
+  }
+}</pre></details>
+
+<p class="foot">TerraTrace reference engine - source: real_dem_aeqd - morphology screening build.
+Not an official NASA submission artifact. Not NASA-endorsed.</p>
+</main></body></html>

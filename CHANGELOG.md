@@ -3,6 +3,43 @@
 Complete build history of TerraTrace, generated from the git commit messages
 (newest first). Each entry is the exact message recorded with that commit.
 
+## Unreleased — website, second pass: three honest routes and no dead ends
+
+*Prepared 2026-11-13 by Pal Ghevariya*
+
+The deployed site's `/study` route was an **archived generated viewer from an earlier engine
+version** — title "TerraTrace v0.1", framed Mars-vs-Earth only, showing a generic `TIE` between
+`earth_candidate_a` and `earth_candidate_b`, and containing **no links at all** (a dead end). A judge
+clicking "Study viewer" from a site whose headline is the v3 result landed on something that
+contradicted it. Fixed at ground level.
+
+- **`/study` is now the protocol-v3 results page** — hand-written in the site's own design language,
+  with the real numbers from `docs/RESULTS-v3.md`: the design-integrity checks (0 of 15
+  comparability-gate violations, supports ≥ the 1389 m floor, footprint ratio ≤ 1.01), the S table
+  per reference × support, the V table, the mechanism (smooth→smooth, rough→rough, Deccan competing as
+  a *smooth* unit), the R table (11 unchanged, 1 destabilised, 3 membership-changed, **0 reversed**),
+  the panel with measured σ and pre-run classes, adequacy + the fragile adversarial result reported as
+  *reported, never evidence*, what it does and does not say, the limits, and the keyless reproduction
+  commands. The **pre-specification caveat is the first thing on the page**, not a footnote.
+- **`/viewer` keeps the generated artifact**, unchanged apart from a labelled site bar that says what
+  it is (an archived real run, package `terratrace-v0.1.0-real`, 1000 m support, result TIE), links
+  back, and points at the current result. Its body is verified byte-identical to
+  `terratrace/viewer/index.html` — only the `<title>` and two insertions differ.
+- **Landing-page fixes:** the nav gained Results / Viewer / GitHub; the nav backdrop was strengthened
+  and given a text-shadow because the planet's bright limb washed out "Method · Finding" in the
+  deployed screenshot; and the three in-page anchors are hidden below 820 px so the bar cannot
+  overflow on a phone.
+- **The home page no longer points "Study viewer" at an archived run** — the hero leads to the v3
+  results, the evidence row gained the on-site write-up and the typeset PDF, and the open/reproducible
+  row points at the raw viewer.
+- **The doc-consistency guard now checks the website too**, not just the docs: every internal `href`
+  is resolved through the `vercel.json` rewrite table, and every `#fragment` must have a real target
+  in the page it lands on. Verified against four seeded defects — a route removed from `vercel.json`,
+  a link to a page that does not exist, a same-page fragment with no target, and a cross-page fragment
+  with no target — each of which exited non-zero and named the offender.
+- Also fixed while checking: a malformed `<i>…</em>` pair I had introduced on the new results page,
+  caught by an all-tags balance check over the three site pages.
+
 ## Unreleased — submission wrap-up: documentation verified against the code, website refreshed
 
 *Prepared 2026-11-13 by Pal Ghevariya*
