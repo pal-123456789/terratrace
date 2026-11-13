@@ -5,7 +5,7 @@ screening**. These checks establish software/metric correctness, data handling,
 sensitivity, and provenance. They do **not** establish rover traversability,
 autonomy, geologic equivalence, site access, or mission readiness.
 
-## Test suite (816 fixtures, `tests/run_tests.py`)
+## Test suite (834 fixtures, `tests/run_tests.py`)
 
 | Area | What the fixtures prove |
 |---|---|

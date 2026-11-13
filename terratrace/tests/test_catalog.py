@@ -105,8 +105,11 @@ def test_recommend_source_picks_closest_to_target_support():
 
 
 def test_recommend_source_warns_only_about_chosen_partial_source():
-    # When the only keyless option is the partial 1 m lidar, choosing it DOES warn.
-    r = catalog.recommend_source(_CRATERS, "earth", target_support_m=30.0, require_keyless=True)
+    # Ask for a support the global 30 m product cannot reach (native 30 m > 5 m),
+    # so the only qualifying keyless option is the partial 1 m US lidar -- and
+    # choosing it DOES warn. (At a 30 m target the global COG product now wins,
+    # so this case must be reached with a finer support.)
+    r = catalog.recommend_source(_CRATERS, "earth", target_support_m=5.0, require_keyless=True)
     assert r["source_id"] == "earth_usgs1m"
     assert any("earth_usgs1m" in w and "verify" in w.lower() for w in r["warnings"])
 
@@ -128,17 +131,22 @@ def test_recommend_source_warns_when_target_finer_than_any_source():
 
 
 def test_recommend_source_require_keyless_excludes_api_sources():
+    # Since the public AWS COG mosaic was registered (earth_cop30_cog), a keyless
+    # GLOBAL 30 m product exists, so a keyless request no longer has to fall back
+    # to the partial 1 m US lidar. Everything returned must still be keyless.
     r = catalog.recommend_source(_CRATERS, "earth", target_support_m=30.0, require_keyless=True)
-    assert r["source_id"] == "earth_usgs1m"              # only keyless US product
+    assert r["source_id"] == "earth_cop30_cog"
     assert catalog.get(r["source_id"])["key_required"] is False
+    for cid in r["candidates"]:
+        assert catalog.get(cid)["key_required"] is False
 
 
 def test_recommend_source_mars_and_empty():
     r = catalog.recommend_source(_MARS, "mars", target_support_m=1000.0)
     assert r["source_id"] in ("mars_mola_megdr", "mars_mola_usgs_463m")
-    # Genuine "no covered source": a non-US land bbox with keyless required leaves
-    # nothing (COP30 needs a key; US products don't reach the Andes).
-    empty = catalog.recommend_source(_ANDES, "earth", target_support_m=30.0, require_keyless=True)
+    # Genuine "no covered source": a body the catalog holds no products for.
+    # (A keyless-Earth-lands case is no longer empty: earth_cop30_cog covers it.)
+    empty = catalog.recommend_source(_ANDES, "venus", target_support_m=30.0)
     assert empty["source_id"] is None and empty["candidates"] == []
 
 

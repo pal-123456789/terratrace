@@ -8,7 +8,7 @@ This repository holds two things:
 
 | Path | What it is |
 |---|---|
-| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across six robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **816 tests**, no network required. |
+| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across six robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **834 tests**, no network required. |
 | `site/` | A 3D scroll-animated website telling the project story (deployed on Vercel). |
 
 > **Scope / claim firewall.** TerraTrace screens terrain **morphology** between curated
@@ -45,17 +45,17 @@ viewer are generated per study.
 ```bash
 cd terratrace
 pip install -r requirements.txt            # core (NumPy only)
-python tests/run_tests.py                   # 816 fixtures, offline
+python tests/run_tests.py                   # 834 fixtures, offline
 python scripts/run_validation.py            # scientific-correctness suite
 python -m terratrace.cli --out artifacts    # synthetic study
 python -m terratrace.build_viewer           # viewer/index.html
 ```
 
 Unified CLI: `python -m terratrace.cli {study, batch, validate, benchmark, report, report-html,
-dossier, references, sensitivity, classify, confidence, bank, transect, version}`. Real data (keyless for the planetary
-bodies; a free OpenTopography key for Earth) runs on a networked machine — see
-`terratrace/REAL-DATA-RUNBOOK.md`. The large DEMs under `terratrace/data/` are git-ignored;
-fetch them with `terratrace/scripts/fetch_real_dems.py`. A single command —
+dossier, references, sensitivity, classify, confidence, bank, transect, version}`. Real data is
+keyless for the planetary bodies **and for Earth** (see below) — no account, no API key. The large
+DEMs under `terratrace/data/` are git-ignored; fetch them with
+`terratrace/scripts/fetch_real_dems.py`. A single command —
 `terratrace/scripts/run_real_analog_study.py` — runs the whole real multi-body pipeline end to end
 (config → preflight → fetch → full-depth study → decision confidence → a complete bundle); see
 `terratrace/REAL-DATA-RUNBOOK.md`.
@@ -86,6 +86,20 @@ basalts come to the front only for the *rough* highlands. So the nearest Earth a
 confirmatory honest cells). Recorded with one honest caveat: v3 is *pre-specified but not fully
 pre-registered*. Results: `terratrace/docs/RESULTS-v3.md`; protocol:
 `terratrace/docs/BENCHMARK-PROTOCOL-v3.md`.
+
+**Reproduce it in three commands — no API key, no account.**
+
+```bash
+cd terratrace
+python scripts/fetch_earth_candidates.py --config config/matched_footprint_v3.yml --source cog
+python scripts/run_matched_benchmark.py --config config/matched_footprint_v3.yml --out artifacts/mf_panel_v3
+```
+
+`--source cog` reads the official ESA Copernicus GLO-30 cloud-optimised GeoTIFF mosaic straight
+from public AWS Open Data. That path is verified **bit-identical** to the OpenTopography COP30
+product the earlier runs used (maximum absolute difference 0.0 m, 100 % of pixels identical;
+`tests/test_cop30_cog.py`), so the OpenTopography API key is now optional rather than required. The
+Mars side needs no download either: the global MOLA 463 m GeoTIFF is the only Mars input.
 
 ## Deploy
 

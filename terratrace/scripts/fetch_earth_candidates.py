@@ -27,14 +27,17 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from terratrace import cop30_cog
+from terratrace import cop30_cog, reproject
 
 
 def _center_bbox(center_lon_e, center_lat, extent_m, body="earth"):
-    """Symmetric lon/lat bbox of side ``extent_m`` about a centre."""
-    r_earth = 6371000.0
-    r_mars = 3396190.0
-    radius = r_mars if body == "mars" else r_earth
+    """Symmetric lon/lat bbox of side ``extent_m`` about a centre.
+
+    Body radii come from :func:`terratrace.reproject.body_radius_m`, the engine's
+    single source of truth, rather than being re-declared here -- a duplicated
+    radius is a silent way to sample the wrong footprint.
+    """
+    radius = reproject.body_radius_m(body)
     half = extent_m / 2.0
     dlat = math.degrees(half / radius)
     dlon = math.degrees(half / (radius * math.cos(math.radians(center_lat))))
@@ -57,7 +60,11 @@ def fetch_units(cfg, out_dir, source="cog", force=False, api_key=None):
             results.append((uid, path, "cached"))
             continue
         bbox = u.get("bbox")
-        if not bbox:
+        if bbox:
+            # JSON configs give a list; normalise so the value is predictable
+            # (the engine's own loader also coerces to tuple).
+            bbox = tuple(float(v) for v in bbox)
+        else:
             bbox = _center_bbox(u["center_lon_e"], u["center_lat"],
                                 float(u.get("extent_m", 60000.0)))
         if source == "cog":

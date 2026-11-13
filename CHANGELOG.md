@@ -3,6 +3,42 @@
 Complete build history of TerraTrace, generated from the git commit messages
 (newest first). Each entry is the exact message recorded with that commit.
 
+## Unreleased — CI hardening, keyless Earth data registered, and the packaging/docs pass
+
+*Prepared 2026-11-13 by Pal Ghevariya*
+
+Found and fixed a **CI-breaking defect introduced with the v3 entry**, then closed the gaps that
+made it possible. The full offline suite is now **834 passed, 0 failed** (verified in 5 chunks:
+187/199/145/149/154); validation **51/51**; the gated default study hash `8f4890777ee462a2...` is
+unchanged.
+
+- **CI breaker fixed.** CI installs NumPy only, but six of the new `test_cop30_cog.py` tests needed
+  `rasterio`, so the pull request would have gone red on all three Pythons. They now skip cleanly
+  when rasterio is absent. `terratrace/cop30_cog.py` raises the engine's standard actionable
+  ``RuntimeError("pip install rasterio ...")`` instead of an ImportError.
+- **The whole class of defect is now guarded.** New `tests/test_ci_hygiene.py` re-runs the CI
+  import step in a subprocess with `rasterio`/`yaml`/`requests`/`scipy`/`pandas`/`matplotlib`
+  blocked, importing **every** test module **and every engine module**. This matters because
+  `tests/run_tests.py` imports test modules *outside* a try, so one top-level optional import
+  aborts the entire run rather than failing one test. This project has hit that trap twice (PyYAML,
+  then rasterio); the guard makes a third time loud instead of silent.
+- **The keyless Earth path is registered in the catalog** as `earth_cop30_cog`
+  (`key_required: false`, same preference tier and vertical accuracy as `earth_cop30`), so
+  `recommend_source(..., require_keyless=True)` can now return a **global 30 m** product instead of
+  falling back to partial 1 m US lidar. Three existing catalog tests encoded the old premise ("a
+  keyless Earth product does not exist") and were updated to the new capability — behaviour change,
+  recorded, not silently absorbed.
+- **New tests for the fetch path** (`tests/test_fetch_earth_candidates.py`, 11): centre-bbox
+  geometry in metres, body-radius reuse from `reproject`, JSON config loading, Earth-only filtering,
+  idempotence/`force`, and the no-key refusal. A JSON config's *list* bbox is now normalised to a
+  tuple (found by that test).
+- **`cop30_cog` reports rather than hides.** `read_cog30(..., report=...)` returns per-tile
+  failures and a `no_coverage_frac`, and `fetch_cop30_cog` **refuses** to write an AOI that is
+  more than 1 % nodata — a silently nodata-filled tile would otherwise look like flat ground.
+- **Packaging/docs:** `pyproject.toml` to 0.3.0 with keywords/classifiers; mkdocs nav now lists the
+  v3 protocol, both result documents, the claim ledger and the atlas; both READMEs carry an explicit
+  three-command, no-API-key reproduction of the v3 result; doc test counts synced to 834.
+
 ## Unreleased — protocol v3 result: the smoothness explanation is confirmed, and a credential-free Earth-DEM path
 
 *Prepared 2026-11-05 by Pal Ghevariya (v3 pre-specified; see the freeze qualification in `docs/BENCHMARK-PROTOCOL-v3.md`)*

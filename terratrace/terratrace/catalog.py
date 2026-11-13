@@ -96,6 +96,22 @@ SOURCES = {
                      "valid_resolution_range_m": [30.0, 500000.0],
                      "description": "Global land; ocean returns sea-level/nodata (use a water mask)"},
     },
+    "earth_cop30_cog": {
+        "id": "earth_cop30_cog", "body": "earth",
+        "provider": "ESA Copernicus on AWS Open Data (public COG mosaic)",
+        "product": "Copernicus GLO-30 DSM (cloud-optimised GeoTIFF mosaic)",
+        "native_resolution_m": 30.0,
+        "access": {"method": "aws_cog_public",
+                   "endpoint": "https://copernicus-dem-30m.s3.amazonaws.com",
+                   "helper": "terratrace.cop30_cog"},
+        "crs": "EPSG:4326", "vertical_datum": "EGM2008 (approx)",
+        "key_required": False, "license": "Copernicus; free use with attribution",
+        "citation": "(c) ESA Copernicus GLO-30 DSM, public AWS Open Data COG mosaic",
+        "coverage": {"kind": "global_land", "bboxes": _EARTH_GLOBAL, "complete": True,
+                     "valid_resolution_range_m": [30.0, 500000.0],
+                     "description": "Same elevations as earth_cop30 (verified identical), "
+                                    "but read windowed from public COG tiles with no API key"},
+    },
     "earth_usgs10m": {
         "id": "earth_usgs10m", "body": "earth", "provider": "USGS 3DEP via OpenTopography",
         "product": "3DEP 1/3 arc-second seamless DEM (~10 m)", "native_resolution_m": 10.0,
@@ -198,7 +214,7 @@ REQUIRED_FIELDS = ("id", "body", "provider", "product", "native_resolution_m",
 #     Order-of-magnitude figures from mission/product docs, used by errorprop to
 #     propagate elevation error into slope/relief uncertainty -- NOT exact per-pixel.
 _PREFERENCE = {
-    "earth_cop30": 1, "earth_usgs10m": 1, "earth_usgs1m": 1,
+    "earth_cop30": 1, "earth_cop30_cog": 1, "earth_usgs10m": 1, "earth_usgs1m": 1,
     "earth_cop90": 2, "earth_nasadem": 2, "earth_aw3d30": 2,
     "earth_srtmgl1": 3, "earth_srtmgl3": 3,
     "mars_mola_usgs_463m": 1, "mars_mola_megdr": 2,
@@ -210,9 +226,9 @@ _NODATA = {
 }
 # Approximate 1-sigma vertical RMSE in metres (provider/mission docs; see note above).
 _VERTICAL_ACC = {
-    "earth_cop30": 4.0, "earth_cop90": 4.0, "earth_nasadem": 5.0,
-    "earth_srtmgl1": 6.0, "earth_srtmgl3": 9.0, "earth_aw3d30": 5.0,
-    "earth_usgs10m": 1.5, "earth_usgs1m": 0.2,
+    "earth_cop30": 4.0, "earth_cop30_cog": 4.0, "earth_cop90": 4.0,
+    "earth_nasadem": 5.0, "earth_srtmgl1": 6.0, "earth_srtmgl3": 9.0,
+    "earth_aw3d30": 5.0, "earth_usgs10m": 1.5, "earth_usgs1m": 0.2,
     "mars_mola_megdr": 3.0, "mars_mola_usgs_463m": 3.0,
     "moon_lola_ldem": 1.0, "mercury_messenger_dem": 30.0, "ceres_dawn_dem": 20.0,
 }

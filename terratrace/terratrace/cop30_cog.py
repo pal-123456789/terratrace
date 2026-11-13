@@ -80,6 +80,26 @@ def _apply_env():
         os.environ.setdefault(k, v)
 
 
+def _require_rasterio():
+    """Import rasterio (and ``from_origin``), or raise the engine's standard,
+    actionable error.
+
+    CI installs NumPy only (``requirements.txt``), so every rasterio use must sit
+    behind this guard. An unguarded import at module scope would break the
+    dependency-free test suite on all three CI Pythons -- which is exactly the
+    trap this project has hit before with PyYAML. Returns ``(rasterio,
+    from_origin)``.
+    """
+    try:
+        import rasterio
+        from rasterio.transform import from_origin
+    except Exception as exc:  # pragma: no cover - exercised by the no-rasterio test
+        raise RuntimeError(
+            "pip install rasterio  (needed to read the Copernicus GLO-30 COG "
+            "mosaic)") from exc
+    return rasterio, from_origin
+
+
 def tile_name(lat_sw, lon_sw):
     """GLO-30 tile name for the 1-degree cell whose SOUTH-WEST corner is
     ``(lat_sw, lon_sw)``."""
@@ -128,7 +148,7 @@ def _centre_grid(west, south, east, north):
     return lon_start, max(n_lon, 0), lat_start, max(n_lat, 0)
 
 
-def read_cog30(bbox, out_path=None):
+def read_cog30(bbox, out_path=None, report=None):
     """Read a lon/lat bbox out of the GLO-30 COG mosaic.
 
     ``bbox`` is ``(west, south, east, north)`` in degrees (EPSG:4326), in the
@@ -139,11 +159,17 @@ def read_cog30(bbox, out_path=None):
 
     With ``out_path`` the array is also written as a single-band Float32
     GeoTIFF (EPSG:4326, nodata -32768) that the engine reads normally.
+
+    With ``report`` (a dict) the caller receives what happened per tile --
+    ``{"tiles": [...], "failed_tiles": [(lat, lon, error), ...],
+    "tiles_without_coverage": [...], "no_coverage_frac": f}``. A tile that
+    cannot be read leaves its block as nodata rather than aborting the mosaic,
+    so the caller MUST check this before treating a mosaic as complete; a
+    silent nodata gap would otherwise look like flat ground.
     """
     _apply_env()
     import numpy as np
-    import rasterio
-    from rasterio.transform import from_origin
+    rasterio, from_origin = _require_rasterio()
 
     west, south, east, north = [float(v) for v in bbox]
     lon_start, width, lat_start, height = _centre_grid(west, south, east, north)
@@ -153,6 +179,8 @@ def read_cog30(bbox, out_path=None):
     transform = from_origin(lon_start - RESOLUTION_DEG / 2.0,
                              lat_start + RESOLUTION_DEG / 2.0,
                              RESOLUTION_DEG, RESOLUTION_DEG)
+    tiles = tiles_for_bbox(bbox)
+    failed = []
     if width == 0 or height == 0:
         if out_path:
             with rasterio.open(out_path, "w", driver="GTiff", height=height,
@@ -160,9 +188,12 @@ def read_cog30(bbox, out_path=None):
                                crs="EPSG:4326", transform=transform,
                                nodata=NODATA, compress="deflate") as dst:
                 dst.write(out, 1)
+        if report is not None:
+            report.update(tiles=tiles, failed_tiles=[], tiles_without_coverage=[],
+                          no_coverage_frac=1.0, width=width, height=height)
         return out, transform
 
-    for lat_sw, lon_sw in tiles_for_bbox(bbox):
+    for lat_sw, lon_sw in tiles:
         # Centres of this tile's pixels: lon = lon_sw + c*RES (c = 0..3599),
         # lat = lat_sw + 1 - r*RES.
         c_from = max(0, int(math.ceil((lon_start - lon_sw) / RESOLUTION_DEG - 1e-9)))
@@ -177,9 +208,10 @@ def read_cog30(bbox, out_path=None):
             with rasterio.open(tile_url(lat_sw, lon_sw)) as ds:
                 block = ds.read(1, window=rasterio.windows.Window(
                     c_from, r_from, c_to - c_from, r_to - r_from))
-        except Exception:
+        except Exception as exc:
             # A missing/unreachable tile leaves that block nodata rather than
-            # aborting the whole mosaic.
+            # aborting the whole mosaic -- but it is recorded, never silent.
+            failed.append((lat_sw, lon_sw, f"{type(exc).__name__}: {exc}"))
             continue
         # Destination offsets (in output pixels) of this block's first centre.
         dx0 = int(round((lon_sw + c_from * RESOLUTION_DEG - lon_start) / RESOLUTION_DEG))
@@ -197,15 +229,33 @@ def read_cog30(bbox, out_path=None):
                            crs="EPSG:4326", transform=transform,
                            nodata=NODATA, compress="deflate") as dst:
             dst.write(out, 1)
+    if report is not None:
+        n = int(out.size)
+        report.update(tiles=tiles, failed_tiles=failed,
+                      tiles_without_coverage=[(t[0], t[1]) for t in failed],
+                      no_coverage_frac=(float((out == NODATA).sum()) / n) if n else 1.0,
+                      width=width, height=height)
     return out, transform
 
 
-def fetch_cop30_cog(bbox, out_path):
+def fetch_cop30_cog(bbox, out_path, min_coverage=0.99):
     """Fetch a GLO-30 AOI from the public COG mosaic and write it locally.
 
     The thin wrapper the fetch scripts use; returns ``out_path``.
+
+    Raises :class:`ValueError` if the mosaic came back with less than
+    ``min_coverage`` of its pixels covered, because a partially-covered tile is
+    silently full of ``-32768`` gaps that later look like flat ground. Pass
+    ``min_coverage=0.0`` to accept an intentionally partial AOI.
     """
-    read_cog30(bbox, out_path=out_path)
+    report = {}
+    read_cog30(bbox, out_path=out_path, report=report)
+    frac = report.get("no_coverage_frac", 1.0)
+    if frac > (1.0 - min_coverage):
+        raise ValueError(
+            f"{out_path}: {frac:.1%} of the AOI has no GLO-30 coverage "
+            f"(failed tiles: {report.get('failed_tiles')}); refusing to write an "
+            f"AOI that is mostly nodata. Pass min_coverage=0.0 to override.")
     return out_path
 
 

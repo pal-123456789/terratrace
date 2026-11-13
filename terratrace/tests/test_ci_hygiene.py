@@ -1,0 +1,136 @@
+"""CI-hygiene guards: keep the dependency-free suite dependency-free.
+
+WHY THIS FILE EXISTS
+--------------------
+``.github/workflows/ci.yml`` installs **NumPy only** (``requirements.txt``) and then
+runs ``tests/run_tests.py``. Two failure modes have already bitten this project:
+
+1. A module imported an optional dependency (``yaml``, then ``rasterio``) at module
+   scope. Module import is **not** wrapped in a try in ``run_tests.py``, so that does
+   not fail one test -- it aborts the entire run with an ImportError.
+2. A test file itself needed the optional dependency, so it failed on all three CI
+   Pythons while passing locally.
+
+Both are invisible locally, where the optional dependency happens to be installed.
+These tests reproduce the CI environment exactly (NumPy present, everything else
+blocked) in a **subprocess**, so they cannot be fooled by whatever is installed in
+the calling environment.
+
+They are deliberately dependency-free themselves.
+"""
+import os
+import subprocess
+import sys
+
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_ROOT = os.path.dirname(_HERE)
+
+# Optional packages this project uses SOMEWHERE, but which CI does not install.
+# Anything here must be imported lazily (inside a function) and guarded.
+_OPTIONAL = ["rasterio", "yaml", "requests", "scipy", "pandas", "matplotlib"]
+
+# The probe runs in a clean interpreter with the optional packages blocked, and
+# imports every module the CI run will import. It prints the first failure and
+# exits non-zero.
+_PROBE = r'''
+import importlib.util, pathlib, sys
+
+BLOCK = set({optional!r})
+
+class _Blocker:
+    """Make an optional package look uninstalled."""
+    def find_spec(self, fullname, path=None, target=None):
+        root = fullname.split(".")[0]
+        if root in BLOCK:
+            raise ImportError(f"{{fullname}} is blocked (not installed in the core CI env)")
+        return None
+
+sys.meta_path.insert(0, _Blocker())
+
+# Belt and braces: drop anything already imported and make it un-findable.
+for name in list(sys.modules):
+    if name.split(".")[0] in BLOCK:
+        del sys.modules[name]
+
+root = pathlib.Path({root!r})
+tests = pathlib.Path({tests!r})
+sys.path.insert(0, str(root))
+
+def load(path):
+    spec = importlib.util.spec_from_file_location(path.stem, path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)          # exactly what run_tests.py does
+    return mod
+
+failures = []
+for path in sorted(tests.glob("test_*.py")):
+    try:
+        load(path)
+    except BaseException as exc:
+        failures.append(f"{{path.name}}: {{type(exc).__name__}}: {{exc}}")
+
+# Also prove the engine package itself imports without the optional deps.
+pkg = root / "terratrace"
+for path in sorted(pkg.glob("*.py")):
+    name = path.stem
+    if name == "__init__":
+        continue
+    try:
+        __import__(f"terratrace.{{name}}")
+    except BaseException as exc:
+        failures.append(f"terratrace/{{name}}.py: {{type(exc).__name__}}: {{exc}}")
+
+for f in failures:
+    print(f)
+sys.exit(1 if failures else 0)
+'''
+
+
+def _run_probe():
+    code = _PROBE.format(optional=_OPTIONAL, root=_ROOT, tests=_HERE)
+    env = dict(os.environ)
+    env["PYTHONDONTWRITEBYTECODE"] = "1"
+    return subprocess.run([sys.executable, "-c", code], capture_output=True,
+                          text=True, env=env, timeout=600)
+
+
+def test_optional_dependencies_really_are_blocked_in_the_probe():
+    """If the blocker did not work, the hygiene test would pass vacuously."""
+    code = _PROBE.format(optional=_OPTIONAL, root=_ROOT, tests=_HERE).replace(
+        "sys.exit(1 if failures else 0)", "sys.exit(2)")
+    probe = r'''
+import sys
+BLOCK = set({optional!r})
+class _Blocker:
+    def find_spec(self, fullname, path=None, target=None):
+        if fullname.split(".")[0] in BLOCK:
+            raise ImportError("blocked")
+        return None
+sys.meta_path.insert(0, _Blocker())
+for name in BLOCK:
+    try:
+        __import__(name)
+    except ImportError:
+        pass
+    else:
+        print("NOT BLOCKED:", name)
+        sys.exit(1)
+sys.exit(0)
+'''.format(optional=_OPTIONAL)
+    r = subprocess.run([sys.executable, "-c", probe], capture_output=True, text=True,
+                       timeout=120)
+    assert r.returncode == 0, f"blocker is ineffective: {r.stdout}{r.stderr}"
+
+
+def test_every_module_the_ci_run_imports_survives_a_numypy_only_environment():
+    """The real guard: the suite's import step must not need an optional dep.
+
+    ``run_tests.py`` imports every ``test_*.py`` outside a try, and CI imports the
+    engine with NumPy alone -- so any top-level optional import aborts the run.
+    """
+    r = _run_probe()
+    assert r.returncode == 0, (
+        "These modules need an optional dependency at import time. CI installs "
+        "NumPy only, so this would abort or fail the whole suite on every CI "
+        "Python. Import the dependency lazily inside the function and guard it:\n"
+        + (r.stdout or "") + (r.stderr or ""))
