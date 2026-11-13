@@ -1,5 +1,5 @@
 site_name: TerraTrace - Planetary Analog OS
-site_description: Five-world map-scale terrain-morphology analog screening, with a frozen pre-registered benchmark that withdraws its own false analog
+site_description: Five-world map-scale terrain-morphology analog screening, with a benchmark that withdraws its own false analog (v3 pre-specified, not fully pre-registered)
 theme:
   name: material
   palette:
@@ -16,6 +16,11 @@ nav:
   - Validation & ablations: VALIDATION.md
   - Benchmark protocol v3 (frozen): BENCHMARK-PROTOCOL-v3.md
   - Benchmark results v3: RESULTS-v3.md
+  - V3 archival clarification: V3-ARCHIVAL-CLARIFICATION.md
+  - Independent-toolchain reproduction: INDEPENDENT-GIS-REPRODUCTION.md
+  - Lunar status (blocked): LUNAR-STATUS.md
+  - External-user walkthrough: WALKTHROUGH.md
+  - Event-window contribution: EVENT-WINDOW-CONTRIBUTION.md
   - Benchmark protocol v2: BENCHMARK-PROTOCOL-v2.md
   - Benchmark results v2: RESULTS-v2.md
   - Benchmark protocol v1: BENCHMARK-PROTOCOL.md

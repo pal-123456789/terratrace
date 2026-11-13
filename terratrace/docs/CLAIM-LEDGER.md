@@ -9,7 +9,7 @@ Branch history: this ledger was opened on `research/matched-footprint-benchmark`
 (superseded by `research/m3-honest-regime`, now merged to `main`). Baseline when it was opened:
 `run_validation.py` 51/51 (exit 0), full suite 686 green (verified in chunks; single-run
 exceeds the sandbox tool cap), gated study hash `8f4890777ee462a2…`. The suite has since grown to
-**843** green (iteration 5 and the CI-hygiene entries).
+**852** green (iteration 5 and the CI-hygiene entries).
 
 | # | Claim | Type | Evidence (experiment) | Status | Uncertainty / limits | Falsifier |
 |---|---|---|---|---|---|---|
@@ -124,9 +124,20 @@ S pattern is robust (holds at every support, unchanged under resolution matching
 top-of-shortlist* pick is a near-tie among similarly smooth terrains and should not be over-read.
 
 **Four achievements, kept separate (as of iteration 5):** software correctness — 817 tests green at
-the time of that result, **843** in the shipped tree (the v3 entry added tests after this line was
+the time of that result, **852** in the shipped tree (the v3 entry added tests after this line was
 written); method validation — synthetic ground truths for footprint, resolution and specificity
 controls; scientific discovery — **one reproducible negative result (claim 14) and one reproducible
 positive mechanism (claims 15/17)**; engineering — a credential-free, bit-identical data path
 (claim 18). Still no claim that any Earth terrain is a mission-relevant Mars analog.
 
+## Iteration 6 — corrections from an external review of the repository
+
+Four entries. The first two are defects in *our own presentation* and are recorded because a claim
+ledger that only lists successes is not a ledger.
+
+| # | Claim | Type | Evidence | Status | Limits / falsifier |
+|---|---|---|---|---|---|
+| 21 | The v3 resolution-robustness result covers 15 confirmatory cells: 11 unchanged, 1 destabilised, 3 membership-changed, 0 reversed, 0 stabilised, 0 error. | PRESENTATION | `artifacts/mf_panel_v3/matched_panel_v3_real.json` → `hypotheses.R.counts` | **Corrected.** An earlier presentation listed only 11/3/0 — fourteen cells for a fifteen-cell experiment — dropping the destabilised cell (`mars_solis` @1500 m, where matching the footprint turns a RECOMMEND into a TIE). Now stated in full everywhere, with `tests/test_v3_archival.py` failing the build on any breakdown that does not sum or that omits a non-zero class. | The set of *public surfaces* scanned by that test is a fixed list; a new page quoting a breakdown must be added to it. |
+| 22 | The v3 config was "unmodified since" the run. | PROVENANCE | `git show 820c17d:…matched_footprint_v3.yml` vs HEAD; `ddb2247` | **Corrected — the claim was false.** The config's recorded sha256 (`70eeafd4…`) is the revision at the result commit; the file shipped at HEAD (`98535076…`) differs by one comment: the Nevada Basin σ annotation, corrected from ~244 m to the measured 562 m nine minutes after the result. Every analytical parameter is byte-identical (parameter digest `ff3add2c…`). Reconciled in `docs/V3-ARCHIVAL-CLARIFICATION.md` and guarded by a test. | If a future edit changes a parameter rather than a comment, the guard fires; if it changes a comment, the two file hashes diverge again but the parameter digest does not. |
+| 23 | The catalogued lunar source `moon_lola_ldem` is resolvable. | DATA | HTTP fetch of its `access.endpoint` | **FALSE — the endpoint is dead.** `https://astrogeology.usgs.gov/search/map/lunar_lro_lola_global_ldem_118m` returns a 200 whose body is the USGS "Error 404" page (2026-11-13). The lunar half of the challenge is therefore **blocked on data**, not on capability: body metadata, CRS and reprojection are lunar-ready in code. Recorded in `docs/LUNAR-STATUS.md`. | Unblocked by any working URL for a lunar DEM better than ~500 m posting. |
+| 24 | TerraTrace's slope and 3×3 local-relief operators are reproduced by an independent toolchain. | VALIDATION | `scripts/gis_reproduction.py`; RichDEM + WhiteboxTools 2.3.6 | **Supported, with a stated boundary.** Relief reproduces to 1e-4 m; slope means agree to 0.016° absolute (per-cell \|Δ\| mean ≤ 0.044°) — *given the same elevation array*. The reprojection is **not** independently reproduced: TerraTrace uses rasterio, which is GDAL. Internally prepared; no external reviewer. See `docs/INDEPENDENT-GIS-REPRODUCTION.md`. | Two implementations can share a misconception. This does not validate the gate, the supports or any verdict. |

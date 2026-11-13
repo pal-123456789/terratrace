@@ -3,8 +3,9 @@ message: "If you use TerraTrace, please cite it and the underlying NASA/ESA/USGS
 title: "TerraTrace - Planetary Analog Terrain-Transfer Workbench"
 abstract: "A provenance-first tool that compares a planetary reference terrain unit with
   candidate Earth terrain units at a common metric support, exposes transfer gaps, and
-  emits a reproducible study package. Ships a frozen, pre-registered matched-footprint
-  benchmark that withdraws its own exploratory analog claim. Morphology screening only;
+  emits a reproducible study package. Ships a matched-footprint benchmark that
+  withdraws its own exploratory analog claim; the v3 result is pre-specified rather than
+  fully pre-registered. Morphology screening only;
   not a mission-readiness tool."
 version: 0.3.0
 date-released: 2026-11-13

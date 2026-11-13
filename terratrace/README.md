@@ -18,12 +18,13 @@ benchmark **withdrew** that claim (the engine abstains in the honest regime, and
 cratered highland as readily as for volcanic plains); and protocol v3 then **measured** the explanation —
 the nearest Earth analog tracks **km-scale roughness, not volcanic origin** (S **supported**, V **not
 supported**, R **supported**; 15/15 confirmatory honest cells, 0 comparability-gate violations). One
-caveat is recorded with the result rather than hidden: v3 is *pre-specified but not fully pre-registered*
+caveat is recorded with the result rather than hidden: v3 is *pre-specified but not fully pre-registered*, and its confirmatory verdicts use the **core
+decision lens** (of 15 cells: 11 unchanged, 3 membership-changed, 1 destabilised, 0 reversed)
 (the rules and config were frozen before the data, the protocol document was committed after the run).
 See [RESULTS-v3.md](docs/RESULTS-v3.md), its [frozen protocol](docs/BENCHMARK-PROTOCOL-v3.md), and the
 claim-to-evidence ledger [CLAIM-LEDGER.md](docs/CLAIM-LEDGER.md).
 
-**Current: 843 offline tests, 0 failing; 51 scientific-correctness oracles; package version 0.3.0.**
+**Current: 852 offline tests, 0 failing; 51 scientific-correctness oracles; package version 0.3.0.**
 
 ## Why this exists
 
@@ -261,10 +262,10 @@ source and a transformation.
   closer candidate provably dominates and is recommended, a flat/water tile is blocked,
   and the whole pipeline is deterministic. A reproducibility + performance harness pins
   behavioural invariants, checks hash stability, and profiles wall-clock scaling.
-- 843 fixture tests with known analytic answers, all passing, no network required.
+- 852 fixture tests with known analytic answers, all passing, no network required.
 
 ```
-passed=843 failed=0
+passed=852 failed=0
 ```
 
 ## Install
@@ -283,7 +284,7 @@ pip install -r requirements-real.txt      # rasterio + requests (real DEMs)
 ```bash
 PYTHONPATH=. python3 -m terratrace.cli --out artifacts
 PYTHONPATH=. python3 -m terratrace.build_viewer      # writes viewer/index.html
-PYTHONPATH=. python3 tests/run_tests.py              # 843 tests
+PYTHONPATH=. python3 tests/run_tests.py              # 852 tests
 ```
 
 Open `viewer/index.html` in any browser — it is self-contained and works offline.
@@ -456,7 +457,7 @@ terratrace/
     api.py           loopback-only stdlib HTTP API
     validation.py    scientific-correctness suite (51 oracles, drives the real engine)
     benchmark.py     reproducibility invariants + wall-clock scaling profile
-  tests/             843 tests across 91 modules + a dependency-free runner (house style:
+  tests/             852 tests across 91 modules + a dependency-free runner (house style:
                      module-level `def test_*`, no pytest)
   artifacts/         generated study package (JSON + checksums + manifest)
   viewer/            generated offline HTML viewer (tracked snapshot; CI regenerates it)
