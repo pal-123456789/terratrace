@@ -135,8 +135,17 @@ Mars side needs no download either: the global MOLA 463 m GeoTIFF is the only Ma
 
 ## Deploy
 
-Static site. On Vercel, import this repo; `vercel.json` serves `site/index.html` at `/` and the
-study viewer at `/study`. No build step required.
+Static site, no build step. On Vercel, import this repo; `vercel.json` serves three routes:
+
+| Route | File | What it is |
+|---|---|---|
+| `/` | `site/index.html` | The scroll landing page — the three-act story, method, descriptors, evidence |
+| `/study` | `site/study/index.html` | **The protocol-v3 results** — the confirmatory panel, with the frozen verdicts |
+| `/viewer` | `site/viewer/index.html` | The engine's **generated** study viewer (an archived real run), unmodified apart from a labelled site bar |
+
+`site/study/` is hand-written; `site/viewer/` is built from `terratrace/viewer/index.html` so the
+generated output stays byte-faithful. The doc-consistency guard resolves every site `href` through
+the rewrite table above, so a page added without a route fails the build rather than 404s.
 
 ## License
 

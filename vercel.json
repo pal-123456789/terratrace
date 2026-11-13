@@ -4,6 +4,7 @@
   "trailingSlash": false,
   "rewrites": [
     { "source": "/", "destination": "/site/index.html" },
-    { "source": "/study", "destination": "/site/study/index.html" }
+    { "source": "/study", "destination": "/site/study/index.html" },
+    { "source": "/viewer", "destination": "/site/viewer/index.html" }
   ]
 }
