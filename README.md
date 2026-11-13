@@ -1,3 +1,5 @@
+![TerraTrace — planetary terrain-morphology analog screening across Earth, Mars, the Moon, Mercury and Ceres, at a declared common spatial support](assets/cover.png)
+
 # Planetary Analog OS — TerraTrace
 
 [![CI](https://github.com/pal-123456789/terratrace/actions/workflows/ci.yml/badge.svg)](https://github.com/pal-123456789/terratrace/actions/workflows/ci.yml)
@@ -15,6 +17,8 @@ This repository holds two things:
 |---|---|
 | `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across six robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **843 tests**, no network required. |
 | `site/` | A 3D scroll-animated website telling the project story (deployed on Vercel). |
+
+**Project deck — 10 slides.** [PDF](TerraTrace-deck.pdf) · [PowerPoint](TerraTrace-deck.pptx) — the whole project: the question, the pipeline across five bodies, the measurement layer, the benchmark that made us withdraw our own finding, the result, the verification evidence, the data path, the claim firewall and the open items.
 
 > **Scope / claim firewall.** TerraTrace screens terrain **morphology** between curated
 > map products. It does **not** estimate rover traversability, validate autonomy,
