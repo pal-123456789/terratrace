@@ -3,6 +3,29 @@
 Complete build history of TerraTrace, generated from the git commit messages
 (newest first). Each entry is the exact message recorded with that commit.
 
+## Unreleased — polish pass: the result made visible, the wrapper made reproducible
+
+*Prepared 2026-11-13 by Pal Ghevariya*
+
+- **The finding is now a picture.** The v3 results page gained a **roughness ladder**: all seven Earth
+  candidates' measured 60 km σ on a log scale, coloured by the *pre-run* literature class, with a
+  caption noting that the two references carrying S (Arcadia σ 7 m, Cerberus σ 5 m) sit at the smooth
+  end exactly where the two non-volcanic controls sit. It turns the page's central claim into
+  something visible at a glance, drawn from figures already on the page.
+- **Scroll reveal**, enabled only when JavaScript runs (`html.js`), so the page is complete without it,
+  and disabled under `prefers-reduced-motion`.
+- **Tables scroll horizontally on phones** instead of squashing six columns.
+- **`/viewer` is now built by a script, not hand-edited:** `terratrace/scripts/make_site_viewer.py`
+  wraps `terratrace/viewer/index.html` in the site's labelled header bar, and is the single place the
+  title, favicon and bar are defined, so the generated artifact cannot drift. Verified both ways —
+  the output is exactly `build(artifact)`, and reverse-applying the three insertions recovers the
+  artifact byte-for-byte.
+- Fixed a σ inconsistency on the results page: the panel listed Harrat Khaybar as 103 m where both
+  `RESULTS-v3.md` and `config/matched_footprint_v3.yml` say 102 m.
+
+Verified: the three site pages are tag-balanced with every internal link and fragment resolving;
+843 tests / 0 failed; doc-consistency guard OK.
+
 ## Unreleased — website, second pass: three honest routes and no dead ends
 
 *Prepared 2026-11-13 by Pal Ghevariya*
