@@ -8,7 +8,7 @@ Complete build history of TerraTrace, generated from the git commit messages
 *Prepared 2026-11-13 by Pal Ghevariya*
 
 Found and fixed a **CI-breaking defect introduced with the v3 entry**, then closed the gaps that
-made it possible. The full offline suite is now **834 passed, 0 failed** (verified in 5 chunks:
+made it possible. The full offline suite is now **836 passed, 0 failed** (verified in 5 chunks:
 187/199/145/149/154); validation **51/51**; the gated default study hash `8f4890777ee462a2...` is
 unchanged.
 
@@ -37,7 +37,7 @@ unchanged.
   more than 1 % nodata — a silently nodata-filled tile would otherwise look like flat ground.
 - **Packaging/docs:** `pyproject.toml` to 0.3.0 with keywords/classifiers; mkdocs nav now lists the
   v3 protocol, both result documents, the claim ledger and the atlas; both READMEs carry an explicit
-  three-command, no-API-key reproduction of the v3 result; doc test counts synced to 834.
+  three-command, no-API-key reproduction of the v3 result; doc test counts synced to 836.
 
 ## Unreleased — protocol v3 result: the smoothness explanation is confirmed, and a credential-free Earth-DEM path
 

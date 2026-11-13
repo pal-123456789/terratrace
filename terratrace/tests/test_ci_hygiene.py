@@ -134,3 +134,32 @@ def test_every_module_the_ci_run_imports_survives_a_numypy_only_environment():
         "NumPy only, so this would abort or fail the whole suite on every CI "
         "Python. Import the dependency lazily inside the function and guard it:\n"
         + (r.stdout or "") + (r.stderr or ""))
+
+
+# --------------------------------------------------------------------------- #
+# Packaging hygiene                                                            #
+# --------------------------------------------------------------------------- #
+def test_package_version_matches_pyproject():
+    """A release must not carry two different version numbers.
+
+    ``terratrace.__version__`` is the single source of truth; ``pyproject.toml``
+    has to agree. (Parsed with a regex rather than ``tomllib`` so this runs on
+    every supported Python.)
+    """
+    import re
+    import terratrace
+    with open(os.path.join(_ROOT, "pyproject.toml"), encoding="utf-8") as fh:
+        text = fh.read()
+    m = re.search(r'^version\s*=\s*"([^"]+)"', text, re.MULTILINE)
+    assert m, "pyproject.toml has no [project].version"
+    assert m.group(1) == terratrace.__version__, (
+        f"pyproject version {m.group(1)!r} != terratrace.__version__ "
+        f"{terratrace.__version__!r}")
+
+
+def test_cli_reports_the_package_version():
+    """The `version` command and any built manifest must use __version__."""
+    import importlib
+    import terratrace
+    cli = importlib.import_module("terratrace.cli")
+    assert cli._PACKAGE_VERSION == terratrace.__version__

@@ -14,4 +14,10 @@ geological equivalence, certify site access, or certify mission
 readiness.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.3.0"
+# NOTE: this is the PACKAGE version. The study-package *schema* version
+# (``terratrace.cli._SCHEMA_VERSION``) is a separate, slower-moving number: the
+# on-disk shape of a study bundle has not changed. ``pyproject.toml`` must agree
+# with ``__version__`` -- ``tests/test_ci_hygiene.py`` enforces that so the two
+# cannot drift.
+
