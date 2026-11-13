@@ -120,7 +120,7 @@ V3_VERDICTS = ("S — SUPPORTED", "V — NOT SUPPORTED", "R — SUPPORTED")
 # equal. Kept as raw strings so tests/test_doc_consistency.py can pin their behaviour.
 COUNT_RES = {
     # (?<![\w.]) stops "python3 tests/…" from matching as "3 tests"
-    "test count": r"(?<![\w.])(\d+)\s+(?:offline\s+|fixture\s+)?tests?\b",
+    "test count": r"(?<![\w.])(\d+)\s+(?:offline\s+|fixture\s+|automated\s+)?tests?\b",
     "oracle count": r"(?<![\w.])(\d+)\s+(?:scientific-correctness\s+|validation\s+)?oracles?\b",
     # \b stops "COP30 product" from matching as "30 product"
     "source count": r"\b(\d+)[-\s](?:source|product)s?\b",

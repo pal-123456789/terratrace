@@ -499,3 +499,37 @@ def test_bank_slope_area_concave_positive_theta():
     assert sa["flint_theta"] > 0.0, sa
     assert sa["r2"] > 0.3, sa
 
+
+
+def test_descriptor_bank_declares_exactly_40_families():
+    """The documented family count is a claim, so it is computed rather than typed.
+
+    An accidental new family, or one silently lost, should fail here instead of drifting into the
+    docs, the deck and the website.
+    """
+    z = np.random.RandomState(0).rand(48, 48) * 100.0
+    assert len(descriptors.descriptor_bank(z)) == 40
+
+
+def test_descriptor_scalar_census_stays_in_its_documented_band():
+    """The scalar count is window-dependent, so it is bounded rather than pinned.
+
+    Measured 213-215 across 48x48 to 128x128. An exact figure would be false; an unbounded one
+    would let a real change pass unnoticed. The docs quote it as "around 210".
+    """
+    def scalars(v):
+        if isinstance(v, dict):
+            return sum(scalars(x) for x in v.values())
+        if isinstance(v, (list, tuple)):
+            return len(v)
+        if isinstance(v, np.ndarray):
+            return int(v.size)
+        if isinstance(v, (int, float, np.floating, np.integer)):
+            return 1
+        return 0
+
+    for n in (48, 128):
+        z = np.random.RandomState(0).rand(n, n) * 100.0
+        bank = descriptors.descriptor_bank(z)
+        total = sum(scalars(v) for v in bank.values())
+        assert 200 <= total <= 230, f"{n}x{n} produced {total} scalars, outside the documented band"

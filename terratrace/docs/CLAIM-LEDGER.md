@@ -9,7 +9,7 @@ Branch history: this ledger was opened on `research/matched-footprint-benchmark`
 (superseded by `research/m3-honest-regime`, now merged to `main`). Baseline when it was opened:
 `run_validation.py` 51/51 (exit 0), full suite 686 green (verified in chunks; single-run
 exceeds the sandbox tool cap), gated study hash `8f4890777ee462a2…`. The suite has since grown to
-**852** green (iteration 5 and the CI-hygiene entries).
+**854** green (iteration 5 and the CI-hygiene entries).
 
 | # | Claim | Type | Evidence (experiment) | Status | Uncertainty / limits | Falsifier |
 |---|---|---|---|---|---|---|
@@ -124,7 +124,7 @@ S pattern is robust (holds at every support, unchanged under resolution matching
 top-of-shortlist* pick is a near-tie among similarly smooth terrains and should not be over-read.
 
 **Four achievements, kept separate (as of iteration 5):** software correctness — 817 tests green at
-the time of that result, **852** in the shipped tree (the v3 entry added tests after this line was
+the time of that result, **854** in the shipped tree (the v3 entry added tests after this line was
 written); method validation — synthetic ground truths for footprint, resolution and specificity
 controls; scientific discovery — **one reproducible negative result (claim 14) and one reproducible
 positive mechanism (claims 15/17)**; engineering — a credential-free, bit-identical data path
