@@ -4,6 +4,11 @@
 
 **Map-scale terrain-morphology analog screening across five worlds — Earth, Mars, the Moon, Mercury, and Ceres.**
 
+Built for the NASA Space Apps Challenge 2026 challenge *“Identify Earth Locations that Analog the
+Permanent Moon Base Locations and Mars”* — as **published prior art**, not as an event submission; see
+[`terratrace/CLEAN-ROOM-NOTE.md`](terratrace/CLEAN-ROOM-NOTE.md) and
+[`terratrace/docs/event/eligibility-evidence.md`](terratrace/docs/event/eligibility-evidence.md).
+
 This repository holds two things:
 
 | Path | What it is |
@@ -40,6 +45,8 @@ weighted score, and never a traversability, hazard, geologic-equivalence, or mis
 claim. Everything is reproducible and hash-anchored; a self-contained HTML report and offline
 viewer are generated per study.
 
+![Four honest outcomes — RECOMMEND, TIE, NOT COMPARABLE, BLOCKED. Abstention is a first-class result, not an error.](terratrace/docs/figures/decision-states.svg)
+
 ## Where to read what
 
 Every claim in this repository is written down, and `terratrace/scripts/doc_consistency_check.py`
@@ -60,6 +67,10 @@ version that disagrees between `__init__.py`, `pyproject.toml` and `CITATION.cff
 | [`terratrace/docs/CLAIM-LEDGER.md`](terratrace/docs/CLAIM-LEDGER.md) | Every claim → its experiment, status, uncertainty, falsifier |
 | [`terratrace/docs/VALIDATION.md`](terratrace/docs/VALIDATION.md) | The whole test suite and all 51 scientific-correctness oracles |
 | [`terratrace/docs/limitations.md`](terratrace/docs/limitations.md) | The claim firewall and the honest limits |
+| [`terratrace/docs/FEATURES.md`](terratrace/docs/FEATURES.md) | Every descriptor: definition, unit, window, citation, and what it may **not** support |
+| [`terratrace/docs/ACCESSIBILITY.md`](terratrace/docs/ACCESSIBILITY.md) | The nine accessibility non-negotiables, audited line by line |
+| [`terratrace/docs/PLAN-COMPLIANCE.md`](terratrace/docs/PLAN-COMPLIANCE.md) | The project's master plan traced item by item, with the open list named |
+| [`terratrace/docs/DEMO.md`](terratrace/docs/DEMO.md) | A 2½-minute demo script mapped to the live site |
 | [`terratrace/docs/ATLAS.md`](terratrace/docs/ATLAS.md) | The multi-reference, multi-lens analog atlas |
 | [`terratrace/REAL-DATA-RUNBOOK.md`](terratrace/REAL-DATA-RUNBOOK.md) | Running it on real data — keyless |
 | [`terratrace/CLEAN-ROOM-NOTE.md`](terratrace/CLEAN-ROOM-NOTE.md) · [`eligibility-evidence.md`](terratrace/docs/event/eligibility-evidence.md) | The event-eligibility stance and its evidence trail |
@@ -118,6 +129,8 @@ basalts come to the front only for the *rough* highlands. So the nearest Earth a
 confirmatory honest cells). Recorded with one honest caveat: v3 is *pre-specified but not fully
 pre-registered*. Results: `terratrace/docs/RESULTS-v3.md`; protocol:
 `terratrace/docs/BENCHMARK-PROTOCOL-v3.md`.
+
+![The 60 km roughness of the seven Earth candidates, log scale, coloured by the class assigned before the run. The two references that support S sit where the two non-volcanic controls sit, and the basalts sit higher — they win only where the target is rough.](terratrace/docs/figures/roughness-ladder.svg)
 
 **Reproduce it in three commands — no API key, no account.**
 

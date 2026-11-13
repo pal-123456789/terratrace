@@ -17,7 +17,9 @@ It checks, against the tree it is run in:
 2. **VERSION** — ``terratrace.__version__`` == ``pyproject.toml`` == ``CITATION.cff``.
 3. **NAV**     — every ``docs/**/*.md`` page is reachable from ``mkdocs.yml``, and every nav
    entry points at a file that exists.
-4. **LINKS**   — every relative Markdown link resolves; and on the website, every internal
+4. **LINKS**   — every relative Markdown link resolves **for a reader of the repository**, i.e.
+   against the *tracked* file set rather than the working tree (a link into a git-ignored directory
+   is broken however present it is on the author's disk); and on the website, every internal
    ``href`` resolves through the ``vercel.json`` rewrites and every ``#fragment`` has a real
    target (a page can look fine in the repo and still 404 in the browser).
 5. **CLAIMS**  — the frozen benchmark verdicts quoted in the live docs still match
@@ -37,12 +39,53 @@ from __future__ import annotations
 import ast
 import pathlib
 import re
+import subprocess
 import sys
 
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parent                      # .../terratrace
 REPO = ROOT.parent                      # repository root
 sys.path.insert(0, str(ROOT))
+
+
+def _tracked():
+    """Repo-relative paths a fresh clone would have, or ``None`` if git is unavailable.
+
+    This is the whole point of the link check. A path that exists on the author's disk because
+    it is git-ignored does NOT exist for anyone who clones the repository — so a link to it is
+    broken, however green the local run looks. Checking the filesystem alone gets this wrong;
+    the first version of this guard did, and CI caught it.
+    """
+    try:
+        out = subprocess.run(["git", "-C", str(REPO), "ls-files"],
+                             capture_output=True, text=True, check=True).stdout
+    except Exception:
+        return None
+    return set(p for p in out.split() if p)
+
+
+TRACKED = _tracked()
+
+
+def _readable(target: pathlib.Path) -> bool:
+    """Would a reader of the repository find this path? Directories count if they hold tracked files."""
+    if not target.exists():
+        return False
+    if TRACKED is None:
+        return True                     # no git (e.g. an exported tarball) — trust the filesystem
+    # Normalise before comparing: a link like ``../CLEAN-ROOM-NOTE.md`` exists on disk (the OS
+    # collapses the ``..``) but as a *string* it is not in the tracked list, so the raw comparison
+    # reports a false break. ``.resolve()`` matches how REPO itself was derived.
+    target = target.resolve()
+    try:
+        rel = target.relative_to(REPO).as_posix()
+    except ValueError:
+        return True                     # outside the repo — not ours to police
+    if rel in TRACKED:
+        return True
+    if target.is_dir():
+        return any(t.startswith(rel.rstrip("/") + "/") for t in TRACKED)
+    return False
 
 # --- documents that must state the current numbers --------------------------------
 CANONICAL = [
@@ -86,12 +129,18 @@ COUNT_RES = {
 
 
 def _docs_files():
-    """Every prose file we police (markdown + the two hand-written HTML pages)."""
+    """Every prose file we police (markdown + the hand-written HTML pages).
+
+    Only *tracked* files are audited: an internal document that is deliberately git-ignored is
+    not published, so a broken link inside it is not a defect a reader can ever meet.
+    """
     for pat in ("**/*.md", "site/index.html"):
         for p in sorted(REPO.glob(pat)):
             if any(part in SKIP_DIRS for part in p.parts):
                 continue
             if p.name in HISTORICAL:
+                continue
+            if TRACKED is not None and p.relative_to(REPO).as_posix() not in TRACKED:
                 continue
             yield p
 
@@ -198,8 +247,11 @@ def check_links(problems):
             if not rel:
                 continue
             n += 1
-            if not (path.parent / rel).exists():
-                problems.append(f"links: {path.relative_to(REPO)} -> {tgt!r} does not resolve")
+            target = path.parent / rel
+            if not _readable(target):
+                why = ("exists here but is NOT TRACKED, so a clone will not have it"
+                       if target.exists() else "does not exist")
+                problems.append(f"links: {path.relative_to(REPO)} -> {tgt!r} {why}")
 
     # --- the website ---------------------------------------------------------
     vercel = REPO / "vercel.json"
@@ -222,7 +274,11 @@ def check_links(problems):
             return cand.parent / (cand.name + ".html")
         return cand / "index.html"
 
-    pages = sorted(REPO.glob("site/**/*.html"))
+    pages = []
+    for page in sorted(REPO.glob("site/**/*.html")):
+        if TRACKED is not None and page.relative_to(REPO).as_posix() not in TRACKED:
+            continue
+        pages.append(page)
     for page in pages:
         text = page.read_text(encoding="utf-8", errors="replace")
         for m in re.finditer(r'href="([^"]+)"', text):
@@ -237,10 +293,10 @@ def check_links(problems):
                     problems.append(f"site: {page.name} -> {href!r} has no target id in that page")
                 continue
             tgt = _target(route)
-            if not tgt.exists():
+            if not _readable(tgt):
                 problems.append(
                     f"site: {page.relative_to(REPO)} -> {href!r} resolves to "
-                    f"{tgt.relative_to(REPO)} which does not exist (is the route wired?)")
+                    f"{tgt.relative_to(REPO)} which a clone will not have (is the route wired?)")
             elif frag:
                 ids = set(re.findall(r'id="([^"]+)"', tgt.read_text(encoding="utf-8", errors="replace")))
                 if frag not in ids:
