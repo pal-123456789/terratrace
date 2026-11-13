@@ -3,12 +3,44 @@
 Complete build history of TerraTrace, generated from the git commit messages
 (newest first). Each entry is the exact message recorded with that commit.
 
+## Unreleased — CI fix: the guard must RUN the tests, not just import them
+
+*Prepared 2026-11-13 by Pal Ghevariya*
+
+CI went red on all three Pythons: `test_read_cog30_writes_a_readable_geotiff` did
+`import rasterio` **on a line above its availability guard**, so the guard never got a chance to
+skip. The previous fix added a check that only verified *module imports* — and module import
+succeeds, because the failing import is inside a function and only fires when the function is
+**called**. A guard that does not reproduce the failure is not a guard.
+
+- **The two misplaced imports are fixed** (the fourth and fifth, in
+  `test_cop30_cog.py`, for `test_read_cog30_writes_a_readable_geotiff` and the equivalence helper):
+  the availability check now precedes the optional import, with a comment saying why.
+- **The real guard is now `scripts/ci_hygiene_check.py`**, run as its own CI step. It blocks the
+  optional packages and actually **runs every test function** in every test module that mentions an
+  optional dependency (13 of 91 modules, 145 tests, ~2 min), plus imports every engine module. The
+  scope is derived from the sources, so a newly added test that imports `rasterio` is covered
+  without editing the script.
+- **Verified against the bug, not just against the fix**: with the buggy version restored from git,
+  the check exits 1 and names the failing test; with the fix it exits 0. A guard that has never been
+  seen to fail is not evidence.
+- `tests/test_ci_hygiene.py` keeps the cheap always-on guards and gains one for the wiring itself,
+  so the CI step cannot quietly disappear.
+- **Removed a tracked-but-INERT second workflow**, `terratrace/.github/workflows/ci.yml`. GitHub
+  only reads the repo-root `.github/workflows/`, so it never ran while looking like CI — and it had
+  drifted (Python 3.11 only, no validation). Its one useful step — build a synthetic study plus the
+  viewer and upload the bundle — is now a real `e2e` job in the root workflow, which is itself an
+  end-to-end proof the CLI works. A test asserts exactly one `ci.yml` exists.
+
+Suite **837 passed, 0 failed** (5 chunks: 190/199/145/149/154); validation 51/51; gated default
+study hash `8f4890777ee462a2...` unchanged.
+
 ## Unreleased — CI hardening, keyless Earth data registered, and the packaging/docs pass
 
 *Prepared 2026-11-13 by Pal Ghevariya*
 
 Found and fixed a **CI-breaking defect introduced with the v3 entry**, then closed the gaps that
-made it possible. The full offline suite is now **836 passed, 0 failed** (verified in 5 chunks:
+made it possible. The full offline suite is now **837 passed, 0 failed** (verified in 5 chunks:
 187/199/145/149/154); validation **51/51**; the gated default study hash `8f4890777ee462a2...` is
 unchanged.
 
@@ -37,7 +69,7 @@ unchanged.
   more than 1 % nodata — a silently nodata-filled tile would otherwise look like flat ground.
 - **Packaging/docs:** `pyproject.toml` to 0.3.0 with keywords/classifiers; mkdocs nav now lists the
   v3 protocol, both result documents, the claim ledger and the atlas; both READMEs carry an explicit
-  three-command, no-API-key reproduction of the v3 result; doc test counts synced to 836.
+  three-command, no-API-key reproduction of the v3 result; doc test counts synced to 837.
 
 ## Unreleased — protocol v3 result: the smoothness explanation is confirmed, and a credential-free Earth-DEM path
 

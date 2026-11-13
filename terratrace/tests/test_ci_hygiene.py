@@ -16,6 +16,15 @@ These tests reproduce the CI environment exactly (NumPy present, everything else
 blocked) in a **subprocess**, so they cannot be fooled by whatever is installed in
 the calling environment.
 
+A THIRD failure mode is NOT coverable here and lives in ``scripts/ci_hygiene_check.py``,
+run as its own CI step: an unguarded optional import **inside a test function** only
+fires when that function is *called*, so checking module import is not enough. (That
+exact bug -- ``import rasterio`` on a line above its availability guard -- reached CI
+once.) The script actually runs those tests on a NumPy-only interpreter, which costs
+~2 minutes and is therefore a CI step rather than an everyday unit test. This file
+keeps the cheap guards: module-import safety, packaging consistency, and proof that
+the CI wiring for the script is still present.
+
 They are deliberately dependency-free themselves.
 """
 import os
@@ -163,3 +172,30 @@ def test_cli_reports_the_package_version():
     import terratrace
     cli = importlib.import_module("terratrace.cli")
     assert cli._PACKAGE_VERSION == terratrace.__version__
+
+
+def test_ci_workflow_is_unique_and_runs_the_optional_dependency_guard():
+    """Two things that have each gone wrong once.
+
+    (1) There used to be a second, INERT ``terratrace/.github/workflows/ci.yml``:
+    GitHub only reads the repo-root ``.github/workflows/``, so it never ran while
+    appearing to be CI, and it drifted. Assert there is exactly one.
+    (2) The full optional-dependency guard lives in a script and is only useful if
+    CI actually invokes it -- assert the wiring, and the file, exist.
+    """
+    repo = os.path.dirname(_ROOT)
+    found = []
+    for dirpath, dirnames, filenames in os.walk(repo):
+        dirnames[:] = [d for d in dirnames
+                       if d not in (".git", "artifacts", "__pycache__", "node_modules")]
+        if "ci.yml" in filenames:
+            found.append(os.path.join(dirpath, "ci.yml"))
+    assert len(found) == 1, (
+        "expected exactly ONE ci.yml, because GitHub only reads the repo-root "
+        f".github/workflows/; found {found}")
+    with open(found[0], encoding="utf-8") as fh:
+        text = fh.read()
+    assert "ci_hygiene_check.py" in text, (
+        "ci.yml no longer runs scripts/ci_hygiene_check.py; the guard that catches "
+        "an unguarded optional import inside a TEST FUNCTION is disabled")
+    assert os.path.exists(os.path.join(_ROOT, "scripts", "ci_hygiene_check.py"))

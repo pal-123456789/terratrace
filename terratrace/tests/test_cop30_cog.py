@@ -180,11 +180,16 @@ def test_fetch_cop30_cog_refuses_a_mostly_nodata_aoi():
 
 
 def test_read_cog30_writes_a_readable_geotiff():
+    if not _rasterio_available():
+        return
+    # NOTE: the guard MUST come before any optional import. An `import rasterio`
+    # above this line fails on the CI Pythons, which install NumPy only -- and it
+    # fails even though the guard is present, because the import is executed
+    # before it. tests/test_ci_hygiene.py now runs these functions with the
+    # optional deps blocked so this cannot recur.
     import tempfile
     import numpy as np
     import rasterio
-    if not _rasterio_available():
-        return
     with tempfile.TemporaryDirectory() as d:
         p = os.path.join(d, "aoi.tif")
         with _NoTiles():
@@ -204,8 +209,11 @@ def _assert_matches_opentopography(name):
     """The public COG mosaic must equal the OpenTopography COP30 tile exactly.
 
     Early-returns when the cached tile, rasterio or the network is unavailable,
-    so this never turns an offline CI run red.
+    so this never turns an offline CI run red. The availability check precedes the
+    optional import, so it is safe on a NumPy-only interpreter.
     """
+    if not _rasterio_available():
+        return
     import numpy as np
     import rasterio
     ot_path = os.path.join(_DATA, name)
