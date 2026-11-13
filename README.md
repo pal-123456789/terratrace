@@ -143,9 +143,11 @@ Static site, no build step. On Vercel, import this repo; `vercel.json` serves th
 | `/study` | `site/study/index.html` | **The protocol-v3 results** — the confirmatory panel, with the frozen verdicts |
 | `/viewer` | `site/viewer/index.html` | The engine's **generated** study viewer (an archived real run), unmodified apart from a labelled site bar |
 
-`site/study/` is hand-written; `site/viewer/` is built from `terratrace/viewer/index.html` so the
-generated output stays byte-faithful. The doc-consistency guard resolves every site `href` through
-the rewrite table above, so a page added without a route fails the build rather than 404s.
+`site/study/` is hand-written; `site/viewer/` is built by `terratrace/scripts/make_site_viewer.py`
+from `terratrace/viewer/index.html`, so the generated output stays byte-faithful (the script adds
+only the title, a favicon, and the labelled header bar — it is the single place those live). The
+doc-consistency guard resolves every site `href` through the rewrite table above, so a page added
+without a route fails the build rather than 404s.
 
 ## License
 

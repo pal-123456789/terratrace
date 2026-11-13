@@ -216,7 +216,10 @@ a time, each increment cited, tested, gated, and pushed green. Recent arc:
 > resolution; abstention under the honest regime), and the keyless COG path removed the download/key
 > blocker entirely. Still open: wiring `hydro` into the atlas/ablation *defaults* (it remains opt-in by
 > design, so the gated hash is untouched), propagating co-registration/vertical-datum error end-to-end
-> into the decision, and mapping the project to one of the official 2026 challenge titles.
+> into the decision, and mapping the project to one of the official 2026 challenge titles. On that
+> last one: the official site confirms **14 challenges** for 2026, but its list is client-rendered
+> behind `api.spaceappschallenge.org/graphql`, so the specific title still has to be pinned at the
+> event — recorded so it is not mistaken for done.
 
 - **Make the new science matter to the decision & the demo:** wire the `hydro` lens into the atlas/
   ablation defaults; add a report/viewer panel that visualizes the new descriptors + a transect figure.

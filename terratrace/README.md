@@ -466,7 +466,8 @@ terratrace/
                      make_source_lock / make_mars_sample / fetch_earth_candidates /
                      run_matched_benchmark / run_analog_atlas / run_scale_profile / run_batch_study /
                      run_benchmark / run_validation / run_real_study / run_real_analog_study /
-                     ci_hygiene_check / doc_consistency_check
+                     ci_hygiene_check / doc_consistency_check / make_paper_pdf.sh /
+                     make_site_viewer.py
 ```
 
 ## Scientific method

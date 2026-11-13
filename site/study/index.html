@@ -85,6 +85,30 @@ footer a{color:#8fb4bd}
 .btn:hover{text-decoration:none;transform:translateY(-1px)}
 @media(max-width:720px){.grid2{grid-template-columns:1fr}table{font-size:.78rem}
   th,td{padding:7px 6px}.topbar nav{gap:12px}}
+
+/* roughness ladder — the finding, made visible */
+.ladder{margin:20px 0 4px;max-width:780px}
+.lad-row{display:grid;grid-template-columns:132px 1fr 62px;align-items:center;gap:12px;padding:5px 0}
+.lad-name{font-size:.78rem;color:#c9d2d6}
+.lad-track{height:11px;background:rgba(149,166,173,.09);border:1px solid var(--line);position:relative}
+.lad-track i{position:absolute;left:0;top:0;bottom:0}
+.lad-track i.smooth{background:linear-gradient(90deg,rgba(95,211,160,.35),#5FD3A0)}
+.lad-track i.basaltic{background:linear-gradient(90deg,rgba(69,211,230,.28),#45D3E6)}
+.lad-track i.other{background:linear-gradient(90deg,rgba(139,123,242,.3),#8B7BF2)}
+.lad-val{font-size:.74rem;color:var(--mut);text-align:right}
+.lad-legend{display:flex;gap:18px;flex-wrap:wrap;font-family:"IBM Plex Mono";font-size:.68rem;
+  color:var(--mut);margin:12px 0 0;max-width:780px}
+.lad-legend span{display:inline-flex;align-items:center;gap:7px}
+.lad-legend b{display:inline-block;width:10px;height:10px;border-radius:2px}
+.lad-cap{max-width:70ch;font-size:.9rem}
+/* scroll reveal — enabled only when JS runs, so the page is complete without it */
+.js .rv{opacity:0;transform:translateY(16px)}
+.js .rv.in{opacity:1;transform:none;transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
+@media(prefers-reduced-motion:reduce){.js .rv,.js .rv.in{opacity:1;transform:none;transition:none}}
+@media(max-width:720px){
+  table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;white-space:nowrap}
+  .lad-row{grid-template-columns:104px 1fr 56px;gap:8px}
+}
 </style>
 </head>
 <body>
@@ -118,7 +142,7 @@ footer a{color:#8fb4bd}
     run. That is weaker than v2's commit-before-run and is not presented as equivalent.</div>
 </header>
 
-<section>
+<section class="rv">
   <h2>1 · Design integrity, checked before reading any verdict</h2>
   <p>A confirmatory result is only worth the regime it was measured in. Every one of the 15
     confirmatory honest cells was verified in-regime <em>before</em> the verdicts were read.</p>
@@ -135,7 +159,7 @@ footer a{color:#8fb4bd}
     power the rules assume.</div>
 </section>
 
-<section>
+<section class="rv">
   <h2>2 · S — the smoothness / shortlist explanation is confirmed</h2>
   <p><b>Rule:</b> at least 2 of the 3 confirmatory plains references must put a
     <span class="mono">smooth_control</span> candidate in Pareto layer 1 at <em>every</em> honest
@@ -158,7 +182,7 @@ footer a{color:#8fb4bd}
     only infer, v3 measures.</p>
 </section>
 
-<section>
+<section class="rv">
   <h2>3 · V — volcanic specificity fails, in both directions</h2>
   <p><b>Rule:</b> at least 2 of 3 plains references must have some <span class="mono">basaltic</span>
     candidate Pareto-dominating <em>every</em> smooth control, <em>and</em> at least 1 of the 2
@@ -176,7 +200,7 @@ footer a{color:#8fb4bd}
     better analog for a Martian volcanic plain than a smooth limestone or sedimentary plain is.</p>
 </section>
 
-<section>
+<section class="rv">
   <h2>4 · The mechanism, visible in the cells</h2>
   <div class="grid2">
     <div class="card"><h3>Smooth → smooth</h3><p>Arcadia (σ 7 m) and Cerberus (σ 5 m) are matched by
@@ -191,9 +215,20 @@ footer a{color:#8fb4bd}
     references — precisely when the window is large enough to average its relief. It competes
     <em>because it is comparatively smooth</em>, not because it is volcanic. <b>Origin does no work
     that roughness does not already do.</b></p>
+  <div class="ladder">
+    <div class="lad-row"><span class="lad-name mono">nullarbor</span><div class="lad-track"><i class="smooth" style="width:8%"></i></div><span class="lad-val mono">&sigma; 5 m</span></div>
+    <div class="lad-row"><span class="lad-name mono">llano_estacado</span><div class="lad-track"><i class="smooth" style="width:28%"></i></div><span class="lad-val mono">&sigma; 14 m</span></div>
+    <div class="lad-row"><span class="lad-name mono">deccan_traps</span><div class="lad-track"><i class="basaltic" style="width:44%"></i></div><span class="lad-val mono">&sigma; 32 m</span></div>
+    <div class="lad-row"><span class="lad-name mono">snake_river_plain</span><div class="lad-track"><i class="basaltic" style="width:65%"></i></div><span class="lad-val mono">&sigma; 95 m</span></div>
+    <div class="lad-row"><span class="lad-name mono">harrat_khaybar</span><div class="lad-track"><i class="basaltic" style="width:67%"></i></div><span class="lad-val mono">&sigma; 102 m</span></div>
+    <div class="lad-row"><span class="lad-name mono">odadahraun</span><div class="lad-track"><i class="basaltic" style="width:78%"></i></div><span class="lad-val mono">&sigma; 182 m</span></div>
+    <div class="lad-row"><span class="lad-name mono">nevada_basin</span><div class="lad-track"><i class="other" style="width:100%"></i></div><span class="lad-val mono">&sigma; 562 m</span></div>
+  </div>
+  <div class="lad-legend"><span><b style="background:#5FD3A0"></b>smooth control &middot; non-volcanic</span><span><b style="background:#45D3E6"></b>basaltic (pre-run label)</span><span><b style="background:#8B7BF2"></b>other</span><span style="opacity:.75">log scale</span></div>
+  <p class="lad-cap">The two references that carry <b>S</b> &mdash; Arcadia (&sigma; 7 m) and Cerberus (&sigma; 5 m) &mdash; sit at the <em>smooth</em> end of this ladder, exactly where the two non-volcanic controls sit. The basalts cluster higher, and they win only where the target is rough.</p>
 </section>
 
-<section>
+<section class="rv">
   <h2>5 · R — resolution robustness holds</h2>
   <p>All 15 confirmatory honest cells were classified raw versus resolution-matched (every unit
     low-passed to the same 1389 m effective resolution).</p>
@@ -209,7 +244,7 @@ footer a{color:#8fb4bd}
     verdicts (<span class="mono">differs: false</span>).</p>
 </section>
 
-<section>
+<section class="rv">
   <h2>6 · The panel</h2>
   <p>Seven Earth candidates at 60 km, with the measured roughness that turns out to do the work.
     Classes were assigned from the literature <em>before</em> the run.</p>
@@ -219,13 +254,13 @@ footer a{color:#8fb4bd}
     <tr><td class="mono">llano_estacado</td><td><span class="pill smooth">smooth control</span></td><td class="num">14</td><td>sedimentary high plain — non-volcanic</td></tr>
     <tr><td class="mono">deccan_traps</td><td><span class="pill plain">basaltic</span></td><td class="num">32</td><td>flood basalt</td></tr>
     <tr><td class="mono">snake_river_plain</td><td><span class="pill plain">basaltic</span></td><td class="num">95</td><td>basaltic plain (contains Craters of the Moon)</td></tr>
-    <tr><td class="mono">harrat_khaybar</td><td><span class="pill plain">basaltic</span></td><td class="num">103</td><td>basaltic volcanic field</td></tr>
+    <tr><td class="mono">harrat_khaybar</td><td><span class="pill plain">basaltic</span></td><td class="num">102</td><td>basaltic volcanic field</td></tr>
     <tr><td class="mono">odadahraun</td><td><span class="pill plain">basaltic</span></td><td class="num">182</td><td>basaltic lava plain, Iceland</td></tr>
     <tr><td class="mono">nevada_basin</td><td><span class="pill other">other</span></td><td class="num">562</td><td>basin-and-range near-miss</td></tr>
   </table>
 </section>
 
-<section>
+<section class="rv">
   <h2>7 · Reported, never used as evidence</h2>
   <ul>
     <li><b>Adequacy @1500 m.</b> For every reference some candidate falls within that reference's own
@@ -240,7 +275,7 @@ footer a{color:#8fb4bd}
   </ul>
 </section>
 
-<section>
+<section class="rv">
   <h2>8 · What this does — and does not — say</h2>
   <div class="grid2">
     <div class="card"><h3>Does say</h3><p>With MOLA + Copernicus GLO-30, real 60 km windows, honest
@@ -255,7 +290,7 @@ footer a{color:#8fb4bd}
   </div>
 </section>
 
-<section>
+<section class="rv">
   <h2>9 · Limits, unchanged and load-bearing</h2>
   <ul>
     <li>One DEM source per body (MOLA, COP30), so references × supports are multiple comparisons, not
@@ -270,7 +305,7 @@ footer a{color:#8fb4bd}
     plains but not for highlands. Deccan Traps is the closest case here and it does not do that.</p>
 </section>
 
-<section>
+<section class="rv">
   <h2>10 · Reproduce it — no API key, no account</h2>
   <pre class="cmd"><span class="c"># the Earth candidates come from the public ESA Copernicus GLO-30 COG mosaic on AWS</span>
 python scripts/fetch_earth_candidates.py --config config/matched_footprint_v3.yml --source cog
@@ -295,4 +330,16 @@ python scripts/run_matched_benchmark.py --config config/matched_footprint_v3.yml
     · <a href="/">Back to the project</a> · <a href="https://github.com/pal-123456789/terratrace">Repository</a></p>
 </div></footer>
 
+
+<script>
+(function(){
+  document.documentElement.classList.add('js');
+  var els = document.querySelectorAll('.rv');
+  if (!('IntersectionObserver' in window)) { els.forEach(function(e){e.classList.add('in');}); return; }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+  }, {rootMargin:'0px 0px -8% 0px', threshold:0.06});
+  els.forEach(function(e){ io.observe(e); });
+})();
+</script>
 </body></html>
