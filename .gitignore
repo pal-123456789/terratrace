@@ -6,6 +6,13 @@ terratrace/data/mars/mola_463m.tif
 terratrace/data/**/*_full.tif
 # Fetched real Earth DEMs (several MB each) — regenerate with fetch_real_dems.py / the orchestrator.
 terratrace/data/earth/
+# Fetched real lunar DEMs (~41 MB each) — regenerate with terratrace/scripts/fetch_lola.py.
+# The SHA-256 of the one used for the exploratory result is recorded in docs/LUNAR-DEMONSTRATION.md,
+# so the file itself does not need to be in the repository.
+terratrace/data/moon/
+# Deck panels rendered from the project's own DEMs by terratrace/scripts/make_deck_assets.py.
+# Regenerable, and ~2 MB of derived raster imagery; the script is the committed artifact.
+assets/deck/
 # Generated study bundles + showcase outputs (reproducible from a run; not source).
 terratrace/artifacts/
 demo/

@@ -60,6 +60,32 @@ SOURCES = {
                      "valid_resolution_range_m": [118.0, 500000.0],
                      "description": "Entire Moon (LOLA laser altimetry; denser near the poles)"},
     },
+    # REAL lunar terrain, added 2026-11-13 after the 118 m USGS endpoint was found dead.
+    # This is the first lunar product TerraTrace has actually ingested.
+    "moon_lola_pgda_5mpp": {
+        "id": "moon_lola_pgda_5mpp",
+        "body": "moon",
+        "provider": "NASA Goddard PGDA (LOLA south-polar landing-site DEMs)",
+        "product": "LOLA south-polar candidate-region DEMs, 5 m/pixel (six published sites)",
+        "native_resolution_m": 5.0,
+        "access": {"method": "download",
+                   "endpoint": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/"},
+        "crs": "South polar stereographic, metres, MOON_ME frame of DE421 (R = 1,737,400 m)",
+        "vertical_datum": "Moon mean radius (selenoid)",
+        "key_required": False,
+        "license": "NASA public; attribution requested",
+        "citation": "Barker et al. (2021), Planet. Space Sci. 203, 105119; Mazarico et al. "
+                    "(2011), Icarus 211, 1066-1081 (site numbering)",
+        "coverage": {"kind": "global_body", "body": "moon", "complete": False,
+                     "valid_resolution_range_m": [5.0, 500000.0],
+                     "description": "NOT global: six published lunar south-polar candidate regions "
+                                    "(Sites 01, 04, 07, 11, 20, 23), each ~16 x 16 km at 5 m/pixel, "
+                                    "each with published slope, elevation-uncertainty and LOLA "
+                                    "observation-count rasters"},
+        "preference": 1,
+        "nodata_sentinels": [],
+        "vertical_accuracy_m": 1.0,
+    },
     "mercury_messenger_dem": {
         "id": "mercury_messenger_dem", "body": "mercury", "provider": "NASA MESSENGER / USGS Astrogeology",
         "product": "Mercury MESSENGER global DEM (~665 m)", "native_resolution_m": 665.0,
@@ -284,8 +310,14 @@ def source_covers(source_id, bbox, body=None):
         return {"covered": False, "complete": False,
                 "reason": f"body mismatch: source is {s['body']!r}, requested {body!r}"}
     if cov["kind"] == "global_body":
-        return {"covered": True, "complete": bool(cov.get("complete", True)),
-                "reason": f"{s['body']}-global product covers the whole planet"}
+        complete = bool(cov.get("complete", True))
+        # "global_body" is the registry's term for "indexed against the planet rather than against
+        # a bbox list", NOT a promise that every square metre is served: the Goddard south-polar
+        # product is a global_body entry covering six 16 km regions. Saying "covers the whole
+        # planet" for that would be the exact overclaim this registry exists to prevent.
+        why = (f"{s['body']}-global product covers the whole planet" if complete else
+               f"{s['body']}-global product is NOT continuous: {cov.get('description', 'see registry')}")
+        return {"covered": True, "complete": complete, "reason": why}
     for ob in cov.get("bboxes", []):
         if _bbox_inside(bbox, ob):
             complete = bool(cov.get("complete", True))

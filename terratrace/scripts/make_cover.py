@@ -23,7 +23,9 @@ import rasterio
 from matplotlib.colors import LinearSegmentedColormap
 
 DATA = pathlib.Path("/sessions/intelligent-blissful-thompson/mnt/Nasa Space App Hackathon 2026/terratrace/data")
-OUT = pathlib.Path("/tmp/TerraTrace-cover.png")
+# the published artifact, written where it is read from — not to a scratch directory that only
+# existed on one machine
+OUT = pathlib.Path(__file__).resolve().parent.parent.parent / "assets" / "cover.png"
 
 BG = "#05070c"
 INK = "#eef2f7"
@@ -185,7 +187,7 @@ fig.add_artist(plt.Line2D([0.045, 0.955], [0.145, 0.145], color=RULE, linewidth=
 
 # ---------------------------------------------------------------- footer
 fig.text(0.045, 0.108, "roughness tracks the class; volcanic origin does not", color=INK, fontsize=15, fontweight="bold", ha="left", va="center", family="DejaVu Sans")
-fig.text(0.045, 0.062, "854 offline tests  ·  51 scientific-correctness oracles  ·  14 cited sources  ·  MIT", color=MUTE, fontsize=11.5, ha="left", va="center", family="DejaVu Sans")
+fig.text(0.045, 0.062, "863 offline tests  ·  51 scientific-correctness oracles  ·  15 cited sources  ·  MIT", color=MUTE, fontsize=11.5, ha="left", va="center", family="DejaVu Sans")
 fig.text(0.955, 0.062, "Morphology only. No traversability, site-access, geologic-equivalence or mission-readiness claim.",
          color=WARM, fontsize=11, ha="right", va="center", family="DejaVu Sans")
 

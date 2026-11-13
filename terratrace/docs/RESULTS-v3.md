@@ -122,7 +122,7 @@ Putting S and V together, the discriminator is unmistakable:
   relief. It competes *because it is comparatively smooth*, not because it is
   volcanic.
 
-Origin does no work that roughness does not already do.
+Within this panel and the core lens, origin did no work that roughness did not already do.
 
 ## 5. R (resolution robustness) — SUPPORTED
 

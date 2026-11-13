@@ -12,8 +12,9 @@ the number is *computed*, never typed.
 
 It checks, against the tree it is run in:
 
-1. **COUNTS**  — the canonical documents state the real test / oracle / catalog-source
-   counts, computed here from the source.
+1. **COUNTS**  — the canonical documents state the real test / oracle / catalog-source /
+   module / descriptor-family counts, computed here from the source. A window-dependent
+   count (leaf scalars) is checked against the measured *range* instead of a single value.
 2. **VERSION** — ``terratrace.__version__`` == ``pyproject.toml`` == ``CITATION.cff``.
 3. **NAV**     — every ``docs/**/*.md`` page is reachable from ``mkdocs.yml``, and every nav
    entry points at a file that exists.
@@ -95,7 +96,12 @@ CANONICAL = [
     ROOT / "docs" / "index.md",
     ROOT / "docs" / "VALIDATION.md",
     ROOT / "docs" / "PAPER.md",
+    ROOT / "docs" / "FEATURES.md",
     REPO / "site" / "index.html",
+    # the deck generator is prose too: every number it prints ends up in a published slide, and
+    # "200 scalar outputs" sat in a shipped slide for a release because nothing audited this file.
+    ROOT / "scripts" / "build_deck.js",
+    ROOT / "scripts" / "make_cover.py",
 ]
 
 # dated records: exempt from the count checks
@@ -120,11 +126,29 @@ V3_VERDICTS = ("S — SUPPORTED", "V — NOT SUPPORTED", "R — SUPPORTED")
 # equal. Kept as raw strings so tests/test_doc_consistency.py can pin their behaviour.
 COUNT_RES = {
     # (?<![\w.]) stops "python3 tests/…" from matching as "3 tests"
-    "test count": r"(?<![\w.])(\d+)\s+(?:offline\s+|fixture\s+|automated\s+)?tests?\b",
+    # (?<!\u2192\s) exempts a progression: "Suite 583 \u2192 686 tests" is a dated record of what the
+    # count *was*, and rewriting history to satisfy a count check would destroy the audit trail.
+    "test count": r"(?<![\w.])(?<!\u2192\s)(\d+)\s+(?:offline\s+|fixture\s+|automated\s+)?tests?\b(?!\s+modules?\b)",
     "oracle count": r"(?<![\w.])(\d+)\s+(?:scientific-correctness\s+|validation\s+)?oracles?\b",
     # \b stops "COP30 product" from matching as "30 product"
-    "source count": r"\b(\d+)[-\s](?:source|product)s?\b",
+    # one optional adjective is allowed ("15 cited sources", "14 catalogued products"): the old
+    # pattern only matched the bare form, so a slide shipped saying "14 catalogued products" while
+    # the registry held 15, and the guard that exists to catch exactly that did not fire.
+    "source count": r"\b(\d+)[-\s](?:[\w'-]+\s+)?(?:source|product)s?\b",
+    # the module and family counts drifted silently before these existed: "854 tests across 91
+    # modules" was written when the tree had 92, and they were caught by a reader, not by CI.
+    # (Numbers here are a dated quote about past drift, not a current count — do not update them.)
+    "module count": r"(?<![\w.])(\d+)\s+(?:test\s+)?modules?\b",
+    "family count": r"(?<![\w.])(\d+)\s+(?:descriptor\s+)?families\b",
     "runner banner": r"passed=(\d+)\s",
+}
+
+# Counts that are only true as a range. Each entry is (pattern, label) and the stated number must
+# fall inside the measured (min, max); the "roughly/around/~" is optional in the pattern because
+# writers hedge half the time and a guard that only catches the unhedged form is a guard that
+# misses the claim it was written for.
+RANGE_RES = {
+    "scalar count": r"(?<![\w.])(?:around\s+|roughly\s+|about\s+|~\s*)?(\d+)\s+scalar",
 }
 
 
@@ -154,6 +178,49 @@ def _count_tests():
     return n
 
 
+def _count_test_modules():
+    """Modules that actually contribute tests, computed the same way the runner discovers them.
+
+    A file count would include an empty or unittest-style module that the dependency-free runner
+    silently skips, which is how a documented module count drifts away from reality.
+    """
+    n = 0
+    for p in sorted((ROOT / "tests").glob("test_*.py")):
+        tree = ast.parse(p.read_text(encoding="utf-8"))
+        if any(isinstance(x, ast.FunctionDef) and x.name.startswith("test_") for x in tree.body):
+            n += 1
+    return n
+
+
+def _count_families():
+    """Descriptor families, from the bank itself rather than from a document."""
+    import numpy as np
+    from terratrace import descriptors
+    return len(descriptors.descriptor_bank(np.zeros((24, 24)) + 1.0))
+
+
+def _count_scalars(sizes=(24, 32, 48, 64, 96, 128, 200)):
+    """Leaf scalar values the bank emits, as a (min, max) over window sizes.
+
+    This number is genuinely window-dependent (several families return a value per band or per
+    window), so it can only be pinned as a range. It has drifted twice in the prose — an early
+    revision said exactly 200 and the next said 210 — and a stated number that no code path can
+    produce is a claim a reader cannot check. Measuring it here makes the range a fact.
+    """
+    import numpy as np
+    from terratrace import descriptors
+
+    def leaves(o):
+        if isinstance(o, dict):
+            return sum(leaves(v) for v in o.values())
+        if isinstance(o, (list, tuple)):
+            return sum(leaves(v) for v in o)
+        return 1
+
+    got = [leaves(descriptors.descriptor_bank(np.zeros((n, n)) + 1.0)) for n in sizes]
+    return min(got), max(got)
+
+
 def _count_oracles():
     tree = ast.parse((ROOT / "terratrace" / "validation.py").read_text(encoding="utf-8"))
     return sum(1 for x in tree.body if isinstance(x, ast.FunctionDef) and x.name.startswith("check_"))
@@ -164,18 +231,28 @@ def _count_sources():
     return len(catalog.SOURCES)
 
 
+def _probe(text):
+    """The text as a regex should see it.
+
+    Markup sits between a number and its noun in real prose — "**14** catalogued products",
+    "**854** offline tests" — and every pattern here is written against plain words. Stripping the
+    emphasis markers before matching (and reporting snippets from the stripped copy) closes a whole
+    class of silent misses rather than special-casing each one.
+    """
+    return text.replace("**", "").replace("`", "")
+
+
 def check_counts(problems):
     tests, oracles, sources = _count_tests(), _count_oracles(), _count_sources()
-    pats = [
-        (label, re.compile(rx), {"test count": tests, "oracle count": oracles,
-                                 "source count": sources, "runner banner": tests}[label])
-        for label, rx in COUNT_RES.items()
-    ]
+    modules, families = _count_test_modules(), _count_families()
+    truth = {"test count": tests, "oracle count": oracles, "source count": sources,
+             "runner banner": tests, "module count": modules, "family count": families}
+    pats = [(label, re.compile(rx), truth[label]) for label, rx in COUNT_RES.items()]
     for path in CANONICAL:
         if not path.exists():
             problems.append(f"counts: canonical document is missing: {path.relative_to(REPO)}")
             continue
-        text = path.read_text(encoding="utf-8", errors="replace")
+        text = _probe(path.read_text(encoding="utf-8", errors="replace"))
         rel = path.relative_to(REPO)
         for label, pat, want in pats:
             for m in pat.finditer(text):
@@ -185,7 +262,22 @@ def check_counts(problems):
                         f"counts: {rel} states {label} {got}, real value is {want} "
                         f"(…{text[max(0,m.start()-40):m.end()+15].strip()!r}…)"
                     )
-    return tests, oracles, sources
+    lo, hi = _count_scalars()
+    rpats = [(label, re.compile(rx)) for label, rx in RANGE_RES.items()]
+    for path in CANONICAL:
+        if not path.exists():
+            continue
+        text = _probe(path.read_text(encoding="utf-8", errors="replace"))
+        rel = path.relative_to(REPO)
+        for label, pat in rpats:
+            for m in pat.finditer(text):
+                got = int(m.group(1))
+                if not (lo <= got <= hi):
+                    problems.append(
+                        f"counts: {rel} states {label} {got}, outside the measured range "
+                        f"{lo}-{hi} (...{text[max(0,m.start()-40):m.end()+15].strip()!r}...)"
+                    )
+    return tests, oracles, sources, modules, families, (lo, hi)
 
 
 def check_versions(problems):
@@ -322,19 +414,40 @@ def check_claims(problems):
                 )
 
 
+# "N independent lenses/axis sets" reads as independent replications of the same finding. The six
+# lens sets each contain the core metrics and add to them, so they are correlated by construction and
+# agreement between them is a robustness read, not confirmation. The wording drifted in once and is
+# cheap to prevent, so it is a check rather than a note.
+LENS_OVERCLAIM = re.compile(r"\b\w+\s+independent\s+(?:axis|lens|metric)", re.I)
+
+
+def check_lens_wording(problems):
+    for path in _docs_files():
+        text = _probe(path.read_text(encoding="utf-8", errors="replace"))
+        for m in LENS_OVERCLAIM.finditer(text):
+            problems.append(
+                f"claims: {path.relative_to(REPO)} calls lenses/axis sets "
+                f"{m.group(0)!r} independent — they share the core metrics, so they are correlated "
+                f"by construction and cannot confirm each other"
+            )
+
+
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
     quiet = "--quiet" in argv
     problems = []
-    tests, oracles, sources = check_counts(problems)
+    tests, oracles, sources, modules, families, scalar_range = check_counts(problems)
     ver = check_versions(problems)
     check_nav(problems)
     n_links = check_links(problems)
     check_claims(problems)
+    check_lens_wording(problems)
 
     if not quiet:
-        print(f"doc consistency: {tests} tests, {oracles} oracles, {sources} catalog sources, "
-              f"version {ver}, {n_links} relative links, {len(CANONICAL)} canonical documents")
+        print(f"doc consistency: {tests} tests across {modules} modules, {oracles} oracles, "
+              f"{sources} catalog sources, {families} descriptor families "
+              f"({scalar_range[0]}-{scalar_range[1]} scalars), version {ver}, "
+              f"{n_links} relative links, {len(CANONICAL)} canonical documents")
     if problems:
         print(f"\n{len(problems)} documentation-consistency problem(s):")
         for p in problems:

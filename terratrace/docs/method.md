@@ -218,9 +218,11 @@ over the active metric vector; a recommendation is emitted only when one eligibl
 is non-dominated and stable across sensitivity scenarios (pairwise rank-flip <= 0.1).
 Otherwise the result is `TIE`, `INDETERMINATE`, `NOT_COMPARABLE`, or `BLOCKED`.
 
-The decision never collapses the vector into a single "Mars-likeness" number. Six independent axis
+The decision never collapses the vector into a single "Mars-likeness" number. Six **distinct** axis
 sets are offered as robustness lenses, five of which are on by default in the atlas and ablation
-tools:
+tools. They are deliberately correlated, not independent replications: each set contains the four
+core bulk metrics and adds to them, so agreement between lenses is a robustness read, never
+independent confirmation — the same reason a single study cannot be its own replication:
 
 - `core` — the four bulk morphology metrics (slope, relief, ruggedness, connectivity); the default
   and the one gated into the synthetic study package;
@@ -235,7 +237,7 @@ tools:
 - `hydro` — **opt-in only** via `decision_metrics`, adds the flow-geometric axes (Topographic Wetness
   Index, convergence index, and the flow-dissection distance).
 
-A recommendation that survives several independent axis sets is far more defensible than one that
+A recommendation that survives several correlated axis sets is far more defensible than one that
 holds under a single set. Every non-default lens is computed only when requested, and choosing one
 does not alter the `core` study package or its provenance hash.
 
@@ -253,7 +255,7 @@ was requested).
 
 This is a robustness *diagnostic* over the existing morphology screen, not a new scientific claim:
 it adds nothing to what the screen already decided and only reports how fragile or stable that
-decision is. A recommendation that is identical under all the independent axis sets and across a
+decision is. A recommendation that is identical under all six lens sets and across a
 range of supports is far more defensible than one that depends on a single setting; where the
 ablation disagrees with itself it says so rather than hiding the fragility. The same map-scale
 morphology firewall applies throughout.

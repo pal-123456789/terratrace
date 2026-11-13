@@ -15,7 +15,7 @@ This repository holds two things:
 
 | Path | What it is |
 |---|---|
-| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across six robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **854 tests**, no network required. |
+| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across six robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **863 tests**, no network required. |
 | `site/` | A 3D scroll-animated website telling the project story (deployed on Vercel). |
 
 **Project deck — 10 slides.** [PDF](TerraTrace-deck.pdf) · [PowerPoint](TerraTrace-deck.pptx) — the whole project: the question, the pipeline across five bodies, the measurement layer, the benchmark that made us withdraw our own finding, the result, the verification evidence, the data path, the claim firewall and the open items.
@@ -28,7 +28,7 @@ This repository holds two things:
 ## What it does
 
 Loads real elevation models (Mars MOLA; Moon LOLA; Mercury MESSENGER; Ceres Dawn; Earth
-Copernicus GLO-30/90, USGS 3DEP, SRTM, NASADEM, ALOS — a 14-product catalog with coverage,
+Copernicus GLO-30/90, USGS 3DEP, SRTM, NASADEM, ALOS — a 15-product catalog with coverage,
 licence, and vertical-accuracy metadata), warps each AOI to its own local metric grid on the
 correct body, computes map-scale descriptors (slope, relief, ruggedness, connectivity,
 curvature, vector ruggedness, roughness/Hurst, topographic openness, geomorphon landforms,
@@ -89,7 +89,7 @@ example — are kept verbatim under `terratrace/docs/` so the audit trail is int
 ```bash
 cd terratrace
 pip install -r requirements.txt            # core (NumPy only)
-python tests/run_tests.py                   # 854 fixtures, offline
+python tests/run_tests.py                   # 863 fixtures, offline
 python scripts/run_validation.py            # scientific-correctness suite
 python -m terratrace.cli --out artifacts    # synthetic study
 python -m terratrace.build_viewer           # viewer/index.html
@@ -139,6 +139,19 @@ and config reconciliation: `terratrace/docs/V3-ARCHIVAL-CLARIFICATION.md`; indep
 re-derivation of two descriptors: `terratrace/docs/INDEPENDENT-GIS-REPRODUCTION.md`.
 
 ![The 60 km roughness of the seven Earth candidates, log scale, coloured by the class assigned before the run. The two references that support S sit where the two non-volcanic controls sit, and the basalts sit higher — they win only where the target is rough.](terratrace/docs/figures/roughness-ladder.svg)
+
+**And the lunar half is now on real lunar terrain.** Site01, the Connecting-ridge south-polar
+candidate from the NASA Goddard PGDA 5 m/pixel LOLA products, was ingested and screened against the
+same Earth roster at a declared 500-1000 m support (the published product is 16 km across, so it
+cannot share the 60 km Mars regime — and Mars is excluded here rather than forced below its source's
+resolution). The reference is rough: mean slope 10.3-11.2 deg, relief 249-452 m. Exactly **one**
+Earth candidate is non-dominated at every support — the **Nevada Basin & Range** — while the two
+smooth non-volcanic controls that answered for Martian volcanic plains are the *worst* matches. That
+contrast is the project's argument against a single "planetary similarity" score. It is
+**exploratory**: one site, three declared axes rather than the frozen lens, and the published
+elevation-uncertainty rasters are not yet propagated. Full record, caveats and provenance:
+`terratrace/docs/LUNAR-DEMONSTRATION.md`; why the previously catalogued USGS endpoint still 404s:
+`terratrace/docs/LUNAR-STATUS.md`.
 
 **Reproduce it in three commands — no API key, no account.**
 

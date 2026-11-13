@@ -18,7 +18,8 @@ nav:
   - Benchmark results v3: RESULTS-v3.md
   - V3 archival clarification: V3-ARCHIVAL-CLARIFICATION.md
   - Independent-toolchain reproduction: INDEPENDENT-GIS-REPRODUCTION.md
-  - Lunar status (blocked): LUNAR-STATUS.md
+  - Lunar demonstration (exploratory): LUNAR-DEMONSTRATION.md
+  - Lunar status & the data blocker: LUNAR-STATUS.md
   - External-user walkthrough: WALKTHROUGH.md
   - Event-window contribution: EVENT-WINDOW-CONTRIBUTION.md
   - Benchmark protocol v2: BENCHMARK-PROTOCOL-v2.md

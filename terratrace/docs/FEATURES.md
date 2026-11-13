@@ -6,10 +6,12 @@ that contract.
 
 Two facts to hold on to. First, the numbers below are the ones the engine actually emits: the table
 was written against `descriptors.descriptor_bank()`, which returns **40 descriptor families** and
-around **210 scalar values** on a single tile. The family count is exact and asserted by a test. The
-scalar count is not fixed, because several families return a value per band or per window — it
-measured 213–215 across 48×48 to 128×128 windows — so it is quoted approximately rather than pinned.
-(An earlier revision of this page stated exactly 200, which was wrong.) The groupings here are the
+around **290 scalar values** on a single tile. The family count is exact and asserted by a test. The
+scalar count is not fixed, because several families return a value per band or per window — measured
+here at **288–291 across 24×24 to 200×200 windows** — so it is quoted approximately rather than
+pinned. `scripts/doc_consistency_check.py` recomputes that range and fails the build if any published
+page states a scalar count outside it. (Two earlier revisions of this page stated exactly 200, then
+around 210; both were wrong, and both had reached a shipped slide before the check existed.) The groupings here are the
 same groupings the code uses. Second,
 **none of these is a traversability, hazard, geologic-equivalence, site-access, or mission-readiness
 measurement.** Every row’s right-hand column says what it *cannot* support; that boundary is the

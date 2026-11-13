@@ -18,7 +18,7 @@
 |---|---|
 | Project | **TerraTrace** — reproducible, uncertainty-aware, multi-lens morphological analog screening across five worlds |
 | Repo | `github.com/pal-123456789/terratrace` · HEAD `b31a547` at the time of writing · **CI green** on Python 3.10/3.11/3.12 |
-| Scale | 5 planetary bodies · 40 descriptor families · 6 decision lenses · **686 → 854** tests across the arc · **51** validation oracles · **27** method citations |
+| Scale | 5 planetary bodies · 40 descriptor families · 6 decision lenses · **686 → 863** tests across the arc · **51** validation oracles · **27** method citations |
 | Engine | Pure-NumPy core (no SciPy/rasterio needed offline); dependency-free test runner |
 | Status | Engine deep and green; the exploratory real-data finding was withdrawn and its mechanism measured under protocol v3 — see `terratrace/docs/RESULTS-v3.md`; positioned as public research / prior art |
 
@@ -79,12 +79,13 @@ decision-confidence verdict, and a full provenance record to every result.
    azimuthal-equidistant metric grid using the correct body radius (Mars 3,396,190 m; Moon 1,737,400 m;
    Mercury 2,439,400 m; Ceres 469,730 m; Earth WGS84) and aggregated to a declared common support
    (e.g. 1000 m), so descriptors compare like with like rather than conflating pixel size with terrain.
-2. **Morphology descriptors.** ~30 families (see §5), each a cited geomorphometry method implemented in
+2. **Morphology descriptors.** 40 families (see §5), each a cited geomorphometry method implemented in
    pure NumPy; distributions compared to the reference with scale-normalized Wasserstein/KS distances.
 3. **Decision = Pareto, not a score.** Candidates become vectors of distances-to-reference and are
    ranked by Pareto dominance (peeled non-dominated layers + a dominance matrix). The result is one of
    `RECOMMEND_FOLLOW_UP`, `TIE`, `INDETERMINATE`, `NOT_COMPARABLE`, or `BLOCKED`. **Six lenses** (core /
-   extended / geomorphic / landform / texture / hydro) are independent axis sets; a recommendation that
+   extended / geomorphic / landform / texture / hydro) are **distinct** axis sets, all built on the
+   four core bulk metrics; a recommendation that
    holds under more lenses is more robust, and lens disagreement is surfaced, not hidden.
 4. **Uncertainty, significance, confidence.** A spatial moving-block bootstrap gives
    autocorrelation-aware distance intervals and a non-domination frequency; a one-sided permutation test
@@ -99,7 +100,7 @@ decision-confidence verdict, and a full provenance record to every result.
 
 ## 5. What is built (capability inventory)
 
-**Descriptor battery (~30 families, 27 cited):**
+**Descriptor battery (40 families, 27 cited):**
 - *Core:* slope, local relief, detrended ruggedness, low-slope connectivity.
 - *Extended:* aspect dispersion, hypsometric integral, TPI dispersion.
 - *Geomorphic:* Zevenbergen–Thorne profile/plan/mean curvature, Vector Ruggedness Measure.
@@ -114,7 +115,7 @@ decision-confidence verdict, and a full provenance record to every result.
 
 **Interfaces & tooling:** unified CLI (incl. new `bank`, `transect`); loopback-only HTTP API (incl. `POST /bank`, `/transect`); self-contained HTML report + offline interactive viewer; pure-stdlib hillshade/PNG encoder; one-command real-study orchestrator (preflight → fetch → study → confidence → bundle); multi-reference **analog atlas**; scale-resolved profile; swath/transect profiler.
 
-**Data & ingest:** Mars **MOLA 463 m** (USGS Astrogeology, keyless); Earth **Copernicus GLO-30** — via OpenTopography (free key) **or keylessly** from the public AWS COG mosaic (`--source cog`, the matched-benchmark default). A source catalog of **14** products across the five bodies with coverage, licence, and 1-sigma vertical-accuracy metadata; a no-network preflight validates each bounding box, picks the covering product, and sizes the request before any download.
+**Data & ingest:** Mars **MOLA 463 m** (USGS Astrogeology, keyless); Earth **Copernicus GLO-30** — via OpenTopography (free key) **or keylessly** from the public AWS COG mosaic (`--source cog`, the matched-benchmark default). A source catalog of **15** products across the five bodies with coverage, licence, and 1-sigma vertical-accuracy metadata; a no-network preflight validates each bounding box, picks the covering product, and sizes the request before any download.
 
 ## 6. The real result (our headline finding)
 
@@ -159,7 +160,7 @@ core roughness/relief axes, *without being told to*. Honest nuance, surfaced not
 
 ## 7. Validation & reproducibility
 
-- **854 automated tests**, 0 failing, pure-NumPy, offline, via a dependency-free runner.
+- **863 automated tests**, 0 failing, pure-NumPy, offline, via a dependency-free runner.
 - **51 scientific-correctness oracles** drive the real engine on synthetic terrains with known answers:
   self-distance zero; slope/relief/ruggedness invariant to vertical offset and 90° rotation; monotone
   roughness discrimination; a planted close twin recovered over an impostor; a water tile BLOCKED;
@@ -178,7 +179,7 @@ a time, each increment cited, tested, gated, and pushed green. Recent arc:
 
 - **Data & provenance:** source catalog + coverage/licence/accuracy metadata, no-network preflight,
   idempotent fetch cache + checksums, DEM QA profiler.
-- **Science depth:** grew from 4 to ~30 descriptor families (11+ literature methods added in a dedicated
+- **Science depth:** grew from 4 to roughly thirty descriptor families (11+ literature methods added in a dedicated
   research loop), 2 → 6 decision lenses, spatial bootstrap, permutation significance, non-composite
   confidence, co-registration + vertical-datum metadata.
 - **Multi-world & scale:** 5 bodies; multi-reference analog atlas; scale-resolved analog profile.
