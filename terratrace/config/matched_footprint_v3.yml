@@ -1,0 +1,173 @@
+# TerraTrace matched-footprint benchmark -- v3 REFERENCE PANEL
+#
+# PROPOSED 2026-11-05. NOT YET FROZEN -- see docs/BENCHMARK-PROTOCOL-v3.md.
+# Do not edit expectations after seeing results; any change must be a NEW
+# versioned file with the reason recorded.
+#
+# WHY v3 exists (from the frozen v2 result, docs/RESULTS-v2.md):
+#   * v2 WITHDREW the Craters-of-the-Moon analog claim: under matched footprints
+#     and honest supports the engine abstained everywhere, and Craters was the
+#     nearest candidate for a cratered highland (Noachis) as readily as for
+#     volcanic plains.
+#   * The leading explanation -- a SMOOTHNESS / SHORTLIST effect (Martian
+#     terrain at km scale is smooth, and Craters was the smoothest candidate)
+#     -- was consistent with v2 but NEVER TESTED DIRECTLY.
+#   * v2 also had low power (12-16 cells per side) and one over-broad rule (H3).
+#
+# v3 tests that explanation with two SMOOTH NON-VOLCANIC Earth controls whose
+# roughness is measured to be comparable to the basaltic plains' -- not
+# assumed to be.
+#
+# Candidate classes are assigned from the literature BEFORE the run and are
+# stated with the evidence for each assignment in docs/BENCHMARK-PROTOCOL-v3.md.
+# The classes are what S and V read; they are not read off by eye afterwards.
+
+experiment: matched_footprint_panel_v3
+protocol_path: docs/BENCHMARK-PROTOCOL-v3.md
+
+extent_m: 60000              # 60 km window per unit (new tiles; no truncation)
+extent_policy: min_available
+honest_supports_m: [1500, 2000, 3000]   # >= support floor (1389 m); 40/30/20 cells per side
+diagnostic_supports_m: [500, 1000]       # BELOW the floor -- diagnostics only, never evidence
+res_factor: 3.0              # effective resolution = 3 x source spacing (heuristic, stated)
+resolution_control: true     # re-run with every unit low-passed to the coarsest effective resolution
+adequacy: true               # absolute adequacy vs each reference's own internal variability
+adequacy_support_m: 1500
+adversarial: true            # bounded stress test on the primary reference only
+primary_reference: mars_arcadia
+min_valid_fraction: 0.5
+seed: 0
+
+# --- Earth candidates -------------------------------------------------------
+# Every candidate is an Earth unit; the panel references are Mars. The engine
+# never compares same-body units, so the classes below are what S and V read.
+#
+# class roles:
+#   basaltic        -- basaltic lava plain / volcanic field
+#   smooth_control  -- genuinely NON-volcanic and smooth; the direct test of S
+#   other           -- present for realism; never part of an S or V claim
+#
+# 60 km elevation sigma (m) measured from the public ESA GLO-30 COG mosaic at
+# each centre -- these are the numbers the "smoothness-matched" design rests on.
+candidates:
+  - earth_deccan_traps
+  - earth_harrat_khaybar
+  - earth_snake_river_plain
+  - earth_nullarbor
+  - earth_llano_estacado
+  - earth_odadahraun
+  - earth_nevada_basin
+
+candidate_classes:
+  earth_deccan_traps: basaltic        # sigma ~32 m
+  earth_harrat_khaybar: basaltic      # sigma ~102 m
+  earth_snake_river_plain: basaltic   # sigma ~95 m
+  earth_nullarbor: smooth_control     # sigma ~5 m  -- limestone, Miocene marine
+  earth_llano_estacado: smooth_control # sigma ~14 m -- Ogallala/Permian sedimentary
+  earth_odadahraun: basaltic          # sigma ~182 m
+  earth_nevada_basin: other           # sigma ~562 m -- basin-and-range, near-miss
+
+# --- Reference panel --------------------------------------------------------
+# status: exploratory = seen before / hypothesis-forming (NEVER counted as
+# confirmation); confirmatory = never analysed by TerraTrace before this freeze.
+# class:  volcanic_plains | highland  (the contrast class is 'highland')
+#
+# The v3 rules (S, V, R) are defined over EXACTLY 3 confirmatory
+# volcanic_plains and EXACTLY 2 confirmatory highland references.
+panel:
+  # -- calibration (exploratory: already seen in v1/v2 -- never evidence) ----
+  - {id: mars_daedalia, class: volcanic_plains, status: exploratory}
+  - {id: mars_elysium,  class: volcanic_plains, status: exploratory}
+  - {id: mars_amazonis, class: volcanic_plains, status: exploratory}
+  - {id: mars_syria,    class: volcanic_plains, status: exploratory}
+  - {id: mars_hesperia, class: volcanic_plains, status: exploratory}
+  - {id: mars_noachis,  class: highland,        status: exploratory}
+  - {id: mars_coprates, class: highland,        status: exploratory}
+
+  # -- fresh confirmatory volcanic plains -----------------------------------
+  # Coordinates verified against the IAU Gazetteer of Planetary Nomenclature
+  # (MARS_nomenclature_center_pts.zip) and checked for large-crater
+  # contamination and 60 km roughness against MOLA.
+  - id: mars_arcadia
+    class: volcanic_plains
+    status: confirmatory
+    expects:
+      - {name: S, type: class_in_layer1, class: smooth_control}
+      - {name: V, type: class_dominates, winner_class: basaltic, loser_class: smooth_control}
+  - id: mars_cerberus
+    class: volcanic_plains
+    status: confirmatory
+    expects:
+      - {name: S, type: class_in_layer1, class: smooth_control}
+      - {name: V, type: class_dominates, winner_class: basaltic, loser_class: smooth_control}
+  - id: mars_solis
+    class: volcanic_plains
+    status: confirmatory
+    expects:
+      - {name: S, type: class_in_layer1, class: smooth_control}
+      - {name: V, type: class_dominates, winner_class: basaltic, loser_class: smooth_control}
+
+  # -- fresh confirmatory contrast: cratered / eroded highlands ---------------
+  - id: mars_terra_sabaea
+    class: highland
+    status: confirmatory
+    expects:
+      - {name: S, type: class_in_layer1, class: smooth_control}
+      - {name: V, type: class_dominates, winner_class: basaltic, loser_class: smooth_control}
+  - id: mars_terra_sirenum
+    class: highland
+    status: confirmatory
+    expects:
+      - {name: S, type: class_in_layer1, class: smooth_control}
+      - {name: V, type: class_dominates, winner_class: basaltic, loser_class: smooth_control}
+
+# --- Units ------------------------------------------------------------------
+# Mars units all read from the single global MOLA 463 m GeoTIFF (already on
+# disk). Earth units are fetched by scripts/fetch_earth_candidates.py, which
+# by default uses the PUBLIC ESA GLO-30 COG mosaic (no API key).
+units:
+  # -- calibration references (MOLA) -----------------------------------------
+  - {id: mars_daedalia, path: data/mars/mola_463m.tif, body: mars, native_posting_m: 463.0,
+     center_lon_e: 226.5, center_lat: -21.5, rights_status: verified_allowed}
+  - {id: mars_elysium,  path: data/mars/mola_463m.tif, body: mars, native_posting_m: 463.0,
+     center_lon_e: 150.0, center_lat: 4.5,   rights_status: verified_allowed}
+  - {id: mars_amazonis, path: data/mars/mola_463m.tif, body: mars, native_posting_m: 463.0,
+     center_lon_e: 196.0, center_lat: 24.8,  rights_status: verified_allowed}
+  - {id: mars_syria,    path: data/mars/mola_463m.tif, body: mars, native_posting_m: 463.0,
+     center_lon_e: 256.0, center_lat: -12.0, rights_status: verified_allowed}
+  - {id: mars_hesperia, path: data/mars/mola_463m.tif, body: mars, native_posting_m: 463.0,
+     center_lon_e: 109.9, center_lat: -21.4, rights_status: verified_allowed}
+  - {id: mars_noachis,  path: data/mars/mola_463m.tif, body: mars, native_posting_m: 463.0,
+     center_lon_e: 10.0,  center_lat: -45.0, rights_status: verified_allowed}
+  - {id: mars_coprates, path: data/mars/mola_463m.tif, body: mars, native_posting_m: 463.0,
+     center_lon_e: 298.6, center_lat: -13.4, rights_status: verified_allowed}
+
+  # -- fresh confirmatory references (MOLA) ----------------------------------
+  # IAU Gazetteer centres; each checked to have no >=25 km named crater within
+  # 30 km, and measured for 60 km roughness against the MOLA DEM.
+  - {id: mars_arcadia, path: data/mars/mola_463m.tif, body: mars, native_posting_m: 463.0,
+     center_lon_e: 188.15, center_lat: 49.02, rights_status: verified_allowed}   # Arcadia Planitia
+  - {id: mars_cerberus, path: data/mars/mola_463m.tif, body: mars, native_posting_m: 463.0,
+     center_lon_e: 148.15, center_lat: 5.78, rights_status: verified_allowed}    # Cerberus Palus
+  - {id: mars_solis, path: data/mars/mola_463m.tif, body: mars, native_posting_m: 463.0,
+     center_lon_e: 278.0, center_lat: -30.0, rights_status: verified_allowed}    # Solis Planum
+  - {id: mars_terra_sabaea, path: data/mars/mola_463m.tif, body: mars, native_posting_m: 463.0,
+     center_lon_e: 51.3, center_lat: 2.72, rights_status: verified_allowed}     # Terra Sabaea
+  - {id: mars_terra_sirenum, path: data/mars/mola_463m.tif, body: mars, native_posting_m: 463.0,
+     center_lon_e: 205.85, center_lat: -39.49, rights_status: verified_allowed}  # Terra Sirenum
+
+  # -- Earth candidates (public ESA GLO-30 COG mosaic) ------------------------
+  - {id: earth_deccan_traps, path: data/earth/deccan_traps_cop30.tif, body: earth,
+     native_posting_m: 30.0, center_lon_e: 76.0, center_lat: 20.0, rights_status: verified_allowed}
+  - {id: earth_harrat_khaybar, path: data/earth/harrat_khaybar_cop30.tif, body: earth,
+     native_posting_m: 30.0, center_lon_e: 40.0, center_lat: 25.5, rights_status: verified_allowed}
+  - {id: earth_snake_river_plain, path: data/earth/snake_river_plain_cop30.tif, body: earth,
+     native_posting_m: 30.0, center_lon_e: -114.05, center_lat: 43.05, rights_status: verified_allowed}
+  - {id: earth_nullarbor, path: data/earth/nullarbor_cop30.tif, body: earth,
+     native_posting_m: 30.0, center_lon_e: 129.0, center_lat: -30.3, rights_status: verified_allowed}
+  - {id: earth_llano_estacado, path: data/earth/llano_estacado_cop30.tif, body: earth,
+     native_posting_m: 30.0, center_lon_e: -102.0, center_lat: 33.0, rights_status: verified_allowed}
+  - {id: earth_odadahraun, path: data/earth/odadahraun_cop30.tif, body: earth,
+     native_posting_m: 30.0, center_lon_e: -16.54, center_lat: 65.23, rights_status: verified_allowed}
+  - {id: earth_nevada_basin, path: data/earth/nevada_basin_cop30.tif, body: earth,
+     native_posting_m: 30.0, center_lon_e: -115.6, center_lat: 36.2, rights_status: verified_allowed}

@@ -93,3 +93,37 @@ Recorded exactly as produced by the frozen rules: **H1 NOT SUPPORTED** (0/3 conf
 **Three achievements, kept separate (as of iteration 4):** software correctness — 800 tests green;
 method validation — synthetic ground truths for footprint, resolution and specificity controls;
 scientific discovery — **one reproducible negative result** (claim 14); no positive analog claim stands.
+
+## Iteration 5 — protocol v3 RESULTS (2026-11-05; full write-up `RESULTS-v3.md`)
+
+Recorded exactly as produced by the v3 rules: **S SUPPORTED** (3/3 confirmatory plains hold),
+**V NOT SUPPORTED** (0/3 plains hold; V holds for both highlands), **R SUPPORTED** (0 reversals
+in 15 confirmatory honest cells). All 15 confirmatory honest cells were in the honest regime —
+unlike v2, where none were.
+
+**Qualification, stated plainly:** v3 was **pre-specified but not fully pre-registered**. The
+decision rules were committed on 2026-10-16 before any v3 data existed, and the config was written
+708 s before the result bundle and is unmodified since (hashes in `BENCHMARK-PROTOCOL-v3.md`), but
+the protocol *document* was committed **after** the run. This is weaker than v2's
+commit-before-run and is not presented as equivalent.
+
+| # | Claim | Type | Status | Evidence / limits | Falsifier |
+|---|---|---|---|---|---|
+| 15 (updated) | Craters' advantage was a non-specific "least-dissimilar member of a weak shortlist" (smoothness) effect. | DISCOVERY | **SUPPORTED — now directly tested, not inferred.** v2 called this "consistent, NOT tested"; v3 tested it. | 3/3 confirmatory plains references put a smooth **non-volcanic** control (Nullarbor limestone σ 5 m; Llano Estacado sedimentary σ 14 m) in Pareto layer 1 at every honest support; V fails 0/3 for plains while holding for both highlands. | A pre-registered test where a smooth *specifically volcanic* terrain beats the smooth non-volcanic controls for plains but not highlands. Deccan Traps is the closest case here and does not. |
+| 17 | The nearest Earth analog tracks **km-scale roughness**, not volcanic origin. | DISCOVERY | **Supported by the frozen v3 protocol (S + V jointly).** | Smooth refs → smooth candidates; rough highland refs → rough **basaltic** candidates; the one smooth basalt (Deccan σ 32 m) competes for the roughest plains ref as a *smooth* unit. | A panel in which class membership predicts the frontier beyond what a roughness scalar does. |
+| 18 | A keyless, credential-free Earth-DEM path exists that is **bit-identical** to the OpenTopography COP30 product. | IMPL | **Implemented + proven.** | `terratrace/cop30_cog.py` reads the public ESA GLO-30 COG mosaic on AWS via windowed HTTP range requests; `tests/test_cop30_cog.py` (17 tests) asserts max absolute difference **0.0 m** and 100 % identical pixels against the cached OpenTopography AOI tiles. | A bbox where the two disagree by more than float rounding. |
+| 19 | The v3 reference set was corrected by verification, not by assertion. | IMPL + METHOD | **Implemented + tested.** | IAU Gazetteer (2052 features) verified every centre; **Solis Lacus is an albedo feature** (the plain is Solis Planum); **Lunae Planum is misclassified as volcanic** (a dissected highland, σ 41 m) and was dropped; **Terra Cimmeria's proposed point sampled Martz crater's interior** (σ 604 m); **Arabia Terra's proposed point sat on Cassini's rim**. All fixes were made **before** any v3 result existed. | — |
+| 20 | The v2 H3 lesson is repaired: stabilisation and reversal are now distinct. | METHOD | **Implemented + tested** (`classify_resolution_change`, 21 rule mutants killed in `test_panel_v3.py`). | In the real v3 run, 3 membership_changed + 1 destabilised cells did **not** trip R, whereas v2's "any change" rule would have failed on a mere stabilisation. | A cell classified as unchanged/reversed that is the other. |
+
+**One honest soft spot, reported rather than hidden:** the adversarial stress test on the primary
+reference (`mars_arcadia` @1500 m) returns **fragile** (stable 0.86 over 21 bounded perturbations;
+reverses under a 6-px crop-origin shift and under dropping either smooth control). The *class-level*
+S pattern is robust (holds at every support, unchanged under resolution matching), but the *single
+top-of-shortlist* pick is a near-tie among similarly smooth terrains and should not be over-read.
+
+**Four achievements, kept separate (as of iteration 5):** software correctness — 817 tests green;
+method validation — synthetic ground truths for footprint, resolution and specificity controls;
+scientific discovery — **one reproducible negative result (claim 14) and one reproducible positive
+mechanism (claims 15/17)**; engineering — a credential-free, bit-identical data path (claim 18).
+Still no claim that any Earth terrain is a mission-relevant Mars analog.
+

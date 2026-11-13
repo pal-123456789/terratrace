@@ -1,5 +1,11 @@
 name: CI
 
+# This is the ONLY workflow GitHub runs. There used to be a second, inert copy at
+# terratrace/.github/workflows/ci.yml that ran only on 3.11 and silently drifted;
+# its useful end-to-end step now lives here as the `e2e` job.
+# tests/test_ci_hygiene.py asserts this file is the only ci.yml and that it still
+# runs the optional-dependency guard, so neither can quietly disappear.
+
 on:
   push:
     branches: [ main ]
@@ -29,7 +35,38 @@ jobs:
         env:
           PYTHONPATH: .
         run: python tests/run_tests.py
+      - name: Optional-dependency hygiene (suite must run on a NumPy-only interpreter)
+        env:
+          PYTHONPATH: .
+        run: python scripts/ci_hygiene_check.py
       - name: Scientific-correctness validation suite
         env:
           PYTHONPATH: .
         run: python scripts/run_validation.py
+
+  e2e:
+    name: end-to-end CLI (synthetic study + viewer + reports)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terratrace
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: Install core dependencies (NumPy only)
+        run: pip install -r requirements.txt
+      - name: Build a study, the viewer, and both report formats
+        env:
+          PYTHONPATH: .
+        run: |
+          python -m terratrace.cli --out artifacts
+          python -m terratrace.build_viewer
+      - name: Upload the generated bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: terratrace-study
+          path: |
+            terratrace/artifacts/
+            terratrace/viewer/index.html

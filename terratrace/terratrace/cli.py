@@ -34,8 +34,12 @@ import json
 import os
 import sys
 
+from . import __version__ as _PACKAGE_VERSION
+
 # Mirrors study.compare_units' package schema_version; a constant keeps the
-# `version` command instant (no study run, no heavy import).
+# `version` command instant (no study run, no heavy import). This is the
+# BUNDLE-SCHEMA version -- a different, slower-moving number than the package
+# version, which lives once in ``terratrace.__version__``.
 _SCHEMA_VERSION = "0.1.0"
 
 
@@ -86,7 +90,7 @@ def _cmd_study(argv):
         checksums[name] = sha256_json(obj)
 
     manifest = {
-        "release": "terratrace-v0.1.0",
+        "release": f"terratrace-v{_PACKAGE_VERSION}",
         "result_state": pkg["result_state"],
         "recommended_unit": pkg["recommended_unit"],
         "package_hash": pkg["package_hash"],
@@ -547,8 +551,7 @@ def _cmd_version(argv):
         prog="terratrace version",
         description="Print the TerraTrace version and study-schema version.")
     ap.parse_args(argv)
-    import terratrace
-    print(f"terratrace {terratrace.__version__} (schema {_SCHEMA_VERSION})")
+    print(f"terratrace {_PACKAGE_VERSION} (schema {_SCHEMA_VERSION})")
     return 0
 
 

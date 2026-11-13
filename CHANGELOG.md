@@ -3,6 +3,111 @@
 Complete build history of TerraTrace, generated from the git commit messages
 (newest first). Each entry is the exact message recorded with that commit.
 
+## Unreleased — CI fix: the guard must RUN the tests, not just import them
+
+*Prepared 2026-11-13 by Pal Ghevariya*
+
+CI went red on all three Pythons: `test_read_cog30_writes_a_readable_geotiff` did
+`import rasterio` **on a line above its availability guard**, so the guard never got a chance to
+skip. The previous fix added a check that only verified *module imports* — and module import
+succeeds, because the failing import is inside a function and only fires when the function is
+**called**. A guard that does not reproduce the failure is not a guard.
+
+- **The two misplaced imports are fixed** (the fourth and fifth, in
+  `test_cop30_cog.py`, for `test_read_cog30_writes_a_readable_geotiff` and the equivalence helper):
+  the availability check now precedes the optional import, with a comment saying why.
+- **The real guard is now `scripts/ci_hygiene_check.py`**, run as its own CI step. It blocks the
+  optional packages and actually **runs every test function** in every test module that mentions an
+  optional dependency (13 of 91 modules, 145 tests, ~2 min), plus imports every engine module. The
+  scope is derived from the sources, so a newly added test that imports `rasterio` is covered
+  without editing the script.
+- **Verified against the bug, not just against the fix**: with the buggy version restored from git,
+  the check exits 1 and names the failing test; with the fix it exits 0. A guard that has never been
+  seen to fail is not evidence.
+- `tests/test_ci_hygiene.py` keeps the cheap always-on guards and gains one for the wiring itself,
+  so the CI step cannot quietly disappear.
+- **Removed a tracked-but-INERT second workflow**, `terratrace/.github/workflows/ci.yml`. GitHub
+  only reads the repo-root `.github/workflows/`, so it never ran while looking like CI — and it had
+  drifted (Python 3.11 only, no validation). Its one useful step — build a synthetic study plus the
+  viewer and upload the bundle — is now a real `e2e` job in the root workflow, which is itself an
+  end-to-end proof the CLI works. A test asserts exactly one `ci.yml` exists.
+
+Suite **837 passed, 0 failed** (5 chunks: 190/199/145/149/154); validation 51/51; gated default
+study hash `8f4890777ee462a2...` unchanged.
+
+## Unreleased — CI hardening, keyless Earth data registered, and the packaging/docs pass
+
+*Prepared 2026-11-13 by Pal Ghevariya*
+
+Found and fixed a **CI-breaking defect introduced with the v3 entry**, then closed the gaps that
+made it possible. The full offline suite is now **837 passed, 0 failed** (verified in 5 chunks:
+187/199/145/149/154); validation **51/51**; the gated default study hash `8f4890777ee462a2...` is
+unchanged.
+
+- **CI breaker fixed.** CI installs NumPy only, but six of the new `test_cop30_cog.py` tests needed
+  `rasterio`, so the pull request would have gone red on all three Pythons. They now skip cleanly
+  when rasterio is absent. `terratrace/cop30_cog.py` raises the engine's standard actionable
+  ``RuntimeError("pip install rasterio ...")`` instead of an ImportError.
+- **The whole class of defect is now guarded.** New `tests/test_ci_hygiene.py` re-runs the CI
+  import step in a subprocess with `rasterio`/`yaml`/`requests`/`scipy`/`pandas`/`matplotlib`
+  blocked, importing **every** test module **and every engine module**. This matters because
+  `tests/run_tests.py` imports test modules *outside* a try, so one top-level optional import
+  aborts the entire run rather than failing one test. This project has hit that trap twice (PyYAML,
+  then rasterio); the guard makes a third time loud instead of silent.
+- **The keyless Earth path is registered in the catalog** as `earth_cop30_cog`
+  (`key_required: false`, same preference tier and vertical accuracy as `earth_cop30`), so
+  `recommend_source(..., require_keyless=True)` can now return a **global 30 m** product instead of
+  falling back to partial 1 m US lidar. Three existing catalog tests encoded the old premise ("a
+  keyless Earth product does not exist") and were updated to the new capability — behaviour change,
+  recorded, not silently absorbed.
+- **New tests for the fetch path** (`tests/test_fetch_earth_candidates.py`, 11): centre-bbox
+  geometry in metres, body-radius reuse from `reproject`, JSON config loading, Earth-only filtering,
+  idempotence/`force`, and the no-key refusal. A JSON config's *list* bbox is now normalised to a
+  tuple (found by that test).
+- **`cop30_cog` reports rather than hides.** `read_cog30(..., report=...)` returns per-tile
+  failures and a `no_coverage_frac`, and `fetch_cop30_cog` **refuses** to write an AOI that is
+  more than 1 % nodata — a silently nodata-filled tile would otherwise look like flat ground.
+- **Packaging/docs:** `pyproject.toml` to 0.3.0 with keywords/classifiers; mkdocs nav now lists the
+  v3 protocol, both result documents, the claim ledger and the atlas; both READMEs carry an explicit
+  three-command, no-API-key reproduction of the v3 result; doc test counts synced to 837.
+
+## Unreleased — protocol v3 result: the smoothness explanation is confirmed, and a credential-free Earth-DEM path
+
+*Prepared 2026-11-05 by Pal Ghevariya (v3 pre-specified; see the freeze qualification in `docs/BENCHMARK-PROTOCOL-v3.md`)*
+
+Ran the v3 reference panel on real data and recorded it exactly as produced. **S SUPPORTED**
+(3/3 confirmatory volcanic-plains references place a smooth **non-volcanic** control in Pareto
+layer 1 at every honest support), **V NOT SUPPORTED** (0/3 plains; V holds for both highlands),
+**R SUPPORTED** (0 reversals). All 15 confirmatory honest cells were in the honest regime, unlike
+v2 where none were. So the withdrawn Craters-of-the-Moon preference is now *directly shown* to be
+a smoothness effect: the nearest Earth analog tracks km-scale roughness, not volcanic origin.
+
+Honest qualification, recorded rather than glossed: v3 is **pre-specified, not fully
+pre-registered** — the decision rules were committed on 2026-10-16 before any v3 data existed and
+the config was written 708 s before the result bundle with hashes unchanged since, but the protocol
+*document* was committed after the run.
+
+New in this entry:
+
+- **`terratrace/cop30_cog.py`** — keyless Copernicus GLO-30 access from the public ESA COG mosaic
+  on AWS. No OpenTopography API key is needed any more. Proven **bit-identical** to the
+  OpenTopography COP30 product (max absolute difference 0.0 m, 100 % identical pixels) by
+  `tests/test_cop30_cog.py`.
+- **`scripts/fetch_earth_candidates.py`** — one-command Earth-tile fetch (`--source cog` default,
+  `--source opentopo` for the keyed path), idempotent.
+- **`config/matched_footprint_v3.yml`** — the v3 panel: 3 fresh confirmatory volcanic plains,
+  2 fresh confirmatory highlands, 7 Earth candidates with literature-assigned classes, 60 km extent.
+- **`docs/BENCHMARK-PROTOCOL-v3.md`** (frozen) and **`docs/RESULTS-v3.md`** — the protocol with its
+  coordinate-verification record and the results.
+- Reference-set corrections found by IAU-Gazetteer verification and made **before** any result
+  existed: Solis Lacus is an *albedo feature* (the plain is **Solis Planum**); **Lunae Planum is
+  misclassified as volcanic** (a dissected highland, σ 41 m) and was dropped for **Cerberus Palus**;
+  the proposed Terra Cimmeria point sampled **Martz crater's interior**; the proposed Arabia Terra
+  point sat on **Cassini's rim**.
+
+The complete offline suite is now **816 passed, 0 failed**; validation remains 51/51; the gated
+default study hash `8f4890777ee462a2...` is unchanged. No existing engine or test file was modified.
+
 ## Unreleased — v3 preparation: class-aware expectations, resolution-change classification, and 800-test gate
 
 *Prepared 2026-10-16 by Pal Ghevariya (v3 proposal remains unfrozen)*

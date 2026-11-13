@@ -14,7 +14,13 @@ nav:
   - Home: index.md
   - Method: method.md
   - Validation & ablations: VALIDATION.md
+  - Benchmark protocol v3: BENCHMARK-PROTOCOL-v3.md
+  - Benchmark results v3: RESULTS-v3.md
+  - Benchmark results v2: RESULTS-v2.md
+  - Claim-to-evidence ledger: CLAIM-LEDGER.md
+  - Analog atlas: ATLAS.md
   - Limitations & claim firewall: limitations.md
+  - Paper: PAPER.md
 markdown_extensions:
   - admonition
   - tables
