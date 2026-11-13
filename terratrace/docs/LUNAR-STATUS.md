@@ -5,7 +5,9 @@ Permanent Moon Base Locations and Mars."* TerraTrace's headline v3 result is Mar
 records exactly where the lunar half stands, so nobody has to guess — and so nobody reads a
 capability as a result.
 
-**Summary: BLOCKED, with the reason measured rather than asserted. No lunar finding is claimed.**
+**Summary: the data blocker is RESOLVED for one site. Real lunar terrain has been ingested and
+analysed (exploratory) — see [`LUNAR-DEMONSTRATION.md`](LUNAR-DEMONSTRATION.md). No confirmatory
+lunar finding is claimed, and no uncertainty propagation has been done yet.**
 
 ## 1. What the engine genuinely supports (verified in code)
 
@@ -23,7 +25,13 @@ So the ingest, the body-aware reprojection, the common-support step, the descrip
 decision layer are all lunar-capable. At a 118 m native posting, a 60 km window is ~508 cells per
 side and the study's 1 500 m honest support is comfortably reachable — the *method* would work.
 
-## 2. Why no demonstration was produced
+## 2. Why no demonstration was produced *at the time of writing* — since RESOLVED
+
+> **Update 2026-11-13:** the Goddard PGDA archive in §4 turned out to serve 5 m/pixel
+> south-polar products at 41 MB per file, and one was retrieved and analysed. The text below
+> is kept as the record of what the position was before that, because the reasoning about
+> dead endpoints and honest blockers is still the right reasoning.
+
 
 Three reasons, in order of force. The first is decisive on its own.
 
@@ -73,16 +81,21 @@ Any one of these, in order of preference:
 
 ## 5. How the lunar half is represented in the submission
 
-Everywhere the deck, the website and the README describe the project, the lunar half is described
-as **supported and not yet demonstrated**. The deck's limitations slide states it in the open
-rather than leaving a judge to discover it. This is the same treatment the project gives its other
-open items: named first, not buried.
+Since the Goddard products were retrieved, the lunar half is described as **supported, and
+demonstrated on real terrain in an exploratory capacity**. The exploratory result is on
+[`LUNAR-DEMONSTRATION.md`](LUNAR-DEMONSTRATION.md); it is never presented as confirmatory, and no
+lunar base-suitability claim is made anywhere. The deck's limitations slide names the remaining
+gaps (no uncertainty propagation, one site, three declared axes rather than the frozen lens) rather
+than leaving a judge to discover them. This is the same treatment the project gives its other open
+items: named first, not buried.
 
 ## 6. Status classification
 
 | item | status |
 |---|---|
 | Lunar body support in the engine | **IMPLEMENTED AND TESTED** (body metadata, CRS, catalog entry) |
-| Lunar data acquisition | **BLOCKED** — catalogued endpoint returns 404 |
-| Lunar comparison on real terrain | **NOT STARTED** — blocked on data |
-| Lunar claim in any published result | **none made** |
+| Lunar data acquisition | **PARTLY RESOLVED** — the catalogued USGS LDEM endpoint still 404s; the Goddard PGDA 5 m/px products *do* serve, and Site01's elevation raster was retrieved |
+| Lunar comparison on real terrain | **DONE, EXPLORATORY** — one site, three declared axes; see [`LUNAR-DEMONSTRATION.md`](LUNAR-DEMONSTRATION.md) |
+| Lunar uncertainty propagation | **NOT STARTED** — the published uncertainty rasters were not retrieved |
+| Lunar confirmatory protocol | **NOT STARTED** — would require a frozen v4 |
+| Lunar claim in any published result | **exploratory only**; no confirmatory or base-suitability claim |

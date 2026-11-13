@@ -105,6 +105,18 @@ h2{font-family:"Space Grotesk";font-weight:600;font-size:clamp(2rem,5vw,3.7rem);
 .act p b{color:#dfe6e8}
 .act.one{border-left-color:var(--oxide2)} .act.two{border-left-color:var(--violet)}
 .act.three{border-left-color:var(--cyan)}
+/* the lunar result is NOT act 4 of the protocol — different regime, one site, exploratory.
+   Styled as a full-width aside so it can never be read as another confirmatory act. */
+.aside{margin-top:34px;border:1px solid var(--line);border-left:3px solid var(--oxide2);
+  background:rgba(8,12,19,.58);padding:18px 20px;border-radius:4px;max-width:1000px}
+.aside .tag{font-family:"IBM Plex Mono";font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;color:var(--oxide2)}
+.aside h4{font-family:"Space Grotesk";font-weight:600;font-size:1.06rem;margin:8px 0 8px}
+.aside p{font-size:.89rem;color:var(--mut);font-weight:300;max-width:74ch}
+.aside p+p{margin-top:9px}
+.aside b{color:#dfe6e8}
+.aside .mini{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.aside .mini span{font-family:"IBM Plex Mono";font-size:.7rem;letter-spacing:.06em;color:var(--mut);
+  border:1px solid var(--line);border-radius:999px;padding:4px 11px}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
   background:var(--line);border:1px solid var(--line);margin-top:22px;max-width:760px}
 .stat{background:rgba(8,12,19,.74);padding:16px}
@@ -196,7 +208,7 @@ pre.cmd .p{color:var(--mut)}
         <p>Water/sentinel masking, flat-tile blocking, and a comparability gate that rejects a cell whose
           footprints are not truly matched.</p></div>
       <div class="cell"><div class="k">04 · DECIDE</div><h3>Pareto, not a score</h3>
-        <p>Six independent lenses; <em>tie</em>, <em>indeterminate</em> and <em>blocked</em> are
+        <p>Six analytical lenses — five default, one optional hydro lens; <em>tie</em>, <em>indeterminate</em> and <em>blocked</em> are
           first-class outcomes, not failures.</p></div>
     </div>
   </section>
@@ -239,7 +251,7 @@ pre.cmd .p{color:var(--mut)}
       </div>
       <div class="act three">
         <span class="tag">Act 3 · Measured, not asserted (protocol v3)</span>
-        <h4>The nearest analog tracks roughness, not volcanic origin</h4>
+        <h4>Within this panel and lens, the nearest analog tracks roughness, not volcanic origin</h4>
         <p>Two smoothness-matched <em>non-volcanic</em> controls, 60 km windows, fresh plains and
           highlands. A smooth non-volcanic terrain sat on the Pareto front for every confirmatory
           volcanic plain, while basaltic origin bought nothing — the basalts came forward only for the
@@ -256,6 +268,24 @@ pre.cmd .p{color:var(--mut)}
     <p class="sub">One caveat is recorded with the result rather than hidden: v3 is <em>pre-specified but
       not fully pre-registered</em> — the rules and config were frozen before the data, but the protocol
       document was committed after the run.</p>
+
+    <div class="aside">
+      <span class="tag">Separately · the lunar half, on real LOLA terrain · exploratory</span>
+      <h4>A different reference gives a different answer — which is the point</h4>
+      <p>The Moon is the other half of the challenge, so it was run on <b>real NASA Goddard LOLA
+        5&nbsp;m/pixel</b> terrain: south-polar Site01, 16&nbsp;km across. That site is <em>rough</em> —
+        mean slope 10.3–11.2°, relief 249–452&nbsp;m. Against it, <b>one</b> Earth candidate was
+        non-dominated at every support tested: the <b>Nevada Basin &amp; Range</b>. The two terrains that
+        answered for Martian volcanic plains — the smooth non-volcanic controls — were the <em>worst</em>
+        matches here.</p>
+      <p>This is <b>exploratory, not confirmatory</b>: one lunar site, three declared axes rather than the
+        frozen lens, and the published elevation-uncertainty rasters were not propagated. No base
+        suitability of any kind is claimed — morphology only.</p>
+      <div class="mini">
+        <span>LOLA 5 m/px · Site01</span><span>supports 500 / 750 / 1000 m</span>
+        <span>1 of 7 Earth candidates non-dominated</span><span>sha256 3ba7b97c…</span>
+      </div>
+    </div>
   </section>
 
   <section id="evidence" class="reveal">
@@ -272,7 +302,7 @@ pre.cmd .p{color:var(--mut)}
       <a class="btn ghost" href="https://github.com/pal-123456789/terratrace/blob/main/terratrace/docs/CLAIM-LEDGER.md">Claim ledger</a>
       <a class="btn ghost" href="https://github.com/pal-123456789/terratrace/blob/main/terratrace/docs/V3-ARCHIVAL-CLARIFICATION.md">V3 chronology &amp; config record</a>
       <a class="btn ghost" href="https://github.com/pal-123456789/terratrace/blob/main/terratrace/docs/INDEPENDENT-GIS-REPRODUCTION.md">Independent toolchain check</a>
-      <a class="btn ghost" href="https://github.com/pal-123456789/terratrace/blob/main/terratrace/docs/LUNAR-STATUS.md">Lunar status (blocked)</a>
+      <a class="btn ghost" href="https://github.com/pal-123456789/terratrace/blob/main/terratrace/docs/LUNAR-DEMONSTRATION.md">Lunar demonstration (exploratory)</a>
       <a class="btn ghost" href="https://github.com/pal-123456789/terratrace/blob/main/terratrace/docs/WALKTHROUGH.md">User walkthrough</a>
     </div>
     <pre class="cmd"><span class="p"># reproduce the protocol-v3 panel — no API key, no account</span>
@@ -283,7 +313,7 @@ python scripts/run_matched_benchmark.py --config config/matched_footprint_v3.yml
   <section id="open" class="reveal">
     <div class="idx">06 — OPEN &amp; REPRODUCIBLE</div>
     <h2>Every number<br>has a receipt.</h2>
-    <p class="sub">854 offline tests and 51 scientific-correctness oracles, deterministic study hashes, a
+    <p class="sub">863 offline tests and 51 scientific-correctness oracles, deterministic study hashes, a
       source lock with SHA-256 and citations, and an evidence graph from source to claim. The Earth data
       path is keyless. Open the live study, read the method, or clone the repository.</p>
     <div class="btnrow">

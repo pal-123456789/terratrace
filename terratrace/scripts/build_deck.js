@@ -3,7 +3,11 @@
 const pptxgen = require("pptxgenjs");
 const { applyTheme } = require("/sessions/intelligent-blissful-thompson/mnt/.claude/skills/pptx/scripts/apply_theme.js");
 
-const ASSETS = "/tmp/deck_assets";
+// Repository-relative, overridable, never absolute: the previous revision hard-coded this
+// session's scratch directory, so nobody else could rebuild the deck at all. Regenerate the panels
+// with `python scripts/make_deck_assets.py` (see that file — the imagery is the project's own DEMs).
+const REPO_ROOT = require("path").resolve(__dirname, "..", "..");
+const ASSETS = process.env.DECK_ASSETS || require("path").join(REPO_ROOT, "assets", "deck");
 const OUT = require("path").join(__dirname, "..", "..", "TerraTrace-deck.pptx");
 
 const THEME = {
@@ -67,8 +71,23 @@ function kicker(slide, text) {
     color: ACC, charSpacing: 1.4, margin: 0, isTextBox: true,
   });
 }
+// `**bold**` in a hand-written string is a *typo waiting to happen*: pptxgenjs prints the
+// asterisks literally (slide 2 shipped with "**which Earth terrains are morphologically
+// comparable...**" on it), so inline emphasis is parsed here instead of being hoped for.
+function inlineRuns(text, boldColor) {
+  if (!text.includes("**")) return text;
+  const runs = [];
+  text.split("**").forEach((part, i) => {
+    if (!part) return;
+    runs.push(i % 2 === 1
+      ? { text: part, options: { bold: true, color: boldColor || INK } }
+      : { text: part, options: {} });
+  });
+  return runs.length ? runs : text;
+}
+
 function lede(slide, text, y, h, w, x) {
-  slide.addText(text, {
+  slide.addText(inlineRuns(text), {
     x: x === undefined ? M : x, y: y, w: w || 12.1, h: h,
     fontFace: BODY, fontSize: 15, color: MUTE, lineSpacing: 22, margin: 0, isTextBox: true, valign: "top",
   });
@@ -94,7 +113,7 @@ function panel(slide, file, x, y, w, h, caption, accent) {
 pres.addSection({ title: "The question" });
 /* ============================================================ 1 · cover ===== */
 const s1 = pres.addSlide({ masterName: "COVER", sectionTitle: "The question" });
-s1.addImage({ path: "/sessions/intelligent-blissful-thompson/mnt/Nasa Space App Hackathon 2026/assets/cover.png", x: 0, y: 0, w: W, h: H });
+s1.addImage({ path: require("path").join(REPO_ROOT, "assets", "cover.png"), x: 0, y: 0, w: W, h: H });
 s1.addText("github.com/pal-123456789/terratrace", { x: 0.62, y: 6.98, w: 6.0, h: 0.3, fontFace: "Courier New", fontSize: 11, color: ACC, margin: 0, isTextBox: true });
 
 /* ========================================================= 2 · question ==== */
@@ -121,9 +140,9 @@ s3.addText("Real elevation to a defensible comparison", { placeholder: "title" }
 lede(s3, "Five stages, each one a place where an analog study usually overclaims.", 1.62, 0.4, 12.1);
 
 const steps = [
-  ["01", "Catalog", "14 products with coverage, licence and vertical accuracy — body, CRS and datum asserted by tests."],
+  ["01", "Catalog", "15 products with coverage, licence and vertical accuracy — body, CRS and datum asserted by tests."],
   ["02", "Support", "Each window reprojected onto its own body's metric grid. Nominal posting (30 m GLO-30, 463 m MOLA) is NOT the compared resolution: the common effective support is 3x source spacing, declared before the run."],
-  ["03", "Describe", "40 cited descriptor families — ~210 scalar values — computed in pure NumPy."],
+  ["03", "Describe", "40 cited descriptor families — ~290 scalar values — computed in pure NumPy."],
   ["04", "Compare", "Pareto dominance across axes chosen per lens. A single composite score does not exist in the code."],
   ["05", "Refuse", "Eligibility filters run first; a gap ledger and a provenance graph travel with every result."],
 ];
@@ -152,7 +171,7 @@ s4.addText("Depth where it is cited, restraint where it is not", { placeholder: 
 lede(s4, "Every descriptor carries a definition, a unit, a window and a citation — and a stated claim boundary.", 1.62, 0.4, 12.1);
 
 stat(s4, M, 2.22, 2.8, "40", "descriptor families, each cited to the literature it comes from", ACC);
-stat(s4, M + 3.02, 2.22, 2.8, "200", "scalar outputs emitted by the descriptor bank", ACC);
+stat(s4, M + 3.02, 2.22, 2.8, "~290", "scalar outputs emitted by the descriptor bank", ACC);
 stat(s4, M + 6.04, 2.22, 2.8, "6", "decision lenses — five by default, hydro opt-in", ACC);
 stat(s4, M + 9.06, 2.22, 3.04, "0", "composite scores anywhere in the codebase", WARM);
 
@@ -249,7 +268,7 @@ s7.addText(`${BUILD_COMMIT} = the tested implementation commit; the deck is rebu
   x: M, y: 6.48, w: 12.1, h: 0.32, fontFace: "Courier New", fontSize: 11, color: ACC, margin: 0, isTextBox: true });
 lede(s7, "Every number below is produced by a command in the repository, and the documentation guard fails the build if the prose disagrees with the code.", 1.62, 0.42, 12.1);
 
-stat(s7, M, 2.26, 3.7, "854", "offline tests — no network, no fixtures downloaded, run by a dependency-free runner", ACC);
+stat(s7, M, 2.26, 3.7, "863", "offline tests — no network, no fixtures downloaded, run by a dependency-free runner", ACC);
 stat(s7, M + 3.95, 2.26, 3.7, "51", "scientific-correctness oracles over analytic surfaces with known answers", ACC);
 stat(s7, M + 7.9, 2.26, 4.2, "2", "independent runs that reproduce the canonical artifact hash", ACC);
 
@@ -282,7 +301,7 @@ s8.addText("One command, no credential.", { x: M + 0.28, y: 3.42, w: 7.6, h: 0.5
 
 card(s8, M, 4.24, 8.2, 2.14);
 s8.addText([
-  { text: "14 catalogued products, each with coverage geometry, licence and terms, vertical accuracy and nodata policy — and a per-file SHA-256 in a source lock.", options: { bullet: true, breakLine: true } },
+  { text: "15 catalogued products, each with coverage geometry, licence and terms, vertical accuracy and nodata policy — and a per-file SHA-256 in a source lock.", options: { bullet: true, breakLine: true } },
   { text: "An evidence graph records every source, transform and unit behind every visible number.", options: { bullet: true, breakLine: true } },
   { text: "The whole canonical flow runs offline; no live dependency sits in the demo path.", options: { bullet: true } },
 ], { x: M + 0.28, y: 4.4, w: 7.6, h: 1.86, fontFace: BODY, fontSize: 12, color: MUTE, lineSpacing: 16, margin: 0, isTextBox: true, paraSpaceAfter: 7 });
@@ -311,14 +330,20 @@ s9.addText("This is an analog-screening instrument. It narrows a search; it does
 
 card(s9, 7.02, 1.86, 5.7, 2.5);
 s9.addText("Open, and named rather than hidden", { x: 7.02 + 0.3, y: 2.02, w: 5.1, h: 0.3, fontFace: HEAD, fontSize: 15, bold: true, color: INK, margin: 0, isTextBox: true });
+// Four bullets, each held to roughly two lines at this width: a five-bullet version overran the
+// card and printed its caption across the last bullet. Text frames with valign "top" do not
+// shrink to fit — the overflow is silent in the generator and only visible when the slide is
+// rendered, which is why the deck is rasterised and read before it is shipped.
 s9.addText([
-  { text: "No external user walkthrough yet — the claim boundary is argued, not user-tested.", options: { bullet: true, breakLine: true } },
-  { text: "Two descriptors are re-derived by an independent toolchain, internally; no external reviewer has examined that, and the reprojection itself is not independently reproduced.", options: { bullet: true, breakLine: true } },
-  { text: "No demo video; the script for it is in the repository.", options: { bullet: true, breakLine: true } },
-  { text: "The lunar half of the challenge is supported by the engine and has not yet been demonstrated on real LOLA terrain.", options: { bullet: true } },
-], { x: 7.02 + 0.3, y: 2.4, w: 5.1, h: 1.8, fontFace: BODY, fontSize: 12, color: MUTE, lineSpacing: 16, margin: 0, isTextBox: true, paraSpaceAfter: 8 });
-s9.addText("All six open items are listed first in the traceability page, not buried.", {
-  x: 7.02 + 0.3, y: 3.9, w: 5.1, h: 0.36, fontFace: BODY, fontSize: 11.5, italic: true, color: ACC, margin: 0, isTextBox: true });
+  { text: "Two descriptors re-derived independently; no external reviewer yet.", options: { bullet: true, breakLine: true } },
+  { text: "No demo video; the script for it ships in the repository.", options: { bullet: true, breakLine: true } },
+  { text: "Lunar terrain is real, but the comparison is exploratory: one site, no uncertainty propagation.", options: { bullet: true, breakLine: true } },
+  { text: "No external user walkthrough yet; the boundary is argued, not tested.", options: { bullet: true } },
+], { x: 7.02 + 0.3, y: 2.34, w: 5.1, h: 1.5, fontFace: BODY, fontSize: 11, color: MUTE, lineSpacing: 15, margin: 0, isTextBox: true, paraSpaceAfter: 7 });
+// 3.98, not 3.9: the bullet block above ends near 3.8" and a caption inside that footprint is
+// printed straight through the last bullet. The card runs to 4.36", so there is room below it.
+s9.addText("Every open item is listed first in the traceability page, not buried.", {
+  x: 7.02 + 0.3, y: 3.98, w: 5.1, h: 0.34, fontFace: BODY, fontSize: 11.5, italic: true, color: ACC, margin: 0, isTextBox: true });
 
 card(s9, M, 4.6, 12.1, 1.72);
 s9.addText("Why this matters for the challenge", { x: M + 0.3, y: 4.76, w: 11.5, h: 0.3, fontFace: HEAD, fontSize: 15, bold: true, color: INK, margin: 0, isTextBox: true });
@@ -343,11 +368,12 @@ s10.addText("Read it", { x: 8.72, y: 2.02, w: 3.8, h: 0.3, fontFace: HEAD, fontS
 s10.addText([
   { text: "The site, the v3 results page, the generated study viewer.", options: { bullet: true, breakLine: true } },
   { text: "The paper, validation report and limitations.", options: { bullet: true, breakLine: true } },
-  { text: "The traceability page against the project's own master plan.", options: { bullet: true } },
+  { text: "The traceability page against the project's own master plan.", options: { bullet: true, breakLine: true } },
+  { text: "The exploratory lunar demonstration on real LOLA terrain.", options: { bullet: true } },
 ], { x: 8.72, y: 2.4, w: 3.8, h: 1.62, fontFace: BODY, fontSize: 11.5, color: MUTE, lineSpacing: 15, margin: 0, isTextBox: true, paraSpaceAfter: 7 });
 
 card(s10, M, 4.34, 12.1, 1.98);
-s10.addImage({ path: "/tmp/deck_assets/qr_repo.png", x: 12.05, y: 1.92, w: 1.05, h: 1.05 });
+s10.addImage({ path: require("path").join(REPO_ROOT, "assets", "qr_repo.png"), x: 12.05, y: 1.92, w: 1.05, h: 1.05 });
 s10.addText("Repository", { x: 11.62, y: 3.02, w: 1.9, h: 0.24, fontFace: BODY, fontSize: 9.5, color: MUTE, align: "center", margin: 0, isTextBox: true });
 s10.addText("The honest ask", { x: M + 0.3, y: 4.5, w: 5.0, h: 0.3, fontFace: HEAD, fontSize: 15, bold: true, color: INK, margin: 0, isTextBox: true });
 s10.addText("The engine is prior art, built weeks ahead of the event. What a team adds from here is the part that counts: a second terrain family it has never seen, an independent re-derivation of one window by a different GIS toolchain, or a validation set drawn by someone with planetary field experience. If you would rather find the place where this quietly overclaims than add a feature, that is the most useful thing you could do to it.", {

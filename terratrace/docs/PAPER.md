@@ -28,7 +28,7 @@ candidate for a cratered highland as readily as for volcanic plains — the sign
 non-specific "least-dissimilar member of a weak shortlist" effect rather than a specific analog.
 TerraTrace's contribution is therefore a screening method that **detects its own false analogs**
 with rules fixed before the data are seen. Everything is offline-reproducible from one command
-and covered by 854 automated tests.
+and covered by 863 automated tests.
 
 ## 1. Problem and approach
 
@@ -92,7 +92,7 @@ endpoints), and the terrain fingerprint carries an opt-in geostatistical similar
 
 Mars reference: MGS **MOLA 463 m** (USGS Astrogeology, keyless). Earth candidates: **Copernicus
 GLO-30**, read either via OpenTopography or keylessly from the public AWS COG mosaic (§4.2). The
-engine's source catalog carries 14 products across the five
+engine's source catalog carries 15 products across the five
 bodies with coverage, licence, and 1-sigma vertical-accuracy metadata; a no-network preflight
 validates each bounding box, selects the covering product, and sizes the request before any
 download.
@@ -158,15 +158,23 @@ protocol-design lesson, are in `docs/RESULTS-v2.md`.
 60 km windows for power, and three fresh confirmatory volcanic plains plus two fresh cratered
 highlands, the frozen v3 rules returned **S — supported**: a smooth non-volcanic terrain sits on the
 Pareto front for *every* confirmatory Martian volcanic plain at *every* honest support (3 of 3). And
-**V — not supported**: basaltic origin bought nothing, since no basaltic candidate dominated those
-controls for plains, while the basalts *did* come to the front for the rough highlands. Resolution
-robustness held (0 reversals in 15 confirmatory honest cells; 3 membership changes and 1
-destabilisation, correctly distinguished from reversal). The nearest Earth analog therefore tracks
-**km-scale roughness, not volcanic origin** — the withdrawn Craters preference is explained, and the
-explanation is measured rather than inferred. One caveat is recorded with the result: v3 is
-*pre-specified but not fully pre-registered* (the rules and config were fixed before the data were
-read, but the protocol document was committed after the run). See `docs/RESULTS-v3.md` and
-`docs/BENCHMARK-PROTOCOL-v3.md`.
+**V — not supported**: the pre-declared volcanic-specific dominance advantage was **not established**,
+since no basaltic candidate dominated the smooth controls for plains, while the basalts *did* come to
+the front for the rough highlands. Resolution robustness held in the narrow sense the rule supports —
+**no outright candidate reversal** among 15 confirmatory honest cells (11 unchanged, 3 membership
+changes and 1 destabilisation, correctly distinguished from reversal). Within this panel and lens the
+nearest Earth analog tracked **km-scale roughness rather than volcanic origin**: the withdrawn Craters
+preference is explained, and the explanation is measured rather than inferred.
+
+*Scope, carried with the result rather than qualified after it.* The confirmatory verdicts rest on
+three volcanic-plains and two highland references, seven Earth candidates, honest supports of
+1500/2000/3000 m, and the **core decision lens**. That is a small, spatially dependent sample; the
+single top-of-shortlist pick is a near-tie that reverses under a six-pixel crop-origin shift; and no
+independent researcher has replicated the panel. The additional lenses are alternative analytical
+views of the same terrains — they are **not** independent replications. One further caveat is recorded
+with the result: v3 is *pre-specified but not fully pre-registered* (the rules and config were fixed
+before the data were read, but the protocol document was committed after the run). See
+`docs/RESULTS-v3.md`, `docs/V3-ARCHIVAL-CLARIFICATION.md` and `docs/BENCHMARK-PROTOCOL-v3.md`.
 
 **Data access.** Earth elevations are read from the **public ESA Copernicus GLO-30 COG mosaic** on
 AWS, with no API key; that path is verified bit-identical to the OpenTopography COP30 product
@@ -205,7 +213,7 @@ end-to-end into the decision; wider Earth windows and smoothness-matched control
 
 ```bash
 pip install -r terratrace/requirements.txt      # core: NumPy only
-python terratrace/tests/run_tests.py             # 854 offline tests
+python terratrace/tests/run_tests.py             # 863 offline tests
 python terratrace/scripts/run_validation.py      # 51 correctness oracles
 # real five-world study, one command (needs a free OpenTopography key):
 python terratrace/scripts/run_real_analog_study.py --config config/real_multibody.example.yml

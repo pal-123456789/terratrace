@@ -5,7 +5,7 @@ screening**. These checks establish software/metric correctness, data handling,
 sensitivity, and provenance. They do **not** establish rover traversability,
 autonomy, geologic equivalence, site access, or mission readiness.
 
-## Test suite (854 fixtures, `tests/run_tests.py`)
+## Test suite (863 fixtures, `tests/run_tests.py`)
 
 | Area | What the fixtures prove |
 |---|---|
@@ -18,7 +18,7 @@ autonomy, geologic equivalence, site access, or mission readiness.
 | uncertainty (block) | `block_resample_2d` tiles a 2-D field with block×block patches drawn with replacement, preserving within-block autocorrelation (block=1 degenerates to independent pixels; NaNs carried with their block); the block-bootstrap distance CIs come out **wider** than the independent-pixel bootstrap on an autocorrelated field, and the closer unit holds the higher non-domination frequency |
 | masks | Sentinel/below/above masking to NaN; zero-fraction; input not mutated |
 | reproject | Body-correct CRS strings across five bodies (Mars, Moon, Mercury, Ceres spheres + Earth WGS84), centroid, grid sizing, unknown-body guard; Mercury and Ceres are supported bodies and the Mars/Moon strings are unchanged |
-| catalog | 14-source registry validates across five bodies (keyless Moon LOLA LDEM, Mercury MESSENGER, Ceres Dawn HAMO, and the keyless `earth_cop30_cog` beside the Mars + Earth products); coverage + body-mismatch; `recommend_source` preference/least-download/keyless; SRTM band excludes >60°N; nodata sentinels; every source carries a positive `vertical_accuracy_m` |
+| catalog | 15-source registry validates across five bodies (keyless Moon LOLA LDEM, Mercury MESSENGER, Ceres Dawn HAMO, and the keyless `earth_cop30_cog` beside the Mars + Earth products); coverage + body-mismatch; `recommend_source` preference/least-download/keyless; SRTM band excludes >60°N; nodata sentinels; every source carries a positive `vertical_accuracy_m` |
 | preflight | bbox well-formedness + body bounds; area/pixel/download sizing; config-schema (dup ids/paths, demtype-vs-dataset); non-US routing |
 | profile | valid/water/NaN fractions; robust relief; advisory vs blocking flags; water==masks.zero_fraction |
 | fetchcache | sha256 matches sourcelock; needs_fetch skip/mismatch; manifest round-trip + update |

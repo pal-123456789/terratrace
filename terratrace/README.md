@@ -24,7 +24,7 @@ decision lens** (of 15 cells: 11 unchanged, 3 membership-changed, 1 destabilised
 See [RESULTS-v3.md](docs/RESULTS-v3.md), its [frozen protocol](docs/BENCHMARK-PROTOCOL-v3.md), and the
 claim-to-evidence ledger [CLAIM-LEDGER.md](docs/CLAIM-LEDGER.md).
 
-**Current: 854 offline tests, 0 failing; 51 scientific-correctness oracles; package version 0.3.0.**
+**Current: 863 offline tests, 0 failing; 51 scientific-correctness oracles; package version 0.3.0.**
 
 ## Why this exists
 
@@ -108,7 +108,7 @@ source and a transformation.
   scores, and a confidence margin. It is a **descriptive** morphology label only, explicitly
   **not** a geological, genetic, lithological, hazard, or mission/rover classification.
 - **Data sources & credits bundle:** `references.py` (+ `scripts/make_references.py`) reads the
-  14-source catalog and renders a complete, deterministic "Data sources & credits" section —
+  15-source catalog and renders a complete, deterministic "Data sources & credits" section —
   product, provider, citation, and licence per source, grouped by body — so every study is
   properly attributed to its upstream providers (NASA PDS / USGS Astrogeology / ESA Copernicus /
   NASA-JAXA). The exact product a given run ingested stays pinned in `sources.lock.yml`.
@@ -232,7 +232,7 @@ source and a transformation.
 - Evidence graph + content hashing; deterministic study package + a self-contained,
   offline **viewer** that now shows a target-body badge, a per-axis decision matrix, a
   Pareto-frontier panel, and a bootstrap-uncertainty panel.
-- **Data & sources layer (14-source registry):** a citeable **catalog** of real DEM
+- **Data & sources layer (15-source registry):** a citeable **catalog** of real DEM
   products — Mars MOLA, the **Moon LRO LOLA LDEM** (~118 m), **Mercury MESSENGER** (~665 m)
   and **Ceres Dawn HAMO** (~137 m) — all keyless — and for Earth:
   Copernicus GLO-30/90, USGS 3DEP (10 m / 1 m), SRTM GL1/GL3, NASADEM, and ALOS AW3D30 —
@@ -262,10 +262,10 @@ source and a transformation.
   closer candidate provably dominates and is recommended, a flat/water tile is blocked,
   and the whole pipeline is deterministic. A reproducibility + performance harness pins
   behavioural invariants, checks hash stability, and profiles wall-clock scaling.
-- 854 fixture tests with known analytic answers, all passing, no network required.
+- 863 fixture tests with known analytic answers, all passing, no network required.
 
 ```
-passed=854 failed=0
+passed=863 failed=0
 ```
 
 ## Install
@@ -284,7 +284,7 @@ pip install -r requirements-real.txt      # rasterio + requests (real DEMs)
 ```bash
 PYTHONPATH=. python3 -m terratrace.cli --out artifacts
 PYTHONPATH=. python3 -m terratrace.build_viewer      # writes viewer/index.html
-PYTHONPATH=. python3 tests/run_tests.py              # 854 tests
+PYTHONPATH=. python3 tests/run_tests.py              # 863 tests
 ```
 
 Open `viewer/index.html` in any browser — it is self-contained and works offline.
@@ -344,7 +344,7 @@ See [REAL-DATA-RUNBOOK.md](REAL-DATA-RUNBOOK.md). Minimal real stack:
 | Earth (near-global) | **NASADEM**, **SRTM GL1 / GL3**, **ALOS AW3D30** via OpenTopography | 30 / 90 m | free key |
 | Earth (US, higher-res) | **USGS 3DEP** 1/3″ (~10 m) / 1 m lidar via OpenTopography / ImageServer | 10 / 1 m | free key / none |
 
-The full 14-source registry (coverage, preference tier, nodata sentinels, licence,
+The full 15-source registry (coverage, preference tier, nodata sentinels, licence,
 citation, vertical datum) lives in `terratrace/catalog.py`;
 `catalog.recommend_source(bbox, body, target_support_m)` picks the right product for an
 AOI automatically — preferring the best land-morphology product that covers the box and
@@ -441,7 +441,7 @@ terratrace/
     adequacy.py      absolute adequacy from the reference's own variability
     panel_v3.py      the v3 confirmatory reference panel + classify_resolution_change
     # --- data, interfaces, meta -------------------------------------------
-    catalog.py       14-source registry: coverage, preference, nodata, vertical accuracy, selection
+    catalog.py       15-source registry: coverage, preference, nodata, vertical accuracy, selection
     preflight.py     fail-fast config-schema + AOI/bbox/size/coverage checks
     profile.py       DEM QA report (valid / water / NaN, relief, advisory flags)
     ingest.py        real DEM download (atomic + retry/backoff) + raster read
@@ -457,7 +457,7 @@ terratrace/
     api.py           loopback-only stdlib HTTP API
     validation.py    scientific-correctness suite (51 oracles, drives the real engine)
     benchmark.py     reproducibility invariants + wall-clock scaling profile
-  tests/             854 tests across 91 modules + a dependency-free runner (house style:
+  tests/             863 automated tests across 93 test modules + a dependency-free runner (house style:
                      module-level `def test_*`, no pytest)
   artifacts/         generated study package (JSON + checksums + manifest)
   viewer/            generated offline HTML viewer (tracked snapshot; CI regenerates it)
