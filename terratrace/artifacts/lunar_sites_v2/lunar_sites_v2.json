@@ -1,0 +1,2887 @@
+{
+  "provenance": {
+    "status": "CORRECTED EXPLORATORY REANALYSIS",
+    "not": "not independent confirmation, and not a new pre-registration: the same data was examined in v1 before this correction existed",
+    "supersedes_method_of": "artifacts/lunar_sites/lunar_sites_exploratory.json (v1, preserved unchanged as the record of what was computed)",
+    "protocol": "config/lunar_panel_v2.yml, docs/LUNAR-PROTOCOL-v2.md",
+    "footprint_m": 9000.0,
+    "supports_m": [
+      500.0,
+      750.0,
+      1000.0
+    ],
+    "cells_per_side": {
+      "500": 18,
+      "750": 12,
+      "1000": 9
+    },
+    "axes": [
+      "mean_slope_deg",
+      "mean_relief3_m",
+      "elev_std_m"
+    ],
+    "decision": "decision.non_dominated (Pareto on fractional axial distance; no composite)",
+    "grid": "both bodies warped from the native source into an exact destination grid in the body's local azimuthal-equidistant CRS, area-weighted resampling",
+    "masks": "none",
+    "mars_excluded_because": "MOLA effective floor 1389 m exceeds every support tested",
+    "uncertainty_input": "author-published perturbed DEM clones; Site01 only"
+  },
+  "scales": {
+    "500m": {
+      "Site01": {
+        "support_m": 500.0,
+        "cells": [
+          18,
+          18
+        ],
+        "footprint_m": 9000.0,
+        "valid_fraction": 1.0,
+        "grid": {
+          "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "destination_crs": "+proj=aeqd +lat_0=-89.46316283403668 +lon_0=-137.48955292199918 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+          "resampling": "average",
+          "source_posting_m": 5.0,
+          "source_floor_m": 15.0
+        },
+        "reference_axes": {
+          "mean_slope_deg": 9.503441970448348,
+          "mean_relief3_m": 220.56428248147512,
+          "elev_std_m": 273.8608542980544
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9859387666282377,
+            0.9857515697591376,
+            0.9908466740241324
+          ],
+          "earth_llano_estacado": [
+            0.9692927408360789,
+            0.9686838480640593,
+            0.9713105550131546
+          ],
+          "earth_deccan_traps": [
+            0.8872712397883559,
+            0.8933400314598372,
+            0.9416700215374446
+          ],
+          "earth_snake_river_plain": [
+            0.9600016138635624,
+            0.9590439355873669,
+            0.9501667822042589
+          ],
+          "earth_harrat_khaybar": [
+            0.7649165077092325,
+            0.7540781389094088,
+            0.789300412954144
+          ],
+          "earth_odadahraun": [
+            0.8373983962853115,
+            0.8701243979701452,
+            0.8863353070180624
+          ],
+          "earth_nevada_basin": [
+            0.1990798949980961,
+            0.2075660178985131,
+            0.12263013312814394
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ],
+        "leave_one_axis_out": {
+          "without_mean_slope_deg": [
+            "earth_nevada_basin"
+          ],
+          "without_mean_relief3_m": [
+            "earth_nevada_basin"
+          ],
+          "without_elev_std_m": [
+            "earth_nevada_basin"
+          ]
+        },
+        "axis_correlations": {
+          "mean_slope_deg|mean_relief3_m": {
+            "pearson": 0.9996369292874937,
+            "spearman": 1.0
+          },
+          "mean_slope_deg|elev_std_m": {
+            "pearson": 0.9980505430408937,
+            "spearman": 1.0
+          },
+          "mean_relief3_m|elev_std_m": {
+            "pearson": 0.9982882307809158,
+            "spearman": 1.0
+          }
+        }
+      },
+      "Site04": {
+        "support_m": 500.0,
+        "cells": [
+          18,
+          18
+        ],
+        "footprint_m": 9000.0,
+        "valid_fraction": 1.0,
+        "grid": {
+          "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "destination_crs": "+proj=aeqd +lat_0=-89.76681145214992 +lon_0=-171.86989764584402 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+          "resampling": "average",
+          "source_posting_m": 5.0,
+          "source_floor_m": 15.0
+        },
+        "reference_axes": {
+          "mean_slope_deg": 23.854542182743966,
+          "mean_relief3_m": 568.5209524308559,
+          "elev_std_m": 1032.6279942551957
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9943981270167431,
+            0.9944721566036824,
+            0.9975724678341423
+          ],
+          "earth_llano_estacado": [
+            0.9877664952317994,
+            0.9878505364625559,
+            0.9923913394202513
+          ],
+          "earth_deccan_traps": [
+            0.9550898431474858,
+            0.9586200309241569,
+            0.9845304428876497
+          ],
+          "earth_snake_river_plain": [
+            0.9840649911179516,
+            0.9841106208631138,
+            0.9867838489040711
+          ],
+          "earth_harrat_khaybar": [
+            0.9063447828895342,
+            0.904591768155542,
+            0.9441208554971973
+          ],
+          "earth_odadahraun": [
+            0.9352209364000199,
+            0.9496132572580102,
+            0.9698552527175951
+          ],
+          "earth_nevada_basin": [
+            0.5222970068866396,
+            0.5315107892717623,
+            0.7022698890310807
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ],
+        "leave_one_axis_out": {
+          "without_mean_slope_deg": [
+            "earth_nevada_basin"
+          ],
+          "without_mean_relief3_m": [
+            "earth_nevada_basin"
+          ],
+          "without_elev_std_m": [
+            "earth_nevada_basin"
+          ]
+        },
+        "axis_correlations": {
+          "mean_slope_deg|mean_relief3_m": {
+            "pearson": 0.9998712419165829,
+            "spearman": 1.0
+          },
+          "mean_slope_deg|elev_std_m": {
+            "pearson": 0.9855086819134455,
+            "spearman": 1.0
+          },
+          "mean_relief3_m|elev_std_m": {
+            "pearson": 0.9868563918416117,
+            "spearman": 1.0
+          }
+        }
+      },
+      "Site07": {
+        "support_m": 500.0,
+        "cells": [
+          18,
+          18
+        ],
+        "footprint_m": 9000.0,
+        "valid_fraction": 1.0,
+        "grid": {
+          "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "destination_crs": "+proj=aeqd +lat_0=-88.81100807350457 +lon_0=123.69006752597979 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+          "resampling": "average",
+          "source_posting_m": 5.0,
+          "source_floor_m": 15.0
+        },
+        "reference_axes": {
+          "mean_slope_deg": 10.131264805554247,
+          "mean_relief3_m": 229.21918438542716,
+          "elev_std_m": 275.0070084119054
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9868101250982784,
+            0.9862895647195098,
+            0.9908848225872663
+          ],
+          "earth_llano_estacado": [
+            0.9711956343914873,
+            0.9698662893319728,
+            0.9714301247855238
+          ],
+          "earth_deccan_traps": [
+            0.8942569114880282,
+            0.8973673189980457,
+            0.9419131249592874
+          ],
+          "earth_snake_river_plain": [
+            0.9624802678782193,
+            0.9605903625184882,
+            0.9503744734478852
+          ],
+          "earth_harrat_khaybar": [
+            0.7794843615210953,
+            0.7633637036821962,
+            0.7901785512964135
+          ],
+          "earth_odadahraun": [
+            0.8474746307729301,
+            0.8750282658479535,
+            0.886809030419561
+          ],
+          "earth_nevada_basin": [
+            0.12477429212968852,
+            0.16197050871162114,
+            0.11795131729414629
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ],
+        "leave_one_axis_out": {
+          "without_mean_slope_deg": [
+            "earth_nevada_basin"
+          ],
+          "without_mean_relief3_m": [
+            "earth_nevada_basin"
+          ],
+          "without_elev_std_m": [
+            "earth_nevada_basin"
+          ]
+        },
+        "axis_correlations": {
+          "mean_slope_deg|mean_relief3_m": {
+            "pearson": 0.9994661951677769,
+            "spearman": 1.0
+          },
+          "mean_slope_deg|elev_std_m": {
+            "pearson": 0.9990254004343656,
+            "spearman": 1.0
+          },
+          "mean_relief3_m|elev_std_m": {
+            "pearson": 0.9990832363135405,
+            "spearman": 1.0
+          }
+        }
+      },
+      "Site11": {
+        "support_m": 500.0,
+        "cells": [
+          18,
+          18
+        ],
+        "footprint_m": 9000.0,
+        "valid_fraction": 1.0,
+        "grid": {
+          "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "destination_crs": "+proj=aeqd +lat_0=-88.68341815077613 +lon_0=-67.93210043758978 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+          "resampling": "average",
+          "source_posting_m": 5.0,
+          "source_floor_m": 15.0
+        },
+        "reference_axes": {
+          "mean_slope_deg": 15.201319160653641,
+          "mean_relief3_m": 343.70114582712813,
+          "elev_std_m": 403.5804772314371
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9912093079574728,
+            0.9908563156372371,
+            0.9937887538846877
+          ],
+          "earth_llano_estacado": [
+            0.9808026755802097,
+            0.9799033996083744,
+            0.9805319722912937
+          ],
+          "earth_deccan_traps": [
+            0.9295251142516054,
+            0.9315528047660617,
+            0.9604185568079847
+          ],
+          "earth_snake_river_plain": [
+            0.9749941213955227,
+            0.9737171520371332,
+            0.9661842721144897
+          ],
+          "earth_harrat_khaybar": [
+            0.8530323386026725,
+            0.8421838870876585,
+            0.8570238845435147
+          ],
+          "earth_odadahraun": [
+            0.8983459995232457,
+            0.9166545723767456,
+            0.9228696339894839
+          ],
+          "earth_nevada_basin": [
+            0.25036859764506686,
+            0.2250653350432469,
+            0.23820783049695177
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ],
+        "leave_one_axis_out": {
+          "without_mean_slope_deg": [
+            "earth_nevada_basin"
+          ],
+          "without_mean_relief3_m": [
+            "earth_nevada_basin"
+          ],
+          "without_elev_std_m": [
+            "earth_nevada_basin"
+          ]
+        },
+        "axis_correlations": {
+          "mean_slope_deg|mean_relief3_m": {
+            "pearson": 0.999589127927392,
+            "spearman": 1.0
+          },
+          "mean_slope_deg|elev_std_m": {
+            "pearson": 0.9993525131596583,
+            "spearman": 1.0
+          },
+          "mean_relief3_m|elev_std_m": {
+            "pearson": 0.999581942871569,
+            "spearman": 1.0
+          }
+        }
+      },
+      "Site20": {
+        "support_m": 500.0,
+        "cells": [
+          18,
+          18
+        ],
+        "footprint_m": 9000.0,
+        "valid_fraction": 1.0,
+        "grid": {
+          "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "destination_crs": "+proj=aeqd +lat_0=-85.42657728044317 +lon_0=31.7427611534189 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+          "resampling": "average",
+          "source_posting_m": 5.0,
+          "source_floor_m": 15.0
+        },
+        "reference_axes": {
+          "mean_slope_deg": 11.124238511015957,
+          "mean_relief3_m": 231.18174485685256,
+          "elev_std_m": 263.45618675338466
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9879874819971591,
+            0.9864059560822628,
+            0.9904851819867636
+          ],
+          "earth_llano_estacado": [
+            0.9737667746653528,
+            0.9701221020452606,
+            0.9701775235941253
+          ],
+          "earth_deccan_traps": [
+            0.9036957693768375,
+            0.8982385938598889,
+            0.9393663973892717
+          ],
+          "earth_snake_river_plain": [
+            0.9658293607078995,
+            0.9609249209273379,
+            0.9481987203787413
+          ],
+          "earth_harrat_khaybar": [
+            0.799168066651637,
+            0.7653725692245227,
+            0.7809792602720722
+          ],
+          "earth_odadahraun": [
+            0.8610893767088734,
+            0.876089182598297,
+            0.8818463505937782
+          ],
+          "earth_nevada_basin": [
+            0.024374494376513015,
+            0.1521062463289164,
+            0.16696613242566888
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ],
+        "leave_one_axis_out": {
+          "without_mean_slope_deg": [
+            "earth_nevada_basin"
+          ],
+          "without_mean_relief3_m": [
+            "earth_nevada_basin"
+          ],
+          "without_elev_std_m": [
+            "earth_nevada_basin"
+          ]
+        },
+        "axis_correlations": {
+          "mean_slope_deg|mean_relief3_m": {
+            "pearson": 0.9970069889248452,
+            "spearman": 1.0
+          },
+          "mean_slope_deg|elev_std_m": {
+            "pearson": 0.9959825190474624,
+            "spearman": 1.0
+          },
+          "mean_relief3_m|elev_std_m": {
+            "pearson": 0.9994025991596882,
+            "spearman": 1.0
+          }
+        }
+      },
+      "Site23": {
+        "support_m": 500.0,
+        "cells": [
+          18,
+          18
+        ],
+        "footprint_m": 9000.0,
+        "valid_fraction": 1.0,
+        "grid": {
+          "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "destination_crs": "+proj=aeqd +lat_0=-85.99478468356075 +lon_0=-0.2357837698766106 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+          "resampling": "average",
+          "source_posting_m": 5.0,
+          "source_floor_m": 15.0
+        },
+        "reference_axes": {
+          "mean_slope_deg": 15.079218999572648,
+          "mean_relief3_m": 310.57775458175877,
+          "elev_std_m": 386.7223664481896
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9911381275525435,
+            0.989881133641412,
+            0.9935179914871681
+          ],
+          "earth_llano_estacado": [
+            0.9806472301022943,
+            0.9777600794650173,
+            0.979683316520853
+          ],
+          "earth_deccan_traps": [
+            0.9289544616931216,
+            0.9242528510702954,
+            0.958693111340684
+          ],
+          "earth_snake_river_plain": [
+            0.9747916426195552,
+            0.9709140631382229,
+            0.964710167339672
+          ],
+          "earth_harrat_khaybar": [
+            0.8518423051446519,
+            0.8253526595586347,
+            0.8507912292775134
+          ],
+          "earth_odadahraun": [
+            0.8975228819709977,
+            0.9077657090665083,
+            0.9195073452579064
+          ],
+          "earth_nevada_basin": [
+            0.2442986470076033,
+            0.14241787005809903,
+            0.20499957076984493
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ],
+        "leave_one_axis_out": {
+          "without_mean_slope_deg": [
+            "earth_nevada_basin"
+          ],
+          "without_mean_relief3_m": [
+            "earth_nevada_basin"
+          ],
+          "without_elev_std_m": [
+            "earth_nevada_basin"
+          ]
+        },
+        "axis_correlations": {
+          "mean_slope_deg|mean_relief3_m": {
+            "pearson": 0.9968848713972435,
+            "spearman": 1.0
+          },
+          "mean_slope_deg|elev_std_m": {
+            "pearson": 0.9989299872252404,
+            "spearman": 1.0
+          },
+          "mean_relief3_m|elev_std_m": {
+            "pearson": 0.9985366767058115,
+            "spearman": 1.0
+          }
+        }
+      }
+    },
+    "750m": {
+      "Site01": {
+        "support_m": 750.0,
+        "cells": [
+          12,
+          12
+        ],
+        "footprint_m": 9000.0,
+        "valid_fraction": 1.0,
+        "grid": {
+          "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "destination_crs": "+proj=aeqd +lat_0=-89.46316283403668 +lon_0=-137.48955292199918 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+          "resampling": "average",
+          "source_posting_m": 5.0,
+          "source_floor_m": 15.0
+        },
+        "reference_axes": {
+          "mean_slope_deg": 9.06059809710856,
+          "mean_relief3_m": 321.61084552708814,
+          "elev_std_m": 271.68537413730104
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9891537441892762,
+            0.9893296663876875,
+            0.9911317635037642
+          ],
+          "earth_llano_estacado": [
+            0.974047440375381,
+            0.9723073759159813,
+            0.9714486155396189
+          ],
+          "earth_deccan_traps": [
+            0.9024266259557664,
+            0.9086850357195788,
+            0.9435654669598815
+          ],
+          "earth_snake_river_plain": [
+            0.9623900948904468,
+            0.9623031352994491,
+            0.9500168148208955
+          ],
+          "earth_harrat_khaybar": [
+            0.7931503718977259,
+            0.7891308650886157,
+            0.7906914309456403
+          ],
+          "earth_odadahraun": [
+            0.8430327807281177,
+            0.8881865291261549,
+            0.8888910727071004
+          ],
+          "earth_nevada_basin": [
+            0.123632780574084,
+            0.09636014917981414,
+            0.12166149677548724
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ],
+        "leave_one_axis_out": {
+          "without_mean_slope_deg": [
+            "earth_nevada_basin"
+          ],
+          "without_mean_relief3_m": [
+            "earth_nevada_basin"
+          ],
+          "without_elev_std_m": [
+            "earth_nevada_basin"
+          ]
+        },
+        "axis_correlations": {
+          "mean_slope_deg|mean_relief3_m": {
+            "pearson": 0.9992828351236669,
+            "spearman": 1.0
+          },
+          "mean_slope_deg|elev_std_m": {
+            "pearson": 0.9989239185407067,
+            "spearman": 1.0
+          },
+          "mean_relief3_m|elev_std_m": {
+            "pearson": 0.9994657131150811,
+            "spearman": 1.0
+          }
+        }
+      },
+      "Site04": {
+        "support_m": 750.0,
+        "cells": [
+          12,
+          12
+        ],
+        "footprint_m": 9000.0,
+        "valid_fraction": 1.0,
+        "grid": {
+          "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "destination_crs": "+proj=aeqd +lat_0=-89.76681145214992 +lon_0=-171.86989764584402 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+          "resampling": "average",
+          "source_posting_m": 5.0,
+          "source_floor_m": 15.0
+        },
+        "reference_axes": {
+          "mean_slope_deg": 23.36426158276437,
+          "mean_relief3_m": 837.4711937131088,
+          "elev_std_m": 1029.7044903815272
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9957938510313592,
+            0.9959023127710259,
+            0.9976601343658069
+          ],
+          "earth_llano_estacado": [
+            0.9899356668509744,
+            0.9893653079492354,
+            0.9924667769814401
+          ],
+          "earth_deccan_traps": [
+            0.9621613067435515,
+            0.9649326650373569,
+            0.98510986660106
+          ],
+          "earth_snake_river_plain": [
+            0.985414979477912,
+            0.9855234178547548,
+            0.9868120412285204
+          ],
+          "earth_harrat_khaybar": [
+            0.9197842679456368,
+            0.9190207361357338,
+            0.9447743722350801
+          ],
+          "earth_odadahraun": [
+            0.9391285325579305,
+            0.9570607022916007,
+            0.9706841421363709
+          ],
+          "earth_nevada_basin": [
+            0.5642582155890332,
+            0.5789690233802661,
+            0.7040519622343872
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ],
+        "leave_one_axis_out": {
+          "without_mean_slope_deg": [
+            "earth_nevada_basin"
+          ],
+          "without_mean_relief3_m": [
+            "earth_nevada_basin"
+          ],
+          "without_elev_std_m": [
+            "earth_nevada_basin"
+          ]
+        },
+        "axis_correlations": {
+          "mean_slope_deg|mean_relief3_m": {
+            "pearson": 0.9997687959690668,
+            "spearman": 1.0
+          },
+          "mean_slope_deg|elev_std_m": {
+            "pearson": 0.9910797308517463,
+            "spearman": 1.0
+          },
+          "mean_relief3_m|elev_std_m": {
+            "pearson": 0.9928338874564788,
+            "spearman": 1.0
+          }
+        }
+      },
+      "Site07": {
+        "support_m": 750.0,
+        "cells": [
+          12,
+          12
+        ],
+        "footprint_m": 9000.0,
+        "valid_fraction": 1.0,
+        "grid": {
+          "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "destination_crs": "+proj=aeqd +lat_0=-88.81100807350457 +lon_0=123.69006752597979 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+          "resampling": "average",
+          "source_posting_m": 5.0,
+          "source_floor_m": 15.0
+        },
+        "reference_axes": {
+          "mean_slope_deg": 9.80002421470933,
+          "mean_relief3_m": 335.54424822190776,
+          "elev_std_m": 273.1134185872303
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.989972110006433,
+            0.9897727496945725,
+            0.9911781333817974
+          ],
+          "earth_llano_estacado": [
+            0.9760055988436258,
+            0.9734573061713307,
+            0.971597903869454
+          ],
+          "earth_deccan_traps": [
+            0.9097886793109453,
+            0.9124768699593979,
+            0.9438605495746764
+          ],
+          "earth_snake_river_plain": [
+            0.9652278170745154,
+            0.963868489493384,
+            0.95027816488767
+          ],
+          "earth_harrat_khaybar": [
+            0.8087574779705106,
+            0.7978871605345906,
+            0.7917858551665624
+          ],
+          "earth_odadahraun": [
+            0.854876186315074,
+            0.8928295594407751,
+            0.8894720345938469
+          ],
+          "earth_nevada_basin": [
+            0.03885304877487072,
+            0.050834029933173784,
+            0.11579659828952008
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ],
+        "leave_one_axis_out": {
+          "without_mean_slope_deg": [
+            "earth_nevada_basin"
+          ],
+          "without_mean_relief3_m": [
+            "earth_nevada_basin"
+          ],
+          "without_elev_std_m": [
+            "earth_nevada_basin"
+          ]
+        },
+        "axis_correlations": {
+          "mean_slope_deg|mean_relief3_m": {
+            "pearson": 0.9994298327120594,
+            "spearman": 1.0
+          },
+          "mean_slope_deg|elev_std_m": {
+            "pearson": 0.9980612833217739,
+            "spearman": 1.0
+          },
+          "mean_relief3_m|elev_std_m": {
+            "pearson": 0.9989023269399716,
+            "spearman": 1.0
+          }
+        }
+      },
+      "Site11": {
+        "support_m": 750.0,
+        "cells": [
+          12,
+          12
+        ],
+        "footprint_m": 9000.0,
+        "valid_fraction": 1.0,
+        "grid": {
+          "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "destination_crs": "+proj=aeqd +lat_0=-88.68341815077613 +lon_0=-67.93210043758978 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+          "resampling": "average",
+          "source_posting_m": 5.0,
+          "source_floor_m": 15.0
+        },
+        "reference_axes": {
+          "mean_slope_deg": 14.881713581520152,
+          "mean_relief3_m": 501.3527822411283,
+          "elev_std_m": 401.16965317825327
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9933963542423346,
+            0.9931551292090737,
+            0.9939941365670865
+          ],
+          "earth_llano_estacado": [
+            0.9841990163927145,
+            0.9822355663277409,
+            0.9806640569449807
+          ],
+          "earth_deccan_traps": [
+            0.9405933246631308,
+            0.9414227188682929,
+            0.9617806653574174
+          ],
+          "earth_snake_river_plain": [
+            0.9771015459475574,
+            0.9758179849409244,
+            0.9661497317696534
+          ],
+          "earth_harrat_khaybar": [
+            0.8740614555908128,
+            0.8647303791329145,
+            0.8582493056412487
+          ],
+          "earth_odadahraun": [
+            0.904431913673616,
+            0.9282732116329206,
+            0.9247533549898088
+          ],
+          "earth_nevada_basin": [
+            0.3158862399985534,
+            0.29670019381613993,
+            0.24037368980288382
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ],
+        "leave_one_axis_out": {
+          "without_mean_slope_deg": [
+            "earth_nevada_basin"
+          ],
+          "without_mean_relief3_m": [
+            "earth_nevada_basin"
+          ],
+          "without_elev_std_m": [
+            "earth_nevada_basin"
+          ]
+        },
+        "axis_correlations": {
+          "mean_slope_deg|mean_relief3_m": {
+            "pearson": 0.9995468426509797,
+            "spearman": 1.0
+          },
+          "mean_slope_deg|elev_std_m": {
+            "pearson": 0.9975520701784183,
+            "spearman": 1.0
+          },
+          "mean_relief3_m|elev_std_m": {
+            "pearson": 0.9987376710401555,
+            "spearman": 1.0
+          }
+        }
+      },
+      "Site20": {
+        "support_m": 750.0,
+        "cells": [
+          12,
+          12
+        ],
+        "footprint_m": 9000.0,
+        "valid_fraction": 1.0,
+        "grid": {
+          "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "destination_crs": "+proj=aeqd +lat_0=-85.42657728044317 +lon_0=31.7427611534189 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+          "resampling": "average",
+          "source_posting_m": 5.0,
+          "source_floor_m": 15.0
+        },
+        "reference_axes": {
+          "mean_slope_deg": 10.663085264704462,
+          "mean_relief3_m": 320.4822322281913,
+          "elev_std_m": 260.86156404055254
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9907837588915575,
+            0.9892920896386278,
+            0.9907637978048643
+          ],
+          "earth_llano_estacado": [
+            0.9779476852606379,
+            0.9722098533057408,
+            0.9702639459447131
+          ],
+          "earth_deccan_traps": [
+            0.9170903068626876,
+            0.9083634600666678,
+            0.9412238545771927
+          ],
+          "earth_snake_river_plain": [
+            0.9680422479790144,
+            0.9621703816596234,
+            0.9479428852774647
+          ],
+          "earth_harrat_khaybar": [
+            0.8242364850091983,
+            0.7883882663232078,
+            0.7820066857958552
+          ],
+          "earth_odadahraun": [
+            0.8666223843345908,
+            0.8877927657360702,
+            0.8842808805789691
+          ],
+          "earth_nevada_basin": [
+            0.045230833216964195,
+            0.10022110158314053,
+            0.16820208652693572
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ],
+        "leave_one_axis_out": {
+          "without_mean_slope_deg": [
+            "earth_nevada_basin"
+          ],
+          "without_mean_relief3_m": [
+            "earth_nevada_basin"
+          ],
+          "without_elev_std_m": [
+            "earth_nevada_basin"
+          ]
+        },
+        "axis_correlations": {
+          "mean_slope_deg|mean_relief3_m": {
+            "pearson": 0.995617929163971,
+            "spearman": 0.9761904761904763
+          },
+          "mean_slope_deg|elev_std_m": {
+            "pearson": 0.9913514263262465,
+            "spearman": 0.9761904761904763
+          },
+          "mean_relief3_m|elev_std_m": {
+            "pearson": 0.9988946653895201,
+            "spearman": 1.0
+          }
+        }
+      },
+      "Site23": {
+        "support_m": 750.0,
+        "cells": [
+          12,
+          12
+        ],
+        "footprint_m": 9000.0,
+        "valid_fraction": 1.0,
+        "grid": {
+          "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "destination_crs": "+proj=aeqd +lat_0=-85.99478468356075 +lon_0=-0.2357837698766106 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+          "resampling": "average",
+          "source_posting_m": 5.0,
+          "source_floor_m": 15.0
+        },
+        "reference_axes": {
+          "mean_slope_deg": 14.766434303234771,
+          "mean_relief3_m": 437.52162207538163,
+          "elev_std_m": 383.68448557358465
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9933448005969953,
+            0.9921565133196534,
+            0.9937204389517704
+          ],
+          "earth_llano_estacado": [
+            0.9840756605473532,
+            0.979643867189287,
+            0.9797828844769151
+          ],
+          "earth_deccan_traps": [
+            0.9401295458985669,
+            0.9328767279381629,
+            0.9600389439767224
+          ],
+          "earth_snake_river_plain": [
+            0.9769227812435801,
+            0.9722900082684929,
+            0.9646071163246067
+          ],
+          "earth_harrat_khaybar": [
+            0.8730782727716118,
+            0.8449955445568096,
+            0.8517894805971485
+          ],
+          "earth_odadahraun": [
+            0.9036858283430221,
+            0.9178088051089277,
+            0.9213242348424947
+          ],
+          "earth_nevada_basin": [
+            0.3105454692411344,
+            0.19409396749956734,
+            0.20575620108463005
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ],
+        "leave_one_axis_out": {
+          "without_mean_slope_deg": [
+            "earth_nevada_basin"
+          ],
+          "without_mean_relief3_m": [
+            "earth_nevada_basin"
+          ],
+          "without_elev_std_m": [
+            "earth_nevada_basin"
+          ]
+        },
+        "axis_correlations": {
+          "mean_slope_deg|mean_relief3_m": {
+            "pearson": 0.9955318137942823,
+            "spearman": 1.0
+          },
+          "mean_slope_deg|elev_std_m": {
+            "pearson": 0.995980060361872,
+            "spearman": 1.0
+          },
+          "mean_relief3_m|elev_std_m": {
+            "pearson": 0.9996538668972283,
+            "spearman": 1.0
+          }
+        }
+      }
+    },
+    "1000m": {
+      "Site01": {
+        "support_m": 1000.0,
+        "cells": [
+          9,
+          9
+        ],
+        "footprint_m": 9000.0,
+        "valid_fraction": 1.0,
+        "grid": {
+          "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "destination_crs": "+proj=aeqd +lat_0=-89.46316283403668 +lon_0=-137.48955292199918 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+          "resampling": "average",
+          "source_posting_m": 5.0,
+          "source_floor_m": 15.0
+        },
+        "reference_axes": {
+          "mean_slope_deg": 8.564013867567688,
+          "mean_relief3_m": 421.6679244362436,
+          "elev_std_m": 268.6677536472658
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9898927542202152,
+            0.991018132629424,
+            0.9911878056841983
+          ],
+          "earth_llano_estacado": [
+            0.9766811450681586,
+            0.9762562494206165,
+            0.9717617993234366
+          ],
+          "earth_deccan_traps": [
+            0.9157141588311783,
+            0.9250167207603064,
+            0.9456284915871745
+          ],
+          "earth_snake_river_plain": [
+            0.9610999855321428,
+            0.9636725034494813,
+            0.9497636374129718
+          ],
+          "earth_harrat_khaybar": [
+            0.8061319850947215,
+            0.8156669661152796,
+            0.7916894792571678
+          ],
+          "earth_odadahraun": [
+            0.8448824450173652,
+            0.8987581156107336,
+            0.8889580633111124
+          ],
+          "earth_nevada_basin": [
+            0.08658236353205422,
+            0.003432428137663541,
+            0.12068194100382529
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ],
+        "leave_one_axis_out": {
+          "without_mean_slope_deg": [
+            "earth_nevada_basin"
+          ],
+          "without_mean_relief3_m": [
+            "earth_nevada_basin"
+          ],
+          "without_elev_std_m": [
+            "earth_nevada_basin"
+          ]
+        },
+        "axis_correlations": {
+          "mean_slope_deg|mean_relief3_m": {
+            "pearson": 0.9978610015189183,
+            "spearman": 0.9761904761904763
+          },
+          "mean_slope_deg|elev_std_m": {
+            "pearson": 0.9988175175132662,
+            "spearman": 1.0
+          },
+          "mean_relief3_m|elev_std_m": {
+            "pearson": 0.9970732467708924,
+            "spearman": 0.9761904761904763
+          }
+        }
+      },
+      "Site04": {
+        "support_m": 1000.0,
+        "cells": [
+          9,
+          9
+        ],
+        "footprint_m": 9000.0,
+        "valid_fraction": 1.0,
+        "grid": {
+          "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "destination_crs": "+proj=aeqd +lat_0=-89.76681145214992 +lon_0=-171.86989764584402 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+          "resampling": "average",
+          "source_posting_m": 5.0,
+          "source_floor_m": 15.0
+        },
+        "reference_axes": {
+          "mean_slope_deg": 22.844378518573688,
+          "mean_relief3_m": 1086.310434407075,
+          "elev_std_m": 1025.5465298494091
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9962109455965014,
+            0.9965135515118386,
+            0.9976914236627787
+          ],
+          "earth_llano_estacado": [
+            0.9912581120624613,
+            0.9907835019272321,
+            0.9926022918297749
+          ],
+          "earth_deccan_traps": [
+            0.9684025060247311,
+            0.9708940992160474,
+            0.9857560134011353
+          ],
+          "earth_snake_river_plain": [
+            0.985416969733694,
+            0.9858989294540074,
+            0.986839319041284
+          ],
+          "earth_harrat_khaybar": [
+            0.9273217974926863,
+            0.9284483280825425,
+            0.945427810401458
+          ],
+          "earth_odadahraun": [
+            0.9418487620096824,
+            0.9607014220757834,
+            0.9709097668194284
+          ],
+          "earth_nevada_basin": [
+            0.5926566169450783,
+            0.6131671331896749,
+            0.7064091283242239
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ],
+        "leave_one_axis_out": {
+          "without_mean_slope_deg": [
+            "earth_nevada_basin"
+          ],
+          "without_mean_relief3_m": [
+            "earth_nevada_basin"
+          ],
+          "without_elev_std_m": [
+            "earth_nevada_basin"
+          ]
+        },
+        "axis_correlations": {
+          "mean_slope_deg|mean_relief3_m": {
+            "pearson": 0.9996793162480759,
+            "spearman": 1.0
+          },
+          "mean_slope_deg|elev_std_m": {
+            "pearson": 0.9940072398743247,
+            "spearman": 1.0
+          },
+          "mean_relief3_m|elev_std_m": {
+            "pearson": 0.995978588943111,
+            "spearman": 1.0
+          }
+        }
+      },
+      "Site07": {
+        "support_m": 1000.0,
+        "cells": [
+          9,
+          9
+        ],
+        "footprint_m": 9000.0,
+        "valid_fraction": 1.0,
+        "grid": {
+          "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "destination_crs": "+proj=aeqd +lat_0=-88.81100807350457 +lon_0=123.69006752597979 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+          "resampling": "average",
+          "source_posting_m": 5.0,
+          "source_floor_m": 15.0
+        },
+        "reference_axes": {
+          "mean_slope_deg": 9.512343848614808,
+          "mean_relief3_m": 439.38333569437214,
+          "elev_std_m": 270.8458281391905
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9909003927529809,
+            0.9913802707930943,
+            0.9912586711495776
+          ],
+          "earth_llano_estacado": [
+            0.9790059106156923,
+            0.9772135690824091,
+            0.9719888838793038
+          ],
+          "earth_deccan_traps": [
+            0.9241170079533543,
+            0.9280399570128034,
+            0.9460657336756906
+          ],
+          "earth_snake_river_plain": [
+            0.9649781096380547,
+            0.9651371847177266,
+            0.9501676256917267
+          ],
+          "earth_harrat_khaybar": [
+            0.8254595928669676,
+            0.8230990538583565,
+            0.7933646604284884
+          ],
+          "earth_odadahraun": [
+            0.8603468384747337,
+            0.9028400674573355,
+            0.8898510348274087
+          ],
+          "earth_nevada_basin": [
+            0.021744106643279165,
+            0.04361284224953626,
+            0.11166969678344665
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ],
+        "leave_one_axis_out": {
+          "without_mean_slope_deg": [
+            "earth_nevada_basin"
+          ],
+          "without_mean_relief3_m": [
+            "earth_nevada_basin"
+          ],
+          "without_elev_std_m": [
+            "earth_nevada_basin"
+          ]
+        },
+        "axis_correlations": {
+          "mean_slope_deg|mean_relief3_m": {
+            "pearson": 0.999309875884005,
+            "spearman": 1.0
+          },
+          "mean_slope_deg|elev_std_m": {
+            "pearson": 0.9959732019141826,
+            "spearman": 0.9761904761904763
+          },
+          "mean_relief3_m|elev_std_m": {
+            "pearson": 0.9953833604498606,
+            "spearman": 0.9761904761904763
+          }
+        }
+      },
+      "Site11": {
+        "support_m": 1000.0,
+        "cells": [
+          9,
+          9
+        ],
+        "footprint_m": 9000.0,
+        "valid_fraction": 1.0,
+        "grid": {
+          "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "destination_crs": "+proj=aeqd +lat_0=-88.68341815077613 +lon_0=-67.93210043758978 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+          "resampling": "average",
+          "source_posting_m": 5.0,
+          "source_floor_m": 15.0
+        },
+        "reference_axes": {
+          "mean_slope_deg": 14.464250901450088,
+          "mean_relief3_m": 641.5930682100778,
+          "elev_std_m": 398.00121292857057
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.994015687807772,
+            0.9940969353327359,
+            0.9940513938786549
+          ],
+          "earth_llano_estacado": [
+            0.9861933398160241,
+            0.9843951275018105,
+            0.9809380130100895
+          ],
+          "earth_deccan_traps": [
+            0.9500959214875738,
+            0.9507194742414641,
+            0.9632969183179125
+          ],
+          "earth_snake_river_plain": [
+            0.9769680251247637,
+            0.9761248354612734,
+            0.9660883177004571
+          ],
+          "earth_harrat_khaybar": [
+            0.8852143550717739,
+            0.8788526066529208,
+            0.8593815349022235
+          ],
+          "earth_odadahraun": [
+            0.9081577814830841,
+            0.9334617885203557,
+            0.92504196790928
+          ],
+          "earth_nevada_basin": [
+            0.35665479720003473,
+            0.3450356613733474,
+            0.24349200489348177
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ],
+        "leave_one_axis_out": {
+          "without_mean_slope_deg": [
+            "earth_nevada_basin"
+          ],
+          "without_mean_relief3_m": [
+            "earth_nevada_basin"
+          ],
+          "without_elev_std_m": [
+            "earth_nevada_basin"
+          ]
+        },
+        "axis_correlations": {
+          "mean_slope_deg|mean_relief3_m": {
+            "pearson": 0.9996115958895363,
+            "spearman": 1.0
+          },
+          "mean_slope_deg|elev_std_m": {
+            "pearson": 0.99522101701565,
+            "spearman": 1.0
+          },
+          "mean_relief3_m|elev_std_m": {
+            "pearson": 0.9964891659161572,
+            "spearman": 1.0
+          }
+        }
+      },
+      "Site20": {
+        "support_m": 1000.0,
+        "cells": [
+          9,
+          9
+        ],
+        "footprint_m": 9000.0,
+        "valid_fraction": 1.0,
+        "grid": {
+          "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "destination_crs": "+proj=aeqd +lat_0=-85.42657728044317 +lon_0=31.7427611534189 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+          "resampling": "average",
+          "source_posting_m": 5.0,
+          "source_floor_m": 15.0
+        },
+        "reference_axes": {
+          "mean_slope_deg": 10.236092619050059,
+          "mean_relief3_m": 396.12598515849623,
+          "elev_std_m": 256.8300750948205
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9915437856765871,
+            0.9904389878129377,
+            0.9907816385964316
+          ],
+          "earth_llano_estacado": [
+            0.9804903096870745,
+            0.9747252682220922,
+            0.9704602588306216
+          ],
+          "earth_deccan_traps": [
+            0.9294823582129346,
+            0.9201818489343132,
+            0.9431224282347226
+          ],
+          "earth_snake_river_plain": [
+            0.967454352383319,
+            0.9613301307050256,
+            0.9474481690562002
+          ],
+          "earth_harrat_khaybar": [
+            0.837800571964666,
+            0.8037812950541331,
+            0.7820881388271744
+          ],
+          "earth_odadahraun": [
+            0.8702210949613546,
+            0.8922301064411238,
+            0.883839975984779
+          ],
+          "earth_nevada_basin": [
+            0.09091224788013227,
+            0.060825584111887,
+            0.172335831508027
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ],
+        "leave_one_axis_out": {
+          "without_mean_slope_deg": [
+            "earth_nevada_basin"
+          ],
+          "without_mean_relief3_m": [
+            "earth_nevada_basin"
+          ],
+          "without_elev_std_m": [
+            "earth_nevada_basin"
+          ]
+        },
+        "axis_correlations": {
+          "mean_slope_deg|mean_relief3_m": {
+            "pearson": 0.9949131567889349,
+            "spearman": 0.9761904761904763
+          },
+          "mean_slope_deg|elev_std_m": {
+            "pearson": 0.9868344780483111,
+            "spearman": 0.9761904761904763
+          },
+          "mean_relief3_m|elev_std_m": {
+            "pearson": 0.9977994617516918,
+            "spearman": 1.0
+          }
+        }
+      },
+      "Site23": {
+        "support_m": 1000.0,
+        "cells": [
+          9,
+          9
+        ],
+        "footprint_m": 9000.0,
+        "valid_fraction": 1.0,
+        "grid": {
+          "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+          "destination_crs": "+proj=aeqd +lat_0=-85.99478468356075 +lon_0=-0.2357837698766106 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+          "resampling": "average",
+          "source_posting_m": 5.0,
+          "source_floor_m": 15.0
+        },
+        "reference_axes": {
+          "mean_slope_deg": 14.447638156707475,
+          "mean_relief3_m": 553.2897166281282,
+          "elev_std_m": 379.45895816143064
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9940088066933759,
+            0.9931548242125419,
+            0.9937607153537736
+          ],
+          "earth_llano_estacado": [
+            0.9861774641054826,
+            0.9819046374363223,
+            0.9800065493786935
+          ],
+          "earth_deccan_traps": [
+            0.9500385388407391,
+            0.9428544526055674,
+            0.9615034229302007
+          ],
+          "earth_snake_river_plain": [
+            0.9769415416043868,
+            0.9723144320053981,
+            0.9644312239904361
+          ],
+          "earth_harrat_khaybar": [
+            0.8850823677809361,
+            0.8595178520994505,
+            0.8525102162820477
+          ],
+          "earth_odadahraun": [
+            0.9080521758943874,
+            0.9228424928686524,
+            0.9213791450980754
+          ],
+          "earth_nevada_basin": [
+            0.35591504101846544,
+            0.2405053501652316,
+            0.20652525611356304
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ],
+        "leave_one_axis_out": {
+          "without_mean_slope_deg": [
+            "earth_nevada_basin"
+          ],
+          "without_mean_relief3_m": [
+            "earth_nevada_basin"
+          ],
+          "without_elev_std_m": [
+            "earth_nevada_basin"
+          ]
+        },
+        "axis_correlations": {
+          "mean_slope_deg|mean_relief3_m": {
+            "pearson": 0.9953168139493032,
+            "spearman": 1.0
+          },
+          "mean_slope_deg|elev_std_m": {
+            "pearson": 0.9923304715516007,
+            "spearman": 1.0
+          },
+          "mean_relief3_m|elev_std_m": {
+            "pearson": 0.999455660522032,
+            "spearman": 1.0
+          }
+        }
+      }
+    }
+  },
+  "ensemble": {
+    "n_draws": 6,
+    "site": "Site01",
+    "draws_available_at_source": 100,
+    "honest_label": "6 sampled realisations of the 100 published for Site01 only \u2014 not a complete ensemble and not six sites",
+    "scales": {
+      "500m": {
+        "n_realisations": 6,
+        "point_estimate_layer1": [
+          "earth_nevada_basin"
+        ],
+        "exact_set_match_count": 6,
+        "exact_set_match_fraction": 1.0,
+        "candidate_layer1_count": {
+          "earth_nevada_basin": 6
+        },
+        "candidate_layer1_frequency": {
+          "earth_nevada_basin": 1.0
+        },
+        "layer1_set_counts": {
+          "earth_nevada_basin": 6
+        },
+        "distinct_layer1_sets": 1,
+        "reference_axis_range": {
+          "mean_slope_deg": [
+            9.502488733531031,
+            9.502754032803065
+          ],
+          "mean_relief3_m": [
+            220.5333710238806,
+            220.54092518654625
+          ],
+          "elev_std_m": [
+            273.84569066789186,
+            273.8538033756181
+          ]
+        }
+      },
+      "750m": {
+        "n_realisations": 6,
+        "point_estimate_layer1": [
+          "earth_nevada_basin"
+        ],
+        "exact_set_match_count": 6,
+        "exact_set_match_fraction": 1.0,
+        "candidate_layer1_count": {
+          "earth_nevada_basin": 6
+        },
+        "candidate_layer1_frequency": {
+          "earth_nevada_basin": 1.0
+        },
+        "layer1_set_counts": {
+          "earth_nevada_basin": 6
+        },
+        "distinct_layer1_sets": 1,
+        "reference_axis_range": {
+          "mean_slope_deg": [
+            9.059868256094813,
+            9.060152981094172
+          ],
+          "mean_relief3_m": [
+            321.5793262656437,
+            321.5954097735194
+          ],
+          "elev_std_m": [
+            271.67923645635136,
+            271.6848006075707
+          ]
+        }
+      },
+      "1000m": {
+        "n_realisations": 6,
+        "point_estimate_layer1": [
+          "earth_nevada_basin"
+        ],
+        "exact_set_match_count": 6,
+        "exact_set_match_fraction": 1.0,
+        "candidate_layer1_count": {
+          "earth_nevada_basin": 6
+        },
+        "candidate_layer1_frequency": {
+          "earth_nevada_basin": 1.0
+        },
+        "layer1_set_counts": {
+          "earth_nevada_basin": 6
+        },
+        "distinct_layer1_sets": 1,
+        "reference_axis_range": {
+          "mean_slope_deg": [
+            8.563382896166498,
+            8.563584441729787
+          ],
+          "mean_relief3_m": [
+            421.6331368610064,
+            421.64880759221484
+          ],
+          "elev_std_m": [
+            268.65202865456155,
+            268.6583780206929
+          ]
+        }
+      }
+    }
+  },
+  "grid_records": {
+    "500m": {
+      "earth_nullarbor": {
+        "cells": [
+          18,
+          18
+        ],
+        "support_m_requested": 500.0,
+        "support_m_achieved": [
+          500.0,
+          500.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          129.0,
+          -30.3
+        ],
+        "source_posting_m": 30.0,
+        "source_floor_m": 90.0,
+        "source_crs": "EPSG:4326",
+        "destination_crs": "+proj=aeqd +lat_0=-30.3 +lon_0=129.0 +datum=WGS84 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 324,
+        "n_cells": 324,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "earth_llano_estacado": {
+        "cells": [
+          18,
+          18
+        ],
+        "support_m_requested": 500.0,
+        "support_m_achieved": [
+          500.0,
+          500.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -102.0,
+          33.0
+        ],
+        "source_posting_m": 30.0,
+        "source_floor_m": 90.0,
+        "source_crs": "EPSG:4326",
+        "destination_crs": "+proj=aeqd +lat_0=33.0 +lon_0=-102.0 +datum=WGS84 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 324,
+        "n_cells": 324,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "earth_deccan_traps": {
+        "cells": [
+          18,
+          18
+        ],
+        "support_m_requested": 500.0,
+        "support_m_achieved": [
+          500.0,
+          500.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          76.0,
+          20.0
+        ],
+        "source_posting_m": 30.0,
+        "source_floor_m": 90.0,
+        "source_crs": "EPSG:4326",
+        "destination_crs": "+proj=aeqd +lat_0=20.0 +lon_0=76.0 +datum=WGS84 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 324,
+        "n_cells": 324,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "earth_snake_river_plain": {
+        "cells": [
+          18,
+          18
+        ],
+        "support_m_requested": 500.0,
+        "support_m_achieved": [
+          500.0,
+          500.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -114.05,
+          43.05
+        ],
+        "source_posting_m": 30.0,
+        "source_floor_m": 90.0,
+        "source_crs": "EPSG:4326",
+        "destination_crs": "+proj=aeqd +lat_0=43.05 +lon_0=-114.05 +datum=WGS84 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 324,
+        "n_cells": 324,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "earth_harrat_khaybar": {
+        "cells": [
+          18,
+          18
+        ],
+        "support_m_requested": 500.0,
+        "support_m_achieved": [
+          500.0,
+          500.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          40.0,
+          25.5
+        ],
+        "source_posting_m": 30.0,
+        "source_floor_m": 90.0,
+        "source_crs": "EPSG:4326",
+        "destination_crs": "+proj=aeqd +lat_0=25.5 +lon_0=40.0 +datum=WGS84 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 324,
+        "n_cells": 324,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "earth_odadahraun": {
+        "cells": [
+          18,
+          18
+        ],
+        "support_m_requested": 500.0,
+        "support_m_achieved": [
+          500.0,
+          500.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -16.54,
+          65.23
+        ],
+        "source_posting_m": 30.0,
+        "source_floor_m": 90.0,
+        "source_crs": "EPSG:4326",
+        "destination_crs": "+proj=aeqd +lat_0=65.23 +lon_0=-16.54 +datum=WGS84 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 0.7222222222222222,
+        "n_valid_cells": 234,
+        "n_cells": 324,
+        "n_empty_cells": 90,
+        "exact": true,
+        "coverage_per_row_min": 0.7222222222222222
+      },
+      "earth_nevada_basin": {
+        "cells": [
+          18,
+          18
+        ],
+        "support_m_requested": 500.0,
+        "support_m_achieved": [
+          500.0,
+          500.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -115.6,
+          36.2
+        ],
+        "source_posting_m": 30.0,
+        "source_floor_m": 90.0,
+        "source_crs": "EPSG:4326",
+        "destination_crs": "+proj=aeqd +lat_0=36.2 +lon_0=-115.6 +datum=WGS84 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 324,
+        "n_cells": 324,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "LUNAR_Site01": {
+        "cells": [
+          18,
+          18
+        ],
+        "support_m_requested": 500.0,
+        "support_m_achieved": [
+          500.0,
+          500.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -137.48955292199918,
+          -89.46316283403668
+        ],
+        "source_posting_m": 5.0,
+        "source_floor_m": 15.0,
+        "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "destination_crs": "+proj=aeqd +lat_0=-89.46316283403668 +lon_0=-137.48955292199918 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 324,
+        "n_cells": 324,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "LUNAR_Site04": {
+        "cells": [
+          18,
+          18
+        ],
+        "support_m_requested": 500.0,
+        "support_m_achieved": [
+          500.0,
+          500.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -171.86989764584402,
+          -89.76681145214992
+        ],
+        "source_posting_m": 5.0,
+        "source_floor_m": 15.0,
+        "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "destination_crs": "+proj=aeqd +lat_0=-89.76681145214992 +lon_0=-171.86989764584402 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 324,
+        "n_cells": 324,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "LUNAR_Site07": {
+        "cells": [
+          18,
+          18
+        ],
+        "support_m_requested": 500.0,
+        "support_m_achieved": [
+          500.0,
+          500.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          123.69006752597979,
+          -88.81100807350457
+        ],
+        "source_posting_m": 5.0,
+        "source_floor_m": 15.0,
+        "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "destination_crs": "+proj=aeqd +lat_0=-88.81100807350457 +lon_0=123.69006752597979 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 324,
+        "n_cells": 324,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "LUNAR_Site11": {
+        "cells": [
+          18,
+          18
+        ],
+        "support_m_requested": 500.0,
+        "support_m_achieved": [
+          500.0,
+          500.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -67.93210043758978,
+          -88.68341815077613
+        ],
+        "source_posting_m": 5.0,
+        "source_floor_m": 15.0,
+        "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "destination_crs": "+proj=aeqd +lat_0=-88.68341815077613 +lon_0=-67.93210043758978 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 324,
+        "n_cells": 324,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "LUNAR_Site20": {
+        "cells": [
+          18,
+          18
+        ],
+        "support_m_requested": 500.0,
+        "support_m_achieved": [
+          500.0,
+          500.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          31.7427611534189,
+          -85.42657728044317
+        ],
+        "source_posting_m": 5.0,
+        "source_floor_m": 15.0,
+        "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "destination_crs": "+proj=aeqd +lat_0=-85.42657728044317 +lon_0=31.7427611534189 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 324,
+        "n_cells": 324,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "LUNAR_Site23": {
+        "cells": [
+          18,
+          18
+        ],
+        "support_m_requested": 500.0,
+        "support_m_achieved": [
+          500.0,
+          500.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -0.2357837698766106,
+          -85.99478468356075
+        ],
+        "source_posting_m": 5.0,
+        "source_floor_m": 15.0,
+        "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "destination_crs": "+proj=aeqd +lat_0=-85.99478468356075 +lon_0=-0.2357837698766106 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 324,
+        "n_cells": 324,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      }
+    },
+    "750m": {
+      "earth_nullarbor": {
+        "cells": [
+          12,
+          12
+        ],
+        "support_m_requested": 750.0,
+        "support_m_achieved": [
+          750.0,
+          750.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          129.0,
+          -30.3
+        ],
+        "source_posting_m": 30.0,
+        "source_floor_m": 90.0,
+        "source_crs": "EPSG:4326",
+        "destination_crs": "+proj=aeqd +lat_0=-30.3 +lon_0=129.0 +datum=WGS84 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 144,
+        "n_cells": 144,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "earth_llano_estacado": {
+        "cells": [
+          12,
+          12
+        ],
+        "support_m_requested": 750.0,
+        "support_m_achieved": [
+          750.0,
+          750.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -102.0,
+          33.0
+        ],
+        "source_posting_m": 30.0,
+        "source_floor_m": 90.0,
+        "source_crs": "EPSG:4326",
+        "destination_crs": "+proj=aeqd +lat_0=33.0 +lon_0=-102.0 +datum=WGS84 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 144,
+        "n_cells": 144,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "earth_deccan_traps": {
+        "cells": [
+          12,
+          12
+        ],
+        "support_m_requested": 750.0,
+        "support_m_achieved": [
+          750.0,
+          750.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          76.0,
+          20.0
+        ],
+        "source_posting_m": 30.0,
+        "source_floor_m": 90.0,
+        "source_crs": "EPSG:4326",
+        "destination_crs": "+proj=aeqd +lat_0=20.0 +lon_0=76.0 +datum=WGS84 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 144,
+        "n_cells": 144,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "earth_snake_river_plain": {
+        "cells": [
+          12,
+          12
+        ],
+        "support_m_requested": 750.0,
+        "support_m_achieved": [
+          750.0,
+          750.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -114.05,
+          43.05
+        ],
+        "source_posting_m": 30.0,
+        "source_floor_m": 90.0,
+        "source_crs": "EPSG:4326",
+        "destination_crs": "+proj=aeqd +lat_0=43.05 +lon_0=-114.05 +datum=WGS84 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 144,
+        "n_cells": 144,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "earth_harrat_khaybar": {
+        "cells": [
+          12,
+          12
+        ],
+        "support_m_requested": 750.0,
+        "support_m_achieved": [
+          750.0,
+          750.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          40.0,
+          25.5
+        ],
+        "source_posting_m": 30.0,
+        "source_floor_m": 90.0,
+        "source_crs": "EPSG:4326",
+        "destination_crs": "+proj=aeqd +lat_0=25.5 +lon_0=40.0 +datum=WGS84 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 144,
+        "n_cells": 144,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "earth_odadahraun": {
+        "cells": [
+          12,
+          12
+        ],
+        "support_m_requested": 750.0,
+        "support_m_achieved": [
+          750.0,
+          750.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -16.54,
+          65.23
+        ],
+        "source_posting_m": 30.0,
+        "source_floor_m": 90.0,
+        "source_crs": "EPSG:4326",
+        "destination_crs": "+proj=aeqd +lat_0=65.23 +lon_0=-16.54 +datum=WGS84 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 0.75,
+        "n_valid_cells": 108,
+        "n_cells": 144,
+        "n_empty_cells": 36,
+        "exact": true,
+        "coverage_per_row_min": 0.75
+      },
+      "earth_nevada_basin": {
+        "cells": [
+          12,
+          12
+        ],
+        "support_m_requested": 750.0,
+        "support_m_achieved": [
+          750.0,
+          750.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -115.6,
+          36.2
+        ],
+        "source_posting_m": 30.0,
+        "source_floor_m": 90.0,
+        "source_crs": "EPSG:4326",
+        "destination_crs": "+proj=aeqd +lat_0=36.2 +lon_0=-115.6 +datum=WGS84 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 144,
+        "n_cells": 144,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "LUNAR_Site01": {
+        "cells": [
+          12,
+          12
+        ],
+        "support_m_requested": 750.0,
+        "support_m_achieved": [
+          750.0,
+          750.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -137.48955292199918,
+          -89.46316283403668
+        ],
+        "source_posting_m": 5.0,
+        "source_floor_m": 15.0,
+        "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "destination_crs": "+proj=aeqd +lat_0=-89.46316283403668 +lon_0=-137.48955292199918 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 144,
+        "n_cells": 144,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "LUNAR_Site04": {
+        "cells": [
+          12,
+          12
+        ],
+        "support_m_requested": 750.0,
+        "support_m_achieved": [
+          750.0,
+          750.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -171.86989764584402,
+          -89.76681145214992
+        ],
+        "source_posting_m": 5.0,
+        "source_floor_m": 15.0,
+        "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "destination_crs": "+proj=aeqd +lat_0=-89.76681145214992 +lon_0=-171.86989764584402 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 144,
+        "n_cells": 144,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "LUNAR_Site07": {
+        "cells": [
+          12,
+          12
+        ],
+        "support_m_requested": 750.0,
+        "support_m_achieved": [
+          750.0,
+          750.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          123.69006752597979,
+          -88.81100807350457
+        ],
+        "source_posting_m": 5.0,
+        "source_floor_m": 15.0,
+        "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "destination_crs": "+proj=aeqd +lat_0=-88.81100807350457 +lon_0=123.69006752597979 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 144,
+        "n_cells": 144,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "LUNAR_Site11": {
+        "cells": [
+          12,
+          12
+        ],
+        "support_m_requested": 750.0,
+        "support_m_achieved": [
+          750.0,
+          750.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -67.93210043758978,
+          -88.68341815077613
+        ],
+        "source_posting_m": 5.0,
+        "source_floor_m": 15.0,
+        "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "destination_crs": "+proj=aeqd +lat_0=-88.68341815077613 +lon_0=-67.93210043758978 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 144,
+        "n_cells": 144,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "LUNAR_Site20": {
+        "cells": [
+          12,
+          12
+        ],
+        "support_m_requested": 750.0,
+        "support_m_achieved": [
+          750.0,
+          750.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          31.7427611534189,
+          -85.42657728044317
+        ],
+        "source_posting_m": 5.0,
+        "source_floor_m": 15.0,
+        "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "destination_crs": "+proj=aeqd +lat_0=-85.42657728044317 +lon_0=31.7427611534189 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 144,
+        "n_cells": 144,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "LUNAR_Site23": {
+        "cells": [
+          12,
+          12
+        ],
+        "support_m_requested": 750.0,
+        "support_m_achieved": [
+          750.0,
+          750.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -0.2357837698766106,
+          -85.99478468356075
+        ],
+        "source_posting_m": 5.0,
+        "source_floor_m": 15.0,
+        "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "destination_crs": "+proj=aeqd +lat_0=-85.99478468356075 +lon_0=-0.2357837698766106 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 144,
+        "n_cells": 144,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      }
+    },
+    "1000m": {
+      "earth_nullarbor": {
+        "cells": [
+          9,
+          9
+        ],
+        "support_m_requested": 1000.0,
+        "support_m_achieved": [
+          1000.0,
+          1000.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          129.0,
+          -30.3
+        ],
+        "source_posting_m": 30.0,
+        "source_floor_m": 90.0,
+        "source_crs": "EPSG:4326",
+        "destination_crs": "+proj=aeqd +lat_0=-30.3 +lon_0=129.0 +datum=WGS84 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 81,
+        "n_cells": 81,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "earth_llano_estacado": {
+        "cells": [
+          9,
+          9
+        ],
+        "support_m_requested": 1000.0,
+        "support_m_achieved": [
+          1000.0,
+          1000.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -102.0,
+          33.0
+        ],
+        "source_posting_m": 30.0,
+        "source_floor_m": 90.0,
+        "source_crs": "EPSG:4326",
+        "destination_crs": "+proj=aeqd +lat_0=33.0 +lon_0=-102.0 +datum=WGS84 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 81,
+        "n_cells": 81,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "earth_deccan_traps": {
+        "cells": [
+          9,
+          9
+        ],
+        "support_m_requested": 1000.0,
+        "support_m_achieved": [
+          1000.0,
+          1000.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          76.0,
+          20.0
+        ],
+        "source_posting_m": 30.0,
+        "source_floor_m": 90.0,
+        "source_crs": "EPSG:4326",
+        "destination_crs": "+proj=aeqd +lat_0=20.0 +lon_0=76.0 +datum=WGS84 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 81,
+        "n_cells": 81,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "earth_snake_river_plain": {
+        "cells": [
+          9,
+          9
+        ],
+        "support_m_requested": 1000.0,
+        "support_m_achieved": [
+          1000.0,
+          1000.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -114.05,
+          43.05
+        ],
+        "source_posting_m": 30.0,
+        "source_floor_m": 90.0,
+        "source_crs": "EPSG:4326",
+        "destination_crs": "+proj=aeqd +lat_0=43.05 +lon_0=-114.05 +datum=WGS84 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 81,
+        "n_cells": 81,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "earth_harrat_khaybar": {
+        "cells": [
+          9,
+          9
+        ],
+        "support_m_requested": 1000.0,
+        "support_m_achieved": [
+          1000.0,
+          1000.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          40.0,
+          25.5
+        ],
+        "source_posting_m": 30.0,
+        "source_floor_m": 90.0,
+        "source_crs": "EPSG:4326",
+        "destination_crs": "+proj=aeqd +lat_0=25.5 +lon_0=40.0 +datum=WGS84 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 81,
+        "n_cells": 81,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "earth_odadahraun": {
+        "cells": [
+          9,
+          9
+        ],
+        "support_m_requested": 1000.0,
+        "support_m_achieved": [
+          1000.0,
+          1000.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -16.54,
+          65.23
+        ],
+        "source_posting_m": 30.0,
+        "source_floor_m": 90.0,
+        "source_crs": "EPSG:4326",
+        "destination_crs": "+proj=aeqd +lat_0=65.23 +lon_0=-16.54 +datum=WGS84 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 0.7777777777777778,
+        "n_valid_cells": 63,
+        "n_cells": 81,
+        "n_empty_cells": 18,
+        "exact": true,
+        "coverage_per_row_min": 0.7777777777777778
+      },
+      "earth_nevada_basin": {
+        "cells": [
+          9,
+          9
+        ],
+        "support_m_requested": 1000.0,
+        "support_m_achieved": [
+          1000.0,
+          1000.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -115.6,
+          36.2
+        ],
+        "source_posting_m": 30.0,
+        "source_floor_m": 90.0,
+        "source_crs": "EPSG:4326",
+        "destination_crs": "+proj=aeqd +lat_0=36.2 +lon_0=-115.6 +datum=WGS84 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 81,
+        "n_cells": 81,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "LUNAR_Site01": {
+        "cells": [
+          9,
+          9
+        ],
+        "support_m_requested": 1000.0,
+        "support_m_achieved": [
+          1000.0,
+          1000.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -137.48955292199918,
+          -89.46316283403668
+        ],
+        "source_posting_m": 5.0,
+        "source_floor_m": 15.0,
+        "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "destination_crs": "+proj=aeqd +lat_0=-89.46316283403668 +lon_0=-137.48955292199918 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 81,
+        "n_cells": 81,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "LUNAR_Site04": {
+        "cells": [
+          9,
+          9
+        ],
+        "support_m_requested": 1000.0,
+        "support_m_achieved": [
+          1000.0,
+          1000.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -171.86989764584402,
+          -89.76681145214992
+        ],
+        "source_posting_m": 5.0,
+        "source_floor_m": 15.0,
+        "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "destination_crs": "+proj=aeqd +lat_0=-89.76681145214992 +lon_0=-171.86989764584402 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 81,
+        "n_cells": 81,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "LUNAR_Site07": {
+        "cells": [
+          9,
+          9
+        ],
+        "support_m_requested": 1000.0,
+        "support_m_achieved": [
+          1000.0,
+          1000.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          123.69006752597979,
+          -88.81100807350457
+        ],
+        "source_posting_m": 5.0,
+        "source_floor_m": 15.0,
+        "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "destination_crs": "+proj=aeqd +lat_0=-88.81100807350457 +lon_0=123.69006752597979 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 81,
+        "n_cells": 81,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "LUNAR_Site11": {
+        "cells": [
+          9,
+          9
+        ],
+        "support_m_requested": 1000.0,
+        "support_m_achieved": [
+          1000.0,
+          1000.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -67.93210043758978,
+          -88.68341815077613
+        ],
+        "source_posting_m": 5.0,
+        "source_floor_m": 15.0,
+        "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "destination_crs": "+proj=aeqd +lat_0=-88.68341815077613 +lon_0=-67.93210043758978 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 81,
+        "n_cells": 81,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "LUNAR_Site20": {
+        "cells": [
+          9,
+          9
+        ],
+        "support_m_requested": 1000.0,
+        "support_m_achieved": [
+          1000.0,
+          1000.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          31.7427611534189,
+          -85.42657728044317
+        ],
+        "source_posting_m": 5.0,
+        "source_floor_m": 15.0,
+        "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "destination_crs": "+proj=aeqd +lat_0=-85.42657728044317 +lon_0=31.7427611534189 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 81,
+        "n_cells": 81,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      },
+      "LUNAR_Site23": {
+        "cells": [
+          9,
+          9
+        ],
+        "support_m_requested": 1000.0,
+        "support_m_achieved": [
+          1000.0,
+          1000.0
+        ],
+        "footprint_m": [
+          9000.0,
+          9000.0
+        ],
+        "origin_lonlat": [
+          -0.2357837698766106,
+          -85.99478468356075
+        ],
+        "source_posting_m": 5.0,
+        "source_floor_m": 15.0,
+        "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "destination_crs": "+proj=aeqd +lat_0=-85.99478468356075 +lon_0=-0.2357837698766106 +a=1737400.0 +b=1737400.0 +units=m +no_defs",
+        "resampling": "average",
+        "valid_fraction": 1.0,
+        "n_valid_cells": 81,
+        "n_cells": 81,
+        "n_empty_cells": 0,
+        "exact": true,
+        "coverage_per_row_min": 1.0
+      }
+    }
+  },
+  "analysis": {
+    "survivors_by_support": {
+      "500m": [
+        "earth_nevada_basin"
+      ],
+      "750m": [
+        "earth_nevada_basin"
+      ],
+      "1000m": [
+        "earth_nevada_basin"
+      ]
+    },
+    "survivor_union": [
+      "earth_nevada_basin"
+    ],
+    "v1_headline_survives": true,
+    "v1_headline": "earth_nevada_basin sole non-dominated at every support",
+    "v1_file_sha256": "1ec12158ee79f789f17e6380cdd5cb820e11b8a81ae12d04e9e3ea799e015ac2",
+    "v1_unchanged": true
+  }
+}

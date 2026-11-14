@@ -18,7 +18,7 @@
 |---|---|
 | Project | **TerraTrace** — reproducible, uncertainty-aware, multi-lens morphological analog screening across five worlds |
 | Repo | `github.com/pal-123456789/terratrace` · HEAD `b31a547` at the time of writing · **CI green** on Python 3.10/3.11/3.12 |
-| Scale | 5 planetary bodies · 40 descriptor families · 6 decision lenses · **686 → 891** tests across the arc · **51** validation oracles · **27** method citations |
+| Scale | 5 planetary bodies · 40 descriptor families · 6 decision lenses · **686 → 918** tests across the arc · **51** validation oracles · **27** method citations |
 | Engine | Pure-NumPy core (no SciPy/rasterio needed offline); dependency-free test runner |
 | Status | Engine deep and green; the exploratory real-data finding was withdrawn and its mechanism measured under protocol v3 — see `terratrace/docs/RESULTS-v3.md`; positioned as public research / prior art |
 
@@ -160,7 +160,7 @@ core roughness/relief axes, *without being told to*. Honest nuance, surfaced not
 
 ## 7. Validation & reproducibility
 
-- **891 automated tests**, 0 failing, pure-NumPy, offline, via a dependency-free runner.
+- **918 automated tests**, 0 failing, pure-NumPy, offline, via a dependency-free runner.
 - **51 scientific-correctness oracles** drive the real engine on synthetic terrains with known answers:
   self-distance zero; slope/relief/ruggedness invariant to vertical offset and 90° rotation; monotone
   roughness discrimination; a planted close twin recovered over an impostor; a water tile BLOCKED;
