@@ -28,7 +28,7 @@ candidate for a cratered highland as readily as for volcanic plains — the sign
 non-specific "least-dissimilar member of a weak shortlist" effect rather than a specific analog.
 TerraTrace's contribution is therefore a screening method that **detects its own false analogs**
 with rules fixed before the data are seen. Everything is offline-reproducible from one command
-and covered by 970 automated tests.
+and covered by 983 automated tests.
 
 ## 1. Problem and approach
 
@@ -215,7 +215,7 @@ end-to-end into the decision; wider Earth windows and smoothness-matched control
 
 ```bash
 pip install -r terratrace/requirements.txt      # core: NumPy only
-python terratrace/tests/run_tests.py             # 970 offline tests
+python terratrace/tests/run_tests.py             # 983 offline tests
 python terratrace/scripts/run_validation.py      # 51 correctness oracles
 # real five-world study, one command (needs a free OpenTopography key):
 python terratrace/scripts/run_real_analog_study.py --config config/real_multibody.example.yml
