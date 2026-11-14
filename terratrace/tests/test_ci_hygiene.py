@@ -28,6 +28,7 @@ the CI wiring for the script is still present.
 They are deliberately dependency-free themselves.
 """
 import os
+import pathlib
 import subprocess
 import sys
 
@@ -138,6 +139,32 @@ sys.exit(0)
                        timeout=120)
     assert r.returncode == 0, f"blocker is ineffective: {r.stdout}{r.stderr}"
 
+
+
+def test_a_module_needing_harness_puts_it_on_the_path_itself():
+    """A test module must not depend on ANOTHER module having imported successfully first.
+
+    `harness.py` lives in the tests directory, while `_ROOT` -- the directory every module inserts
+    into `sys.path` -- is the package root. So `from harness import require` only resolved for
+    modules that also inserted `_HERE`, and the ones that did not were surviving on alphabetical
+    luck: the probe imports the test modules in sorted order, so the first module that happens to
+    insert the tests directory makes `harness` importable for every module after it. That is not a
+    dependency, it is an accident of ordering -- and it hid until a new module sorted BEFORE the
+    module doing the fixing (`test_atlas_page.py` comes before `test_common_grid.py`) failed the
+    NumPy-only import probe on its own.
+    """
+    offenders = []
+    for path in sorted(pathlib.Path(_HERE).glob("test_*.py")):
+        src = path.read_text(encoding="utf-8")
+        if "from harness import" not in src and "import harness" not in src:
+            continue
+        if "sys.path.insert(0, str(_HERE))" not in src:
+            offenders.append(path.name)
+    assert offenders == [], (
+        "these modules import `harness` without putting the tests directory on sys.path "
+        f"themselves: {offenders}. They only work if some alphabetically-earlier module imports "
+        f"first, which is an accident -- and on CI the import probe would fail for whichever one "
+        f"sorts first.")
 
 def test_every_module_the_ci_run_imports_survives_a_numypy_only_environment():
     """The real guard: the suite's import step must not need an optional dep.

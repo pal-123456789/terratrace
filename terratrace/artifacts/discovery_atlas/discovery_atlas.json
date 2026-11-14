@@ -1089,11 +1089,12 @@
         "earth_nevada_basin"
       ],
       "provisional": true,
-      "worst_axis_distance_fraction": [
+      "axis_distance_fraction": [
         0.08658236353205422,
         0.003432428137663541,
         0.12068194100382529
-      ]
+      ],
+      "worst_axis_distance_fraction": 0.12068194100382529
     },
     "Site01@500m": {
       "state": "RECOMMEND_FOLLOW_UP",
@@ -1102,11 +1103,12 @@
         "earth_nevada_basin"
       ],
       "provisional": true,
-      "worst_axis_distance_fraction": [
+      "axis_distance_fraction": [
         0.1990798949980961,
         0.2075660178985131,
         0.12263013312814394
-      ]
+      ],
+      "worst_axis_distance_fraction": 0.2075660178985131
     },
     "Site01@750m": {
       "state": "RECOMMEND_FOLLOW_UP",
@@ -1115,11 +1117,12 @@
         "earth_nevada_basin"
       ],
       "provisional": true,
-      "worst_axis_distance_fraction": [
+      "axis_distance_fraction": [
         0.123632780574084,
         0.09636014917981414,
         0.12166149677548724
-      ]
+      ],
+      "worst_axis_distance_fraction": 0.123632780574084
     },
     "Site04@1000m": {
       "state": "RECOMMEND_FOLLOW_UP",
@@ -1128,11 +1131,12 @@
         "earth_nevada_basin"
       ],
       "provisional": true,
-      "worst_axis_distance_fraction": [
+      "axis_distance_fraction": [
         0.5926566169450783,
         0.6131671331896749,
         0.7064091283242239
-      ]
+      ],
+      "worst_axis_distance_fraction": 0.7064091283242239
     },
     "Site04@500m": {
       "state": "RECOMMEND_FOLLOW_UP",
@@ -1141,11 +1145,12 @@
         "earth_nevada_basin"
       ],
       "provisional": true,
-      "worst_axis_distance_fraction": [
+      "axis_distance_fraction": [
         0.5222970068866396,
         0.5315107892717623,
         0.7022698890310807
-      ]
+      ],
+      "worst_axis_distance_fraction": 0.7022698890310807
     },
     "Site04@750m": {
       "state": "RECOMMEND_FOLLOW_UP",
@@ -1154,11 +1159,12 @@
         "earth_nevada_basin"
       ],
       "provisional": true,
-      "worst_axis_distance_fraction": [
+      "axis_distance_fraction": [
         0.5642582155890332,
         0.5789690233802661,
         0.7040519622343872
-      ]
+      ],
+      "worst_axis_distance_fraction": 0.7040519622343872
     },
     "Site07@1000m": {
       "state": "RECOMMEND_FOLLOW_UP",
@@ -1167,11 +1173,12 @@
         "earth_nevada_basin"
       ],
       "provisional": true,
-      "worst_axis_distance_fraction": [
+      "axis_distance_fraction": [
         0.021744106643279165,
         0.04361284224953626,
         0.11166969678344665
-      ]
+      ],
+      "worst_axis_distance_fraction": 0.11166969678344665
     },
     "Site07@500m": {
       "state": "RECOMMEND_FOLLOW_UP",
@@ -1180,11 +1187,12 @@
         "earth_nevada_basin"
       ],
       "provisional": true,
-      "worst_axis_distance_fraction": [
+      "axis_distance_fraction": [
         0.12477429212968852,
         0.16197050871162114,
         0.11795131729414629
-      ]
+      ],
+      "worst_axis_distance_fraction": 0.16197050871162114
     },
     "Site07@750m": {
       "state": "RECOMMEND_FOLLOW_UP",
@@ -1193,11 +1201,12 @@
         "earth_nevada_basin"
       ],
       "provisional": true,
-      "worst_axis_distance_fraction": [
+      "axis_distance_fraction": [
         0.03885304877487072,
         0.050834029933173784,
         0.11579659828952008
-      ]
+      ],
+      "worst_axis_distance_fraction": 0.11579659828952008
     },
     "Site11@1000m": {
       "state": "RECOMMEND_FOLLOW_UP",
@@ -1206,11 +1215,12 @@
         "earth_nevada_basin"
       ],
       "provisional": true,
-      "worst_axis_distance_fraction": [
+      "axis_distance_fraction": [
         0.35665479720003473,
         0.3450356613733474,
         0.24349200489348177
-      ]
+      ],
+      "worst_axis_distance_fraction": 0.35665479720003473
     },
     "Site11@500m": {
       "state": "RECOMMEND_FOLLOW_UP",
@@ -1219,11 +1229,12 @@
         "earth_nevada_basin"
       ],
       "provisional": true,
-      "worst_axis_distance_fraction": [
+      "axis_distance_fraction": [
         0.25036859764506686,
         0.2250653350432469,
         0.23820783049695177
-      ]
+      ],
+      "worst_axis_distance_fraction": 0.25036859764506686
     },
     "Site11@750m": {
       "state": "RECOMMEND_FOLLOW_UP",
@@ -1232,11 +1243,12 @@
         "earth_nevada_basin"
       ],
       "provisional": true,
-      "worst_axis_distance_fraction": [
+      "axis_distance_fraction": [
         0.3158862399985534,
         0.29670019381613993,
         0.24037368980288382
-      ]
+      ],
+      "worst_axis_distance_fraction": 0.3158862399985534
     },
     "Site20@1000m": {
       "state": "RECOMMEND_FOLLOW_UP",
@@ -1245,11 +1257,12 @@
         "earth_nevada_basin"
       ],
       "provisional": true,
-      "worst_axis_distance_fraction": [
+      "axis_distance_fraction": [
         0.09091224788013227,
         0.060825584111887,
         0.172335831508027
-      ]
+      ],
+      "worst_axis_distance_fraction": 0.172335831508027
     },
     "Site20@500m": {
       "state": "RECOMMEND_FOLLOW_UP",
@@ -1258,11 +1271,12 @@
         "earth_nevada_basin"
       ],
       "provisional": true,
-      "worst_axis_distance_fraction": [
+      "axis_distance_fraction": [
         0.024374494376513015,
         0.1521062463289164,
         0.16696613242566888
-      ]
+      ],
+      "worst_axis_distance_fraction": 0.16696613242566888
     },
     "Site20@750m": {
       "state": "RECOMMEND_FOLLOW_UP",
@@ -1271,11 +1285,12 @@
         "earth_nevada_basin"
       ],
       "provisional": true,
-      "worst_axis_distance_fraction": [
+      "axis_distance_fraction": [
         0.045230833216964195,
         0.10022110158314053,
         0.16820208652693572
-      ]
+      ],
+      "worst_axis_distance_fraction": 0.16820208652693572
     },
     "Site23@1000m": {
       "state": "RECOMMEND_FOLLOW_UP",
@@ -1284,11 +1299,12 @@
         "earth_nevada_basin"
       ],
       "provisional": true,
-      "worst_axis_distance_fraction": [
+      "axis_distance_fraction": [
         0.35591504101846544,
         0.2405053501652316,
         0.20652525611356304
-      ]
+      ],
+      "worst_axis_distance_fraction": 0.35591504101846544
     },
     "Site23@500m": {
       "state": "RECOMMEND_FOLLOW_UP",
@@ -1297,11 +1313,12 @@
         "earth_nevada_basin"
       ],
       "provisional": true,
-      "worst_axis_distance_fraction": [
+      "axis_distance_fraction": [
         0.2442986470076033,
         0.14241787005809903,
         0.20499957076984493
-      ]
+      ],
+      "worst_axis_distance_fraction": 0.2442986470076033
     },
     "Site23@750m": {
       "state": "RECOMMEND_FOLLOW_UP",
@@ -1310,11 +1327,12 @@
         "earth_nevada_basin"
       ],
       "provisional": true,
-      "worst_axis_distance_fraction": [
+      "axis_distance_fraction": [
         0.3105454692411344,
         0.19409396749956734,
         0.20575620108463005
-      ]
+      ],
+      "worst_axis_distance_fraction": 0.3105454692411344
     }
   },
   "adequacy": {
@@ -1389,6 +1407,134 @@
     "Site23@750m": {
       "state": "NOT_ESTABLISHED",
       "discriminates": false
+    }
+  },
+  "sufficiency": {
+    "Site01@1000m": {
+      "state": "MARGINAL",
+      "reasons": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    "Site01@500m": {
+      "state": "MARGINAL",
+      "reasons": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    "Site01@750m": {
+      "state": "MARGINAL",
+      "reasons": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    "Site04@1000m": {
+      "state": "MARGINAL",
+      "reasons": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    "Site04@500m": {
+      "state": "MARGINAL",
+      "reasons": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    "Site04@750m": {
+      "state": "MARGINAL",
+      "reasons": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    "Site07@1000m": {
+      "state": "MARGINAL",
+      "reasons": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    "Site07@500m": {
+      "state": "MARGINAL",
+      "reasons": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    "Site07@750m": {
+      "state": "MARGINAL",
+      "reasons": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    "Site11@1000m": {
+      "state": "MARGINAL",
+      "reasons": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    "Site11@500m": {
+      "state": "MARGINAL",
+      "reasons": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    "Site11@750m": {
+      "state": "MARGINAL",
+      "reasons": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    "Site20@1000m": {
+      "state": "MARGINAL",
+      "reasons": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    "Site20@500m": {
+      "state": "MARGINAL",
+      "reasons": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    "Site20@750m": {
+      "state": "MARGINAL",
+      "reasons": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    "Site23@1000m": {
+      "state": "MARGINAL",
+      "reasons": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    "Site23@500m": {
+      "state": "MARGINAL",
+      "reasons": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    "Site23@750m": {
+      "state": "MARGINAL",
+      "reasons": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
     }
   },
   "abstention": [

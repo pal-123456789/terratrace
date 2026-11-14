@@ -148,7 +148,10 @@ CANONICAL = [
     ROOT / "scripts" / "lunar_adequacy.py",
     # and this one assembles the atlas whose numbers the atlas page quotes
     ROOT / "scripts" / "run_discovery_atlas.py",
+    # and this one BUILDS the published evidence page from that atlas
+    ROOT / "scripts" / "build_atlas_page.py",
     ROOT / "docs" / "DISCOVERY-ATLAS.md",
+    REPO / "site" / "atlas" / "index.html",
 ]
 
 # dated records: exempt from the count checks
@@ -506,6 +509,11 @@ def check_discovery_atlas(problems):
          (h["sibling_nearest"]["count"], h["sibling_nearest"]["of"])),
         ("stable perturbations", re.compile(r"untouched\s*\|\s*\*{0,2}(\d+)\*{0,2}\s*\|"),
          h["stress_stable_of_counted"][0]),
+        ("stable of counted",
+         re.compile(r"\*{0,2}(\d+)\s+of\s+(\d+)\*{0,2}\s+(?:perturbations|counted)"),
+         (h["stress_stable_of_counted"][0], h["stress_stable_of_counted"][1])),
+        ("definite of cells", re.compile(r"definite at\s+(\d+)\s*/\s*(\d+)"),
+         (h["ranking_definite_cells"], h["ranking_cells"])),
     ]
     for path in CANONICAL:
         if not path.exists() or path.suffix not in (".md", ".html", ".js"):

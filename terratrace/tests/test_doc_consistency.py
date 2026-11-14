@@ -224,13 +224,20 @@ def test_a_stale_count_in_a_slide_caption_is_caught():
     """The deck generators print counts twice: a bare string and a labelled helper argument.
 
     Every regex the guard owns is anchored on a number immediately followed by its noun, so the
-    helper form — ``stat(s, x, y, w, "NNN", "offline tests — ...", ACC)`` — walks straight past all
-    of them. That is not hypothetical: it is how a shipped slide carried a wrong scalar count for a
-    whole release. This seeds the defect in the real generator, asserts the check names the file,
-    and restores it.
+    helper form -- ``stat(s, x, y, w, "NNN", "offline tests -- ...", ACC)`` -- walks straight past
+    all of them. That is not hypothetical: it is how a shipped slide carried a wrong scalar count for
+    a whole release. This seeds the defect, asserts the check names the file, and cleans up.
 
     The stale value is derived from whatever the generator currently says rather than hard-coded, so
     this test does not itself go stale every time the suite grows.
+
+    It seeds into a TEMPORARY COPY rather than editing the tracked generator in place. That is a fix,
+    not a preference: the earlier version wrote to the real file and restored it in a ``finally``,
+    which is not crash-safe -- a shell timeout or a Ctrl-C between the write and the restore leaves a
+    canonical document holding a deliberately wrong number, and nothing fails until somebody notices
+    the next count cascade. That happened, during a sliced test run, and is how this was found. The
+    throwaway copy lives inside the repo rather than in a system temp directory because the guard
+    reports repo-relative paths, so the path has to be inside the repo to be reported at all.
     """
     g = _load_guard()
     script = g.ROOT / "scripts" / "build_deck.js"
@@ -239,18 +246,25 @@ def test_a_stale_count_in_a_slide_caption_is_caught():
     assert m, "the deck no longer prints its test count the way this test expects"
     stale = original[:m.start(1)] + str(int(m.group(1)) + 1) + original[m.end(1):]
 
+    decoy = g.ROOT / "scripts" / "_test_decoy_build_deck.js"
+    saved = list(g.CANONICAL)
     try:
-        script.write_text(stale, encoding="utf-8")
+        decoy.write_text(stale, encoding="utf-8")
+        g.CANONICAL[:] = [decoy if q == script else q for q in g.CANONICAL]
         problems = []
         g.check_counts(problems)
-        assert any("build_deck.js" in p for p in problems), (
+        assert any("_test_decoy_build_deck.js" in q for q in problems), (
             "a stale test count inside a slide caption went unnoticed:\n" + "\n".join(problems)
         )
     finally:
-        script.write_text(original, encoding="utf-8")
+        g.CANONICAL[:] = saved
+        if decoy.exists():
+            decoy.unlink()
 
-    # restored, and the guard is clean again — which is also the check above's positive control
+    # the real generator is untouched, which is the whole point of seeding a copy
+    assert script.read_text(encoding="utf-8") == original, (
+        "the seeding test modified the tracked deck generator; it must only ever write its decoy")
     problems = []
     g.check_counts(problems)
-    assert not problems, "the restored deck generator still reports problems:\n" + "\n".join(problems)
-
+    assert not problems, ("the guard reports problems with the generator back in place:\n"
+                          + "\n".join(problems))

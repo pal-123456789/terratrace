@@ -93,6 +93,16 @@ def load(path, label):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _worst(value):
+    """The largest axis distance in a record, whether it arrives as a list or a scalar."""
+    if value is None:
+        return None
+    if isinstance(value, (list, tuple)):
+        finite = [float(v) for v in value if v == v and v is not None]
+        return max(finite) if finite else None
+    return float(value)
+
+
 class Reconciler:
     """Collects cross-artifact checks. One disagreement and the atlas does not publish."""
 
@@ -296,14 +306,23 @@ def main():
 
     # ---------------------------------------------------------------- ranking + adequacy, per cell
     ranking, adequacy, abstention = {}, {}, []
+    sufficiency = {}
     for key, cell in sorted(adeq["cells"].items()):
         vd = cell["verdict"]
+        sufficiency[key] = {"state": vd["evidence_sufficiency"]["state"],
+                            "reasons": vd["evidence_sufficiency"]["reasons"]}
         ranking[key] = {"state": vd["relative_ranking"]["state"],
                         "recommended_unit": vd["relative_ranking"]["recommended_unit"],
                         "layer1": vd["relative_ranking"]["layer1"],
                         "provisional": vd["relative_ranking"]["provisional"],
-                        "worst_axis_distance_fraction":
-                            vd["relative_ranking"]["worst_axis_distance_fraction"]}
+                        "axis_distance_fraction":
+                            vd["relative_ranking"]["worst_axis_distance_fraction"],
+                        # the panel records one fraction per axis; the WORST of them is the number
+                        # a reader needs. Computed here, once, so nothing downstream has to decide
+                        # whether it is looking at a list or a scalar -- the first version of the
+                        # atlas page assumed a scalar and crashed on the real record.
+                        "worst_axis_distance_fraction": _worst(
+                            vd["relative_ranking"]["worst_axis_distance_fraction"])}
         adequacy[key] = {"state": vd["absolute_adequacy"]["state"],
                          "discriminates": (vd["absolute_adequacy"].get("discrimination") or {})
                          .get("discriminates")}
@@ -373,6 +392,7 @@ def main():
         "adversarial": adversarial,
         "ranking": ranking,
         "adequacy": adequacy,
+        "sufficiency": sufficiency,
         "abstention": abstention,
         "reconciliations": rec.rows,
         "verdict": V.three_part_verdict(ranking_v, adequacy_v, sufficiency_v),
