@@ -7,6 +7,7 @@
       "artifacts/dependence/dependence_audit.json",
       "artifacts/lunar_adversarial/lunar_adversarial.json",
       "artifacts/lunar_adequacy/lunar_adequacy.json",
+      "artifacts/lunar_axis_probe/lunar_axis_probe.json",
       "artifacts/scale_profile/scale_profile.json"
     ],
     "principle": "Every number that appears in more than one record is read from both and reconciled here. One disagreement and this file is not written.",
@@ -1791,6 +1792,47 @@
       ]
     }
   ],
+  "axis_sensitivity": {
+    "question": "Is the lunar panel's sole-non-dominated property robust to the axis set, and would a genuinely independent fourth axis change the decision?",
+    "descriptors_decision_tested": 141,
+    "changed_cells_min": 0,
+    "changed_cells_max": 18,
+    "changed_cells_zero": 42,
+    "random_control": {
+      "construction": "uniformly random 4th coordinate per unit, same range normalisation",
+      "draws": 300,
+      "seed0": 20000,
+      "mean_changed_cells": 15.9,
+      "median_changed_cells": 18,
+      "p05": 0.0,
+      "p95": 18.0,
+      "fraction_changing_at_least_10": 0.8833333333333333,
+      "fraction_unchanged": 0.11666666666666667,
+      "n_cells": 18
+    },
+    "descriptors_beating_the_control": 0,
+    "most_independent": {
+      "key": "/variogram/nugget",
+      "median_adjusted_r2": -0.5111693809092953,
+      "median_raw_r2": 0.13647463948040267,
+      "chance_level_raw_r2": 0.42857142857142855,
+      "changed_cells": 0
+    },
+    "invariance_of_the_declared_axes": {
+      "invariant_operations": [
+        "ninety_minus_theta",
+        "theta_plus_180",
+        "theta_plus_90"
+      ],
+      "not_invariant_operations": [
+        "theta_plus_45"
+      ],
+      "bank_scalars_not_quarter_turn_invariant": 48
+    },
+    "reading": "The analytic half establishes that the three declared axes are exactly blind to a quarter-turn rotation of a planar surface, so a descriptor not invariant under it must carry information they do not -- and one does: the variogram nugget has a median adjusted R2 below zero, i.e. the three axes predict it no better than three random numbers would. The consequence half then shows that this axis changes the decision at ZERO of the 18 cells, while a uniformly random 4th coordinate changes it at about 15. The frontier is therefore not fragile to a BAD axis or robust to a GOOD one -- it is fragile to the NUMBER of axes, which is a property of running a Pareto rule over 8 units in 3 dimensions and not a property of any candidate. The published lunar sole-winner property must not be read as evidence about candidates; what the panel supports is the ranking it states, provisional, and nothing stronger.",
+    "what_it_does_not_show": "It does not show that the declared axes are the wrong axes, nor that any Earth candidate is a better analog. Adding dimensions promotes co-winners without discriminating between them, so this experiment bounds a CLAIM, not a candidate.",
+    "status": "EXPLORATORY SENSITIVITY PROBE"
+  },
   "reconciliations": [
     {
       "check": "documented_hash:v3_bundle",
@@ -1937,6 +1979,46 @@
       "expected": 15,
       "observed": 15,
       "ok": true
+    },
+    {
+      "check": "axis:probe_reproduces_panel",
+      "claim": "the probe re-derived the panel's single-member frontier at all 18 cells",
+      "where": "artifacts/lunar_axis_probe <-> artifacts/lunar_sites_v2",
+      "expected": {
+        "mismatches": [],
+        "frontier_sizes": {
+          "1": 18
+        }
+      },
+      "observed": {
+        "mismatches": [],
+        "frontier_sizes": {
+          "1": 18
+        }
+      },
+      "ok": true
+    },
+    {
+      "check": "axis:no_pareto_removals",
+      "claim": "every added axis promoted co-winners only; dominance makes a removal impossible",
+      "where": "artifacts/lunar_axis_probe/lunar_axis_probe.json",
+      "expected": true,
+      "observed": true,
+      "ok": true
+    },
+    {
+      "check": "axis:control_is_present",
+      "claim": "the probe's frontier numbers travel with the control that bounds their reading",
+      "where": "artifacts/lunar_axis_probe/lunar_axis_probe.json",
+      "expected": {
+        "draws": 300,
+        "n_cells": 18
+      },
+      "observed": {
+        "draws": 300,
+        "n_cells": 18
+      },
+      "ok": true
     }
   ],
   "verdict": {
@@ -2003,6 +2085,18 @@
     "sufficiency_reasons": [
       "6 error realisations sampled while an ensemble claim is made; fewer than 30",
       "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
-    ]
+    ],
+    "axis_sensitivity": {
+      "descriptors_beating_the_random_control": 0,
+      "random_control_mean_changed_cells": 15.9,
+      "random_control_draws": 300,
+      "changed_cells_zero_of_tested": [
+        42,
+        141
+      ],
+      "most_independent": "/variogram/nugget",
+      "most_independent_median_adjusted_r2": -0.5111693809092953,
+      "most_independent_changed_cells": 0
+    }
   }
 }

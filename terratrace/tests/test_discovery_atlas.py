@@ -36,12 +36,13 @@ MARKDOWN = _ROOT / "artifacts" / "discovery_atlas" / "discovery_atlas.md"
 
 
 def _records():
-    """Fresh copies of the five records the atlas reconciles."""
+    """Fresh copies of the six records the atlas reconciles, in the order it takes them."""
     return (json.loads(A.V3.read_text(encoding="utf-8")),
             json.loads(A.LUNAR.read_text(encoding="utf-8")),
             json.loads(A.DEPEND.read_text(encoding="utf-8")),
             json.loads(A.STRESS.read_text(encoding="utf-8")),
-            json.loads(A.ADEQ.read_text(encoding="utf-8")))
+            json.loads(A.ADEQ.read_text(encoding="utf-8")),
+            json.loads(A.PROBE.read_text(encoding="utf-8")))
 
 
 DOCUMENTED = {"v3_bundle": A.sha256(A.V3), "v3_config": A.sha256(A.V3_CONFIG)}
@@ -49,7 +50,8 @@ ALL_CHECKS = {"documented_hash:v3_bundle", "documented_hash:v3_config",
               "lunar_headline:panel", "lunar_headline:stress_baseline",
               "ranking:adequacy_matches_panel", "dependence:agrees_with_stress",
               "stress:summary_matches_rows", "adequacy:summary_matches_cells",
-              "regimes:disjoint_supports", "v3:hypothesis_counts_sum"}
+              "regimes:disjoint_supports", "v3:hypothesis_counts_sum",
+              "axis:probe_reproduces_panel", "axis:no_pareto_removals", "axis:control_is_present"}
 
 
 # ------------------------------------------------------------------ it reconciles when they agree
@@ -70,13 +72,14 @@ def test_every_reconciliation_can_actually_fail():
     A reconciliation that cannot be made to fail is not a check, it is a sentence. This is the only
     test in the suite whose purpose is to prove the other checks are real.
     """
-    v3, lunar, dep, stress, adeq = _records()
-    base = A.reconcile(v3, lunar, dep, stress, adeq, DOCUMENTED).refused()
+    v3, lunar, dep, stress, adeq, probe = _records()
+    base = A.reconcile(v3, lunar, dep, stress, adeq, probe, DOCUMENTED).refused()
     assert base == []
 
     def corrupt(check, mutate, documented=None):
-        v3c, lunarc, depc, stressc, adeqc = copy.deepcopy((v3, lunar, dep, stress, adeq))
-        args = [v3c, lunarc, depc, stressc, adeqc]
+        v3c, lunarc, depc, stressc, adeqc, probec = copy.deepcopy(
+            (v3, lunar, dep, stress, adeq, probe))
+        args = [v3c, lunarc, depc, stressc, adeqc, probec]
         mutate(*args)
         rec = A.reconcile(*args, documented or DOCUMENTED)
         failed = {r["check"] for r in rec.refused()}
@@ -84,25 +87,34 @@ def test_every_reconciliation_can_actually_fail():
             f"corrupting the record for {check} did not trip it; the checks that DID fail were "
             f"{sorted(failed) or 'none'} -- so {check} is not testing what it says")
 
-    def _trip_lunar_panel(v3c, lunarc, depc, stressc, adeqc):
+    def _trip_probe_panel(v3c, lunarc, depc, stressc, adeqc, probec):
+        probec["frontier"]["baseline_mismatches"] = [{"cell": "Site01@500m"}]
+
+    def _trip_probe_removal(v3c, lunarc, depc, stressc, adeqc, probec):
+        probec["frontier"]["per_descriptor"][0]["removal_alarms"] = [{"cell": "Site01@500m"}]
+
+    def _trip_probe_control(v3c, lunarc, depc, stressc, adeqc, probec):
+        probec["random_control"]["draws"] = 299
+
+    def _trip_lunar_panel(v3c, lunarc, depc, stressc, adeqc, probec):
         lunarc["scales"]["500m"]["Site01"]["layer1"] = ["earth_nullarbor"]
 
-    def _trip_stress_baseline(v3c, lunarc, depc, stressc, adeqc):
+    def _trip_stress_baseline(v3c, lunarc, depc, stressc, adeqc, probec):
         stressc["baseline"]["reproduces_v2_artifact"] = False
 
-    def _trip_ranking(v3c, lunarc, depc, stressc, adeqc):
+    def _trip_ranking(v3c, lunarc, depc, stressc, adeqc, probec):
         adeqc["cells"]["Site01@500m"]["verdict"]["relative_ranking"]["recommended_unit"] = None
 
-    def _trip_dependence(v3c, lunarc, depc, stressc, adeqc):
+    def _trip_dependence(v3c, lunarc, depc, stressc, adeqc, probec):
         depc["verdict"]["three_axes_are_one_dimension"] = False
 
-    def _trip_stress_summary(v3c, lunarc, depc, stressc, adeqc):
+    def _trip_stress_summary(v3c, lunarc, depc, stressc, adeqc, probec):
         stressc["summary"]["n_stable_perturbations"] += 1
 
-    def _trip_adequacy_summary(v3c, lunarc, depc, stressc, adeqc):
+    def _trip_adequacy_summary(v3c, lunarc, depc, stressc, adeqc, probec):
         adeqc["summary"]["nearest_unit_is_a_sibling_lunar_site"]["count"] -= 1
 
-    def _trip_hypotheses(v3c, lunarc, depc, stressc, adeqc):
+    def _trip_hypotheses(v3c, lunarc, depc, stressc, adeqc, probec):
         v3c["hypotheses"]["R"]["counts"]["unchanged"] += 1
 
     corrupt("lunar_headline:panel", _trip_lunar_panel)
@@ -112,6 +124,9 @@ def test_every_reconciliation_can_actually_fail():
     corrupt("stress:summary_matches_rows", _trip_stress_summary)
     corrupt("adequacy:summary_matches_cells", _trip_adequacy_summary)
     corrupt("v3:hypothesis_counts_sum", _trip_hypotheses)
+    corrupt("axis:probe_reproduces_panel", _trip_probe_panel)
+    corrupt("axis:no_pareto_removals", _trip_probe_removal)
+    corrupt("axis:control_is_present", _trip_probe_control)
     corrupt("documented_hash:v3_bundle", lambda *a: None,
             documented={"v3_bundle": "0" * 64, "v3_config": DOCUMENTED["v3_config"]})
     corrupt("documented_hash:v3_config", lambda *a: None,
@@ -121,7 +136,7 @@ def test_every_reconciliation_can_actually_fail():
     original = dict(A.REGIME)
     try:
         A.REGIME["mars_panel_v3"] = dict(A.REGIME["mars_panel_v3"], supports_m=[500.0, 750.0, 1000.0])
-        rec = A.reconcile(v3, lunar, dep, stress, adeq, DOCUMENTED)
+        rec = A.reconcile(v3, lunar, dep, stress, adeq, probe, DOCUMENTED)
         assert "regimes:disjoint_supports" in {r["check"] for r in rec.refused()}, (
             "two regimes sharing a support must be caught, or 'nothing is pooled across them' is "
             "an assertion with no test behind it")
@@ -131,9 +146,9 @@ def test_every_reconciliation_can_actually_fail():
 
 
 def test_the_refusal_is_loud_and_names_the_disagreement():
-    v3, lunar, dep, stress, adeq = _records()
+    v3, lunar, dep, stress, adeq, probe = _records()
     stress["baseline"]["reproduces_v2_artifact"] = False
-    bad = A.reconcile(v3, lunar, dep, stress, adeq, DOCUMENTED).refused()
+    bad = A.reconcile(v3, lunar, dep, stress, adeq, probe, DOCUMENTED).refused()
     assert len(bad) == 1
     assert bad[0]["check"] == "lunar_headline:stress_baseline"
     assert bad[0]["expected"] is True and bad[0]["observed"] is False
@@ -157,7 +172,7 @@ def test_the_atlas_carries_every_section_it_claims_to():
     a = json.loads(ARTIFACT.read_text(encoding="utf-8"))
     for key in ("regimes", "windows", "scale_evidence", "lens_decisions", "dependence",
                 "uncertainty", "adversarial", "ranking", "adequacy", "abstention",
-                "reconciliations", "verdict", "headline"):
+                "axis_sensitivity", "reconciliations", "verdict", "headline"):
         assert key in a, f"the atlas is missing {key}, so it is a partial picture presented as a whole"
     assert len(a["windows"]) >= 30
     assert a["abstention"], "an atlas with no abstention rows is not this project's atlas"
@@ -175,6 +190,16 @@ def test_the_headline_recomputes_from_the_sections_it_summarises():
     assert h["stress_stable_of_counted"][1] == a["adversarial"]["n_counted"]
     assert h["stress_stable_of_counted"][0] == a["adversarial"]["n_stable"]
     assert h["sibling_nearest"]["count"] < h["sibling_nearest"]["of"]
+    ax = a["axis_sensitivity"]
+    assert h["axis_sensitivity"]["descriptors_beating_the_random_control"] == \
+        ax["descriptors_beating_the_control"]
+    assert h["axis_sensitivity"]["random_control_draws"] == ax["random_control"]["draws"]
+    assert h["axis_sensitivity"]["changed_cells_zero_of_tested"][1] == \
+        ax["descriptors_decision_tested"]
+    assert h["axis_sensitivity"]["most_independent"] == ax["most_independent"]["key"]
+    assert ax["descriptors_beating_the_control"] == 0, (
+        "a candidate axis now beats an arbitrary coordinate, which is a different finding")
+    assert 10.0 < ax["random_control"]["mean_changed_cells"] < 18.0
 
 
 def test_the_two_regimes_are_declared_disjoint_and_pooled_nowhere():
@@ -231,3 +256,8 @@ def test_the_generated_report_quotes_the_atlas_rather_than_restating_it():
     assert f"{h['stress_stable_of_counted'][1]} " in md
     for r in a["reconciliations"]:
         assert f"`{r['check']}`" in md, f"the report omits the reconciliation {r['check']}"
+    ax = a["axis_sensitivity"]
+    assert f"{ax['random_control']['mean_changed_cells']:.2f} of 18" in md, (
+        "the report drops the arbitrary-coordinate control, which is the number that makes the "
+        "frontier result readable")
+    assert ax["most_independent"]["key"] in md

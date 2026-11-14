@@ -145,7 +145,31 @@ def test_the_page_states_the_firewall_and_awards_nothing():
         f"a score-like column header appears: {heads}")
 
 
+def test_the_page_carries_the_axis_sensitivity_and_its_control():
+    """The frontier result is only readable next to the arbitrary-coordinate control.
+
+    If the control is ever dropped from the page, what remains reads as "the lunar frontier is
+    fragile", which is the misreading the control exists to prevent -- so its numbers are checked
+    against the atlas, and so is the sentence that says it does not promote a candidate.
+    """
+    h, a = _page(), _atlas()
+    ax = a["axis_sensitivity"]
+    assert "Is the frontier robust to the axis set" in h
+    assert f"{ax['random_control']['mean_changed_cells']:.2f} of 18 cells on average" in h, (
+        "the page states how many cells the candidate axes moved without stating what an arbitrary "
+        "coordinate moves")
+    assert f"over {ax['random_control']['draws']} random draws" in h
+    assert f"{ax['descriptors_decision_tested']}" in h
+    assert ax["most_independent"]["key"] in h
+    assert f"{ax['most_independent']['median_adjusted_r2']:.3f}" in h
+    low = h.lower()
+    assert "does <em>not</em> promote any earth candidate" in low, (
+        "the firewall that stops the axis sensitivity being read as a candidate result is missing")
+    assert "must not be read as evidence about candidates" in low
+
+
 def test_the_page_does_not_claim_any_test_count():
+
     """The page is about evidence for a terrain relationship, not about the test suite.
 
     A test count on a results page invites exactly the inference this project refuses -- that the

@@ -9,6 +9,13 @@
 | Which candidate is closest, among those tested? | definite at 18 of 18 lunar cells |
 | Is any candidate inside the reference's own variability? | **not established** at 18 cells |
 | Is the evidence enough? | **marginal** |
+| Is the frontier robust to the AXIS SET? | **no** — 0 of 141 candidate axes move it further than an arbitrary coordinate does (see below) |
+
+## The frontier is bounded by the number of axes
+
+Adding a fourth axis to the Pareto comparison changed the layer-1 set in 0 to 18 of 18 lunar cells across 141 candidate descriptors — but a **uniformly random** fourth coordinate, carrying no information at all, changes it in 15.90 of 18 on average over 300 draws. **No candidate axis exceeds that control's 95th percentile.** The most independent descriptor the probe found (`/variogram/nugget`, median adjusted R² -0.511 against a chance level of 0.4286) changes the decision at 0 cells.
+
+Read as: the lunar panel's **sole-non-dominated** property is a property of running a Pareto rule over eight units in three dimensions, not evidence about candidates. The ranking stands as published — relative and provisional — and this bounds it.
 
 ## Regimes — declared and kept apart
 
@@ -44,6 +51,9 @@ The two regimes are NOT comparable to each other: different footprint, different
 | `adequacy:summary_matches_cells` | `{"of": 24, "count": 18}` | `{"of": 24, "count": 18}` | yes |
 | `regimes:disjoint_supports` | `[]` | `[]` | yes |
 | `v3:hypothesis_counts_sum` | `15` | `15` | yes |
+| `axis:probe_reproduces_panel` | `{"mismatches": [], "frontier_sizes": {"1": 18}}` | `{"mismatches": [], "frontier_sizes": {"1": 18}}` | yes |
+| `axis:no_pareto_removals` | `true` | `true` | yes |
+| `axis:control_is_present` | `{"draws": 300, "n_cells": 18}` | `{"draws": 300, "n_cells": 18}` | yes |
 
 ## Uncertainty, and what could not be measured
 

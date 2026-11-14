@@ -54,7 +54,7 @@ ensemble size, the one-dimensional axis set, and nothing else — the two-regime
 a property of the atlas rather than as a weakness of the evidence, because refusing to pool is a
 virtue and charging it as a defect would have been a way of making an honest scope look like a fault.
 
-## The 10 cross-artifact reconciliations
+## The 13 cross-artifact reconciliations
 
 | check | what it holds together |
 |---|---|
@@ -73,6 +73,39 @@ Two of these are the ones that would have caught the project's own past mistakes
 hashes are the check that a cited checksum refers to a file that actually exists, and the
 dependence/stress agreement is the check that two documents describing the same finding cannot
 quietly drift apart.
+
+## Is the frontier robust to the axis set? No — and the control says why
+
+The lunar panel decides a winner by Pareto dominance over three declared axes. The
+independent-axis probe (see [`AXIS-PROBE.md`](AXIS-PROBE.md)) added every admissible scalar in the
+engine's own descriptor bank as a **fourth** axis in turn and recomputed the layer-1 set at all 18
+cells. The answer:
+
+| measurement | value |
+|---|---|
+| candidate axes decision-tested | 141 |
+| cells whose winner set changed | 0 to 18 of 18 |
+| axes that changed nothing at all | 42 |
+| **an arbitrary coordinate** | **15.90 of 18 cells on average** over 300 random draws |
+| axes beating that control | **0** |
+| most independent descriptor | `/variogram/nugget`, adjusted R² -0.511 against a chance level of 0.4286 |
+
+**The last two rows are the finding.** An arbitrary fourth coordinate — one carrying no information
+whatsoever — moves the frontier in nearly sixteen of eighteen cells, and **no candidate axis exceeds
+that control's 95th percentile**. Every change in the row above it is what adding a dimension does to
+a Pareto rule over eight points in three dimensions, not evidence about any candidate. Meanwhile the
+most independent descriptor the probe could find, `/variogram/nugget`, changes the decision at **0** of the 18
+cells: independence and decision-relevance are different properties, and this panel separates them.
+
+So the atlas's own headline — Nevada sole non-dominated at every lunar cell — must be read as a
+property of the *rule*, and it is bounded here rather than left implicit. It does **not** demote the
+ranking, which stands as published, relative and provisional; and it does **not** promote any Earth
+candidate, because adding dimensions promotes co-winners without discriminating between them.
+
+The analytic half of the same probe establishes that the three declared axes are exactly blind to a
+quarter-turn rotation of a planar surface (invariant to 1e-13), of which 48 of the bank's 180
+computable scalars are not.
+
 
 ## What the atlas does not contain
 

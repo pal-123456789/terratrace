@@ -59,6 +59,7 @@ LUNAR = ART / "lunar_sites_v2" / "lunar_sites_v2.json"
 DEPEND = ART / "dependence" / "dependence_audit.json"
 STRESS = ART / "lunar_adversarial" / "lunar_adversarial.json"
 ADEQ = ART / "lunar_adequacy" / "lunar_adequacy.json"
+PROBE = ART / "lunar_axis_probe" / "lunar_axis_probe.json"
 SCALE = ART / "scale_profile" / "scale_profile.json"
 
 V3_CONFIG = ROOT / "config" / "matched_footprint_v3.yml"
@@ -129,7 +130,7 @@ def extract_documented_hash(text, needle):
     return None
 
 
-def reconcile(v3, lunar, dep, stress, adeq, documented):
+def reconcile(v3, lunar, dep, stress, adeq, probe, documented):
     """Every cross-artifact check, as a pure function of the records.
 
     Taking the records as ARGUMENTS rather than reading them here is what makes the refusal
@@ -214,6 +215,31 @@ def reconcile(v3, lunar, dep, stress, adeq, documented):
               "the R-rule change counts sum to the number of cells they classify",
               len(v3.get("hypotheses", {}).get("R", {}).get("evidence", {}).get("rows", [])),
               sum(hcounts.values()), "artifacts/mf_panel_v3/matched_panel_v3_real.json")
+
+    # 9: the axis probe must have reproduced the panel it attacks. This is the same precondition the
+    # driver enforces on itself, restated here so the atlas cannot publish a probe that was aimed at
+    # something else -- and it is the check that ties the panel's headline to the probe's baseline.
+    rec.check("axis:probe_reproduces_panel",
+              "the probe re-derived the panel's single-member frontier at all 18 cells",
+              {"mismatches": [], "frontier_sizes": {"1": 18}},
+              {"mismatches": probe["frontier"]["baseline_mismatches"],
+               "frontier_sizes": probe["frontier"]["baseline_frontier_size_counts"]},
+              "artifacts/lunar_axis_probe <-> artifacts/lunar_sites_v2")
+    # 10: adding a coordinate can only promote a co-winner, so a recorded removal means a non-finite
+    # added coordinate rather than a finding. The atlas must not publish on top of one.
+    rec.check("axis:no_pareto_removals",
+              "every added axis promoted co-winners only; dominance makes a removal impossible",
+              True,
+              probe["frontier"]["removals_detected"] == 0
+              and all(t["removal_alarms"] == [] for t in probe["frontier"]["per_descriptor"]),
+              "artifacts/lunar_axis_probe/lunar_axis_probe.json")
+    # 11: the frontier result is only readable next to the arbitrary-coordinate control. If the
+    # control is not in the record, the atlas would be republishing a bare fragility number.
+    rec.check("axis:control_is_present",
+              "the probe's frontier numbers travel with the control that bounds their reading",
+              {"draws": 300, "n_cells": 18},
+              {"draws": probe["random_control"]["draws"], "n_cells": probe["random_control"]["n_cells"]},
+              "artifacts/lunar_axis_probe/lunar_axis_probe.json")
     return rec
 
 
@@ -223,6 +249,7 @@ def main():
     dep = load(DEPEND, "the descriptor-dependence audit")
     stress = load(STRESS, "the lunar adversarial stress record")
     adeq = load(ADEQ, "the lunar adequacy record")
+    probe = load(PROBE, "the independent-axis probe record")
     rec = Reconciler()
 
     # ---------------------------------------------------------------- regimes, kept apart
@@ -344,7 +371,7 @@ def main():
                   "v3_config": extract_documented_hash(V3_RESULTS.read_text(encoding="utf-8"),
                                                        "config/matched_footprint_v3.yml")
                   or extract_documented_hash(V3_RESULTS.read_text(encoding="utf-8"), "98535076")}
-    rec = reconcile(v3, lunar, dep, stress, adeq, documented)
+    rec = reconcile(v3, lunar, dep, stress, adeq, probe, documented)
 
     # ---------------------------------------------------------------- verdict
     lunar_rank_definite = sum(1 for r in ranking.values() if r["recommended_unit"])
@@ -372,11 +399,43 @@ def main():
             "\n".join(f"  - {p['check']}: expected {p['expected']!r}, observed {p['observed']!r} "
                       f"({p['where']})" for p in problems))
 
+    # ---------------------------------------------------------------- axis sensitivity
+    # Read straight out of the probe record rather than summarised here, because the number that
+    # matters most is the one that makes the others readable: the arbitrary-coordinate control.
+    _pt = probe["frontier"]["per_descriptor"]
+    _best = probe["verdict"]["most_independent_admissible_descriptor"]
+    _best_cells = next((t["changed_cells"] for t in _pt if t["key"] == _best["key"]), None)
+    axis_sensitivity = {
+        "question": ("Is the lunar panel's sole-non-dominated property robust to the axis set, and "
+                     "would a genuinely independent fourth axis change the decision?"),
+        "descriptors_decision_tested": len(_pt),
+        "changed_cells_min": min(t["changed_cells"] for t in _pt),
+        "changed_cells_max": max(t["changed_cells"] for t in _pt),
+        "changed_cells_zero": sum(1 for t in _pt if t["changed_cells"] == 0),
+        "random_control": dict(probe["random_control"]),
+        "descriptors_beating_the_control": probe["verdict"]["n_descriptors_beating_the_random_control"],
+        "most_independent": {
+            "key": _best["key"],
+            "median_adjusted_r2": _best["median_adjusted_r2"],
+            "median_raw_r2": _best["median_raw_r2"],
+            "chance_level_raw_r2": probe["provenance"]["chance_level_raw_r2"],
+            "changed_cells": _best_cells,
+        },
+        "invariance_of_the_declared_axes": {
+            "invariant_operations": probe["invariance"]["invariant_operations"],
+            "not_invariant_operations": probe["invariance"]["not_invariant_operations"],
+            "bank_scalars_not_quarter_turn_invariant": probe["invariance"]["bank_quarter_turn"]["n_changed"],
+        },
+        "reading": probe["verdict"]["reading"],
+        "what_it_does_not_show": probe["verdict"]["what_this_does_not_show"],
+        "status": probe["provenance"]["status"],
+    }
+
     atlas = {
         "provenance": {
             "what": "the scale-resolved planetary morphology evidence atlas",
             "assembled_from": [str(p.relative_to(ROOT)) for p in
-                               (V3, LUNAR, DEPEND, STRESS, ADEQ, SCALE) if p.exists()],
+                               (V3, LUNAR, DEPEND, STRESS, ADEQ, PROBE, SCALE) if p.exists()],
             "principle": ("Every number that appears in more than one record is read from both and "
                           "reconciled here. One disagreement and this file is not written."),
             "regimes_are_not_pooled": True,
@@ -394,6 +453,7 @@ def main():
         "adequacy": adequacy,
         "sufficiency": sufficiency,
         "abstention": abstention,
+        "axis_sensitivity": axis_sensitivity,
         "reconciliations": rec.rows,
         "verdict": V.three_part_verdict(ranking_v, adequacy_v, sufficiency_v),
         "headline": {
@@ -406,6 +466,20 @@ def main():
             "stress_stable_of_counted": [stress["summary"]["n_stable_perturbations"],
                                            stress["summary"]["n_counted_perturbations"]],
             "sufficiency_reasons": suf_reasons,
+            "axis_sensitivity": {
+                "descriptors_beating_the_random_control": axis_sensitivity[
+                    "descriptors_beating_the_control"],
+                "random_control_mean_changed_cells": axis_sensitivity["random_control"][
+                    "mean_changed_cells"],
+                "random_control_draws": axis_sensitivity["random_control"]["draws"],
+                "changed_cells_zero_of_tested": [axis_sensitivity["changed_cells_zero"],
+                                                axis_sensitivity["descriptors_decision_tested"]],
+                "most_independent": axis_sensitivity["most_independent"]["key"],
+                "most_independent_median_adjusted_r2": axis_sensitivity["most_independent"][
+                    "median_adjusted_r2"],
+                "most_independent_changed_cells": axis_sensitivity["most_independent"][
+                    "changed_cells"],
+            },
         },
     }
 
@@ -426,6 +500,11 @@ def main():
     print(f"nearest unit is a sibling lunar site: "
           f"{h['sibling_nearest']['count']} of {h['sibling_nearest']['of']} site x descriptor stats")
     print(f"evidence sufficiency: {atlas['verdict']['evidence_sufficiency']['state']}")
+    a = atlas["axis_sensitivity"]
+    print(f"axis sensitivity: {a['descriptors_decision_tested']} axes tested, "
+          f"{a['descriptors_beating_the_control']} beat an arbitrary coordinate "
+          f"(control mean {a['random_control']['mean_changed_cells']:.2f} of "
+          f"{a['random_control']['n_cells']} cells)")
     print(f"\nwrote {OUT_DIR/'discovery_atlas.json'} and .md")
     return 0
 
@@ -447,6 +526,29 @@ def _markdown(a):
          f"| Is any candidate inside the reference's own variability? | **not established** at "
          f"{h['adequacy_not_established_cells']} cells |",
          f"| Is the evidence enough? | **{a['verdict']['evidence_sufficiency']['state'].lower()}** |",
+         f"| Is the frontier robust to the AXIS SET? | **no** — "
+         f"{a['axis_sensitivity']['descriptors_beating_the_control']} of "
+         f"{a['axis_sensitivity']['descriptors_decision_tested']} candidate axes move it further than "
+         f"an arbitrary coordinate does (see below) |",
+         "",
+         "## The frontier is bounded by the number of axes",
+         "",
+         f"Adding a fourth axis to the Pareto comparison changed the layer-1 set in "
+         f"{a['axis_sensitivity']['changed_cells_min']} to "
+         f"{a['axis_sensitivity']['changed_cells_max']} of 18 lunar cells across "
+         f"{a['axis_sensitivity']['descriptors_decision_tested']} candidate descriptors — but a "
+         f"**uniformly random** fourth coordinate, carrying no information at all, changes it in "
+         f"{a['axis_sensitivity']['random_control']['mean_changed_cells']:.2f} of 18 on average over "
+         f"{a['axis_sensitivity']['random_control']['draws']} draws. **No candidate axis exceeds "
+         f"that control's 95th percentile.** The most independent descriptor the probe found "
+         f"(`{a['axis_sensitivity']['most_independent']['key']}`, median adjusted R² "
+         f"{a['axis_sensitivity']['most_independent']['median_adjusted_r2']:.3f} against a chance "
+         f"level of {a['axis_sensitivity']['most_independent']['chance_level_raw_r2']:.4f}) changes "
+         f"the decision at {a['axis_sensitivity']['most_independent']['changed_cells']} cells.",
+         "",
+         "Read as: the lunar panel's **sole-non-dominated** property is a property of running a "
+         "Pareto rule over eight units in three dimensions, not evidence about candidates. The "
+         "ranking stands as published — relative and provisional — and this bounds it.",
          "",
          "## Regimes — declared and kept apart",
          "",

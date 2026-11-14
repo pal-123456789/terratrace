@@ -297,8 +297,60 @@ no computation on load.</p>
                      f'change. <span class="note">{_e(row["family"])}</span></li>')
     parts.append('</ul>')
 
-    # ---- D. diagnostics
-    parts.append('<h2>D · Diagnostics</h2>')
+    # ---- D. the axis set, and the control that bounds the frontier
+    # ---- E. diagnostics
+    parts.append('<h2>D &middot; Is the frontier robust to the axis set?</h2>')
+    ax = a["axis_sensitivity"]
+    parts.append('<p>The lunar panel decides a winner by Pareto dominance over three declared axes. '
+                 'This section asks whether that winner is a property of the terrain or of the rule '
+                 '&mdash; and answers it against a control, because a Pareto frontier over eight '
+                 'units in three dimensions is expected to be fragile when a fourth coordinate '
+                 'arrives, <em>any</em> fourth coordinate.</p>')
+    parts.append('<div class="grid"><table><thead><tr><th>measurement</th><th>value</th>'
+                 '<th>what it means</th></tr></thead><tbody>')
+    rows = [
+        ("candidate axes decision-tested", f"{ax['descriptors_decision_tested']}",
+         "every admissible scalar in the engine&rsquo;s own descriptor bank was added as a fourth "
+         "axis in turn and the layer-1 set recomputed at all 18 cells"),
+        ("cells whose winner set changed",
+         f"{ax['changed_cells_min']} to {ax['changed_cells_max']} of 18",
+         f"{ax['changed_cells_zero']} of the {ax['descriptors_decision_tested']} axes changed "
+         f"nothing at all; adding a coordinate can only ever promote a co-winner, never remove one"),
+        ("<b>an arbitrary coordinate</b>",
+         f"{ax['random_control']['mean_changed_cells']:.2f} of 18 cells on average",
+         f"over {ax['random_control']['draws']} random draws, median "
+         f"{ax['random_control']['median_changed_cells']}, leaving the frontier intact in "
+         f"{100 * ax['random_control']['fraction_unchanged']:.0f}% of them &mdash; this is the "
+         f"baseline the numbers above must beat"),
+        ("axes beating that control", f"{ax['descriptors_beating_the_control']}",
+         "none. Every change above is what adding a dimension does, not evidence about a candidate"),
+        ("most independent descriptor",
+         f"<code>{_e(ax['most_independent']['key'])}</code>, adjusted R&sup2; "
+         f"{ax['most_independent']['median_adjusted_r2']:.3f}",
+         f"the three declared axes predict it no better than three random numbers would "
+         f"(chance level R&sup2; {ax['most_independent']['chance_level_raw_r2']:.4f}) &mdash; and it "
+         f"changes the decision at {ax['most_independent']['changed_cells']} of 18 cells, which is "
+         f"how independence and decision-relevance come apart"),
+        ("what the axes cannot see",
+         f"{ax['invariance_of_the_declared_axes']['bank_scalars_not_quarter_turn_invariant']} of 180 "
+         f"bank scalars",
+         "the three declared axes are exactly blind to a quarter-turn rotation of a planar surface "
+         "(verified to 1e-13); the scalars listed here are the ones that are not, and they are the "
+         "only ones this symmetry argument can even point at"),
+    ]
+    for name, value, why in rows:
+        parts.append(f'<tr><th scope="row">{name}</th><td class="m">{value}</td>'
+                     f'<td class="note">{why}</td></tr>')
+    parts.append('</tbody></table></div>')
+    parts.append('<div class="fw note"><b>What this bounds.</b> The sole-non-dominated property is a '
+                 'property of running a Pareto rule over eight units in three dimensions, so it must '
+                 'not be read as evidence about candidates. The ranking stands as published &mdash; '
+                 'relative and provisional &mdash; and this measures exactly how provisional. It '
+                 'does <em>not</em> promote any Earth candidate: adding dimensions promotes '
+                 'co-winners without discriminating between them. '
+                 f'<code>{_e(ax["status"])}</code>.</div>')
+
+    parts.append('<h2>E · Diagnostics</h2>')
     dep = a["dependence"]
     fit = dep["panel"]["500"]["pools"]["candidates_only"]["planar_fit"]
     parts.append('<div class="grid"><table><thead><tr><th>diagnostic</th><th>value</th>'
@@ -341,9 +393,9 @@ no computation on load.</p>
                      f'<td class="note">{why}</td></tr>')
     parts.append('</tbody></table></div>')
 
-    # ---- E. explainability
-    parts.append('<h2>E · Every claim points at two records</h2>')
-    parts.append('<p>The atlas is assembled from five committed records and refuses to publish if any '
+    # ---- F. explainability
+    parts.append('<h2>F · Every claim points at two records</h2>')
+    parts.append('<p>The atlas is assembled from six committed records and refuses to publish if any '
                  'two of them disagree. Each check below names both records it holds together, so a '
                  'reader can go and read them.</p>')
     parts.append('<div class="grid"><table><thead><tr><th>check</th><th>the claim it holds</th>'
@@ -355,7 +407,7 @@ no computation on load.</p>
 
     parts.append(f'<div class="foot">Built offline from <code>artifacts/discovery_atlas/'
                  f'discovery_atlas.json</code> (sha256 <code>{_sha(ATLAS)[:16]}&hellip;</code>) and '
-                 f'<code>artifacts/lunar_adversarial/lunar_adversarial.json</code>. Regenerate with '
+                 f'<code>artifacts/lunar_axis_probe/lunar_axis_probe.json</code>. Regenerate with '
                  f'<code>python scripts/build_atlas_page.py</code>. Scope: map-scale terrain-'
                  f'morphology screening only &mdash; no traversability, geologic-equivalence, '
                  f'site-access or mission-readiness claim, and no composite analog score anywhere on '
