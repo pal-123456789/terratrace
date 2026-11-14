@@ -27,6 +27,7 @@ import numpy as np
 _HERE = pathlib.Path(__file__).resolve().parent
 _ROOT = _HERE.parent
 sys.path.insert(0, str(_ROOT))
+sys.path.insert(0, str(_HERE))          # harness.py lives HERE, not in the package
 
 from harness import require                                        # noqa: E402
 from terratrace import lunar_adversarial as la                     # noqa: E402

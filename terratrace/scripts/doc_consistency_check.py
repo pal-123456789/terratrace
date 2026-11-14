@@ -146,6 +146,19 @@ CANONICAL = [
     # and this one prints the three-verdict numbers (ranking definite, adequacy not established,
     # sibling-nearest) that the lunar pages quote
     ROOT / "scripts" / "lunar_adequacy.py",
+    # and this one assembles the atlas whose numbers the atlas page quotes
+    ROOT / "scripts" / "run_discovery_atlas.py",
+    # and this one BUILDS the published evidence page from that atlas
+    ROOT / "scripts" / "build_atlas_page.py",
+    ROOT / "docs" / "DISCOVERY-ATLAS.md",
+    REPO / "site" / "atlas" / "index.html",
+    # The event-facing pages quote the suite's size and the official submission limits, and one of
+    # them shipped a stale test count for a release because nothing read it. A compliance page is
+    # prose the same way the deck generators are prose: the numbers on it get published.
+    ROOT / "docs" / "EVENT-ALIGNMENT.md",
+    ROOT / "docs" / "event" / "eligibility-evidence.md",
+    ROOT / "docs" / "event" / "SI-DISCLOSURE.md",
+    ROOT / "docs" / "DEMO.md",
 ]
 
 # dated records: exempt from the count checks
@@ -478,6 +491,142 @@ def check_lunar_adequacy(problems):
                         f"(...{text[max(0, m.start() - 40):m.end() + 15].strip()!r}...)")
 
 
+def check_discovery_atlas(problems):
+    """The atlas page's numbers must be the atlas's numbers.
+
+    The atlas reconciles ten pairs of records and refuses to publish on any disagreement; this is
+    the matching check in the other direction, so the PAGE cannot drift away from the atlas it is
+    describing. A page that quotes a stale abstention count is the same defect as a stale test
+    count, and harder to notice because it looks like a finding.
+    """
+    import json
+    art = ROOT / "artifacts" / "discovery_atlas" / "discovery_atlas.json"
+    if not art.exists():
+        return
+    a = json.loads(art.read_text(encoding="utf-8"))
+    h = a["headline"]
+    pats = [
+        ("reconciliations", re.compile(r"(?<![\w.])(\d+)\s+cross-artifact reconciliations?", re.I),
+         len(a["reconciliations"])),
+        ("abstention rows", re.compile(r"abstention rows?[:\s*]+(\d+)", re.I), h["abstention_rows"]),
+        ("ranking cells", re.compile(r"definite at\s+(\d+)\s+of\s+(\d+)\s+lunar cells"),
+         (h["ranking_definite_cells"], h["ranking_cells"])),
+        ("sibling nearest",
+         re.compile(r"(?<![\w.])(\d+)\s+of\s+(\d+)\*{0,2}\s*(?:site\s*[x×]\s*descriptor)"),
+         (h["sibling_nearest"]["count"], h["sibling_nearest"]["of"])),
+        ("stable perturbations", re.compile(r"untouched\s*\|\s*\*{0,2}(\d+)\*{0,2}\s*\|"),
+         h["stress_stable_of_counted"][0]),
+        ("stable of counted",
+         re.compile(r"\*{0,2}(\d+)\s+of\s+(\d+)\*{0,2}\s+(?:perturbations|counted)"),
+         (h["stress_stable_of_counted"][0], h["stress_stable_of_counted"][1])),
+        ("definite of cells", re.compile(r"definite at\s+(\d+)\s*/\s*(\d+)"),
+         (h["ranking_definite_cells"], h["ranking_cells"])),
+    ]
+    for path in CANONICAL:
+        if not path.exists() or path.suffix not in (".md", ".html", ".js"):
+            continue
+        text = _probe(path.read_text(encoding="utf-8", errors="replace"))
+        rel = _rel(path)
+        for label, pat, want in pats:
+            for m in pat.finditer(text):
+                got = tuple(int(g) for g in m.groups())
+                want_t = want if isinstance(want, tuple) else (want,)
+                if got != want_t:
+                    problems.append(
+                        f"atlas: {rel} states {label} {got}, the atlas says {want_t} "
+                        f"(...{text[max(0, m.start() - 40):m.end() + 15].strip()!r}...)")
+
+
+def _pdf_text(path):
+    """Text out of a PDF via ``pdftotext``, or ``None`` when poppler is not installed.
+
+    Not a hand-rolled stream scraper, and that is a correction rather than a preference. The first
+    version of this check decompressed the PDF streams and searched them for the count, and it was
+    WRONG IN BOTH DIRECTIONS: it reported two correct exports as stale, and the one file it accepted
+    only contained the digits by coincidence -- both decks draw text through subsetted fonts as hex
+    glyph runs, so the literal byte sequence "1016" in a stream is not text at all. A check that
+    fails on a correct tree gets switched off, and this one would have been.
+    """
+    import shutil
+    import subprocess
+    exe = shutil.which("pdftotext")
+    if not exe:
+        return None
+    try:
+        out = subprocess.run([exe, str(path), "-"], capture_output=True, timeout=60)
+    except Exception:
+        return None
+    if out.returncode != 0:
+        return None
+    return out.stdout.decode("utf-8", "replace")
+
+
+def check_generated_exports(problems, notes, tests=None, decks=None, pdfs=None):
+    """The exports must be regenerated when the counts change -- three shipped ones were not.
+
+    This exists because it caught three real stale artefacts at once: two deck PDFs still saying
+    1004 and a paper PDF still saying 843, after the suite had reached 1016. Nothing in the tree
+    could see it. The decks and the paper are compiled from guarded sources, so the *source* was
+    updated and the *export* silently was not -- and the export is what a reader opens.
+
+    The recorded property is narrow on purpose: the current test count has to appear in each export.
+    Absent, and the export predates the last change to it. The PNG cover is not checked at all
+    because text in a PNG is pixels; it is regenerated by ``make_cover.py``.
+
+    Where poppler is missing the PDF half cannot be run, and that is said out loud in ``notes``
+    rather than passed over -- an unverified export reported as verified is the defect this whole
+    file exists to prevent. The ``.pptx`` half needs no external tool and always runs.
+
+    The file lists are parameters rather than module constants so the two directions can be tested
+    on doctored copies without renaming anything in the real tree -- a test that temporarily moves a
+    shipped deck aside can leave the tree broken if it crashes in between.
+    """
+    import zipfile
+
+    want = str(tests if tests is not None else _count_tests())
+
+    def label(path):
+        try:
+            return _rel(path)
+        except ValueError:                      # a path outside the repo, e.g. a test fixture
+            return path.name
+
+    if decks is None:
+        decks = (REPO / "TerraTrace-deck.pptx", REPO / "TerraTrace-submission.pptx")
+    for path in decks:
+        if not path.exists():
+            continue
+        with zipfile.ZipFile(path) as z:
+            text = "".join(z.read(n).decode("utf-8", "replace")
+                           for n in z.namelist() if n.startswith("ppt/slides/slide"))
+        if want not in text:
+            problems.append(
+                f"exports: {label(path)} does not contain the current test count {want}, so the "
+                f"deck is older than the last count change -- rebuild it with the generator beside "
+                f"it in scripts/")
+
+    if pdfs is None:
+        pdfs = (REPO / "TerraTrace-deck.pdf", REPO / "TerraTrace-submission.pdf",
+                ROOT / "docs" / "TerraTrace-paper.pdf")
+    unverified = []
+    for path in pdfs:
+        if not path.exists():
+            continue
+        text = _pdf_text(path)
+        if text is None:
+            unverified.append(label(path))
+            continue
+        if want not in text:
+            problems.append(
+                f"exports: {label(path)} does not contain the current test count {want}, so the "
+                f"export predates the last change to it -- regenerate it ("
+                f"'libreoffice --headless --convert-to pdf' for a deck, "
+                f"scripts/make_paper_pdf.sh for the paper)")
+    if unverified:
+        notes.append("PDF exports NOT verified (pdftotext/poppler not installed): "
+                     + ", ".join(unverified))
+
+
 def check_versions(problems):
     src = (ROOT / "terratrace" / "__init__.py").read_text(encoding="utf-8")
     m = re.search(r'^__version__\s*=\s*["\']([^"\']+)["\']', src, re.M)
@@ -700,6 +849,7 @@ def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
     quiet = "--quiet" in argv
     problems = []
+    notes = []
     tests, oracles, sources, modules, families, scalar_range = check_counts(problems)
     ver = check_versions(problems)
     check_nav(problems)
@@ -708,6 +858,8 @@ def main(argv=None):
     check_lens_wording(problems)
     check_lunar_stress(problems)
     check_lunar_adequacy(problems)
+    check_discovery_atlas(problems)
+    check_generated_exports(problems, notes)
     n_pages = check_site_markup(problems)
 
     if not quiet:
@@ -720,9 +872,13 @@ def main(argv=None):
         print(f"\n{len(problems)} documentation-consistency problem(s):")
         for p in problems:
             print(f"  - {p}")
+        for n in notes:
+            print(f"  ! {n}")
         return 1
     if not quiet:
         print("OK: documentation is consistent with the code.")
+    for n in notes:
+        print(f"  ! {n}")
     return 0
 
 

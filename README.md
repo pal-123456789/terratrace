@@ -15,7 +15,7 @@ This repository holds two things:
 
 | Path | What it is |
 |---|---|
-| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across six robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **983 tests**, no network required. |
+| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across six robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **1017 tests**, no network required. |
 | `site/` | A 3D scroll-animated website telling the project story — live at **<https://terratrace.fit>**. |
 
 **Project deck — 10 slides.** [PDF](TerraTrace-deck.pdf) · [PowerPoint](TerraTrace-deck.pptx) — the whole project: the question, the pipeline across five bodies, the measurement layer, the benchmark that made us withdraw our own finding, the result, the verification evidence, the data path, the claim firewall and the open items.
@@ -89,7 +89,7 @@ example — are kept verbatim under `terratrace/docs/` so the audit trail is int
 ```bash
 cd terratrace
 pip install -r requirements.txt            # core (NumPy only)
-python tests/run_tests.py                   # 983 fixtures, offline
+python tests/run_tests.py                   # 1017 fixtures, offline
 python scripts/run_validation.py            # scientific-correctness suite
 python -m terratrace.cli --out artifacts    # synthetic study
 python -m terratrace.build_viewer           # viewer/index.html
@@ -196,12 +196,13 @@ Mars side needs no download either: the global MOLA 463 m GeoTIFF is the only Ma
 
 **Live at <https://terratrace.fit>**, served by GitHub Pages from `site/` via
 [`.github/workflows/pages.yml`](.github/workflows/pages.yml). Static site, no build step: Pages
-resolves `site/<name>/index.html` at `/<name>/` natively, so the three routes need no rewrite table.
+resolves `site/<name>/index.html` at `/<name>/` natively, so the four routes need no rewrite table.
 
 | Route | File | What it is |
 |---|---|---|
 | `/` | `site/index.html` | The scroll landing page — the three-act story, method, descriptors, evidence |
 | `/study/` | `site/study/index.html` | **The protocol-v3 results** — the confirmatory panel, with the frozen verdicts |
+| `/atlas/` | `site/atlas/index.html` | **The evidence map** — how much evidence supports each relationship, at what scale, and where it breaks. Built offline from the committed atlas record by `terratrace/scripts/build_atlas_page.py` |
 | `/viewer/` | `site/viewer/index.html` | The engine's **generated** study viewer (an archived real run), unmodified apart from a labelled site bar |
 
 `site/study/` is hand-written; `site/viewer/` is built by `terratrace/scripts/make_site_viewer.py`
