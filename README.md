@@ -15,7 +15,7 @@ This repository holds two things:
 
 | Path | What it is |
 |---|---|
-| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across six robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **952 tests**, no network required. |
+| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across six robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **970 tests**, no network required. |
 | `site/` | A 3D scroll-animated website telling the project story — live at **<https://terratrace.fit>**. |
 
 **Project deck — 10 slides.** [PDF](TerraTrace-deck.pdf) · [PowerPoint](TerraTrace-deck.pptx) — the whole project: the question, the pipeline across five bodies, the measurement layer, the benchmark that made us withdraw our own finding, the result, the verification evidence, the data path, the claim firewall and the open items.
@@ -89,7 +89,7 @@ example — are kept verbatim under `terratrace/docs/` so the audit trail is int
 ```bash
 cd terratrace
 pip install -r requirements.txt            # core (NumPy only)
-python tests/run_tests.py                   # 952 fixtures, offline
+python tests/run_tests.py                   # 970 fixtures, offline
 python scripts/run_validation.py            # scientific-correctness suite
 python -m terratrace.cli --out artifacts    # synthetic study
 python -m terratrace.build_viewer           # viewer/index.html
@@ -162,9 +162,19 @@ resampling kernels, masking, DEM noise/tilt/smoothing, descriptor and candidate 
 candidate): **28 of the 30 perturbations** left it untouched and only **18 of 504 site × support
 cells moved** — a cell-level stable fraction of 0.964, verdict **ROBUST** — with the two reversals
 named rather than buried (a 3 km window changes the survivor; an added eighth candidate makes
-Nevada a co-winner). And it is **exploratory** — six nearby sites are not six independent tests
-and the ensemble is 6 of 100 published realisations. Full record, tables, provenance and caveats:
-`terratrace/docs/LUNAR-DEMONSTRATION.md` and its pre-run fault line
+Nevada a co-winner).
+
+And the rest is reported as **three separate answers to three separate questions**, because a
+ranking is not an adequacy statement. The definitive ordering sits next to an **adequacy verdict of
+NOT_ESTABLISHED at all 18** cells — the reference's own variability band is so wide on this panel
+that it admits four of the five other lunar sites, so membership in it is not evidence of
+similarity — and an evidence-sufficiency verdict of **marginal**, with the reasons named. Adding
+those sibling sites as controls produced the least comfortable number in the project: at **18 of 24
+site × descriptor statistics** the unit nearest a lunar reference is **another lunar site**, not any
+of the seven Earth candidates. `earth_nevada_basin` is the closest **Earth** candidate everywhere,
+exactly as claimed; it is not the closest *unit*. And it is all **exploratory** — six nearby sites
+are not six independent tests and the ensemble is 6 of 100 published realisations. Full record,
+tables, provenance and caveats: `terratrace/docs/LUNAR-DEMONSTRATION.md` and its pre-run fault line
 `terratrace/docs/LUNAR-PROTOCOL-v2.md`; why the previously catalogued USGS endpoint still 404s:
 `terratrace/docs/LUNAR-STATUS.md`.
 

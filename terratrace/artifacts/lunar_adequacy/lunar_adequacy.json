@@ -1,0 +1,4073 @@
+{
+  "provenance": {
+    "what": "the lunar panel's three verdicts, reported separately",
+    "status": "CORRECTED EXPLORATORY REANALYSIS -- same data as the v2 panel",
+    "not": "not confirmation and not a new pre-registration",
+    "ranking_source": "artifacts/lunar_sites_v2/lunar_sites_v2.json (read, not recomputed)",
+    "adequacy_method": "terratrace.adequacy -- the reference's own held-out 3x3 sub-window self-distance band at the 95th percentile, calibrated for 'slope' and 'relief'; a candidate is adequate when its distance-to-reference is inside the band on EVERY descriptor whose band could be established",
+    "grid": "common_grid, 9000 m footprint, exact 500/750/1000 m cells, area-weighted",
+    "score_firewall": "no composite score, here or anywhere; ranking is Pareto dominance and adequacy is a band membership, and neither is derived from the other"
+  },
+  "cells": {
+    "Site01@500m": {
+      "site": "Site01",
+      "site_name": "Connecting ridge",
+      "support_m": 500.0,
+      "cells_per_side": 18,
+      "valid_fraction_min": 0.7222222222222222,
+      "verdict": {
+        "questions": {
+          "relative_ranking": "Which candidate is closest, among the candidates tested?",
+          "absolute_adequacy": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "evidence_sufficiency": "Is the evidence enough to answer either of the other two for this comparison?"
+        },
+        "relative_ranking": {
+          "question": "Which candidate is closest, among the candidates tested?",
+          "state": "RECOMMEND_FOLLOW_UP",
+          "recommended_unit": "earth_nevada_basin",
+          "layer1": [
+            "earth_nevada_basin"
+          ],
+          "runner_up": null,
+          "worst_axis_distance_fraction": [
+            0.1990798949980961,
+            0.2075660178985131,
+            0.12263013312814394
+          ],
+          "provisional": true,
+          "note": "Relative to the candidate set tested. A unit can be closest here and still be far from the reference; that is what the adequacy part is for."
+        },
+        "absolute_adequacy": {
+          "question": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "state": "NOT_ESTABLISHED",
+          "adequate_candidates": [],
+          "band": {
+            "slope": {
+              "median": 0.23264823529114395,
+              "p95": 0.9264342043233201
+            },
+            "relief": {
+              "median": 1.0582268064530844,
+              "p95": 5.885250043307042
+            }
+          },
+          "discrimination": {
+            "controls": 5,
+            "admitted": 4,
+            "admitted_fraction": 0.8,
+            "thresholds": {
+              "slope": 0.9264342043233201,
+              "relief": 5.885250043307042
+            },
+            "max_admitted_fraction": 0.5,
+            "discriminates": false,
+            "note": "the band admits terrain from different places, so it does not separate similar from dissimilar here",
+            "control_units": [
+              "LUNAR_Site04",
+              "LUNAR_Site07",
+              "LUNAR_Site11",
+              "LUNAR_Site20",
+              "LUNAR_Site23"
+            ],
+            "control_distances": [
+              {
+                "slope": 1.119000945709284,
+                "relief": 1.5449152240751407
+              },
+              {
+                "slope": 0.06119872389024448,
+                "relief": 0.06743035418703444
+              },
+              {
+                "slope": 0.4441081832899812,
+                "relief": 0.5104285709599704
+              },
+              {
+                "slope": 0.12912242390072354,
+                "relief": 0.06572520572214521
+              },
+              {
+                "slope": 0.43526933657614986,
+                "relief": 0.3001691315221584
+              }
+            ]
+          },
+          "note": "Absolute morphological adequacy has not been established. A band was calibrated, but it admits 4 of 5 control units that are known to be different terrain, so membership in it is not evidence of similarity at this scale."
+        },
+        "evidence_sufficiency": {
+          "question": "Is the evidence enough to answer either of the other two for this comparison?",
+          "state": "MARGINAL",
+          "reasons": [
+            "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+            "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+          ],
+          "n_candidates": 7,
+          "n_supports": 3,
+          "min_valid_fraction": 0.7222222222222222,
+          "effective_rank": 1,
+          "n_realisations": 6
+        },
+        "separable": true,
+        "reading": "These are three answers to three different questions. A definite ranking with NOT_ESTABLISHED adequacy is a normal, expected outcome -- it means the shortlist is ordered and nothing on it has been shown to be a good analog."
+      },
+      "adequacy_detail": {
+        "established": true,
+        "reference_id": "LUNAR_Site01",
+        "extent_m": 9000.0,
+        "support_m": 500.0,
+        "quantile": 95.0,
+        "n_split": 3,
+        "descriptors": [
+          "slope",
+          "relief"
+        ],
+        "per_descriptor": {
+          "slope": {
+            "band": {
+              "median": 0.23264823529114395,
+              "p95": 0.9264342043233201
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 0.7331249505357856,
+                "adequate": true,
+                "ratio": 0.7913405475689121
+              },
+              "earth_llano_estacado": {
+                "distance": 0.720506930355298,
+                "adequate": true,
+                "ratio": 0.7777205623377926
+              },
+              "earth_deccan_traps": {
+                "distance": 0.6592938486935972,
+                "adequate": true,
+                "ratio": 0.7116467047707443
+              },
+              "earth_snake_river_plain": {
+                "distance": 0.7139138453081652,
+                "adequate": true,
+                "ratio": 0.770603937091914
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.5675579397801047,
+                "adequate": true,
+                "ratio": 0.6126262794826931
+              },
+              "earth_odadahraun": {
+                "distance": 0.6221449018356887,
+                "adequate": true,
+                "ratio": 0.6715478540541491
+              },
+              "earth_nevada_basin": {
+                "distance": 0.14866629547773208,
+                "adequate": true,
+                "ratio": 0.16047150977798788
+              }
+            }
+          },
+          "relief": {
+            "band": {
+              "median": 1.0582268064530844,
+              "p95": 5.885250043307042
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 0.9916102533440364,
+                "adequate": true,
+                "ratio": 0.16849076012866065
+              },
+              "earth_llano_estacado": {
+                "distance": 0.9746791306613093,
+                "adequate": true,
+                "ratio": 0.16561388615420955
+              },
+              "earth_deccan_traps": {
+                "distance": 0.9111947882471015,
+                "adequate": true,
+                "ratio": 0.15482686063327952
+              },
+              "earth_snake_river_plain": {
+                "distance": 0.9644950450372297,
+                "adequate": true,
+                "ratio": 0.1638834438536889
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.7777641994090962,
+                "adequate": true,
+                "ratio": 0.13215482667445932
+              },
+              "earth_odadahraun": {
+                "distance": 0.8935261998705839,
+                "adequate": true,
+                "ratio": 0.15182467920572723
+              },
+              "earth_nevada_basin": {
+                "distance": 0.11086876372324501,
+                "adequate": true,
+                "ratio": 0.018838411776459646
+              }
+            }
+          }
+        },
+        "adequate_candidates": [
+          "earth_nullarbor",
+          "earth_llano_estacado",
+          "earth_deccan_traps",
+          "earth_snake_river_plain",
+          "earth_harrat_khaybar",
+          "earth_odadahraun",
+          "earth_nevada_basin"
+        ],
+        "any_adequate": true,
+        "note": "Adequacy is assessed RELATIVE to the reference's own internal morphological variability at this scale -- not a universal analog score, and distinct from 'best among candidates' (Pareto non-domination, computed elsewhere)."
+      },
+      "band_width_diagnostic": {
+        "slope": {
+          "band_p95": 0.9264342043233201,
+          "max_candidate_distance": 0.7331249505357856,
+          "band_over_max": 1.2636784543293191
+        },
+        "relief": {
+          "band_p95": 5.885250043307042,
+          "max_candidate_distance": 0.9916102533440364,
+          "band_over_max": 5.935043555126664
+        }
+      },
+      "nearest_unit_per_descriptor": {
+        "slope": {
+          "unit": "LUNAR_Site07",
+          "distance": 0.06119872389024448,
+          "is_sibling_site": true
+        },
+        "relief": {
+          "unit": "LUNAR_Site20",
+          "distance": 0.06572520572214521,
+          "is_sibling_site": true
+        }
+      }
+    },
+    "Site04@500m": {
+      "site": "Site04",
+      "site_name": "Shackleton rim",
+      "support_m": 500.0,
+      "cells_per_side": 18,
+      "valid_fraction_min": 0.7222222222222222,
+      "verdict": {
+        "questions": {
+          "relative_ranking": "Which candidate is closest, among the candidates tested?",
+          "absolute_adequacy": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "evidence_sufficiency": "Is the evidence enough to answer either of the other two for this comparison?"
+        },
+        "relative_ranking": {
+          "question": "Which candidate is closest, among the candidates tested?",
+          "state": "RECOMMEND_FOLLOW_UP",
+          "recommended_unit": "earth_nevada_basin",
+          "layer1": [
+            "earth_nevada_basin"
+          ],
+          "runner_up": null,
+          "worst_axis_distance_fraction": [
+            0.5222970068866396,
+            0.5315107892717623,
+            0.7022698890310807
+          ],
+          "provisional": true,
+          "note": "Relative to the candidate set tested. A unit can be closest here and still be far from the reference; that is what the adequacy part is for."
+        },
+        "absolute_adequacy": {
+          "question": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "state": "NOT_ESTABLISHED",
+          "adequate_candidates": [],
+          "band": {
+            "slope": {
+              "median": 0.8652074553457472,
+              "p95": 14.125320720291294
+            },
+            "relief": {
+              "median": 6.892154270578905,
+              "p95": 38.0513973290954
+            }
+          },
+          "discrimination": {
+            "controls": 5,
+            "admitted": 5,
+            "admitted_fraction": 1.0,
+            "thresholds": {
+              "slope": 14.125320720291294,
+              "relief": 38.0513973290954
+            },
+            "max_admitted_fraction": 0.5,
+            "discriminates": false,
+            "note": "the band admits terrain from different places, so it does not separate similar from dissimilar here",
+            "control_units": [
+              "LUNAR_Site01",
+              "LUNAR_Site07",
+              "LUNAR_Site11",
+              "LUNAR_Site20",
+              "LUNAR_Site23"
+            ],
+            "control_distances": [
+              {
+                "slope": 0.6473681091095995,
+                "relief": 0.6075207522938401
+              },
+              {
+                "slope": 0.6191954394886031,
+                "relief": 0.5975592793013529
+              },
+              {
+                "slope": 0.39153658451306694,
+                "relief": 0.4068003861601523
+              },
+              {
+                "slope": 0.573879904741549,
+                "relief": 0.6258598943832742
+              },
+              {
+                "slope": 0.39707951553672255,
+                "relief": 0.4919031733583149
+              }
+            ]
+          },
+          "note": "Absolute morphological adequacy has not been established. A band was calibrated, but it admits 5 of 5 control units that are known to be different terrain, so membership in it is not evidence of similarity at this scale."
+        },
+        "evidence_sufficiency": {
+          "question": "Is the evidence enough to answer either of the other two for this comparison?",
+          "state": "MARGINAL",
+          "reasons": [
+            "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+            "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+          ],
+          "n_candidates": 7,
+          "n_supports": 3,
+          "min_valid_fraction": 0.7222222222222222,
+          "effective_rank": 1,
+          "n_realisations": 6
+        },
+        "separable": true,
+        "reading": "These are three answers to three different questions. A definite ranking with NOT_ESTABLISHED adequacy is a normal, expected outcome -- it means the shortlist is ordered and nothing on it has been shown to be a good analog."
+      },
+      "adequacy_detail": {
+        "established": true,
+        "reference_id": "LUNAR_Site04",
+        "extent_m": 9000.0,
+        "support_m": 500.0,
+        "quantile": 95.0,
+        "n_split": 3,
+        "descriptors": [
+          "slope",
+          "relief"
+        ],
+        "per_descriptor": {
+          "slope": {
+            "band": {
+              "median": 0.8652074553457472,
+              "p95": 14.125320720291294
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 1.0713264048140612,
+                "adequate": true,
+                "ratio": 0.07584439504266124
+              },
+              "earth_llano_estacado": {
+                "distance": 1.064026586260493,
+                "adequate": true,
+                "ratio": 0.07532760546328682
+              },
+              "earth_deccan_traps": {
+                "distance": 1.0286133928400092,
+                "adequate": true,
+                "ratio": 0.07282053365077838
+              },
+              "earth_snake_river_plain": {
+                "distance": 1.0602123330049193,
+                "adequate": true,
+                "ratio": 0.07505757596582596
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.9755420329644953,
+                "adequate": true,
+                "ratio": 0.06906335454480056
+              },
+              "earth_odadahraun": {
+                "distance": 1.0071218618676439,
+                "adequate": true,
+                "ratio": 0.07129904388088647
+              },
+              "earth_nevada_basin": {
+                "distance": 0.561848691042374,
+                "adequate": true,
+                "ratio": 0.03977599533264173
+              }
+            }
+          },
+          "relief": {
+            "band": {
+              "median": 6.892154270578905,
+              "p95": 38.0513973290954
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 0.9974604704777255,
+                "adequate": true,
+                "ratio": 0.026213504378064797
+              },
+              "earth_llano_estacado": {
+                "distance": 0.9908024945389181,
+                "adequate": true,
+                "ratio": 0.026038531146957818
+              },
+              "earth_deccan_traps": {
+                "distance": 0.9658379820133535,
+                "adequate": true,
+                "ratio": 0.02538245767061071
+              },
+              "earth_snake_river_plain": {
+                "distance": 0.9867977159832084,
+                "adequate": true,
+                "ratio": 0.02593328459001607
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.913367884983659,
+                "adequate": true,
+                "ratio": 0.024003530726722264
+              },
+              "earth_odadahraun": {
+                "distance": 0.9588900058815899,
+                "adequate": true,
+                "ratio": 0.025199863163721185
+              },
+              "earth_nevada_basin": {
+                "distance": 0.574436650385254,
+                "adequate": true,
+                "ratio": 0.015096335238811851
+              }
+            }
+          }
+        },
+        "adequate_candidates": [
+          "earth_nullarbor",
+          "earth_llano_estacado",
+          "earth_deccan_traps",
+          "earth_snake_river_plain",
+          "earth_harrat_khaybar",
+          "earth_odadahraun",
+          "earth_nevada_basin"
+        ],
+        "any_adequate": true,
+        "note": "Adequacy is assessed RELATIVE to the reference's own internal morphological variability at this scale -- not a universal analog score, and distinct from 'best among candidates' (Pareto non-domination, computed elsewhere)."
+      },
+      "band_width_diagnostic": {
+        "slope": {
+          "band_p95": 14.125320720291294,
+          "max_candidate_distance": 1.0713264048140612,
+          "band_over_max": 13.184889924133698
+        },
+        "relief": {
+          "band_p95": 38.0513973290954,
+          "max_candidate_distance": 0.9974604704777255,
+          "band_over_max": 38.148276002226936
+        }
+      },
+      "nearest_unit_per_descriptor": {
+        "slope": {
+          "unit": "LUNAR_Site11",
+          "distance": 0.39153658451306694,
+          "is_sibling_site": true
+        },
+        "relief": {
+          "unit": "LUNAR_Site11",
+          "distance": 0.4068003861601523,
+          "is_sibling_site": true
+        }
+      }
+    },
+    "Site07@500m": {
+      "site": "Site07",
+      "site_name": "Peak near Shackleton",
+      "support_m": 500.0,
+      "cells_per_side": 18,
+      "valid_fraction_min": 0.7222222222222222,
+      "verdict": {
+        "questions": {
+          "relative_ranking": "Which candidate is closest, among the candidates tested?",
+          "absolute_adequacy": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "evidence_sufficiency": "Is the evidence enough to answer either of the other two for this comparison?"
+        },
+        "relative_ranking": {
+          "question": "Which candidate is closest, among the candidates tested?",
+          "state": "RECOMMEND_FOLLOW_UP",
+          "recommended_unit": "earth_nevada_basin",
+          "layer1": [
+            "earth_nevada_basin"
+          ],
+          "runner_up": null,
+          "worst_axis_distance_fraction": [
+            0.12477429212968852,
+            0.16197050871162114,
+            0.11795131729414629
+          ],
+          "provisional": true,
+          "note": "Relative to the candidate set tested. A unit can be closest here and still be far from the reference; that is what the adequacy part is for."
+        },
+        "absolute_adequacy": {
+          "question": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "state": "NOT_ESTABLISHED",
+          "adequate_candidates": [],
+          "band": {
+            "slope": {
+              "median": 0.24951120465498222,
+              "p95": 0.5025543038067791
+            },
+            "relief": {
+              "median": 1.010718103295541,
+              "p95": 2.5231898228230114
+            }
+          },
+          "discrimination": {
+            "controls": 5,
+            "admitted": 4,
+            "admitted_fraction": 0.8,
+            "thresholds": {
+              "slope": 0.5025543038067791,
+              "relief": 2.5231898228230114
+            },
+            "max_admitted_fraction": 0.5,
+            "discriminates": false,
+            "note": "the band admits terrain from different places, so it does not separate similar from dissimilar here",
+            "control_units": [
+              "LUNAR_Site01",
+              "LUNAR_Site04",
+              "LUNAR_Site11",
+              "LUNAR_Site20",
+              "LUNAR_Site23"
+            ],
+            "control_distances": [
+              {
+                "slope": 0.06604411378976878,
+                "relief": 0.06444470925287145
+              },
+              {
+                "slope": 1.1550443284995595,
+                "relief": 1.452300068663673
+              },
+              {
+                "slope": 0.42602913140259413,
+                "relief": 0.46361785885255985
+              },
+              {
+                "slope": 0.09914497238910297,
+                "relief": 0.07427060635023497
+              },
+              {
+                "slope": 0.4164904717536522,
+                "relief": 0.263254935260367
+              }
+            ]
+          },
+          "note": "Absolute morphological adequacy has not been established. A band was calibrated, but it admits 4 of 5 control units that are known to be different terrain, so membership in it is not evidence of similarity at this scale."
+        },
+        "evidence_sufficiency": {
+          "question": "Is the evidence enough to answer either of the other two for this comparison?",
+          "state": "MARGINAL",
+          "reasons": [
+            "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+            "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+          ],
+          "n_candidates": 7,
+          "n_supports": 3,
+          "min_valid_fraction": 0.7222222222222222,
+          "effective_rank": 1,
+          "n_realisations": 6
+        },
+        "separable": true,
+        "reading": "These are three answers to three different questions. A definite ranking with NOT_ESTABLISHED adequacy is a normal, expected outcome -- it means the shortlist is ordered and nothing on it has been shown to be a good analog."
+      },
+      "adequacy_detail": {
+        "established": true,
+        "reference_id": "LUNAR_Site07",
+        "extent_m": 9000.0,
+        "support_m": 500.0,
+        "quantile": 95.0,
+        "n_split": 3,
+        "descriptors": [
+          "slope",
+          "relief"
+        ],
+        "per_descriptor": {
+          "slope": {
+            "band": {
+              "median": 0.24951120465498222,
+              "p95": 0.5025543038067791
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 0.8444110690648675,
+                "adequate": false,
+                "ratio": 1.6802384591447548
+              },
+              "earth_llano_estacado": {
+                "distance": 0.8307940210673265,
+                "adequate": false,
+                "ratio": 1.653142784320375
+              },
+              "earth_deccan_traps": {
+                "distance": 0.764734412734019,
+                "adequate": false,
+                "ratio": 1.5216950823846536
+              },
+              "earth_snake_river_plain": {
+                "distance": 0.8236789305654498,
+                "adequate": false,
+                "ratio": 1.6389849302377797
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.6657353418096604,
+                "adequate": false,
+                "ratio": 1.3247032942844337
+              },
+              "earth_odadahraun": {
+                "distance": 0.7246442095811901,
+                "adequate": false,
+                "ratio": 1.4419222044107687
+              },
+              "earth_nevada_basin": {
+                "distance": 0.10719572415818801,
+                "adequate": true,
+                "ratio": 0.21330177325354746
+              }
+            }
+          },
+          "relief": {
+            "band": {
+              "median": 1.010718103295541,
+              "p95": 2.5231898228230114
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 0.9719144987308302,
+                "adequate": true,
+                "ratio": 0.3851927785771689
+              },
+              "earth_llano_estacado": {
+                "distance": 0.955733043186543,
+                "adequate": true,
+                "ratio": 0.3787796837723622
+              },
+              "earth_deccan_traps": {
+                "distance": 0.8950596263208188,
+                "adequate": true,
+                "ratio": 0.35473336893829194
+              },
+              "earth_snake_river_plain": {
+                "distance": 0.9459998830250271,
+                "adequate": true,
+                "ratio": 0.37492220144048355
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.7675370052879597,
+                "adequate": true,
+                "ratio": 0.3041931282162588
+              },
+              "earth_odadahraun": {
+                "distance": 0.8781733581918538,
+                "adequate": true,
+                "ratio": 0.3480409401815557
+              },
+              "earth_nevada_basin": {
+                "distance": 0.0838065222738464,
+                "adequate": true,
+                "ratio": 0.03321451343683744
+              }
+            }
+          }
+        },
+        "adequate_candidates": [
+          "earth_nevada_basin"
+        ],
+        "any_adequate": true,
+        "note": "Adequacy is assessed RELATIVE to the reference's own internal morphological variability at this scale -- not a universal analog score, and distinct from 'best among candidates' (Pareto non-domination, computed elsewhere)."
+      },
+      "band_width_diagnostic": {
+        "slope": {
+          "band_p95": 0.5025543038067791,
+          "max_candidate_distance": 0.8444110690648675,
+          "band_over_max": 0.5951536191529637
+        },
+        "relief": {
+          "band_p95": 2.5231898228230114,
+          "max_candidate_distance": 0.9719144987308302,
+          "band_over_max": 2.596102667588462
+        }
+      },
+      "nearest_unit_per_descriptor": {
+        "slope": {
+          "unit": "LUNAR_Site01",
+          "distance": 0.06604411378976878,
+          "is_sibling_site": true
+        },
+        "relief": {
+          "unit": "LUNAR_Site01",
+          "distance": 0.06444470925287145,
+          "is_sibling_site": true
+        }
+      }
+    },
+    "Site11@500m": {
+      "site": "Site11",
+      "site_name": "de Gerlache rim",
+      "support_m": 500.0,
+      "cells_per_side": 18,
+      "valid_fraction_min": 0.7222222222222222,
+      "verdict": {
+        "questions": {
+          "relative_ranking": "Which candidate is closest, among the candidates tested?",
+          "absolute_adequacy": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "evidence_sufficiency": "Is the evidence enough to answer either of the other two for this comparison?"
+        },
+        "relative_ranking": {
+          "question": "Which candidate is closest, among the candidates tested?",
+          "state": "RECOMMEND_FOLLOW_UP",
+          "recommended_unit": "earth_nevada_basin",
+          "layer1": [
+            "earth_nevada_basin"
+          ],
+          "runner_up": null,
+          "worst_axis_distance_fraction": [
+            0.25036859764506686,
+            0.2250653350432469,
+            0.23820783049695177
+          ],
+          "provisional": true,
+          "note": "Relative to the candidate set tested. A unit can be closest here and still be far from the reference; that is what the adequacy part is for."
+        },
+        "absolute_adequacy": {
+          "question": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "state": "NOT_ESTABLISHED",
+          "adequate_candidates": [],
+          "band": {
+            "slope": {
+              "median": 0.4517972937387823,
+              "p95": 1.6187598702459862
+            },
+            "relief": {
+              "median": 3.5052819150138177,
+              "p95": 7.548188286853367
+            }
+          },
+          "discrimination": {
+            "controls": 5,
+            "admitted": 5,
+            "admitted_fraction": 1.0,
+            "thresholds": {
+              "slope": 1.6187598702459862,
+              "relief": 7.548188286853367
+            },
+            "max_admitted_fraction": 0.5,
+            "discriminates": false,
+            "note": "the band admits terrain from different places, so it does not separate similar from dissimilar here",
+            "control_units": [
+              "LUNAR_Site01",
+              "LUNAR_Site04",
+              "LUNAR_Site07",
+              "LUNAR_Site20",
+              "LUNAR_Site23"
+            ],
+            "control_distances": [
+              {
+                "slope": 0.3740819711493266,
+                "relief": 0.3916279764750025
+              },
+              {
+                "slope": 0.5700717271401642,
+                "relief": 0.7937132396173494
+              },
+              {
+                "slope": 0.33252595414113817,
+                "relief": 0.37219202393115425
+              },
+              {
+                "slope": 0.26676795835786565,
+                "relief": 0.42740970229145003
+              },
+              {
+                "slope": 0.058881989046200504,
+                "relief": 0.17674356893412338
+              }
+            ]
+          },
+          "note": "Absolute morphological adequacy has not been established. A band was calibrated, but it admits 5 of 5 control units that are known to be different terrain, so membership in it is not evidence of similarity at this scale."
+        },
+        "evidence_sufficiency": {
+          "question": "Is the evidence enough to answer either of the other two for this comparison?",
+          "state": "MARGINAL",
+          "reasons": [
+            "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+            "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+          ],
+          "n_candidates": 7,
+          "n_supports": 3,
+          "min_valid_fraction": 0.7222222222222222,
+          "effective_rank": 1,
+          "n_realisations": 6
+        },
+        "separable": true,
+        "reading": "These are three answers to three different questions. A definite ranking with NOT_ESTABLISHED adequacy is a normal, expected outcome -- it means the shortlist is ordered and nothing on it has been shown to be a good analog."
+      },
+      "adequacy_detail": {
+        "established": true,
+        "reference_id": "LUNAR_Site11",
+        "extent_m": 9000.0,
+        "support_m": 500.0,
+        "quantile": 95.0,
+        "n_split": 3,
+        "descriptors": [
+          "slope",
+          "relief"
+        ],
+        "per_descriptor": {
+          "slope": {
+            "band": {
+              "median": 0.4517972937387823,
+              "p95": 1.6187598702459862
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 0.9916090443131824,
+                "adequate": true,
+                "ratio": 0.6125732806574318
+              },
+              "earth_llano_estacado": {
+                "distance": 0.9809806117854334,
+                "adequate": true,
+                "ratio": 0.6060074936478157
+              },
+              "earth_deccan_traps": {
+                "distance": 0.9294195032318854,
+                "adequate": true,
+                "ratio": 0.5741552655926979
+              },
+              "earth_snake_river_plain": {
+                "distance": 0.9754271130137699,
+                "adequate": true,
+                "ratio": 0.6025767817344918
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.8521483541679034,
+                "adequate": true,
+                "ratio": 0.5264204838722689
+              },
+              "earth_odadahraun": {
+                "distance": 0.8981281382230714,
+                "adequate": true,
+                "ratio": 0.5548248104807492
+              },
+              "earth_nevada_basin": {
+                "distance": 0.250261120410516,
+                "adequate": true,
+                "ratio": 0.15460052167742855
+              }
+            }
+          },
+          "relief": {
+            "band": {
+              "median": 3.5052819150138177,
+              "p95": 7.548188286853367
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 1.1524441593125512,
+                "adequate": true,
+                "ratio": 0.15267824748353934
+              },
+              "earth_llano_estacado": {
+                "distance": 1.1394537005237417,
+                "adequate": true,
+                "ratio": 0.15095724394002216
+              },
+              "earth_deccan_traps": {
+                "distance": 1.0907451329160085,
+                "adequate": true,
+                "ratio": 0.14450422955343503
+              },
+              "earth_snake_river_plain": {
+                "distance": 1.131639927799959,
+                "adequate": true,
+                "ratio": 0.14992205875030026
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.9883700808921396,
+                "adequate": true,
+                "ratio": 0.13094136544176802
+              },
+              "earth_odadahraun": {
+                "distance": 1.0771888511819123,
+                "adequate": true,
+                "ratio": 0.14270826458556227
+              },
+              "earth_nevada_basin": {
+                "distance": 0.327077178100498,
+                "adequate": true,
+                "ratio": 0.04333187854762
+              }
+            }
+          }
+        },
+        "adequate_candidates": [
+          "earth_nullarbor",
+          "earth_llano_estacado",
+          "earth_deccan_traps",
+          "earth_snake_river_plain",
+          "earth_harrat_khaybar",
+          "earth_odadahraun",
+          "earth_nevada_basin"
+        ],
+        "any_adequate": true,
+        "note": "Adequacy is assessed RELATIVE to the reference's own internal morphological variability at this scale -- not a universal analog score, and distinct from 'best among candidates' (Pareto non-domination, computed elsewhere)."
+      },
+      "band_width_diagnostic": {
+        "slope": {
+          "band_p95": 1.6187598702459862,
+          "max_candidate_distance": 0.9916090443131824,
+          "band_over_max": 1.6324577508943425
+        },
+        "relief": {
+          "band_p95": 7.548188286853367,
+          "max_candidate_distance": 1.1524441593125512,
+          "band_over_max": 6.549721499179592
+        }
+      },
+      "nearest_unit_per_descriptor": {
+        "slope": {
+          "unit": "LUNAR_Site23",
+          "distance": 0.058881989046200504,
+          "is_sibling_site": true
+        },
+        "relief": {
+          "unit": "LUNAR_Site23",
+          "distance": 0.17674356893412338,
+          "is_sibling_site": true
+        }
+      }
+    },
+    "Site20@500m": {
+      "site": "Site20",
+      "site_name": "Leibnitz beta plateau",
+      "support_m": 500.0,
+      "cells_per_side": 18,
+      "valid_fraction_min": 0.7222222222222222,
+      "verdict": {
+        "questions": {
+          "relative_ranking": "Which candidate is closest, among the candidates tested?",
+          "absolute_adequacy": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "evidence_sufficiency": "Is the evidence enough to answer either of the other two for this comparison?"
+        },
+        "relative_ranking": {
+          "question": "Which candidate is closest, among the candidates tested?",
+          "state": "RECOMMEND_FOLLOW_UP",
+          "recommended_unit": "earth_nevada_basin",
+          "layer1": [
+            "earth_nevada_basin"
+          ],
+          "runner_up": null,
+          "worst_axis_distance_fraction": [
+            0.024374494376513015,
+            0.1521062463289164,
+            0.16696613242566888
+          ],
+          "provisional": true,
+          "note": "Relative to the candidate set tested. A unit can be closest here and still be far from the reference; that is what the adequacy part is for."
+        },
+        "absolute_adequacy": {
+          "question": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "state": "NOT_ESTABLISHED",
+          "adequate_candidates": [],
+          "band": {
+            "slope": {
+              "median": 0.6633445417079906,
+              "p95": 2.5114201223613364
+            },
+            "relief": {
+              "median": 2.7733887550703615,
+              "p95": 28.847991843767815
+            }
+          },
+          "discrimination": {
+            "controls": 5,
+            "admitted": 5,
+            "admitted_fraction": 1.0,
+            "thresholds": {
+              "slope": 2.5114201223613364,
+              "relief": 28.847991843767815
+            },
+            "max_admitted_fraction": 0.5,
+            "discriminates": false,
+            "note": "the band admits terrain from different places, so it does not separate similar from dissimilar here",
+            "control_units": [
+              "LUNAR_Site01",
+              "LUNAR_Site04",
+              "LUNAR_Site07",
+              "LUNAR_Site11",
+              "LUNAR_Site23"
+            ],
+            "control_distances": [
+              {
+                "slope": 0.10293173223929014,
+                "relief": 0.06362133834885259
+              },
+              {
+                "slope": 0.7907656238352296,
+                "relief": 1.540605714380497
+              },
+              {
+                "slope": 0.07323632732305596,
+                "relief": 0.07522392469784872
+              },
+              {
+                "slope": 0.25246621803795555,
+                "relief": 0.5392330347201465
+              },
+              {
+                "slope": 0.24533683413390772,
+                "relief": 0.3297455097264043
+              }
+            ]
+          },
+          "note": "Absolute morphological adequacy has not been established. A band was calibrated, but it admits 5 of 5 control units that are known to be different terrain, so membership in it is not evidence of similarity at this scale."
+        },
+        "evidence_sufficiency": {
+          "question": "Is the evidence enough to answer either of the other two for this comparison?",
+          "state": "MARGINAL",
+          "reasons": [
+            "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+            "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+          ],
+          "n_candidates": 7,
+          "n_supports": 3,
+          "min_valid_fraction": 0.7222222222222222,
+          "effective_rank": 1,
+          "n_realisations": 6
+        },
+        "separable": true,
+        "reading": "These are three answers to three different questions. A definite ranking with NOT_ESTABLISHED adequacy is a normal, expected outcome -- it means the shortlist is ordered and nothing on it has been shown to be a good analog."
+      },
+      "adequacy_detail": {
+        "established": true,
+        "reference_id": "LUNAR_Site20",
+        "extent_m": 9000.0,
+        "support_m": 500.0,
+        "quantile": 95.0,
+        "n_split": 3,
+        "descriptors": [
+          "slope",
+          "relief"
+        ],
+        "per_descriptor": {
+          "slope": {
+            "band": {
+              "median": 0.6633445417079906,
+              "p95": 2.5114201223613364
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 0.6860648874089617,
+                "adequate": true,
+                "ratio": 0.2731780641957652
+              },
+              "earth_llano_estacado": {
+                "distance": 0.6760062575027687,
+                "adequate": true,
+                "ratio": 0.2691729079828989
+              },
+              "earth_deccan_traps": {
+                "distance": 0.6272093999097889,
+                "adequate": true,
+                "ratio": 0.24974292207233803
+              },
+              "earth_snake_river_plain": {
+                "distance": 0.6707504882552513,
+                "adequate": true,
+                "ratio": 0.2670801600588376
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.5540808469616854,
+                "adequate": true,
+                "ratio": 0.22062451520087234
+              },
+              "earth_odadahraun": {
+                "distance": 0.5975956013499834,
+                "adequate": true,
+                "ratio": 0.23795126750362275
+              },
+              "earth_nevada_basin": {
+                "distance": 0.0473401473988492,
+                "adequate": true,
+                "ratio": 0.018849951458674356
+              }
+            }
+          },
+          "relief": {
+            "band": {
+              "median": 2.7733887550703615,
+              "p95": 28.847991843767815
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 0.9147254459599639,
+                "adequate": true,
+                "ratio": 0.03170846175060802
+              },
+              "earth_llano_estacado": {
+                "distance": 0.8983362894257488,
+                "adequate": true,
+                "ratio": 0.031140340523211192
+              },
+              "earth_deccan_traps": {
+                "distance": 0.8368840842297165,
+                "adequate": true,
+                "ratio": 0.029010133140706395
+              },
+              "earth_snake_river_plain": {
+                "distance": 0.8884781969307272,
+                "adequate": true,
+                "ratio": 0.030798615090522143
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.7077246157232663,
+                "adequate": true,
+                "ratio": 0.024532890176761465
+              },
+              "earth_odadahraun": {
+                "distance": 0.8197810683182685,
+                "adequate": true,
+                "ratio": 0.028417266364950466
+              },
+              "earth_nevada_basin": {
+                "distance": 0.14586419167978595,
+                "adequate": true,
+                "ratio": 0.005056303137831682
+              }
+            }
+          }
+        },
+        "adequate_candidates": [
+          "earth_nullarbor",
+          "earth_llano_estacado",
+          "earth_deccan_traps",
+          "earth_snake_river_plain",
+          "earth_harrat_khaybar",
+          "earth_odadahraun",
+          "earth_nevada_basin"
+        ],
+        "any_adequate": true,
+        "note": "Adequacy is assessed RELATIVE to the reference's own internal morphological variability at this scale -- not a universal analog score, and distinct from 'best among candidates' (Pareto non-domination, computed elsewhere)."
+      },
+      "band_width_diagnostic": {
+        "slope": {
+          "band_p95": 2.5114201223613364,
+          "max_candidate_distance": 0.6860648874089617,
+          "band_over_max": 3.660616026927326
+        },
+        "relief": {
+          "band_p95": 28.847991843767815,
+          "max_candidate_distance": 0.9147254459599639,
+          "band_over_max": 31.537322998042463
+        }
+      },
+      "nearest_unit_per_descriptor": {
+        "slope": {
+          "unit": "earth_nevada_basin",
+          "distance": 0.0473401473988492,
+          "is_sibling_site": false
+        },
+        "relief": {
+          "unit": "LUNAR_Site01",
+          "distance": 0.06362133834885259,
+          "is_sibling_site": true
+        }
+      }
+    },
+    "Site23@500m": {
+      "site": "Site23",
+      "site_name": "Malapert massif",
+      "support_m": 500.0,
+      "cells_per_side": 18,
+      "valid_fraction_min": 0.7222222222222222,
+      "verdict": {
+        "questions": {
+          "relative_ranking": "Which candidate is closest, among the candidates tested?",
+          "absolute_adequacy": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "evidence_sufficiency": "Is the evidence enough to answer either of the other two for this comparison?"
+        },
+        "relative_ranking": {
+          "question": "Which candidate is closest, among the candidates tested?",
+          "state": "RECOMMEND_FOLLOW_UP",
+          "recommended_unit": "earth_nevada_basin",
+          "layer1": [
+            "earth_nevada_basin"
+          ],
+          "runner_up": null,
+          "worst_axis_distance_fraction": [
+            0.2442986470076033,
+            0.14241787005809903,
+            0.20499957076984493
+          ],
+          "provisional": true,
+          "note": "Relative to the candidate set tested. A unit can be closest here and still be far from the reference; that is what the adequacy part is for."
+        },
+        "absolute_adequacy": {
+          "question": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "state": "NOT_ESTABLISHED",
+          "adequate_candidates": [],
+          "band": {
+            "slope": {
+              "median": 0.5457724827561202,
+              "p95": 2.1209701046736535
+            },
+            "relief": {
+              "median": 1.829081705879192,
+              "p95": 6.005603489239864
+            }
+          },
+          "discrimination": {
+            "controls": 5,
+            "admitted": 5,
+            "admitted_fraction": 1.0,
+            "thresholds": {
+              "slope": 2.1209701046736535,
+              "relief": 6.005603489239864
+            },
+            "max_admitted_fraction": 0.5,
+            "discriminates": false,
+            "note": "the band admits terrain from different places, so it does not separate similar from dissimilar here",
+            "control_units": [
+              "LUNAR_Site01",
+              "LUNAR_Site04",
+              "LUNAR_Site07",
+              "LUNAR_Site11",
+              "LUNAR_Site20"
+            ],
+            "control_distances": [
+              {
+                "slope": 0.3635483340142808,
+                "relief": 0.23883812306742894
+              },
+              {
+                "slope": 0.5732719877378535,
+                "relief": 0.9953155300083129
+              },
+              {
+                "slope": 0.3223423776351061,
+                "relief": 0.21917060919506792
+              },
+              {
+                "slope": 0.058385977454929905,
+                "relief": 0.18329157723500092
+              },
+              {
+                "slope": 0.2570509602512815,
+                "relief": 0.2710476614226122
+              }
+            ]
+          },
+          "note": "Absolute morphological adequacy has not been established. A band was calibrated, but it admits 5 of 5 control units that are known to be different terrain, so membership in it is not evidence of similarity at this scale."
+        },
+        "evidence_sufficiency": {
+          "question": "Is the evidence enough to answer either of the other two for this comparison?",
+          "state": "MARGINAL",
+          "reasons": [
+            "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+            "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+          ],
+          "n_candidates": 7,
+          "n_supports": 3,
+          "min_valid_fraction": 0.7222222222222222,
+          "effective_rank": 1,
+          "n_realisations": 6
+        },
+        "separable": true,
+        "reading": "These are three answers to three different questions. A definite ranking with NOT_ESTABLISHED adequacy is a normal, expected outcome -- it means the shortlist is ordered and nothing on it has been shown to be a good analog."
+      },
+      "adequacy_detail": {
+        "established": true,
+        "reference_id": "LUNAR_Site23",
+        "extent_m": 9000.0,
+        "support_m": 500.0,
+        "quantile": 95.0,
+        "n_split": 3,
+        "descriptors": [
+          "slope",
+          "relief"
+        ],
+        "per_descriptor": {
+          "slope": {
+            "band": {
+              "median": 0.5457724827561202,
+              "p95": 2.1209701046736535
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 0.9758734669724083,
+                "adequate": true,
+                "ratio": 0.46010712966770584
+              },
+              "earth_llano_estacado": {
+                "distance": 0.9653345665038882,
+                "adequate": true,
+                "ratio": 0.45513822395550496
+              },
+              "earth_deccan_traps": {
+                "distance": 0.9142077997230212,
+                "adequate": true,
+                "ratio": 0.4310328550640686
+              },
+              "earth_snake_river_plain": {
+                "distance": 0.9598278494358913,
+                "adequate": true,
+                "ratio": 0.45254190397161526
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.8375875693224095,
+                "adequate": true,
+                "ratio": 0.394907767665724
+              },
+              "earth_odadahraun": {
+                "distance": 0.8831800277076248,
+                "adequate": true,
+                "ratio": 0.41640380774886815
+              },
+              "earth_nevada_basin": {
+                "distance": 0.24089819745376895,
+                "adequate": true,
+                "ratio": 0.11357925174095518
+              }
+            }
+          },
+          "relief": {
+            "band": {
+              "median": 1.829081705879192,
+              "p95": 6.005603489239864
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 1.022943246526772,
+                "adequate": true,
+                "ratio": 0.1703314659983067
+              },
+              "earth_llano_estacado": {
+                "distance": 1.009471516297682,
+                "adequate": true,
+                "ratio": 0.16808827257849016
+              },
+              "earth_deccan_traps": {
+                "distance": 0.9589583902160941,
+                "adequate": true,
+                "ratio": 0.1596772733888015
+              },
+              "earth_snake_river_plain": {
+                "distance": 1.0013682583667989,
+                "adequate": true,
+                "ratio": 0.16673898970535317
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.8527905399903011,
+                "adequate": true,
+                "ratio": 0.14199914155475485
+              },
+              "earth_odadahraun": {
+                "distance": 0.9448998743930339,
+                "adequate": true,
+                "ratio": 0.15733637361940306
+              },
+              "earth_nevada_basin": {
+                "distance": 0.18687378695764126,
+                "adequate": true,
+                "ratio": 0.031116570931207795
+              }
+            }
+          }
+        },
+        "adequate_candidates": [
+          "earth_nullarbor",
+          "earth_llano_estacado",
+          "earth_deccan_traps",
+          "earth_snake_river_plain",
+          "earth_harrat_khaybar",
+          "earth_odadahraun",
+          "earth_nevada_basin"
+        ],
+        "any_adequate": true,
+        "note": "Adequacy is assessed RELATIVE to the reference's own internal morphological variability at this scale -- not a universal analog score, and distinct from 'best among candidates' (Pareto non-domination, computed elsewhere)."
+      },
+      "band_width_diagnostic": {
+        "slope": {
+          "band_p95": 2.1209701046736535,
+          "max_candidate_distance": 0.9758734669724083,
+          "band_over_max": 2.1734068774857076
+        },
+        "relief": {
+          "band_p95": 6.005603489239864,
+          "max_candidate_distance": 1.022943246526772,
+          "band_over_max": 5.870905849010548
+        }
+      },
+      "nearest_unit_per_descriptor": {
+        "slope": {
+          "unit": "LUNAR_Site11",
+          "distance": 0.058385977454929905,
+          "is_sibling_site": true
+        },
+        "relief": {
+          "unit": "LUNAR_Site11",
+          "distance": 0.18329157723500092,
+          "is_sibling_site": true
+        }
+      }
+    },
+    "Site01@750m": {
+      "site": "Site01",
+      "site_name": "Connecting ridge",
+      "support_m": 750.0,
+      "cells_per_side": 12,
+      "valid_fraction_min": 0.75,
+      "verdict": {
+        "questions": {
+          "relative_ranking": "Which candidate is closest, among the candidates tested?",
+          "absolute_adequacy": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "evidence_sufficiency": "Is the evidence enough to answer either of the other two for this comparison?"
+        },
+        "relative_ranking": {
+          "question": "Which candidate is closest, among the candidates tested?",
+          "state": "RECOMMEND_FOLLOW_UP",
+          "recommended_unit": "earth_nevada_basin",
+          "layer1": [
+            "earth_nevada_basin"
+          ],
+          "runner_up": null,
+          "worst_axis_distance_fraction": [
+            0.123632780574084,
+            0.09636014917981414,
+            0.12166149677548724
+          ],
+          "provisional": true,
+          "note": "Relative to the candidate set tested. A unit can be closest here and still be far from the reference; that is what the adequacy part is for."
+        },
+        "absolute_adequacy": {
+          "question": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "state": "NOT_ESTABLISHED",
+          "adequate_candidates": [],
+          "band": {
+            "slope": {
+              "median": 0.3534633787928944,
+              "p95": 1.6632364474566845
+            }
+          },
+          "discrimination": {
+            "controls": 5,
+            "admitted": 5,
+            "admitted_fraction": 1.0,
+            "thresholds": {
+              "slope": 1.6632364474566845
+            },
+            "max_admitted_fraction": 0.5,
+            "discriminates": false,
+            "note": "the band admits terrain from different places, so it does not separate similar from dissimilar here",
+            "control_units": [
+              "LUNAR_Site04",
+              "LUNAR_Site07",
+              "LUNAR_Site11",
+              "LUNAR_Site20",
+              "LUNAR_Site23"
+            ],
+            "control_distances": [
+              {
+                "slope": 1.2582141491733954
+              },
+              {
+                "slope": 0.08533003722177554
+              },
+              {
+                "slope": 0.5120344515708758
+              },
+              {
+                "slope": 0.15379799926290658
+              },
+              {
+                "slope": 0.5043051238694615
+              }
+            ]
+          },
+          "note": "Absolute morphological adequacy has not been established. A band was calibrated, but it admits 5 of 5 control units that are known to be different terrain, so membership in it is not evidence of similarity at this scale."
+        },
+        "evidence_sufficiency": {
+          "question": "Is the evidence enough to answer either of the other two for this comparison?",
+          "state": "MARGINAL",
+          "reasons": [
+            "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+            "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+          ],
+          "n_candidates": 7,
+          "n_supports": 3,
+          "min_valid_fraction": 0.75,
+          "effective_rank": 1,
+          "n_realisations": 6
+        },
+        "separable": true,
+        "reading": "These are three answers to three different questions. A definite ranking with NOT_ESTABLISHED adequacy is a normal, expected outcome -- it means the shortlist is ordered and nothing on it has been shown to be a good analog."
+      },
+      "adequacy_detail": {
+        "established": true,
+        "reference_id": "LUNAR_Site01",
+        "extent_m": 9000.0,
+        "support_m": 750.0,
+        "quantile": 95.0,
+        "n_split": 3,
+        "descriptors": [
+          "slope",
+          "relief"
+        ],
+        "per_descriptor": {
+          "slope": {
+            "band": {
+              "median": 0.3534633787928944,
+              "p95": 1.6632364474566845
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 0.788891932066215,
+                "adequate": true,
+                "ratio": 0.4743113543913365
+              },
+              "earth_llano_estacado": {
+                "distance": 0.77679623413159,
+                "adequate": true,
+                "ratio": 0.46703896810307244
+              },
+              "earth_deccan_traps": {
+                "distance": 0.7195952064435626,
+                "adequate": true,
+                "ratio": 0.4326475694685033
+              },
+              "earth_snake_river_plain": {
+                "distance": 0.767570857355923,
+                "adequate": true,
+                "ratio": 0.4614923263193538
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.6322154512962324,
+                "adequate": true,
+                "ratio": 0.38011159042538784
+              },
+              "earth_odadahraun": {
+                "distance": 0.6724352581622017,
+                "adequate": true,
+                "ratio": 0.40429324356765206
+              },
+              "earth_nevada_basin": {
+                "distance": 0.10264545411984526,
+                "adequate": true,
+                "ratio": 0.06171428859486825
+              }
+            }
+          },
+          "relief": {
+            "band": {
+              "median": NaN,
+              "p95": NaN
+            },
+            "established": false,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 1.1894908772914923,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_llano_estacado": {
+                "distance": 1.1692255685365636,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_deccan_traps": {
+                "distance": 1.1052352779521395,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_snake_river_plain": {
+                "distance": 1.1552284072300951,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.9641134386281263,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_odadahraun": {
+                "distance": 1.0794138648112497,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_nevada_basin": {
+                "distance": 0.1190402007817391,
+                "adequate": false,
+                "ratio": NaN
+              }
+            }
+          }
+        },
+        "adequate_candidates": [
+          "earth_nullarbor",
+          "earth_llano_estacado",
+          "earth_deccan_traps",
+          "earth_snake_river_plain",
+          "earth_harrat_khaybar",
+          "earth_odadahraun",
+          "earth_nevada_basin"
+        ],
+        "any_adequate": true,
+        "note": "Adequacy is assessed RELATIVE to the reference's own internal morphological variability at this scale -- not a universal analog score, and distinct from 'best among candidates' (Pareto non-domination, computed elsewhere)."
+      },
+      "band_width_diagnostic": {
+        "slope": {
+          "band_p95": 1.6632364474566845,
+          "max_candidate_distance": 0.788891932066215,
+          "band_over_max": 2.108319758196085
+        }
+      },
+      "nearest_unit_per_descriptor": {
+        "slope": {
+          "unit": "LUNAR_Site07",
+          "distance": 0.08533003722177554,
+          "is_sibling_site": true
+        }
+      }
+    },
+    "Site04@750m": {
+      "site": "Site04",
+      "site_name": "Shackleton rim",
+      "support_m": 750.0,
+      "cells_per_side": 12,
+      "valid_fraction_min": 0.75,
+      "verdict": {
+        "questions": {
+          "relative_ranking": "Which candidate is closest, among the candidates tested?",
+          "absolute_adequacy": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "evidence_sufficiency": "Is the evidence enough to answer either of the other two for this comparison?"
+        },
+        "relative_ranking": {
+          "question": "Which candidate is closest, among the candidates tested?",
+          "state": "RECOMMEND_FOLLOW_UP",
+          "recommended_unit": "earth_nevada_basin",
+          "layer1": [
+            "earth_nevada_basin"
+          ],
+          "runner_up": null,
+          "worst_axis_distance_fraction": [
+            0.5642582155890332,
+            0.5789690233802661,
+            0.7040519622343872
+          ],
+          "provisional": true,
+          "note": "Relative to the candidate set tested. A unit can be closest here and still be far from the reference; that is what the adequacy part is for."
+        },
+        "absolute_adequacy": {
+          "question": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "state": "NOT_ESTABLISHED",
+          "adequate_candidates": [],
+          "band": {
+            "slope": {
+              "median": 1.006085535913018,
+              "p95": 16.844461253811733
+            }
+          },
+          "discrimination": {
+            "controls": 5,
+            "admitted": 5,
+            "admitted_fraction": 1.0,
+            "thresholds": {
+              "slope": 16.844461253811733
+            },
+            "max_admitted_fraction": 0.5,
+            "discriminates": false,
+            "note": "the band admits terrain from different places, so it does not separate similar from dissimilar here",
+            "control_units": [
+              "LUNAR_Site01",
+              "LUNAR_Site07",
+              "LUNAR_Site11",
+              "LUNAR_Site20",
+              "LUNAR_Site23"
+            ],
+            "control_distances": [
+              {
+                "slope": 0.5973634826980017
+              },
+              {
+                "slope": 0.5660874533106488
+              },
+              {
+                "slope": 0.36565848660746175
+              },
+              {
+                "slope": 0.5295401302406081
+              },
+              {
+                "slope": 0.35889388387839066
+              }
+            ]
+          },
+          "note": "Absolute morphological adequacy has not been established. A band was calibrated, but it admits 5 of 5 control units that are known to be different terrain, so membership in it is not evidence of similarity at this scale."
+        },
+        "evidence_sufficiency": {
+          "question": "Is the evidence enough to answer either of the other two for this comparison?",
+          "state": "MARGINAL",
+          "reasons": [
+            "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+            "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+          ],
+          "n_candidates": 7,
+          "n_supports": 3,
+          "min_valid_fraction": 0.75,
+          "effective_rank": 1,
+          "n_realisations": 6
+        },
+        "separable": true,
+        "reading": "These are three answers to three different questions. A definite ranking with NOT_ESTABLISHED adequacy is a normal, expected outcome -- it means the shortlist is ordered and nothing on it has been shown to be a good analog."
+      },
+      "adequacy_detail": {
+        "established": true,
+        "reference_id": "LUNAR_Site04",
+        "extent_m": 9000.0,
+        "support_m": 750.0,
+        "quantile": 95.0,
+        "n_split": 3,
+        "descriptors": [
+          "slope",
+          "relief"
+        ],
+        "per_descriptor": {
+          "slope": {
+            "band": {
+              "median": 1.006085535913018,
+              "p95": 16.844461253811733
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 0.9712117361914572,
+                "adequate": true,
+                "ratio": 0.05765763128646704
+              },
+              "earth_llano_estacado": {
+                "distance": 0.9654690506171156,
+                "adequate": true,
+                "ratio": 0.057316707021344455
+              },
+              "earth_deccan_traps": {
+                "distance": 0.9383116663705042,
+                "adequate": true,
+                "ratio": 0.05570446286361184
+              },
+              "earth_snake_river_plain": {
+                "distance": 0.9610891100453665,
+                "adequate": true,
+                "ratio": 0.05705668442366369
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.8968263000786061,
+                "adequate": true,
+                "ratio": 0.0532416137604676
+              },
+              "earth_odadahraun": {
+                "distance": 0.9159214945800194,
+                "adequate": true,
+                "ratio": 0.05437523235554687
+              },
+              "earth_nevada_basin": {
+                "distance": 0.5500632092857562,
+                "adequate": true,
+                "ratio": 0.03265543498230212
+              }
+            }
+          },
+          "relief": {
+            "band": {
+              "median": NaN,
+              "p95": NaN
+            },
+            "established": false,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 0.9951741775896381,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_llano_estacado": {
+                "distance": 0.9886526449027554,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_deccan_traps": {
+                "distance": 0.9680600757622548,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_snake_river_plain": {
+                "distance": 0.9841482504181905,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.9226459792333398,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_odadahraun": {
+                "distance": 0.9597505458233699,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_nevada_basin": {
+                "distance": 0.6191834790773734,
+                "adequate": false,
+                "ratio": NaN
+              }
+            }
+          }
+        },
+        "adequate_candidates": [
+          "earth_nullarbor",
+          "earth_llano_estacado",
+          "earth_deccan_traps",
+          "earth_snake_river_plain",
+          "earth_harrat_khaybar",
+          "earth_odadahraun",
+          "earth_nevada_basin"
+        ],
+        "any_adequate": true,
+        "note": "Adequacy is assessed RELATIVE to the reference's own internal morphological variability at this scale -- not a universal analog score, and distinct from 'best among candidates' (Pareto non-domination, computed elsewhere)."
+      },
+      "band_width_diagnostic": {
+        "slope": {
+          "band_p95": 16.844461253811733,
+          "max_candidate_distance": 0.9712117361914572,
+          "band_over_max": 17.343757932607136
+        }
+      },
+      "nearest_unit_per_descriptor": {
+        "slope": {
+          "unit": "LUNAR_Site23",
+          "distance": 0.35889388387839066,
+          "is_sibling_site": true
+        }
+      }
+    },
+    "Site07@750m": {
+      "site": "Site07",
+      "site_name": "Peak near Shackleton",
+      "support_m": 750.0,
+      "cells_per_side": 12,
+      "valid_fraction_min": 0.75,
+      "verdict": {
+        "questions": {
+          "relative_ranking": "Which candidate is closest, among the candidates tested?",
+          "absolute_adequacy": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "evidence_sufficiency": "Is the evidence enough to answer either of the other two for this comparison?"
+        },
+        "relative_ranking": {
+          "question": "Which candidate is closest, among the candidates tested?",
+          "state": "RECOMMEND_FOLLOW_UP",
+          "recommended_unit": "earth_nevada_basin",
+          "layer1": [
+            "earth_nevada_basin"
+          ],
+          "runner_up": null,
+          "worst_axis_distance_fraction": [
+            0.03885304877487072,
+            0.050834029933173784,
+            0.11579659828952008
+          ],
+          "provisional": true,
+          "note": "Relative to the candidate set tested. A unit can be closest here and still be far from the reference; that is what the adequacy part is for."
+        },
+        "absolute_adequacy": {
+          "question": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "state": "NOT_ESTABLISHED",
+          "adequate_candidates": [],
+          "band": {
+            "slope": {
+              "median": 0.3089093211680607,
+              "p95": 0.6377443885834
+            }
+          },
+          "discrimination": {
+            "controls": 5,
+            "admitted": 4,
+            "admitted_fraction": 0.8,
+            "thresholds": {
+              "slope": 0.6377443885834
+            },
+            "max_admitted_fraction": 0.5,
+            "discriminates": false,
+            "note": "the band admits terrain from different places, so it does not separate similar from dissimilar here",
+            "control_units": [
+              "LUNAR_Site01",
+              "LUNAR_Site04",
+              "LUNAR_Site11",
+              "LUNAR_Site20",
+              "LUNAR_Site23"
+            ],
+            "control_distances": [
+              {
+                "slope": 0.08876186265038186
+              },
+              {
+                "slope": 1.2402918670174436
+              },
+              {
+                "slope": 0.46484391579889933
+              },
+              {
+                "slope": 0.12167181150090302
+              },
+              {
+                "slope": 0.4545537060707422
+              }
+            ]
+          },
+          "note": "Absolute morphological adequacy has not been established. A band was calibrated, but it admits 4 of 5 control units that are known to be different terrain, so membership in it is not evidence of similarity at this scale."
+        },
+        "evidence_sufficiency": {
+          "question": "Is the evidence enough to answer either of the other two for this comparison?",
+          "state": "MARGINAL",
+          "reasons": [
+            "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+            "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+          ],
+          "n_candidates": 7,
+          "n_supports": 3,
+          "min_valid_fraction": 0.75,
+          "effective_rank": 1,
+          "n_realisations": 6
+        },
+        "separable": true,
+        "reading": "These are three answers to three different questions. A definite ranking with NOT_ESTABLISHED adequacy is a normal, expected outcome -- it means the shortlist is ordered and nothing on it has been shown to be a good analog."
+      },
+      "adequacy_detail": {
+        "established": true,
+        "reference_id": "LUNAR_Site07",
+        "extent_m": 9000.0,
+        "support_m": 750.0,
+        "quantile": 95.0,
+        "n_split": 3,
+        "descriptors": [
+          "slope",
+          "relief"
+        ],
+        "per_descriptor": {
+          "slope": {
+            "band": {
+              "median": 0.3089093211680607,
+              "p95": 0.6377443885834
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 0.8884034604156013,
+                "adequate": false,
+                "ratio": 1.3930400271948793
+              },
+              "earth_llano_estacado": {
+                "distance": 0.8758212945840865,
+                "adequate": false,
+                "ratio": 1.3733108597466748
+              },
+              "earth_deccan_traps": {
+                "distance": 0.8163197412224095,
+                "adequate": false,
+                "ratio": 1.2800108567566904
+              },
+              "earth_snake_river_plain": {
+                "distance": 0.8662248892276525,
+                "adequate": false,
+                "ratio": 1.3582634433707343
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.7254257245626811,
+                "adequate": false,
+                "ratio": 1.137486644412575
+              },
+              "earth_odadahraun": {
+                "distance": 0.767263101986806,
+                "adequate": false,
+                "ratio": 1.2030887542438462
+              },
+              "earth_nevada_basin": {
+                "distance": 0.051650249968710746,
+                "adequate": true,
+                "ratio": 0.08098895246015367
+              }
+            }
+          },
+          "relief": {
+            "band": {
+              "median": NaN,
+              "p95": NaN
+            },
+            "established": false,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 1.1389415104181642,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_llano_estacado": {
+                "distance": 1.1197134530876407,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_deccan_traps": {
+                "distance": 1.058998415836855,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_snake_river_plain": {
+                "distance": 1.1064327168639743,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.9250997000597705,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_odadahraun": {
+                "distance": 1.0344986355358312,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_nevada_basin": {
+                "distance": 0.06922966110297826,
+                "adequate": false,
+                "ratio": NaN
+              }
+            }
+          }
+        },
+        "adequate_candidates": [
+          "earth_nevada_basin"
+        ],
+        "any_adequate": true,
+        "note": "Adequacy is assessed RELATIVE to the reference's own internal morphological variability at this scale -- not a universal analog score, and distinct from 'best among candidates' (Pareto non-domination, computed elsewhere)."
+      },
+      "band_width_diagnostic": {
+        "slope": {
+          "band_p95": 0.6377443885834,
+          "max_candidate_distance": 0.8884034604156013,
+          "band_over_max": 0.7178544625265854
+        }
+      },
+      "nearest_unit_per_descriptor": {
+        "slope": {
+          "unit": "earth_nevada_basin",
+          "distance": 0.051650249968710746,
+          "is_sibling_site": false
+        }
+      }
+    },
+    "Site11@750m": {
+      "site": "Site11",
+      "site_name": "de Gerlache rim",
+      "support_m": 750.0,
+      "cells_per_side": 12,
+      "valid_fraction_min": 0.75,
+      "verdict": {
+        "questions": {
+          "relative_ranking": "Which candidate is closest, among the candidates tested?",
+          "absolute_adequacy": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "evidence_sufficiency": "Is the evidence enough to answer either of the other two for this comparison?"
+        },
+        "relative_ranking": {
+          "question": "Which candidate is closest, among the candidates tested?",
+          "state": "RECOMMEND_FOLLOW_UP",
+          "recommended_unit": "earth_nevada_basin",
+          "layer1": [
+            "earth_nevada_basin"
+          ],
+          "runner_up": null,
+          "worst_axis_distance_fraction": [
+            0.3158862399985534,
+            0.29670019381613993,
+            0.24037368980288382
+          ],
+          "provisional": true,
+          "note": "Relative to the candidate set tested. A unit can be closest here and still be far from the reference; that is what the adequacy part is for."
+        },
+        "absolute_adequacy": {
+          "question": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "state": "NOT_ESTABLISHED",
+          "adequate_candidates": [],
+          "band": {
+            "slope": {
+              "median": 0.654169007587107,
+              "p95": 2.308147097475116
+            }
+          },
+          "discrimination": {
+            "controls": 5,
+            "admitted": 5,
+            "admitted_fraction": 1.0,
+            "thresholds": {
+              "slope": 2.308147097475116
+            },
+            "max_admitted_fraction": 0.5,
+            "discriminates": false,
+            "note": "the band admits terrain from different places, so it does not separate similar from dissimilar here",
+            "control_units": [
+              "LUNAR_Site01",
+              "LUNAR_Site04",
+              "LUNAR_Site07",
+              "LUNAR_Site20",
+              "LUNAR_Site23"
+            ],
+            "control_distances": [
+              {
+                "slope": 0.41555479472074386
+              },
+              {
+                "slope": 0.6250585016900864
+              },
+              {
+                "slope": 0.36267013464554715
+              },
+              {
+                "slope": 0.30103517174545286
+              },
+              {
+                "slope": 0.08286348545433309
+              }
+            ]
+          },
+          "note": "Absolute morphological adequacy has not been established. A band was calibrated, but it admits 5 of 5 control units that are known to be different terrain, so membership in it is not evidence of similarity at this scale."
+        },
+        "evidence_sufficiency": {
+          "question": "Is the evidence enough to answer either of the other two for this comparison?",
+          "state": "MARGINAL",
+          "reasons": [
+            "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+            "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+          ],
+          "n_candidates": 7,
+          "n_supports": 3,
+          "min_valid_fraction": 0.75,
+          "effective_rank": 1,
+          "n_realisations": 6
+        },
+        "separable": true,
+        "reading": "These are three answers to three different questions. A definite ranking with NOT_ESTABLISHED adequacy is a normal, expected outcome -- it means the shortlist is ordered and nothing on it has been shown to be a good analog."
+      },
+      "adequacy_detail": {
+        "established": true,
+        "reference_id": "LUNAR_Site11",
+        "extent_m": 9000.0,
+        "support_m": 750.0,
+        "quantile": 95.0,
+        "n_split": 3,
+        "descriptors": [
+          "slope",
+          "relief"
+        ],
+        "per_descriptor": {
+          "slope": {
+            "band": {
+              "median": 0.654169007587107,
+              "p95": 2.308147097475116
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 1.0558004342101974,
+                "adequate": true,
+                "ratio": 0.45742337451765464
+              },
+              "earth_llano_estacado": {
+                "distance": 1.0459838578903684,
+                "adequate": true,
+                "ratio": 0.453170362943753
+              },
+              "earth_deccan_traps": {
+                "distance": 0.9995608852841523,
+                "adequate": true,
+                "ratio": 0.43305770519460085
+              },
+              "earth_snake_river_plain": {
+                "distance": 1.0384967649018546,
+                "adequate": true,
+                "ratio": 0.4499265952494393
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.9286455863201888,
+                "adequate": true,
+                "ratio": 0.4023337972419674
+              },
+              "earth_odadahraun": {
+                "distance": 0.9612870102216865,
+                "adequate": true,
+                "ratio": 0.4164756272567027
+              },
+              "earth_nevada_basin": {
+                "distance": 0.3350808764712809,
+                "adequate": true,
+                "ratio": 0.14517310306514958
+              }
+            }
+          },
+          "relief": {
+            "band": {
+              "median": NaN,
+              "p95": NaN
+            },
+            "established": false,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 1.289620365472431,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_llano_estacado": {
+                "distance": 1.2746547206492649,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_deccan_traps": {
+                "distance": 1.227398793162604,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_snake_river_plain": {
+                "distance": 1.2643180143509096,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_harrat_khaybar": {
+                "distance": 1.1231823043019797,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_odadahraun": {
+                "distance": 1.2083300435781787,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_nevada_basin": {
+                "distance": 0.4267950879013311,
+                "adequate": false,
+                "ratio": NaN
+              }
+            }
+          }
+        },
+        "adequate_candidates": [
+          "earth_nullarbor",
+          "earth_llano_estacado",
+          "earth_deccan_traps",
+          "earth_snake_river_plain",
+          "earth_harrat_khaybar",
+          "earth_odadahraun",
+          "earth_nevada_basin"
+        ],
+        "any_adequate": true,
+        "note": "Adequacy is assessed RELATIVE to the reference's own internal morphological variability at this scale -- not a universal analog score, and distinct from 'best among candidates' (Pareto non-domination, computed elsewhere)."
+      },
+      "band_width_diagnostic": {
+        "slope": {
+          "band_p95": 2.308147097475116,
+          "max_candidate_distance": 1.0558004342101974,
+          "band_over_max": 2.1861585037154767
+        }
+      },
+      "nearest_unit_per_descriptor": {
+        "slope": {
+          "unit": "LUNAR_Site23",
+          "distance": 0.08286348545433309,
+          "is_sibling_site": true
+        }
+      }
+    },
+    "Site20@750m": {
+      "site": "Site20",
+      "site_name": "Leibnitz beta plateau",
+      "support_m": 750.0,
+      "cells_per_side": 12,
+      "valid_fraction_min": 0.75,
+      "verdict": {
+        "questions": {
+          "relative_ranking": "Which candidate is closest, among the candidates tested?",
+          "absolute_adequacy": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "evidence_sufficiency": "Is the evidence enough to answer either of the other two for this comparison?"
+        },
+        "relative_ranking": {
+          "question": "Which candidate is closest, among the candidates tested?",
+          "state": "RECOMMEND_FOLLOW_UP",
+          "recommended_unit": "earth_nevada_basin",
+          "layer1": [
+            "earth_nevada_basin"
+          ],
+          "runner_up": null,
+          "worst_axis_distance_fraction": [
+            0.045230833216964195,
+            0.10022110158314053,
+            0.16820208652693572
+          ],
+          "provisional": true,
+          "note": "Relative to the candidate set tested. A unit can be closest here and still be far from the reference; that is what the adequacy part is for."
+        },
+        "absolute_adequacy": {
+          "question": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "state": "NOT_ESTABLISHED",
+          "adequate_candidates": [],
+          "band": {
+            "slope": {
+              "median": 0.897195300147474,
+              "p95": 3.6640833783653415
+            }
+          },
+          "discrimination": {
+            "controls": 5,
+            "admitted": 5,
+            "admitted_fraction": 1.0,
+            "thresholds": {
+              "slope": 3.6640833783653415
+            },
+            "max_admitted_fraction": 0.5,
+            "discriminates": false,
+            "note": "the band admits terrain from different places, so it does not separate similar from dissimilar here",
+            "control_units": [
+              "LUNAR_Site01",
+              "LUNAR_Site04",
+              "LUNAR_Site07",
+              "LUNAR_Site11",
+              "LUNAR_Site23"
+            ],
+            "control_distances": [
+              {
+                "slope": 0.11080575351700804
+              },
+              {
+                "slope": 0.8035749647657935
+              },
+              {
+                "slope": 0.08427080208011514
+              },
+              {
+                "slope": 0.2672389462891469
+              },
+              {
+                "slope": 0.25994805261486836
+              }
+            ]
+          },
+          "note": "Absolute morphological adequacy has not been established. A band was calibrated, but it admits 5 of 5 control units that are known to be different terrain, so membership in it is not evidence of similarity at this scale."
+        },
+        "evidence_sufficiency": {
+          "question": "Is the evidence enough to answer either of the other two for this comparison?",
+          "state": "MARGINAL",
+          "reasons": [
+            "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+            "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+          ],
+          "n_candidates": 7,
+          "n_supports": 3,
+          "min_valid_fraction": 0.75,
+          "effective_rank": 1,
+          "n_realisations": 6
+        },
+        "separable": true,
+        "reading": "These are three answers to three different questions. A definite ranking with NOT_ESTABLISHED adequacy is a normal, expected outcome -- it means the shortlist is ordered and nothing on it has been shown to be a good analog."
+      },
+      "adequacy_detail": {
+        "established": true,
+        "reference_id": "LUNAR_Site20",
+        "extent_m": 9000.0,
+        "support_m": 750.0,
+        "quantile": 95.0,
+        "n_split": 3,
+        "descriptors": [
+          "slope",
+          "relief"
+        ],
+        "per_descriptor": {
+          "slope": {
+            "band": {
+              "median": 0.897195300147474,
+              "p95": 3.6640833783653415
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 0.6702348413683799,
+                "adequate": true,
+                "ratio": 0.18292019371769644
+              },
+              "earth_llano_estacado": {
+                "distance": 0.6615203396818582,
+                "adequate": true,
+                "ratio": 0.18054183580750896
+              },
+              "earth_deccan_traps": {
+                "distance": 0.6203091210360004,
+                "adequate": true,
+                "ratio": 0.16929448841110684
+              },
+              "earth_snake_river_plain": {
+                "distance": 0.6548737979192528,
+                "adequate": true,
+                "ratio": 0.1787278645966326
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.5573552486993351,
+                "adequate": true,
+                "ratio": 0.15211314567519152
+              },
+              "earth_odadahraun": {
+                "distance": 0.5863321276408746,
+                "adequate": true,
+                "ratio": 0.1600215025408224
+              },
+              "earth_nevada_basin": {
+                "distance": 0.0617349445926095,
+                "adequate": true,
+                "ratio": 0.016848673520129153
+              }
+            }
+          },
+          "relief": {
+            "band": {
+              "median": NaN,
+              "p95": NaN
+            },
+            "established": false,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 0.9674390988693323,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_llano_estacado": {
+                "distance": 0.9486010430939121,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_deccan_traps": {
+                "distance": 0.8891174853700962,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_snake_river_plain": {
+                "distance": 0.9355896792613878,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.7579346293640591,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_odadahraun": {
+                "distance": 0.8651146326709014,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_nevada_basin": {
+                "distance": 0.13955673768047328,
+                "adequate": false,
+                "ratio": NaN
+              }
+            }
+          }
+        },
+        "adequate_candidates": [
+          "earth_nullarbor",
+          "earth_llano_estacado",
+          "earth_deccan_traps",
+          "earth_snake_river_plain",
+          "earth_harrat_khaybar",
+          "earth_odadahraun",
+          "earth_nevada_basin"
+        ],
+        "any_adequate": true,
+        "note": "Adequacy is assessed RELATIVE to the reference's own internal morphological variability at this scale -- not a universal analog score, and distinct from 'best among candidates' (Pareto non-domination, computed elsewhere)."
+      },
+      "band_width_diagnostic": {
+        "slope": {
+          "band_p95": 3.6640833783653415,
+          "max_candidate_distance": 0.6702348413683799,
+          "band_over_max": 5.466864973603273
+        }
+      },
+      "nearest_unit_per_descriptor": {
+        "slope": {
+          "unit": "earth_nevada_basin",
+          "distance": 0.0617349445926095,
+          "is_sibling_site": false
+        }
+      }
+    },
+    "Site23@750m": {
+      "site": "Site23",
+      "site_name": "Malapert massif",
+      "support_m": 750.0,
+      "cells_per_side": 12,
+      "valid_fraction_min": 0.75,
+      "verdict": {
+        "questions": {
+          "relative_ranking": "Which candidate is closest, among the candidates tested?",
+          "absolute_adequacy": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "evidence_sufficiency": "Is the evidence enough to answer either of the other two for this comparison?"
+        },
+        "relative_ranking": {
+          "question": "Which candidate is closest, among the candidates tested?",
+          "state": "RECOMMEND_FOLLOW_UP",
+          "recommended_unit": "earth_nevada_basin",
+          "layer1": [
+            "earth_nevada_basin"
+          ],
+          "runner_up": null,
+          "worst_axis_distance_fraction": [
+            0.3105454692411344,
+            0.19409396749956734,
+            0.20575620108463005
+          ],
+          "provisional": true,
+          "note": "Relative to the candidate set tested. A unit can be closest here and still be far from the reference; that is what the adequacy part is for."
+        },
+        "absolute_adequacy": {
+          "question": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "state": "NOT_ESTABLISHED",
+          "adequate_candidates": [],
+          "band": {
+            "slope": {
+              "median": 0.6652891320863221,
+              "p95": 2.6822167760796534
+            }
+          },
+          "discrimination": {
+            "controls": 5,
+            "admitted": 5,
+            "admitted_fraction": 1.0,
+            "thresholds": {
+              "slope": 2.6822167760796534
+            },
+            "max_admitted_fraction": 0.5,
+            "discriminates": false,
+            "note": "the band admits terrain from different places, so it does not separate similar from dissimilar here",
+            "control_units": [
+              "LUNAR_Site01",
+              "LUNAR_Site04",
+              "LUNAR_Site07",
+              "LUNAR_Site11",
+              "LUNAR_Site20"
+            ],
+            "control_distances": [
+              {
+                "slope": 0.37660941726562014
+              },
+              {
+                "slope": 0.5645205376950787
+              },
+              {
+                "slope": 0.3263311456510611
+              },
+              {
+                "slope": 0.07624860052076762
+              },
+              {
+                "slope": 0.2694466183842667
+              }
+            ]
+          },
+          "note": "Absolute morphological adequacy has not been established. A band was calibrated, but it admits 5 of 5 control units that are known to be different terrain, so membership in it is not evidence of similarity at this scale."
+        },
+        "evidence_sufficiency": {
+          "question": "Is the evidence enough to answer either of the other two for this comparison?",
+          "state": "MARGINAL",
+          "reasons": [
+            "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+            "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+          ],
+          "n_candidates": 7,
+          "n_supports": 3,
+          "min_valid_fraction": 0.75,
+          "effective_rank": 1,
+          "n_realisations": 6
+        },
+        "separable": true,
+        "reading": "These are three answers to three different questions. A definite ranking with NOT_ESTABLISHED adequacy is a normal, expected outcome -- it means the shortlist is ordered and nothing on it has been shown to be a good analog."
+      },
+      "adequacy_detail": {
+        "established": true,
+        "reference_id": "LUNAR_Site23",
+        "extent_m": 9000.0,
+        "support_m": 750.0,
+        "quantile": 95.0,
+        "n_split": 3,
+        "descriptors": [
+          "slope",
+          "relief"
+        ],
+        "per_descriptor": {
+          "slope": {
+            "band": {
+              "median": 0.6652891320863221,
+              "p95": 2.6822167760796534
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 0.9634434793483658,
+                "adequate": true,
+                "ratio": 0.35919672412031567
+              },
+              "earth_llano_estacado": {
+                "distance": 0.9544105476271344,
+                "adequate": true,
+                "ratio": 0.35582901282949525
+              },
+              "earth_deccan_traps": {
+                "distance": 0.9116934609172265,
+                "adequate": true,
+                "ratio": 0.33990297467670155
+              },
+              "earth_snake_river_plain": {
+                "distance": 0.947521139593995,
+                "adequate": true,
+                "ratio": 0.3532604627799318
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.8464392386036599,
+                "adequate": true,
+                "ratio": 0.3155745076804796
+              },
+              "earth_odadahraun": {
+                "distance": 0.8764749398277648,
+                "adequate": true,
+                "ratio": 0.3267725963256507
+              },
+              "earth_nevada_basin": {
+                "distance": 0.30191348218502606,
+                "adequate": true,
+                "ratio": 0.11256117882697941
+              }
+            }
+          },
+          "relief": {
+            "band": {
+              "median": NaN,
+              "p95": NaN
+            },
+            "established": false,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 1.126295494372551,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_llano_estacado": {
+                "distance": 1.1105608747753197,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_deccan_traps": {
+                "distance": 1.0608768116091305,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_snake_river_plain": {
+                "distance": 1.0996930409188626,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.951305401398817,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_odadahraun": {
+                "distance": 1.04082825877689,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_nevada_basin": {
+                "distance": 0.24122826510706716,
+                "adequate": false,
+                "ratio": NaN
+              }
+            }
+          }
+        },
+        "adequate_candidates": [
+          "earth_nullarbor",
+          "earth_llano_estacado",
+          "earth_deccan_traps",
+          "earth_snake_river_plain",
+          "earth_harrat_khaybar",
+          "earth_odadahraun",
+          "earth_nevada_basin"
+        ],
+        "any_adequate": true,
+        "note": "Adequacy is assessed RELATIVE to the reference's own internal morphological variability at this scale -- not a universal analog score, and distinct from 'best among candidates' (Pareto non-domination, computed elsewhere)."
+      },
+      "band_width_diagnostic": {
+        "slope": {
+          "band_p95": 2.6822167760796534,
+          "max_candidate_distance": 0.9634434793483658,
+          "band_over_max": 2.783989755054231
+        }
+      },
+      "nearest_unit_per_descriptor": {
+        "slope": {
+          "unit": "LUNAR_Site11",
+          "distance": 0.07624860052076762,
+          "is_sibling_site": true
+        }
+      }
+    },
+    "Site01@1000m": {
+      "site": "Site01",
+      "site_name": "Connecting ridge",
+      "support_m": 1000.0,
+      "cells_per_side": 9,
+      "valid_fraction_min": 0.7777777777777778,
+      "verdict": {
+        "questions": {
+          "relative_ranking": "Which candidate is closest, among the candidates tested?",
+          "absolute_adequacy": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "evidence_sufficiency": "Is the evidence enough to answer either of the other two for this comparison?"
+        },
+        "relative_ranking": {
+          "question": "Which candidate is closest, among the candidates tested?",
+          "state": "RECOMMEND_FOLLOW_UP",
+          "recommended_unit": "earth_nevada_basin",
+          "layer1": [
+            "earth_nevada_basin"
+          ],
+          "runner_up": null,
+          "worst_axis_distance_fraction": [
+            0.08658236353205422,
+            0.003432428137663541,
+            0.12068194100382529
+          ],
+          "provisional": true,
+          "note": "Relative to the candidate set tested. A unit can be closest here and still be far from the reference; that is what the adequacy part is for."
+        },
+        "absolute_adequacy": {
+          "question": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "state": "NOT_ESTABLISHED",
+          "adequate_candidates": [],
+          "band": {
+            "slope": {
+              "median": 0.6351214614714543,
+              "p95": 2.6732815683857303
+            }
+          },
+          "discrimination": {
+            "controls": 5,
+            "admitted": 5,
+            "admitted_fraction": 1.0,
+            "thresholds": {
+              "slope": 2.6732815683857303
+            },
+            "max_admitted_fraction": 0.5,
+            "discriminates": false,
+            "note": "the band admits terrain from different places, so it does not separate similar from dissimilar here",
+            "control_units": [
+              "LUNAR_Site04",
+              "LUNAR_Site07",
+              "LUNAR_Site11",
+              "LUNAR_Site20",
+              "LUNAR_Site23"
+            ],
+            "control_distances": [
+              {
+                "slope": 1.3458941973911398
+              },
+              {
+                "slope": 0.10510303150681316
+              },
+              {
+                "slope": 0.5569250223115768
+              },
+              {
+                "slope": 0.16663507161246227
+              },
+              {
+                "slope": 0.5544888258062008
+              }
+            ]
+          },
+          "note": "Absolute morphological adequacy has not been established. A band was calibrated, but it admits 5 of 5 control units that are known to be different terrain, so membership in it is not evidence of similarity at this scale."
+        },
+        "evidence_sufficiency": {
+          "question": "Is the evidence enough to answer either of the other two for this comparison?",
+          "state": "MARGINAL",
+          "reasons": [
+            "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+            "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+          ],
+          "n_candidates": 7,
+          "n_supports": 3,
+          "min_valid_fraction": 0.7777777777777778,
+          "effective_rank": 1,
+          "n_realisations": 6
+        },
+        "separable": true,
+        "reading": "These are three answers to three different questions. A definite ranking with NOT_ESTABLISHED adequacy is a normal, expected outcome -- it means the shortlist is ordered and nothing on it has been shown to be a good analog."
+      },
+      "adequacy_detail": {
+        "established": true,
+        "reference_id": "LUNAR_Site01",
+        "extent_m": 9000.0,
+        "support_m": 1000.0,
+        "quantile": 95.0,
+        "n_split": 3,
+        "descriptors": [
+          "slope",
+          "relief"
+        ],
+        "per_descriptor": {
+          "slope": {
+            "band": {
+              "median": 0.6351214614714543,
+              "p95": 2.6732815683857303
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 0.7973987981881334,
+                "adequate": true,
+                "ratio": 0.29828462800858097
+              },
+              "earth_llano_estacado": {
+                "distance": 0.786758299799244,
+                "adequate": true,
+                "ratio": 0.29430431463092405
+              },
+              "earth_deccan_traps": {
+                "distance": 0.7376231934607832,
+                "adequate": true,
+                "ratio": 0.2759242431414358
+              },
+              "earth_snake_river_plain": {
+                "distance": 0.7741809971269628,
+                "adequate": true,
+                "ratio": 0.2895994968440434
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.6492971284962513,
+                "adequate": true,
+                "ratio": 0.24288392819329221
+              },
+              "earth_odadahraun": {
+                "distance": 0.6811064448369982,
+                "adequate": true,
+                "ratio": 0.25478290535938064
+              },
+              "earth_nevada_basin": {
+                "distance": 0.09668827289853235,
+                "adequate": true,
+                "ratio": 0.03616838347369367
+              }
+            }
+          },
+          "relief": {
+            "band": {
+              "median": NaN,
+              "p95": NaN
+            },
+            "established": false,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 1.3682594697241564,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_llano_estacado": {
+                "distance": 1.3444085358798765,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_deccan_traps": {
+                "distance": 1.2842807260731004,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_snake_river_plain": {
+                "distance": 1.324669085105392,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_harrat_khaybar": {
+                "distance": 1.1143745646991035,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_odadahraun": {
+                "distance": 1.2358739107677885,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_nevada_basin": {
+                "distance": 0.10600736694619262,
+                "adequate": false,
+                "ratio": NaN
+              }
+            }
+          }
+        },
+        "adequate_candidates": [
+          "earth_nullarbor",
+          "earth_llano_estacado",
+          "earth_deccan_traps",
+          "earth_snake_river_plain",
+          "earth_harrat_khaybar",
+          "earth_odadahraun",
+          "earth_nevada_basin"
+        ],
+        "any_adequate": true,
+        "note": "Adequacy is assessed RELATIVE to the reference's own internal morphological variability at this scale -- not a universal analog score, and distinct from 'best among candidates' (Pareto non-domination, computed elsewhere)."
+      },
+      "band_width_diagnostic": {
+        "slope": {
+          "band_p95": 2.6732815683857303,
+          "max_candidate_distance": 0.7973987981881334,
+          "band_over_max": 3.3525026303776952
+        }
+      },
+      "nearest_unit_per_descriptor": {
+        "slope": {
+          "unit": "earth_nevada_basin",
+          "distance": 0.09668827289853235,
+          "is_sibling_site": false
+        }
+      }
+    },
+    "Site04@1000m": {
+      "site": "Site04",
+      "site_name": "Shackleton rim",
+      "support_m": 1000.0,
+      "cells_per_side": 9,
+      "valid_fraction_min": 0.7777777777777778,
+      "verdict": {
+        "questions": {
+          "relative_ranking": "Which candidate is closest, among the candidates tested?",
+          "absolute_adequacy": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "evidence_sufficiency": "Is the evidence enough to answer either of the other two for this comparison?"
+        },
+        "relative_ranking": {
+          "question": "Which candidate is closest, among the candidates tested?",
+          "state": "RECOMMEND_FOLLOW_UP",
+          "recommended_unit": "earth_nevada_basin",
+          "layer1": [
+            "earth_nevada_basin"
+          ],
+          "runner_up": null,
+          "worst_axis_distance_fraction": [
+            0.5926566169450783,
+            0.6131671331896749,
+            0.7064091283242239
+          ],
+          "provisional": true,
+          "note": "Relative to the candidate set tested. A unit can be closest here and still be far from the reference; that is what the adequacy part is for."
+        },
+        "absolute_adequacy": {
+          "question": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "state": "NOT_ESTABLISHED",
+          "adequate_candidates": [],
+          "band": {
+            "slope": {
+              "median": 0.990497084318674,
+              "p95": 15.862552314245113
+            }
+          },
+          "discrimination": {
+            "controls": 5,
+            "admitted": 5,
+            "admitted_fraction": 1.0,
+            "thresholds": {
+              "slope": 15.862552314245113
+            },
+            "max_admitted_fraction": 0.5,
+            "discriminates": false,
+            "note": "the band admits terrain from different places, so it does not separate similar from dissimilar here",
+            "control_units": [
+              "LUNAR_Site01",
+              "LUNAR_Site07",
+              "LUNAR_Site11",
+              "LUNAR_Site20",
+              "LUNAR_Site23"
+            ],
+            "control_distances": [
+              {
+                "slope": 0.5771711084543101
+              },
+              {
+                "slope": 0.5387186168100951
+              },
+              {
+                "slope": 0.34254822937906854
+              },
+              {
+                "slope": 0.5097066432567601
+              },
+              {
+                "slope": 0.3416992186888513
+              }
+            ]
+          },
+          "note": "Absolute morphological adequacy has not been established. A band was calibrated, but it admits 5 of 5 control units that are known to be different terrain, so membership in it is not evidence of similarity at this scale."
+        },
+        "evidence_sufficiency": {
+          "question": "Is the evidence enough to answer either of the other two for this comparison?",
+          "state": "MARGINAL",
+          "reasons": [
+            "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+            "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+          ],
+          "n_candidates": 7,
+          "n_supports": 3,
+          "min_valid_fraction": 0.7777777777777778,
+          "effective_rank": 1,
+          "n_realisations": 6
+        },
+        "separable": true,
+        "reading": "These are three answers to three different questions. A definite ranking with NOT_ESTABLISHED adequacy is a normal, expected outcome -- it means the shortlist is ordered and nothing on it has been shown to be a good analog."
+      },
+      "adequacy_detail": {
+        "established": true,
+        "reference_id": "LUNAR_Site04",
+        "extent_m": 9000.0,
+        "support_m": 1000.0,
+        "quantile": 95.0,
+        "n_split": 3,
+        "descriptors": [
+          "slope",
+          "relief"
+        ],
+        "per_descriptor": {
+          "slope": {
+            "band": {
+              "median": 0.990497084318674,
+              "p95": 15.862552314245113
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 0.9191263298398343,
+                "adequate": true,
+                "ratio": 0.057943155151294765
+              },
+              "earth_llano_estacado": {
+                "distance": 0.9145632755807953,
+                "adequate": true,
+                "ratio": 0.057655493104945436
+              },
+              "earth_deccan_traps": {
+                "distance": 0.8934922554037554,
+                "adequate": true,
+                "ratio": 0.056327143179938886
+              },
+              "earth_snake_river_plain": {
+                "distance": 0.9091696452799911,
+                "adequate": true,
+                "ratio": 0.057315470251500814
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.855614647401727,
+                "adequate": true,
+                "ratio": 0.053939279786226826
+              },
+              "earth_odadahraun": {
+                "distance": 0.869255703591099,
+                "adequate": true,
+                "ratio": 0.05479923321106893
+              },
+              "earth_nevada_basin": {
+                "distance": 0.5471812020826826,
+                "adequate": true,
+                "ratio": 0.03449515508240721
+              }
+            }
+          },
+          "relief": {
+            "band": {
+              "median": NaN,
+              "p95": NaN
+            },
+            "established": false,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 1.1359534639317435,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_llano_estacado": {
+                "distance": 1.1289149794716642,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_deccan_traps": {
+                "distance": 1.1111710765407912,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_snake_river_plain": {
+                "distance": 1.1230898064015529,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_harrat_khaybar": {
+                "distance": 1.061031242003898,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_odadahraun": {
+                "distance": 1.0968860753952252,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_nevada_basin": {
+                "distance": 0.7534187859699978,
+                "adequate": false,
+                "ratio": NaN
+              }
+            }
+          }
+        },
+        "adequate_candidates": [
+          "earth_nullarbor",
+          "earth_llano_estacado",
+          "earth_deccan_traps",
+          "earth_snake_river_plain",
+          "earth_harrat_khaybar",
+          "earth_odadahraun",
+          "earth_nevada_basin"
+        ],
+        "any_adequate": true,
+        "note": "Adequacy is assessed RELATIVE to the reference's own internal morphological variability at this scale -- not a universal analog score, and distinct from 'best among candidates' (Pareto non-domination, computed elsewhere)."
+      },
+      "band_width_diagnostic": {
+        "slope": {
+          "band_p95": 15.862552314245113,
+          "max_candidate_distance": 0.9191263298398343,
+          "band_over_max": 17.25829388111349
+        }
+      },
+      "nearest_unit_per_descriptor": {
+        "slope": {
+          "unit": "LUNAR_Site23",
+          "distance": 0.3416992186888513,
+          "is_sibling_site": true
+        }
+      }
+    },
+    "Site07@1000m": {
+      "site": "Site07",
+      "site_name": "Peak near Shackleton",
+      "support_m": 1000.0,
+      "cells_per_side": 9,
+      "valid_fraction_min": 0.7777777777777778,
+      "verdict": {
+        "questions": {
+          "relative_ranking": "Which candidate is closest, among the candidates tested?",
+          "absolute_adequacy": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "evidence_sufficiency": "Is the evidence enough to answer either of the other two for this comparison?"
+        },
+        "relative_ranking": {
+          "question": "Which candidate is closest, among the candidates tested?",
+          "state": "RECOMMEND_FOLLOW_UP",
+          "recommended_unit": "earth_nevada_basin",
+          "layer1": [
+            "earth_nevada_basin"
+          ],
+          "runner_up": null,
+          "worst_axis_distance_fraction": [
+            0.021744106643279165,
+            0.04361284224953626,
+            0.11166969678344665
+          ],
+          "provisional": true,
+          "note": "Relative to the candidate set tested. A unit can be closest here and still be far from the reference; that is what the adequacy part is for."
+        },
+        "absolute_adequacy": {
+          "question": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "state": "NOT_ESTABLISHED",
+          "adequate_candidates": [],
+          "band": {
+            "slope": {
+              "median": 0.3972727247193465,
+              "p95": 0.8963951399842887
+            }
+          },
+          "discrimination": {
+            "controls": 5,
+            "admitted": 4,
+            "admitted_fraction": 0.8,
+            "thresholds": {
+              "slope": 0.8963951399842887
+            },
+            "max_admitted_fraction": 0.5,
+            "discriminates": false,
+            "note": "the band admits terrain from different places, so it does not separate similar from dissimilar here",
+            "control_units": [
+              "LUNAR_Site01",
+              "LUNAR_Site04",
+              "LUNAR_Site11",
+              "LUNAR_Site20",
+              "LUNAR_Site23"
+            ],
+            "control_distances": [
+              {
+                "slope": 0.12171836468099566
+              },
+              {
+                "slope": 1.454819747620713
+              },
+              {
+                "slope": 0.5423633162037694
+              },
+              {
+                "slope": 0.16481837626736878
+              },
+              {
+                "slope": 0.5383041509908467
+              }
+            ]
+          },
+          "note": "Absolute morphological adequacy has not been established. A band was calibrated, but it admits 4 of 5 control units that are known to be different terrain, so membership in it is not evidence of similarity at this scale."
+        },
+        "evidence_sufficiency": {
+          "question": "Is the evidence enough to answer either of the other two for this comparison?",
+          "state": "MARGINAL",
+          "reasons": [
+            "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+            "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+          ],
+          "n_candidates": 7,
+          "n_supports": 3,
+          "min_valid_fraction": 0.7777777777777778,
+          "effective_rank": 1,
+          "n_realisations": 6
+        },
+        "separable": true,
+        "reading": "These are three answers to three different questions. A definite ranking with NOT_ESTABLISHED adequacy is a normal, expected outcome -- it means the shortlist is ordered and nothing on it has been shown to be a good analog."
+      },
+      "adequacy_detail": {
+        "established": true,
+        "reference_id": "LUNAR_Site07",
+        "extent_m": 9000.0,
+        "support_m": 1000.0,
+        "quantile": 95.0,
+        "n_split": 3,
+        "descriptors": [
+          "slope",
+          "relief"
+        ],
+        "per_descriptor": {
+          "slope": {
+            "band": {
+              "median": 0.3972727247193465,
+              "p95": 0.8963951399842887
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 1.027298177181775,
+                "adequate": false,
+                "ratio": 1.146032738642225
+              },
+              "earth_llano_estacado": {
+                "distance": 1.0149755634120436,
+                "adequate": false,
+                "ratio": 1.1322858839125716
+              },
+              "earth_deccan_traps": {
+                "distance": 0.9580728774837447,
+                "adequate": false,
+                "ratio": 1.0688064166663567
+              },
+              "earth_snake_river_plain": {
+                "distance": 1.0004099634343804,
+                "adequate": false,
+                "ratio": 1.1160367998558256
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.8557836853257309,
+                "adequate": true,
+                "ratio": 0.954694695623551
+              },
+              "earth_odadahraun": {
+                "distance": 0.8926216138907619,
+                "adequate": true,
+                "ratio": 0.9957903318244308
+              },
+              "earth_nevada_basin": {
+                "distance": 0.05413927657322607,
+                "adequate": true,
+                "ratio": 0.06039666454926896
+              }
+            }
+          },
+          "relief": {
+            "band": {
+              "median": NaN,
+              "p95": NaN
+            },
+            "established": false,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 1.4049797421381036,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_llano_estacado": {
+                "distance": 1.3807468610519547,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_deccan_traps": {
+                "distance": 1.3196561685645558,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_snake_river_plain": {
+                "distance": 1.360691304047477,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_harrat_khaybar": {
+                "distance": 1.1470291414107476,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_odadahraun": {
+                "distance": 1.270474169792036,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_nevada_basin": {
+                "distance": 0.10749862759691418,
+                "adequate": false,
+                "ratio": NaN
+              }
+            }
+          }
+        },
+        "adequate_candidates": [
+          "earth_harrat_khaybar",
+          "earth_odadahraun",
+          "earth_nevada_basin"
+        ],
+        "any_adequate": true,
+        "note": "Adequacy is assessed RELATIVE to the reference's own internal morphological variability at this scale -- not a universal analog score, and distinct from 'best among candidates' (Pareto non-domination, computed elsewhere)."
+      },
+      "band_width_diagnostic": {
+        "slope": {
+          "band_p95": 0.8963951399842887,
+          "max_candidate_distance": 1.027298177181775,
+          "band_over_max": 0.8725754215230893
+        }
+      },
+      "nearest_unit_per_descriptor": {
+        "slope": {
+          "unit": "earth_nevada_basin",
+          "distance": 0.05413927657322607,
+          "is_sibling_site": false
+        }
+      }
+    },
+    "Site11@1000m": {
+      "site": "Site11",
+      "site_name": "de Gerlache rim",
+      "support_m": 1000.0,
+      "cells_per_side": 9,
+      "valid_fraction_min": 0.7777777777777778,
+      "verdict": {
+        "questions": {
+          "relative_ranking": "Which candidate is closest, among the candidates tested?",
+          "absolute_adequacy": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "evidence_sufficiency": "Is the evidence enough to answer either of the other two for this comparison?"
+        },
+        "relative_ranking": {
+          "question": "Which candidate is closest, among the candidates tested?",
+          "state": "RECOMMEND_FOLLOW_UP",
+          "recommended_unit": "earth_nevada_basin",
+          "layer1": [
+            "earth_nevada_basin"
+          ],
+          "runner_up": null,
+          "worst_axis_distance_fraction": [
+            0.35665479720003473,
+            0.3450356613733474,
+            0.24349200489348177
+          ],
+          "provisional": true,
+          "note": "Relative to the candidate set tested. A unit can be closest here and still be far from the reference; that is what the adequacy part is for."
+        },
+        "absolute_adequacy": {
+          "question": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "state": "NOT_ESTABLISHED",
+          "adequate_candidates": [],
+          "band": {
+            "slope": {
+              "median": 0.9539225100830223,
+              "p95": 3.730766574894971
+            }
+          },
+          "discrimination": {
+            "controls": 5,
+            "admitted": 5,
+            "admitted_fraction": 1.0,
+            "thresholds": {
+              "slope": 3.730766574894971
+            },
+            "max_admitted_fraction": 0.5,
+            "discriminates": false,
+            "note": "the band admits terrain from different places, so it does not separate similar from dissimilar here",
+            "control_units": [
+              "LUNAR_Site01",
+              "LUNAR_Site04",
+              "LUNAR_Site07",
+              "LUNAR_Site20",
+              "LUNAR_Site23"
+            ],
+            "control_distances": [
+              {
+                "slope": 0.41536598934581476
+              },
+              {
+                "slope": 0.5957475520907799
+              },
+              {
+                "slope": 0.34928798233322267
+              },
+              {
+                "slope": 0.2984559108081901
+              },
+              {
+                "slope": 0.09609904068630852
+              }
+            ]
+          },
+          "note": "Absolute morphological adequacy has not been established. A band was calibrated, but it admits 5 of 5 control units that are known to be different terrain, so membership in it is not evidence of similarity at this scale."
+        },
+        "evidence_sufficiency": {
+          "question": "Is the evidence enough to answer either of the other two for this comparison?",
+          "state": "MARGINAL",
+          "reasons": [
+            "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+            "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+          ],
+          "n_candidates": 7,
+          "n_supports": 3,
+          "min_valid_fraction": 0.7777777777777778,
+          "effective_rank": 1,
+          "n_realisations": 6
+        },
+        "separable": true,
+        "reading": "These are three answers to three different questions. A definite ranking with NOT_ESTABLISHED adequacy is a normal, expected outcome -- it means the shortlist is ordered and nothing on it has been shown to be a good analog."
+      },
+      "adequacy_detail": {
+        "established": true,
+        "reference_id": "LUNAR_Site11",
+        "extent_m": 9000.0,
+        "support_m": 1000.0,
+        "quantile": 95.0,
+        "n_split": 3,
+        "descriptors": [
+          "slope",
+          "relief"
+        ],
+        "per_descriptor": {
+          "slope": {
+            "band": {
+              "median": 0.9539225100830223,
+              "p95": 3.730766574894971
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 1.0098821369786324,
+                "adequate": true,
+                "ratio": 0.2706902500344886
+              },
+              "earth_llano_estacado": {
+                "distance": 1.001946237237427,
+                "adequate": true,
+                "ratio": 0.2685631001359644
+              },
+              "earth_deccan_traps": {
+                "distance": 0.9653002772998094,
+                "adequate": true,
+                "ratio": 0.2587404647065019
+              },
+              "earth_snake_river_plain": {
+                "distance": 0.9925658295371402,
+                "adequate": true,
+                "ratio": 0.266048762261435
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.8994249046926684,
+                "adequate": true,
+                "ratio": 0.24108313576761073
+              },
+              "earth_odadahraun": {
+                "distance": 0.9231489386702557,
+                "adequate": true,
+                "ratio": 0.2474421597111699
+              },
+              "earth_nevada_basin": {
+                "distance": 0.3630085572346073,
+                "adequate": true,
+                "ratio": 0.0973013320311595
+              }
+            }
+          },
+          "relief": {
+            "band": {
+              "median": NaN,
+              "p95": NaN
+            },
+            "established": false,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 1.4579873177063505,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_llano_estacado": {
+                "distance": 1.4401050150257673,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_deccan_traps": {
+                "distance": 1.3950240256814814,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_snake_river_plain": {
+                "distance": 1.4253053079869402,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_harrat_khaybar": {
+                "distance": 1.2676364179331823,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_odadahraun": {
+                "distance": 1.3587308839225785,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_nevada_basin": {
+                "distance": 0.48610183071981644,
+                "adequate": false,
+                "ratio": NaN
+              }
+            }
+          }
+        },
+        "adequate_candidates": [
+          "earth_nullarbor",
+          "earth_llano_estacado",
+          "earth_deccan_traps",
+          "earth_snake_river_plain",
+          "earth_harrat_khaybar",
+          "earth_odadahraun",
+          "earth_nevada_basin"
+        ],
+        "any_adequate": true,
+        "note": "Adequacy is assessed RELATIVE to the reference's own internal morphological variability at this scale -- not a universal analog score, and distinct from 'best among candidates' (Pareto non-domination, computed elsewhere)."
+      },
+      "band_width_diagnostic": {
+        "slope": {
+          "band_p95": 3.730766574894971,
+          "max_candidate_distance": 1.0098821369786324,
+          "band_over_max": 3.6942593974943323
+        }
+      },
+      "nearest_unit_per_descriptor": {
+        "slope": {
+          "unit": "LUNAR_Site23",
+          "distance": 0.09609904068630852,
+          "is_sibling_site": true
+        }
+      }
+    },
+    "Site20@1000m": {
+      "site": "Site20",
+      "site_name": "Leibnitz beta plateau",
+      "support_m": 1000.0,
+      "cells_per_side": 9,
+      "valid_fraction_min": 0.7777777777777778,
+      "verdict": {
+        "questions": {
+          "relative_ranking": "Which candidate is closest, among the candidates tested?",
+          "absolute_adequacy": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "evidence_sufficiency": "Is the evidence enough to answer either of the other two for this comparison?"
+        },
+        "relative_ranking": {
+          "question": "Which candidate is closest, among the candidates tested?",
+          "state": "RECOMMEND_FOLLOW_UP",
+          "recommended_unit": "earth_nevada_basin",
+          "layer1": [
+            "earth_nevada_basin"
+          ],
+          "runner_up": null,
+          "worst_axis_distance_fraction": [
+            0.09091224788013227,
+            0.060825584111887,
+            0.172335831508027
+          ],
+          "provisional": true,
+          "note": "Relative to the candidate set tested. A unit can be closest here and still be far from the reference; that is what the adequacy part is for."
+        },
+        "absolute_adequacy": {
+          "question": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "state": "NOT_ESTABLISHED",
+          "adequate_candidates": [],
+          "band": {
+            "slope": {
+              "median": 1.1933602184802439,
+              "p95": 4.389485506978093
+            }
+          },
+          "discrimination": {
+            "controls": 5,
+            "admitted": 5,
+            "admitted_fraction": 1.0,
+            "thresholds": {
+              "slope": 4.389485506978093
+            },
+            "max_admitted_fraction": 0.5,
+            "discriminates": false,
+            "note": "the band admits terrain from different places, so it does not separate similar from dissimilar here",
+            "control_units": [
+              "LUNAR_Site01",
+              "LUNAR_Site04",
+              "LUNAR_Site07",
+              "LUNAR_Site11",
+              "LUNAR_Site23"
+            ],
+            "control_distances": [
+              {
+                "slope": 0.12931720704540833
+              },
+              {
+                "slope": 0.922394139836448
+              },
+              {
+                "slope": 0.11044718946313811
+              },
+              {
+                "slope": 0.3105531122713307
+              },
+              {
+                "slope": 0.3117408169584657
+              }
+            ]
+          },
+          "note": "Absolute morphological adequacy has not been established. A band was calibrated, but it admits 5 of 5 control units that are known to be different terrain, so membership in it is not evidence of similarity at this scale."
+        },
+        "evidence_sufficiency": {
+          "question": "Is the evidence enough to answer either of the other two for this comparison?",
+          "state": "MARGINAL",
+          "reasons": [
+            "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+            "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+          ],
+          "n_candidates": 7,
+          "n_supports": 3,
+          "min_valid_fraction": 0.7777777777777778,
+          "effective_rank": 1,
+          "n_realisations": 6
+        },
+        "separable": true,
+        "reading": "These are three answers to three different questions. A definite ranking with NOT_ESTABLISHED adequacy is a normal, expected outcome -- it means the shortlist is ordered and nothing on it has been shown to be a good analog."
+      },
+      "adequacy_detail": {
+        "established": true,
+        "reference_id": "LUNAR_Site20",
+        "extent_m": 9000.0,
+        "support_m": 1000.0,
+        "quantile": 95.0,
+        "n_split": 3,
+        "descriptors": [
+          "slope",
+          "relief"
+        ],
+        "per_descriptor": {
+          "slope": {
+            "band": {
+              "median": 1.1933602184802439,
+              "p95": 4.389485506978093
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 0.7409091575203727,
+                "adequate": true,
+                "ratio": 0.1687917994814034
+              },
+              "earth_llano_estacado": {
+                "distance": 0.7326515949322132,
+                "adequate": true,
+                "ratio": 0.1669105852536694
+              },
+              "earth_deccan_traps": {
+                "distance": 0.694520278048657,
+                "adequate": true,
+                "ratio": 0.15822361799453669
+              },
+              "earth_snake_river_plain": {
+                "distance": 0.7228909746857941,
+                "adequate": true,
+                "ratio": 0.1646869487407108
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.6259748036776402,
+                "adequate": true,
+                "ratio": 0.1426077845985617
+              },
+              "earth_odadahraun": {
+                "distance": 0.6506604350240585,
+                "adequate": true,
+                "ratio": 0.14823159433826233
+              },
+              "earth_nevada_basin": {
+                "distance": 0.09976247031835657,
+                "adequate": true,
+                "ratio": 0.022727599888360782
+              }
+            }
+          },
+          "relief": {
+            "band": {
+              "median": NaN,
+              "p95": NaN
+            },
+            "established": false,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 1.011700661957495,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_llano_estacado": {
+                "distance": 0.99063729729521,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_deccan_traps": {
+                "distance": 0.9375369032991737,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_snake_river_plain": {
+                "distance": 0.9732048876205709,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.7874884624810832,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_odadahraun": {
+                "distance": 0.8947876168530909,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_nevada_basin": {
+                "distance": 0.16308803718179501,
+                "adequate": false,
+                "ratio": NaN
+              }
+            }
+          }
+        },
+        "adequate_candidates": [
+          "earth_nullarbor",
+          "earth_llano_estacado",
+          "earth_deccan_traps",
+          "earth_snake_river_plain",
+          "earth_harrat_khaybar",
+          "earth_odadahraun",
+          "earth_nevada_basin"
+        ],
+        "any_adequate": true,
+        "note": "Adequacy is assessed RELATIVE to the reference's own internal morphological variability at this scale -- not a universal analog score, and distinct from 'best among candidates' (Pareto non-domination, computed elsewhere)."
+      },
+      "band_width_diagnostic": {
+        "slope": {
+          "band_p95": 4.389485506978093,
+          "max_candidate_distance": 0.7409091575203727,
+          "band_over_max": 5.924458433836264
+        }
+      },
+      "nearest_unit_per_descriptor": {
+        "slope": {
+          "unit": "earth_nevada_basin",
+          "distance": 0.09976247031835657,
+          "is_sibling_site": false
+        }
+      }
+    },
+    "Site23@1000m": {
+      "site": "Site23",
+      "site_name": "Malapert massif",
+      "support_m": 1000.0,
+      "cells_per_side": 9,
+      "valid_fraction_min": 0.7777777777777778,
+      "verdict": {
+        "questions": {
+          "relative_ranking": "Which candidate is closest, among the candidates tested?",
+          "absolute_adequacy": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "evidence_sufficiency": "Is the evidence enough to answer either of the other two for this comparison?"
+        },
+        "relative_ranking": {
+          "question": "Which candidate is closest, among the candidates tested?",
+          "state": "RECOMMEND_FOLLOW_UP",
+          "recommended_unit": "earth_nevada_basin",
+          "layer1": [
+            "earth_nevada_basin"
+          ],
+          "runner_up": null,
+          "worst_axis_distance_fraction": [
+            0.35591504101846544,
+            0.2405053501652316,
+            0.20652525611356304
+          ],
+          "provisional": true,
+          "note": "Relative to the candidate set tested. A unit can be closest here and still be far from the reference; that is what the adequacy part is for."
+        },
+        "absolute_adequacy": {
+          "question": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+          "state": "NOT_ESTABLISHED",
+          "adequate_candidates": [],
+          "band": {
+            "slope": {
+              "median": 0.9521327385955018,
+              "p95": 3.4929329073964825
+            }
+          },
+          "discrimination": {
+            "controls": 5,
+            "admitted": 5,
+            "admitted_fraction": 1.0,
+            "thresholds": {
+              "slope": 3.4929329073964825
+            },
+            "max_admitted_fraction": 0.5,
+            "discriminates": false,
+            "note": "the band admits terrain from different places, so it does not separate similar from dissimilar here",
+            "control_units": [
+              "LUNAR_Site01",
+              "LUNAR_Site04",
+              "LUNAR_Site07",
+              "LUNAR_Site11",
+              "LUNAR_Site20"
+            ],
+            "control_distances": [
+              {
+                "slope": 0.40751402366725614
+              },
+              {
+                "slope": 0.5855986719136121
+              },
+              {
+                "slope": 0.3416147566890484
+              },
+              {
+                "slope": 0.0946966488080512
+              },
+              {
+                "slope": 0.2952252679248073
+              }
+            ]
+          },
+          "note": "Absolute morphological adequacy has not been established. A band was calibrated, but it admits 5 of 5 control units that are known to be different terrain, so membership in it is not evidence of similarity at this scale."
+        },
+        "evidence_sufficiency": {
+          "question": "Is the evidence enough to answer either of the other two for this comparison?",
+          "state": "MARGINAL",
+          "reasons": [
+            "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+            "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+          ],
+          "n_candidates": 7,
+          "n_supports": 3,
+          "min_valid_fraction": 0.7777777777777778,
+          "effective_rank": 1,
+          "n_realisations": 6
+        },
+        "separable": true,
+        "reading": "These are three answers to three different questions. A definite ranking with NOT_ESTABLISHED adequacy is a normal, expected outcome -- it means the shortlist is ordered and nothing on it has been shown to be a good analog."
+      },
+      "adequacy_detail": {
+        "established": true,
+        "reference_id": "LUNAR_Site23",
+        "extent_m": 9000.0,
+        "support_m": 1000.0,
+        "quantile": 95.0,
+        "n_split": 3,
+        "descriptors": [
+          "slope",
+          "relief"
+        ],
+        "per_descriptor": {
+          "slope": {
+            "band": {
+              "median": 0.9521327385955018,
+              "p95": 3.4929329073964825
+            },
+            "established": true,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 0.993551428919953,
+                "adequate": true,
+                "ratio": 0.2844461818364881
+              },
+              "earth_llano_estacado": {
+                "distance": 0.9857313392978101,
+                "adequate": true,
+                "ratio": 0.2822073499351987
+              },
+              "earth_deccan_traps": {
+                "distance": 0.9496201609378284,
+                "adequate": true,
+                "ratio": 0.27186899551576105
+              },
+              "earth_snake_river_plain": {
+                "distance": 0.9764878217004803,
+                "adequate": true,
+                "ratio": 0.2795610014817955
+              },
+              "earth_harrat_khaybar": {
+                "distance": 0.8847061203779338,
+                "adequate": true,
+                "ratio": 0.25328460174672085
+              },
+              "earth_odadahraun": {
+                "distance": 0.9080839449414408,
+                "adequate": true,
+                "ratio": 0.2599774942766641
+              },
+              "earth_nevada_basin": {
+                "distance": 0.3561178003764134,
+                "adequate": true,
+                "ratio": 0.10195380495924036
+              }
+            }
+          },
+          "relief": {
+            "band": {
+              "median": NaN,
+              "p95": NaN
+            },
+            "established": false,
+            "candidates": {
+              "earth_nullarbor": {
+                "distance": 1.2590008222311244,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_llano_estacado": {
+                "distance": 1.240769712669019,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_deccan_traps": {
+                "distance": 1.1948093869445089,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_snake_river_plain": {
+                "distance": 1.2256813269431175,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_harrat_khaybar": {
+                "distance": 1.0649369943786644,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_odadahraun": {
+                "distance": 1.157808321948664,
+                "adequate": false,
+                "ratio": NaN
+              },
+              "earth_nevada_basin": {
+                "distance": 0.26867021437426425,
+                "adequate": false,
+                "ratio": NaN
+              }
+            }
+          }
+        },
+        "adequate_candidates": [
+          "earth_nullarbor",
+          "earth_llano_estacado",
+          "earth_deccan_traps",
+          "earth_snake_river_plain",
+          "earth_harrat_khaybar",
+          "earth_odadahraun",
+          "earth_nevada_basin"
+        ],
+        "any_adequate": true,
+        "note": "Adequacy is assessed RELATIVE to the reference's own internal morphological variability at this scale -- not a universal analog score, and distinct from 'best among candidates' (Pareto non-domination, computed elsewhere)."
+      },
+      "band_width_diagnostic": {
+        "slope": {
+          "band_p95": 3.4929329073964825,
+          "max_candidate_distance": 0.993551428919953,
+          "band_over_max": 3.515603526627202
+        }
+      },
+      "nearest_unit_per_descriptor": {
+        "slope": {
+          "unit": "LUNAR_Site11",
+          "distance": 0.0946966488080512,
+          "is_sibling_site": true
+        }
+      }
+    }
+  },
+  "summary": {
+    "n_cells": 18,
+    "ranking_definite": 18,
+    "adequacy_not_established": 18,
+    "sufficiency_states": [
+      "MARGINAL"
+    ],
+    "nearest_unit_is_a_sibling_lunar_site": {
+      "of": 24,
+      "count": 18
+    },
+    "reading": "The ranking is definite at every cell and the absolute question is answered at none of them, which is the separation this module exists to make visible. The third number is the uncomfortable one: at 18 of 24 site x descriptor statistics the unit nearest a lunar reference is ANOTHER LUNAR SITE, not any of the seven Earth candidates. So 'earth_nevada_basin is the closest EARTH candidate' is true and 'Nevada is closest to the Moon' is false, and the panel's own caveat -- six nearby sites may be similar to each other rather than the method being insensitive -- is now measured rather than suspected.",
+    "caveat_on_the_sibling_result": "This is a statement about these two descriptors at these supports, not about the terrain in the abstract. Six sites on one body sharing a descriptor signature could mean the sites are alike, that the descriptors cannot separate bodies, or both; nothing in this panel distinguishes those, and body-transfer calibration is an open item."
+  }
+}

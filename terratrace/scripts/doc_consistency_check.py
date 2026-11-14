@@ -33,6 +33,10 @@ It checks, against the tree it is run in:
    many survived, how many site x support cells changed, and the verdict) must be the ones in
    ``artifacts/lunar_adversarial/lunar_adversarial.json``. A stale stability fraction reads as
    evidence, and these are exactly the numbers that drift when a perturbation is added.
+8. **ADEQUACY**— likewise for the three-verdict record: how many cells rank definitively, how many
+   leave adequacy unestablished, and how many site x descriptor statistics have a sibling lunar site
+   as the nearest unit. The last is the least flattering number the project publishes, and therefore
+   the one most worth pinning.
 
 Historical records (``CHANGELOG.md``, ``CLAIM-LEDGER.md``, ``RESULTS-*``, ``REAL-EXAMPLE.md``,
 ``BENCHMARK-PROTOCOL*``) are exempt from (1): they are dated records of what was true *then*,
@@ -139,6 +143,9 @@ CANONICAL = [
     ROOT / "scripts" / "dependence_audit.py",
     # and this one prints the stress-test numbers the lunar pages quote
     ROOT / "scripts" / "lunar_adversarial_run.py",
+    # and this one prints the three-verdict numbers (ranking definite, adequacy not established,
+    # sibling-nearest) that the lunar pages quote
+    ROOT / "scripts" / "lunar_adequacy.py",
 ]
 
 # dated records: exempt from the count checks
@@ -434,6 +441,43 @@ def check_lunar_stress(problems):
                     f"stress: {rel} states verdict {m.group(1).upper()}, the record says {verdict}")
 
 
+def check_lunar_adequacy(problems):
+    """The published three-verdict numbers must be the record's numbers.
+
+    Same reason as the stress check above, and the same narrow-pattern discipline: the sibling
+    result ("the nearest unit is usually another lunar site") is the least flattering number this
+    project has published, so it is exactly the one most likely to be quietly softened in prose.
+    Matching it against the artifact is what makes softening it a build failure.
+    """
+    import json
+    art = ROOT / "artifacts" / "lunar_adequacy" / "lunar_adequacy.json"
+    if not art.exists():
+        return
+    s = json.loads(art.read_text(encoding="utf-8"))["summary"]
+    nn = s["nearest_unit_is_a_sibling_lunar_site"]
+    pats = [
+        ("sibling-nearest", re.compile(r"(?<![\w.])(\d+)\s+of\s+(\d+)\s+site\s*[x×]\s*descriptor"),
+         (nn["count"], nn["of"])),
+        ("ranking definite", re.compile(r"ranking is definite at all\s+(\d+)\b"),
+         s["ranking_definite"]),
+        ("adequacy not established",
+         re.compile(r"NOT_ESTABLISHED at all\s+(\d+)\b"), s["adequacy_not_established"]),
+    ]
+    for path in CANONICAL:
+        if not path.exists() or path.suffix not in (".md", ".html", ".js"):
+            continue
+        text = _probe(path.read_text(encoding="utf-8", errors="replace"))
+        rel = _rel(path)
+        for label, pat, want in pats:
+            for m in pat.finditer(text):
+                got = tuple(int(g) for g in m.groups())
+                want_t = want if isinstance(want, tuple) else (want,)
+                if got != want_t:
+                    problems.append(
+                        f"adequacy: {rel} states {label} {got}, the record says {want_t} "
+                        f"(...{text[max(0, m.start() - 40):m.end() + 15].strip()!r}...)")
+
+
 def check_versions(problems):
     src = (ROOT / "terratrace" / "__init__.py").read_text(encoding="utf-8")
     m = re.search(r'^__version__\s*=\s*["\']([^"\']+)["\']', src, re.M)
@@ -663,6 +707,7 @@ def main(argv=None):
     check_claims(problems)
     check_lens_wording(problems)
     check_lunar_stress(problems)
+    check_lunar_adequacy(problems)
     n_pages = check_site_markup(problems)
 
     if not quiet:

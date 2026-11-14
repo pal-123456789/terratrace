@@ -160,7 +160,7 @@ core roughness/relief axes, *without being told to*. Honest nuance, surfaced not
 
 ## 7. Validation & reproducibility
 
-- **952 automated tests**, 0 failing, pure-NumPy, offline, via a dependency-free runner.
+- **970 automated tests**, 0 failing, pure-NumPy, offline, via a dependency-free runner.
 - **51 scientific-correctness oracles** drive the real engine on synthetic terrains with known answers:
   self-distance zero; slope/relief/ruggedness invariant to vertical offset and 90° rotation; monotone
   roughness discrimination; a planted close twin recovered over an impostor; a water tile BLOCKED;

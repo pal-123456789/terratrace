@@ -242,10 +242,59 @@ reported at the same prominence as the 28 passes precisely because they are the 
 future analyst who wants to disagree with this page should go after the 3 km window or the eighth
 candidate, and both are one command away.
 
+### Three questions, answered separately — and the one that hurts
+
+Everything above answers one question: **which Earth candidate is closest, among the seven tested.**
+That is a relative statement, and it is well defined even when the whole field is bad. It is also the
+question whose answer has twice been mistaken for a second question the project was not answering,
+which is how it withdrew a Mars claim. So both are now reported as separate, first-class outputs,
+along with a third about the evidence itself
+(`terratrace/verdicts.py`, `scripts/lunar_adequacy.py`, `artifacts/lunar_adequacy/lunar_adequacy.json`):
+
+| question | answer on this panel |
+|---|---|
+| Which candidate is closest, among the candidates tested? | definite at every one of the 18 cells |
+| Is any candidate inside the reference's **own** morphological variability at this scale? | **not established at any of the 18** |
+| Is the evidence enough to answer either? | **marginal** |
+
+**The second answer is "not established", and for a checkable reason.** The yardstick is the
+reference's own held-out variability: split its window into 3×3 sub-windows and measure how far the
+reference is from itself at the same scale, with the 95th percentile as the threshold. On this panel
+that band comes out absurdly wide — at Site01 the relief band is **6×** wider than the largest
+candidate distance — and it admits **4 of the 5** other lunar sites. A yardstick that says
+"adequate" to terrain from demonstrably different places has not established similarity, so the
+verdict is *not established*, not *adequate*. The band is reported with its width so the demotion can
+be checked rather than taken on trust.
+
+**And the result underneath it is the uncomfortable one.** Adding the five sibling lunar sites as
+controls produced a fact about this panel that the panel had only suspected:
+
+> At **18 of 24** site × descriptor statistics, the unit nearest a lunar reference is **another lunar
+> site** — not any of the seven Earth candidates.
+
+`earth_nevada_basin` is the closest **Earth** candidate, everywhere, exactly as reported. It is *not*
+the closest *unit*: for relief at five of six sites, and for slope at five of six, the nearest thing
+to a lunar south-polar site on these descriptors is a different lunar south-polar site. The
+demonstration's own caveat — *six nearby sites may be alike rather than the method being sensitive* —
+is now measured instead of suspected.
+
+**What that does and does not mean.** It is a statement about these two descriptors at these
+supports, not about the terrain in the abstract. Six sites on one body sharing a descriptor signature
+could mean the sites are alike, that the descriptors cannot separate bodies, or both — and nothing in
+this panel distinguishes those. It also does not invalidate the ordering; it explains what the
+ordering is worth. The honest headline is therefore narrower than the one this page opened with:
+*among seven Earth candidates, one is consistently the closest to every lunar reference, and the
+panel does not establish that it is close.*
+
 ## 5. What this does NOT establish
 
-- **Not adequacy.** Being nearest among seven candidates is not the same as being adequate, and at
-  Shackleton rim no candidate is close at all (§4).
+- **Not adequacy.** Being nearest among seven candidates is not the same as being adequate, and the
+  absolute question is now answered explicitly rather than left implicit: **not established at any
+  cell** (§4), because the reference's own variability band does not discriminate here. At Shackleton
+  rim no candidate is close at all.
+- **The nearest unit is usually another lunar site.** At **18 of 24** site × descriptor statistics a
+  sibling lunar site is nearer the reference than every Earth candidate (§4). The ordering above is
+  an ordering **within** the Earth roster; it is not evidence that the roster contains the Moon.
 - **Three axes that are one axis.** The declared axes correlate at r ≈ 1.0, so the panel is a
   one-dimensional roughness screen dressed as a three-axis Pareto comparison (§4). This is the single
   most important limitation on this page.
@@ -286,6 +335,10 @@ python scripts/lunar_adversarial_run.py --families baseline
 python scripts/lunar_adversarial_run.py --families footprint,resampling,grid_origin
 python scripts/lunar_adversarial_run.py --merge
 
+# the three verdicts, separately: ranking (read from the v2 artifact), absolute adequacy
+# (calibrated from the reference's own held-out variability), and evidence sufficiency
+python scripts/lunar_adequacy.py
+
 # and the toolchain that guards the grid itself
 python tests/run_tests.py
 ```
@@ -309,6 +362,8 @@ Verify an input against the provenance table above, e.g.
 | Axis-redundancy and leave-one-out analysis | **IMPLEMENTED** — result: one axis |
 | Uncertainty propagation (author clones) | **IMPLEMENTED AND TESTED** — 6 of 100, Site01 only |
 | Adversarial stress test on this panel | **IMPLEMENTED AND RUN** — 28 of the 30 perturbations stable; 2 reversals named |
+| Ranking / adequacy / sufficiency reported separately | **IMPLEMENTED AND RUN** — 18/18 definite, 18/18 not established, marginal |
+| Absolute adequacy on this panel | **NOT ESTABLISHED** — the reference's own band admits 4 of 5 sibling sites |
 | Full 100-realisation ensemble, all six sites | **NOT STARTED** — 6 of 100 retrieved |
 | Confirmatory lunar protocol | **NOT STARTED** — would require held-out data and a pre-registered v3 |
 | An axis that is not a roughness restatement | **NOT STARTED** — would need a real hypothesis first |
