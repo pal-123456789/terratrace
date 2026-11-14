@@ -320,6 +320,36 @@ def check_nav(problems):
             problems.append(f"nav: docs/{rel} exists but is not in mkdocs.yml nav (a reader cannot reach it)")
 
 
+# The site is PUBLISHED from `site/`, so a URL is relative to that directory — GitHub Pages resolves
+# /study/ to site/study/index.html with no rewrite table at all. An earlier revision resolved routes
+# against the repository root instead, which only appeared to work because Vercel's rewrite table
+# happened to spell out each route; the moment the links gained their canonical trailing slash (as
+# GitHub Pages serves them) every one of them "broke". The site root is a fact about the deployment,
+# so it is named here rather than inferred from a host's configuration.
+SITE_ROOT = REPO / "site"
+
+
+def resolve_site_route(route, routes=None, root=None):
+    """Map a URL path from the site to the file that serves it. Returns a Path (maybe nonexistent).
+
+    Host-neutral on purpose: a route named by a rewrite table resolves through that table, and
+    anything else falls back to plain static-tree rules, which is what GitHub Pages implements.
+    """
+    routes = routes or {}
+    root = SITE_ROOT if root is None else root
+    for key in (route, route.rstrip("/"), route.rstrip("/") + "/"):
+        if key in routes:
+            return REPO / routes[key]
+    cand = root / route.strip("/")
+    if cand.is_dir():
+        return cand / "index.html"
+    if cand.suffix:
+        return cand
+    if (cand.parent / (cand.name + ".html")).exists():
+        return cand.parent / (cand.name + ".html")
+    return cand / "index.html"
+
+
 def check_links(problems):
     """Relative Markdown links, and the site's internal HTML links + fragments.
 
@@ -350,21 +380,10 @@ def check_links(problems):
     routes, clean = {}, False
     if vercel.exists():
         cfg = vercel.read_text(encoding="utf-8")
-        clean = '"cleanUrls": true' in cfg
+        clean = '"cleanUrls": true' in cfg     # informational: resolution no longer depends on it
         for m in re.finditer(r'"source"\s*:\s*"([^"]+)"\s*,\s*"destination"\s*:\s*"([^"]+)"', cfg):
             routes[m.group(1)] = m.group(2).lstrip("/")
 
-    def _target(route):
-        if route in routes:
-            return REPO / routes[route]
-        cand = REPO / route.lstrip("/")
-        if cand.is_dir():
-            return cand / "index.html"
-        if cand.suffix:
-            return cand
-        if clean and (cand.parent / (cand.name + ".html")).exists():
-            return cand.parent / (cand.name + ".html")
-        return cand / "index.html"
 
     pages = []
     for page in sorted(REPO.glob("site/**/*.html")):
@@ -384,7 +403,7 @@ def check_links(problems):
                 if frag and frag not in ids:
                     problems.append(f"site: {page.name} -> {href!r} has no target id in that page")
                 continue
-            tgt = _target(route)
+            tgt = resolve_site_route(route, routes)
             if not _readable(tgt):
                 problems.append(
                     f"site: {page.relative_to(REPO)} -> {href!r} resolves to "

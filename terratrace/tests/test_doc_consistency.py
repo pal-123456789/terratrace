@@ -86,3 +86,51 @@ def test_the_count_patterns_catch_stale_prose_and_ignore_commands():
     assert src_pat.search("13-source registry").group(1) == "13"
     assert src_pat.search("COP30 product") is None
     assert src_pat.search("GLO-30 tiles") is None
+
+
+def test_site_routes_resolve_the_way_a_static_host_publishes_them():
+    """The three live routes must resolve, with and without their trailing slash.
+
+    This is the guard's deployment-facing half. The site is published from ``site/``, so a URL is
+    relative to that directory — and the moment the links moved to their canonical trailing-slash
+    form (which is what GitHub Pages serves), a resolver that assumed the repository root broke
+    every route at once. That failure mode is why this is asserted rather than assumed.
+    """
+    g = _load_guard()
+    repo = g.REPO
+    expect = {
+        "/": "site/index.html",
+        "/study": "site/study/index.html",
+        "/study/": "site/study/index.html",
+        "/viewer": "site/viewer/index.html",
+        "/viewer/": "site/viewer/index.html",
+    }
+    for route, want in expect.items():
+        got = g.resolve_site_route(route)
+        assert got.exists(), f"{route!r} resolved to {got}, which does not exist"
+        assert got.relative_to(repo).as_posix() == want, f"{route!r} -> {got}, expected {want}"
+
+    # and a route that does not exist must still fail, or the check above proves nothing
+    assert not g.resolve_site_route("/no-such-page/").exists()
+
+
+def test_the_deployment_shape_is_intact():
+    """``site/`` stays deployable: the domain marker, the no-Jekyll marker, and a real tree.
+
+    Cheap, and each piece has a silent failure: a missing ``.nojekyll`` makes Pages drop
+    leading-underscore paths without error, and a wrong ``CNAME`` puts the site on the wrong host.
+    """
+    site = _ROOT.parent / "site"
+    assert (site / "CNAME").read_text(encoding="utf-8").strip() == "terratrace.fit", \
+        "site/CNAME must name the published domain exactly"
+    assert (site / ".nojekyll").exists(), \
+        "site/.nojekyll is missing — GitHub Pages will run Jekyll and drop _-prefixed paths"
+    assert (site / "index.html").exists()
+    for name in ("study", "viewer"):
+        assert (site / name / "index.html").exists(), f"site/{name}/index.html is missing"
+
+    # every internal href the site uses must resolve — the deploy can then not 404 on a route
+    g = _load_guard()
+    problems = []
+    g.check_links(problems)
+    assert not problems, "site link problems:\n" + "\n".join(problems)

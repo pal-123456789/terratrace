@@ -167,8 +167,8 @@ pre.cmd .p{color:var(--mut)}
   <a class="brand" href="#top">TerraTrace<span class="dot">.</span></a>
   <div class="links">
     <a class="hide-sm" href="#method">Method</a><a class="hide-sm" href="#finding">Finding</a>
-    <a class="hide-sm" href="#evidence">Evidence</a><a href="/study">Results</a>
-    <a href="/viewer">Viewer</a>
+    <a class="hide-sm" href="#evidence">Evidence</a><a href="/study/">Results</a>
+    <a href="/viewer/">Viewer</a>
     <a href="https://github.com/pal-123456789/terratrace" target="_blank" rel="noopener">GitHub</a>
   </div>
 </nav>
@@ -192,7 +192,7 @@ pre.cmd .p{color:var(--mut)}
     <div class="scope reveal">Morphology screening only — not rover traversability, autonomy,
       geologic equivalence, site access, or mission readiness. Not NASA-endorsed.</div>
     <div class="btnrow reveal">
-      <a class="btn" href="/study">Read the v3 results</a>
+      <a class="btn" href="/study/">Read the v3 results</a>
       <a class="btn ghost" href="#method">How it works</a>
     </div>
   </section>
@@ -300,18 +300,23 @@ pre.cmd .p{color:var(--mut)}
       <span class="tag">Separately · the lunar half, on real LOLA terrain · exploratory</span>
       <h4>A different reference gives a different answer — which is the point</h4>
       <p>The Moon is the other half of the challenge, so it was run on <b>real NASA Goddard LOLA
-        5&nbsp;m/pixel</b> terrain: south-polar Site01, 16&nbsp;km across. That site is <em>rough</em> —
-        mean slope 10.3–11.2°, relief 249–452&nbsp;m. Against it, <b>one</b> Earth candidate was
-        non-dominated at every support tested: the <b>Nevada Basin &amp; Range</b>. The two terrains that
-        answered for Martian volcanic plains — the smooth non-volcanic controls — were the <em>worst</em>
-        matches here.</p>
-      <p>This is <b>exploratory, not confirmatory</b>: one lunar site, three declared axes rather than the
-        frozen lens, and the published elevation-uncertainty rasters were not propagated. No base
-        suitability of any kind is claimed — morphology only.</p>
+        5&nbsp;m/pixel</b> terrain: <b>all six</b> published south-polar candidate regions, 16&nbsp;km
+        across each, at three declared supports. Every one is <em>rough</em> terrain. Across
+        <b>18 of 18</b> site × support cells the sole non-dominated Earth candidate was the same:
+        the <b>Nevada Basin &amp; Range</b>. The two smooth non-volcanic terrains that answered for
+        Martian volcanic plains were the <em>worst</em> matches here.</p>
+      <p>Two things stop that reading as a finding. The candidate is not always <em>close</em>: for
+        the roughest sites — Shackleton rim, Malapert massif — even the survivor is 44–71% away on
+        some axis, so it is the least-dissimilar of a weak shortlist, the exact failure mode this
+        project withdrew a claim over on the Mars side. And it is <b>exploratory, not confirmatory</b>:
+        six nearby sites are not six independent tests, the error-ensemble check is 6 of the 100
+        published realisations, and the axes are three declared ones rather than the frozen lens.
+        No base suitability of any kind is claimed — morphology only.</p>
       <div class="mini">
-        <span>LOLA 5 m/px · Site01</span><span>supports 500 / 750 / 1000 m</span>
-        <span>1 of 7 Earth candidates non-dominated</span><span>sha256 3ba7b97c…</span>
+        <span>LOLA 5 m/px · all six sites</span><span>supports 500 / 750 / 1000 m</span>
+        <span>18 / 18 cells: one non-dominated candidate</span><span>error ensemble: 6 / 6</span>
       </div>
+    </div>
     </div>
   </section>
 
@@ -322,7 +327,7 @@ pre.cmd .p{color:var(--mut)}
       the evidence that would falsify it. Nothing here claims traversability, geologic equivalence, site
       access, or mission readiness.</p>
     <div class="btnrow">
-      <a class="btn" href="/study">The v3 results, on this site</a>
+      <a class="btn" href="/study/">The v3 results, on this site</a>
       <a class="btn ghost" href="https://github.com/pal-123456789/terratrace/blob/main/terratrace/docs/RESULTS-v3.md">Full results document</a>
       <a class="btn ghost" href="https://github.com/pal-123456789/terratrace/blob/main/terratrace/docs/BENCHMARK-PROTOCOL-v3.md">Frozen protocol</a>
       <a class="btn ghost" href="https://github.com/pal-123456789/terratrace/blob/main/terratrace/docs/TerraTrace-paper.pdf">Methods paper (PDF)</a>
@@ -340,11 +345,11 @@ python scripts/run_matched_benchmark.py --config config/matched_footprint_v3.yml
   <section id="open" class="reveal">
     <div class="idx">06 — OPEN &amp; REPRODUCIBLE</div>
     <h2>Every number<br>has a receipt.</h2>
-    <p class="sub">863 offline tests and 51 scientific-correctness oracles, deterministic study hashes, a
+    <p class="sub">876 offline tests and 51 scientific-correctness oracles, deterministic study hashes, a
       source lock with SHA-256 and citations, and an evidence graph from source to claim. The Earth data
       path is keyless. Open the live study, read the method, or clone the repository.</p>
     <div class="btnrow">
-      <a class="btn" href="/viewer">Open the raw study viewer</a>
+      <a class="btn" href="/viewer/">Open the raw study viewer</a>
       <a class="btn ghost" href="https://github.com/pal-123456789/terratrace">View the repository</a>
     </div>
   </section>

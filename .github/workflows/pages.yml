@@ -1,0 +1,50 @@
+name: Deploy site
+
+# Publishes `site/` to GitHub Pages, which serves it at https://terratrace.fit.
+#
+# There is NO build step, and no rewrite table is needed: the site is a plain directory tree
+# (`site/index.html` -> `/`, `site/study/index.html` -> `/study/`, `site/viewer/index.html` ->
+# `/viewer/`), which is exactly the shape GitHub Pages resolves natively. `site/vercel.json`
+# still describes the same routes for anyone deploying to Vercel instead.
+#
+# `site/.nojekyll` stops Jekyll from processing the tree — without it, Pages silently drops
+# paths that begin with an underscore.
+#
+# This workflow does not replace CI: `.github/workflows/ci.yml` still runs the suite, the oracles
+# and the documentation-consistency guard on every push.
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "site/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time; never cancel a run that is mid-publish.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
