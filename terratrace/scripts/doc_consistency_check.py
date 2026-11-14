@@ -105,6 +105,7 @@ CANONICAL = [
     # the deck generator is prose too: every number it prints ends up in a published slide, and
     # "200 scalar outputs" sat in a shipped slide for a release because nothing audited this file.
     ROOT / "scripts" / "build_deck.js",
+    ROOT / "scripts" / "build_submission_deck.js",
     ROOT / "scripts" / "make_cover.py",
 ]
 
@@ -281,6 +282,53 @@ def check_counts(problems):
                         f"counts: {rel} states {label} {got}, outside the measured range "
                         f"{lo}-{hi} (...{text[max(0,m.start()-40):m.end()+15].strip()!r}...)"
                     )
+
+    # The deck generators print their counts through a helper:
+    #     stat(slide, x, y, w, "878", "offline tests across 94 modules, 0 failures", ACC)
+    # The number and its noun sit in two *different* string arguments, so every pattern above —
+    # each anchored on a number immediately followed by its noun — walks straight past them. That
+    # is the same silent-miss shape as "**14** catalogued products", and a shipped slide carried a
+    # wrong scalar count through exactly this hole. Match the call's argument shape instead.
+    stat_call = re.compile(r'"(\d{1,4})"\s*,\s*"([^"]{0,140})"')
+    nouns = [("module count", re.compile(r"\bmodules?\b", re.I)),
+             ("test count", re.compile(r"\btests?\b", re.I)),
+             ("oracle count", re.compile(r"\boracles?\b", re.I)),
+             ("source count", re.compile(r"\b(?:source|product)s?\b", re.I)),
+             ("family count", re.compile(r"\bfamilies\b", re.I))]
+    for path in CANONICAL:
+        if not path.exists() or path.suffix != ".js":
+            continue
+        raw = path.read_text(encoding="utf-8", errors="replace")
+        rel = path.relative_to(REPO)
+        for m in stat_call.finditer(raw):
+            got, label = int(m.group(1)), m.group(2)
+            # the printed number labels whichever tracked noun appears first in its own caption —
+            # including "scalar", so "40", "…families (~290 scalar values)" labels *families* and
+            # the scalar range check must not capture it. (It did on the first run.)
+            found = [(n.search(label).start(), title) for title, n in nouns if n.search(label)]
+            s_pos = label.lower().find("scalar")
+            if s_pos >= 0 and (not found or s_pos < min(found)[0]):
+                if not (lo <= got <= hi):
+                    problems.append(
+                        f"counts: {rel} states scalar count {got} on a slide, outside the measured "
+                        f"range {lo}-{hi} (...{label!r}...)"
+                    )
+                continue
+            if found:
+                title = min(found)[1]
+                if got != truth[title]:
+                    problems.append(
+                        f"counts: {rel} states {title} {got} on a slide, real value is "
+                        f"{truth[title]} (...{label!r}...)"
+                    )
+            # and a second count can hide inside the caption itself: "tests across 94 modules"
+            for title, pat, want in pats:
+                for mm in pat.finditer(_probe(label)):
+                    if int(mm.group(1)) != want:
+                        problems.append(
+                            f"counts: {rel} states {title} {int(mm.group(1))} inside a slide "
+                            f"caption, real value is {want} (...{label!r}...)"
+                        )
     return tests, oracles, sources, modules, families, (lo, hi)
 
 

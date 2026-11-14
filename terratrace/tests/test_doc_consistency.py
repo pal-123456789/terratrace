@@ -174,3 +174,39 @@ def test_the_markup_check_is_clean_on_the_published_pages():
     n = g.check_site_markup(problems)
     assert n >= 3, f"expected the three published pages, checked {n}"
     assert not problems, "published pages are not tag-balanced:\n" + "\n".join(problems)
+
+
+def test_a_stale_count_in_a_slide_caption_is_caught():
+    """The deck generators print counts twice: a bare string and a labelled helper argument.
+
+    Every regex the guard owns is anchored on a number immediately followed by its noun, so the
+    helper form — ``stat(s, x, y, w, "NNN", "offline tests — ...", ACC)`` — walks straight past all
+    of them. That is not hypothetical: it is how a shipped slide carried a wrong scalar count for a
+    whole release. This seeds the defect in the real generator, asserts the check names the file,
+    and restores it.
+
+    The stale value is derived from whatever the generator currently says rather than hard-coded, so
+    this test does not itself go stale every time the suite grows.
+    """
+    g = _load_guard()
+    script = g.ROOT / "scripts" / "build_deck.js"
+    original = script.read_text(encoding="utf-8")
+    m = re.search(r'"(\d+)", "offline tests', original)
+    assert m, "the deck no longer prints its test count the way this test expects"
+    stale = original[:m.start(1)] + str(int(m.group(1)) + 1) + original[m.end(1):]
+
+    try:
+        script.write_text(stale, encoding="utf-8")
+        problems = []
+        g.check_counts(problems)
+        assert any("build_deck.js" in p for p in problems), (
+            "a stale test count inside a slide caption went unnoticed:\n" + "\n".join(problems)
+        )
+    finally:
+        script.write_text(original, encoding="utf-8")
+
+    # restored, and the guard is clean again — which is also the check above's positive control
+    problems = []
+    g.check_counts(problems)
+    assert not problems, "the restored deck generator still reports problems:\n" + "\n".join(problems)
+

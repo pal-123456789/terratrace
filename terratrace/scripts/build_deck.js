@@ -1,7 +1,7 @@
 /* TerraTrace deck — 10 slides, built on the same dark palette and the same real terrain
    data as the repository's cover image. Structured deck: theme + layouts + placeholders. */
 const pptxgen = require("pptxgenjs");
-const { applyTheme } = require("/sessions/intelligent-blissful-thompson/mnt/.claude/skills/pptx/scripts/apply_theme.js");
+
 
 // Repository-relative, overridable, never absolute: the previous revision hard-coded this
 // session's scratch directory, so nobody else could rebuild the deck at all. Regenerate the panels
@@ -9,6 +9,28 @@ const { applyTheme } = require("/sessions/intelligent-blissful-thompson/mnt/.cla
 const REPO_ROOT = require("path").resolve(__dirname, "..", "..");
 const ASSETS = process.env.DECK_ASSETS || require("path").join(REPO_ROOT, "assets", "deck");
 const OUT = require("path").join(__dirname, "..", "..", "TerraTrace-deck.pptx");
+
+// Theme application is a nicety: it rewrites the .pptx package's master/theme parts so PowerPoint's
+// own "Design" panel shows this palette. It lives in a tooling directory that is NOT part of this
+// repository, and the previous revision required it by an absolute path from one machine — so a
+// clone could not build the deck at all. It is now optional, and its absence costs only the Design
+// panel: the slides carry their colours explicitly, so the deck renders the same either way.
+function loadApplyTheme() {
+  const candidates = [
+    process.env.PPTX_APPLY_THEME,
+    require("path").join(__dirname, "apply_theme.js"),            // vendored beside this script
+    require("path").join(REPO_ROOT, "terratrace", "scripts", "apply_theme.js"),
+    process.env.PPTX_SKILLS_DIR                                   // a tooling install, if present
+      ? require("path").join(process.env.PPTX_SKILLS_DIR, "pptx", "scripts", "apply_theme.js")
+      : null,
+  ].filter(Boolean);
+  for (const c of candidates) {
+    try { return require(c).applyTheme; } catch (e) { /* try the next candidate */ }
+  }
+  console.warn("note: apply_theme.js not found — building without themed master parts");
+  return null;
+}
+const applyTheme = loadApplyTheme();
 
 const THEME = {
   name: "TerraTrace Dark",
@@ -268,7 +290,7 @@ s7.addText(`${BUILD_COMMIT} = the tested implementation commit; the deck is rebu
   x: M, y: 6.48, w: 12.1, h: 0.32, fontFace: "Courier New", fontSize: 11, color: ACC, margin: 0, isTextBox: true });
 lede(s7, "Every number below is produced by a command in the repository, and the documentation guard fails the build if the prose disagrees with the code.", 1.62, 0.42, 12.1);
 
-stat(s7, M, 2.26, 3.7, "878", "offline tests — no network, no fixtures downloaded, run by a dependency-free runner", ACC);
+stat(s7, M, 2.26, 3.7, "884", "offline tests — no network, no fixtures downloaded, run by a dependency-free runner", ACC);
 stat(s7, M + 3.95, 2.26, 3.7, "51", "scientific-correctness oracles over analytic surfaces with known answers", ACC);
 stat(s7, M + 7.9, 2.26, 4.2, "2", "independent runs that reproduce the canonical artifact hash", ACC);
 
@@ -380,6 +402,6 @@ s10.addText("The engine is prior art, built weeks ahead of the event. What a tea
   x: M + 0.3, y: 4.86, w: 11.5, h: 1.3, fontFace: BODY, fontSize: 12.5, color: MUTE, lineSpacing: 17, margin: 0, isTextBox: true, valign: "top" });
 
 pres.writeFile({ fileName: OUT }).then(async () => {
-  await applyTheme(OUT, THEME);
+  if (applyTheme) await applyTheme(OUT, THEME);
   console.log("wrote", OUT);
 });
