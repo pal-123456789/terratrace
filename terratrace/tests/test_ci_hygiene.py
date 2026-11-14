@@ -36,7 +36,15 @@ _ROOT = os.path.dirname(_HERE)
 
 # Optional packages this project uses SOMEWHERE, but which CI does not install.
 # Anything here must be imported lazily (inside a function) and guarded.
+#
+# The second group matters as much as the first. `affine` is a transitive dependency of rasterio and
+# is declared nowhere; importing it directly is invisible on a machine that has rasterio and fatal
+# on the NumPy-only interpreter, which is how all three CI jobs went red once. Keep this list in
+# sync with scripts/ci_hygiene_check.py's OPTIONAL + TRANSITIVE.
 _OPTIONAL = ["rasterio", "yaml", "requests", "scipy", "pandas", "matplotlib"]
+_TRANSITIVE = ["affine", "cligj", "snuggs", "fiona", "shapely", "pyproj", "geopandas",
+               "rioxarray", "rasterstats"]
+_BLOCKED = _OPTIONAL + _TRANSITIVE
 
 # The probe runs in a clean interpreter with the optional packages blocked, and
 # imports every module the CI run will import. It prints the first failure and
@@ -96,7 +104,7 @@ sys.exit(1 if failures else 0)
 
 
 def _run_probe():
-    code = _PROBE.format(optional=_OPTIONAL, root=_ROOT, tests=_HERE)
+    code = _PROBE.format(optional=_BLOCKED, root=_ROOT, tests=_HERE)
     env = dict(os.environ)
     env["PYTHONDONTWRITEBYTECODE"] = "1"
     return subprocess.run([sys.executable, "-c", code], capture_output=True,
@@ -105,7 +113,7 @@ def _run_probe():
 
 def test_optional_dependencies_really_are_blocked_in_the_probe():
     """If the blocker did not work, the hygiene test would pass vacuously."""
-    code = _PROBE.format(optional=_OPTIONAL, root=_ROOT, tests=_HERE).replace(
+    code = _PROBE.format(optional=_BLOCKED, root=_ROOT, tests=_HERE).replace(
         "sys.exit(1 if failures else 0)", "sys.exit(2)")
     probe = r'''
 import sys
@@ -125,7 +133,7 @@ for name in BLOCK:
         print("NOT BLOCKED:", name)
         sys.exit(1)
 sys.exit(0)
-'''.format(optional=_OPTIONAL)
+'''.format(optional=_BLOCKED)
     r = subprocess.run([sys.executable, "-c", probe], capture_output=True, text=True,
                        timeout=120)
     assert r.returncode == 0, f"blocker is ineffective: {r.stdout}{r.stderr}"

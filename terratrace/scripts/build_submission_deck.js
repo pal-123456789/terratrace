@@ -168,7 +168,7 @@ s3.addText("Five worlds, one method, no black box", { placeholder: "title" });
 
 stat(s3, M, 1.9, 2.8, "5", "planetary bodies: Earth, Mars, the Moon, Mercury, Ceres", ACC);
 stat(s3, M + 3.02, 1.9, 2.8, "40", "cited descriptor families (~290 scalar values)", ACC);
-stat(s3, M + 6.04, 1.9, 2.8, "891", "offline tests, 0 network required to run them", ACC);
+stat(s3, M + 6.04, 1.9, 2.8, "983", "offline tests, 0 network required to run them", ACC);
 stat(s3, M + 9.06, 1.9, 3.04, "51", "scientific-correctness oracles over the operators", ACC);
 
 card(s3, M, 3.66, 5.95, 2.18);
@@ -218,26 +218,26 @@ s4.addText("Within this panel and lens: roughness tracks the class, origin does 
 const s5 = pres.addSlide({ masterName: "MAIN" });
 kicker(s5, "Result 2 · the Moon · real LOLA terrain · exploratory");
 s5.addText("The other half of the challenge, run on real lunar data", { placeholder: "title" });
-lede(s5, "All **six** published south-polar candidate regions from the NASA Goddard 5 m/pixel LOLA products, screened against the same Earth roster at a declared 500–1000 m support.", 1.6, 0.68);
+lede(s5, "All **six** published south-polar candidate regions from the NASA Goddard 5 m/pixel LOLA products, screened against the same Earth roster on an **exact common grid**: 500 / 750 / 1000 m cells covering 9 km on every unit, both bodies.", 1.6, 0.68);
 
 const lunarStats = [
   ["18 / 18", "site × support cells where the same single Earth candidate is non-dominated"],
-  ["6 / 6", "published error realisations in which that membership survives"],
-  ["2 of 6", "sites with no candidate within 50% on every axis — screened, not matched"],
+  ["28 / 30", "adversarial perturbations, declared before the run, that leave the ordering untouched"],
+  ["1 of 6", "sites with no candidate within 50% on every axis — screened, not matched"],
 ];
 lunarStats.forEach(([big, label], i) => stat(s5, M + i * 4.13, 2.42, 3.7, big, label, i === 2 ? WARM : ACC));
 
 card(s5, M, 4.14, 12.1, 1.7);
 s5.addText("The honest shape of it", { x: M + 0.28, y: 4.28, w: 11.5, h: 0.3, fontFace: HEAD, fontSize: 15, bold: true, color: INK, margin: 0, isTextBox: true });
-s5.addText("Ordering is decisive everywhere; closeness almost nowhere. For Shackleton rim and Malapert massif the surviving candidate is 44–71% away on some axis — the least-dissimilar member of a weak shortlist, which is the exact failure mode we withdrew a Mars claim over. Naming that is the point. Mars itself is excluded from this regime by arithmetic, not convenience: MOLA's effective floor is above every support a 16 km tile can carry.", {
-  x: M + 0.28, y: 4.6, w: 11.5, h: 1.1, fontFace: BODY, fontSize: 11.5, color: MUTE, lineSpacing: 15, margin: 0, isTextBox: true, valign: "top" });
+s5.addText("Ordering is decisive everywhere; closeness at five of six sites. At Shackleton rim the survivor is 70% away on its worst axis — the least-dissimilar member of a weak shortlist, the failure mode we withdrew a Mars claim over. It also survives 6 of 6 sampled realisations of the archive's own error model (of 100 published; Site01 only). Three things bound it: the three declared axes are one gradient (mean slope and 3×3 relief satisfy relief = 2·d·tan(slope)·ρ, with ρ provably in [1, √2] and checked against the engine's own functions to 4.4e-16 m); a stress test declared before the run leaves the ordering untouched in 28 of the 30 perturbations; and an earlier version of this comparison did not put both bodies on the same ground at all — now fixed and rerun, the ordering held, the distances moved.", {
+  x: M + 0.28, y: 4.6, w: 11.5, h: 1.1, fontFace: BODY, fontSize: 10.5, color: MUTE, lineSpacing: 14, margin: 0, isTextBox: true, valign: "top" });
 
 /* ============================================================ 6 · the evidence */
 const s6 = pres.addSlide({ masterName: "MAIN" });
 kicker(s6, "Evidence & reproducibility");
 s6.addText("Every number has a receipt", { placeholder: "title" });
 
-stat(s6, M, 1.9, 2.8, "891", "offline tests across 96 modules, 0 failures", ACC);
+stat(s6, M, 1.9, 2.8, "983", "offline tests across 102 modules, 0 failures", ACC);
 stat(s6, M + 3.02, 1.9, 2.8, "51", "scientific-correctness oracles, stable hash", ACC);
 stat(s6, M + 6.04, 1.9, 2.8, "4", "frozen artifact hashes, re-asserted after every change", ACC);
 stat(s6, M + 9.06, 1.9, 3.04, "0", "credentials needed for the headline Earth data path", WARM);

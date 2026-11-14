@@ -110,7 +110,11 @@ def read_aoi_metric(path, bbox_lonlat, resolution_m, body, resampling="average",
     try:
         import rasterio
         from rasterio.warp import reproject, transform_bounds, Resampling
-        from affine import Affine
+        # rasterio's own re-export, so this file imports no package that rasterio does not already
+        # bring with it. `affine` is rasterio's transitive dependency and is declared nowhere; a
+        # direct import of it is invisible locally and fatal on the NumPy-only CI interpreter, which
+        # is exactly how `common_grid` turned all three CI jobs red once.
+        from rasterio.transform import Affine
     except Exception as exc:  # pragma: no cover
         raise RuntimeError("pip install rasterio  (needed for reprojection)") from exc
 

@@ -1,0 +1,29 @@
+# The scientific / analysis environment — everything the core suite deliberately does NOT install.
+#
+# WHY THIS FILE EXISTS SEPARATELY
+#
+# `requirements.txt` is the CORE set: NumPy only, offline, no GDAL. CI runs the whole suite on it,
+# and everything that needs more must skip LOUDLY rather than fail (tests/harness.py, `Skip`). That
+# is deliberate: a suite that needs a 50 MB geospatial wheel to go green is a suite that stops
+# being run.
+#
+# But "skipped" is not "verified", and a project cannot claim it exercised its real-data path while
+# every test that touches it skips. So there is a second environment, this one, and a second CI job
+# that installs it and RUNS those tests for real. The division is:
+#
+#   requirements.txt              -> core suite, NumPy only, always green, skips are explicit
+#   requirements-scientific.txt   -> the geospatial + figure environment, where the skips become runs
+#   (real datasets)               -> never installed in CI; those tests skip with the exact
+#                                    re-fetch command in the reason
+#
+# `affine` is NOT listed, on purpose. It is a transitive dependency of rasterio that nothing here
+# imports directly: transform objects come from `rasterio.transform`, which re-exports them. A
+# direct `affine` import is invisible on a developer machine that has rasterio and fatal on the
+# NumPy-only interpreter -- it turned all three CI jobs red once, which is why `scripts/
+# ci_hygiene_check.py` now blocks the transitive packages too, not just the declared ones.
+-r requirements.txt
+
+rasterio>=1.3        # reprojection, DEM I/O, the exact common grid
+PyYAML>=6.0          # the frozen benchmark configs (config/*.yml)
+requests>=2.31       # the OpenTopography path (optional at runtime; used by fetch scripts)
+matplotlib>=3.7      # figures, the cover image, the deck panels

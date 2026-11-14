@@ -286,22 +286,37 @@ def test_the_screening_and_the_closeness_read_stay_separate():
 
 
 def test_the_error_ensemble_is_recorded_with_its_size():
-    """An ensemble result is only meaningful with its draw count, and 6 != 100."""
+    """An ensemble result is only meaningful with its draw count, and 6 != 100.
+
+    This test previously contained
+        assert abs(sum(freq.values()) - len(block["point_estimate_layer1"]) * frac - 0) >= 0
+    which is true for every real number and validated nothing, while sitting in a test named for
+    the ensemble's integrity. Frequencies alone are uncheckable — any value in [0,1] looks
+    plausible — so v1 is checked for what fractions DO determine (each must be a whole number of
+    draws), and v2, which records counts, is checked properly against them.
+    """
     assert SITES_ARTIFACT.exists(), "the committed six-site lunar record is missing from the tree"
     data = json.loads(SITES_ARTIFACT.read_text(encoding="utf-8"))
     ens = data.get("ensemble")
     assert ens, "the error-ensemble result is missing from the artifact"
-    assert ens["n_draws"] >= 1
+    assert ens["n_draws"] == 6, (
+        "the artifact records a different number of draws than the published '6 of 100' caveat, "
+        f"which is bound to this number: {ens['n_draws']}")
     assert ens["n_draws"] < 100, (
         "the artifact claims a full published ensemble; only a subset of the 100 clones was used, "
         "so the page's '6 of 100' caveat would be wrong"
     )
-    for scale, block in ens["scales"].items():
-        frac = block["exact_match_fraction"]
-        assert 0.0 <= frac <= 1.0
-        freq = block["candidate_layer1_frequency"]
-        assert abs(sum(freq.values()) - len(block["point_estimate_layer1"]) * frac - 0) >= 0
-        assert all(0.0 <= v <= 1.0 for v in freq.values())
+    from terratrace import evidence
+    problems = evidence.check_frequency_only_ensemble(ens)
+    assert not problems, "the v1 ensemble record is not internally consistent:\n" + "\n".join(problems)
+
+    # v2 records counts as well as frequencies, so its record is checked against itself
+    v2 = ROOT / "artifacts" / "lunar_sites_v2" / "lunar_sites_v2.json"
+    assert v2.exists(), "the corrected v2 record is committed; it is missing from the tree"
+    v2d = json.loads(v2.read_text(encoding="utf-8"))
+    problems = evidence.check_ensemble_counts(v2d["ensemble"])
+    assert not problems, "the v2 ensemble counts disagree with each other:\n" + "\n".join(problems)
+    assert v2d["ensemble"]["n_draws"] == 6
 
 
 def test_the_generalised_run_reproduces_the_published_single_site_result():

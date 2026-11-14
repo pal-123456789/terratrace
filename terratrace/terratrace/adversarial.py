@@ -75,7 +75,7 @@ import numpy as np
 
 from . import matched_benchmark as mb, synthetic
 
-__all__ = ["stress_test", "DEFAULT_LENSES", "FAMILIES"]
+__all__ = ["stress_test", "DEFAULT_LENSES", "FAMILIES", "box3", "correlated_noise", "tilt_plane"]
 
 # The six decision lenses the engine exposes; lens_family re-asks under each OTHER lens.
 DEFAULT_LENSES = ("core", "extended", "geomorphic", "landform", "texture", "hydro")
@@ -165,6 +165,15 @@ def _sensible_support_m(x):
     """Round a support (metres) to the nearest 5 m, floored at 5 m -- so a 0.67x/1.5x
     step lands on a clean, defensible number rather than 60.3 m."""
     return max(5.0, round(float(x) / 5.0) * 5.0)
+
+
+# The three perturbation primitives are also needed by the lunar panel's stress test
+# (:mod:`lunar_adversarial`), which uses IDENTICAL semantics on purpose so the two panels are read
+# on one scale. Published here rather than duplicated there; the underscore-prefixed names stay as
+# aliases so no existing caller breaks.
+box3 = _box3
+correlated_noise = _correlated_noise
+tilt_plane = _tilt_plane
 
 
 def _src_of(src_spacings, uid):

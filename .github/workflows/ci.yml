@@ -51,6 +51,35 @@ jobs:
           PYTHONPATH: .
         run: python scripts/doc_consistency_check.py
 
+  scientific:
+    name: scientific deps — the tests that skip above, actually run
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terratrace
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install the scientific environment
+        run: pip install -r requirements-scientific.txt
+      - name: The full suite, with the geospatial stack installed
+        env:
+          PYTHONPATH: .
+        # --strict-skips: with the stack installed, a skip caused by a missing PACKAGE is a broken
+        # job, not an absent dataset. Without this flag the suite would report the geospatial path
+        # as merely "skipped" and nobody would notice it never ran.
+        run: python tests/run_tests.py --strict-skips
+      - name: Optional-dependency hygiene (still NumPy-only-clean)
+        env:
+          PYTHONPATH: .
+        run: python scripts/ci_hygiene_check.py
+      - name: The reprojection, against closed-form geodesy rather than a second GDAL wrapper
+        env:
+          PYTHONPATH: .
+        run: python scripts/reproject_analytic_check.py
+
   e2e:
     name: end-to-end CLI (synthetic study + viewer + reports)
     runs-on: ubuntu-latest

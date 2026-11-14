@@ -290,7 +290,7 @@ s7.addText(`${BUILD_COMMIT} = the tested implementation commit; the deck is rebu
   x: M, y: 6.48, w: 12.1, h: 0.32, fontFace: "Courier New", fontSize: 11, color: ACC, margin: 0, isTextBox: true });
 lede(s7, "Every number below is produced by a command in the repository, and the documentation guard fails the build if the prose disagrees with the code.", 1.62, 0.42, 12.1);
 
-stat(s7, M, 2.26, 3.7, "891", "offline tests — no network, no fixtures downloaded, run by a dependency-free runner", ACC);
+stat(s7, M, 2.26, 3.7, "983", "offline tests — no network, no fixtures downloaded, run by a dependency-free runner", ACC);
 stat(s7, M + 3.95, 2.26, 3.7, "51", "scientific-correctness oracles over analytic surfaces with known answers", ACC);
 stat(s7, M + 7.9, 2.26, 4.2, "2", "independent runs that reproduce the canonical artifact hash", ACC);
 
@@ -359,7 +359,7 @@ s9.addText("Open, and named rather than hidden", { x: 7.02 + 0.3, y: 2.02, w: 5.
 s9.addText([
   { text: "Two descriptors re-derived independently; no external reviewer yet.", options: { bullet: true, breakLine: true } },
   { text: "No demo video; the script for it ships in the repository.", options: { bullet: true, breakLine: true } },
-  { text: "All six lunar sites screened and the answer survives the DEM error ensemble — but it is exploratory, and the roughest sites have no close match.", options: { bullet: true, breakLine: true } },
+  { text: "Lunar screening is exploratory: its three declared axes are provably one gradient (effective rank 1 of 3), and 28 of the 30 perturbations declared in advance leave its ordering unchanged.", options: { bullet: true, breakLine: true } },
   { text: "No external user walkthrough yet; the boundary is argued, not tested.", options: { bullet: true } },
 ], { x: 7.02 + 0.3, y: 2.34, w: 5.1, h: 1.5, fontFace: BODY, fontSize: 11, color: MUTE, lineSpacing: 15, margin: 0, isTextBox: true, paraSpaceAfter: 7 });
 // 3.98, not 3.9: the bullet block above ends near 3.8" and a caption inside that footprint is

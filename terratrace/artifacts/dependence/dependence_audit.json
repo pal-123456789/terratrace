@@ -1,0 +1,1231 @@
+{
+  "provenance": {
+    "status": "EXPLORATORY",
+    "purpose": "descriptor-dependence audit of the three declared lunar axes",
+    "grid": "the corrected exact common grid (common_grid), 9000 m footprint",
+    "axes": [
+      "mean_slope_deg",
+      "mean_relief3_m",
+      "elev_std_m"
+    ],
+    "supports_m": [
+      500.0,
+      750.0,
+      1000.0
+    ],
+    "not": "not a claim about any base site, and not a confirmatory result"
+  },
+  "analytic": {
+    "claim": "relief = 2 d tan(slope) * rho, with rho = (|a|+|b|)/hypot(a,b) in [1, sqrt(2)]",
+    "planes": [
+      {
+        "a": 1.0,
+        "b": 0.0,
+        "spacing_m": 30.0,
+        "slope_deg_engine": 45.0,
+        "slope_deg_closed_form": 45.0,
+        "relief_m_engine": 60.0,
+        "relief_m_closed_form": 60.0,
+        "two_d_tan_slope_m": 60.0,
+        "rho": 1.0,
+        "slope_abs_err_deg": 0.0,
+        "relief_abs_err_m": 0.0
+      },
+      {
+        "a": 0.0,
+        "b": 1.0,
+        "spacing_m": 30.0,
+        "slope_deg_engine": 45.0,
+        "slope_deg_closed_form": 45.0,
+        "relief_m_engine": 60.0,
+        "relief_m_closed_form": 60.0,
+        "two_d_tan_slope_m": 60.0,
+        "rho": 1.0,
+        "slope_abs_err_deg": 0.0,
+        "relief_abs_err_m": 0.0
+      },
+      {
+        "a": 1.0,
+        "b": 1.0,
+        "spacing_m": 30.0,
+        "slope_deg_engine": 54.73561031724534,
+        "slope_deg_closed_form": 54.735610317245346,
+        "relief_m_engine": 120.0,
+        "relief_m_closed_form": 120.0,
+        "two_d_tan_slope_m": 84.8528137423857,
+        "rho": 1.414213562373095,
+        "slope_abs_err_deg": 7.105427357601002e-15,
+        "relief_abs_err_m": 0.0
+      },
+      {
+        "a": 2.0,
+        "b": 1.0,
+        "spacing_m": 30.0,
+        "slope_deg_engine": 65.90515744788932,
+        "slope_deg_closed_form": 65.90515744788931,
+        "relief_m_engine": 180.0,
+        "relief_m_closed_form": 180.0,
+        "two_d_tan_slope_m": 134.1640786499874,
+        "rho": 1.3416407864998736,
+        "slope_abs_err_deg": 1.4210854715202004e-14,
+        "relief_abs_err_m": 0.0
+      },
+      {
+        "a": 1.0,
+        "b": 2.0,
+        "spacing_m": 30.0,
+        "slope_deg_engine": 65.90515744788932,
+        "slope_deg_closed_form": 65.90515744788931,
+        "relief_m_engine": 180.0,
+        "relief_m_closed_form": 180.0,
+        "two_d_tan_slope_m": 134.1640786499874,
+        "rho": 1.3416407864998736,
+        "slope_abs_err_deg": 1.4210854715202004e-14,
+        "relief_abs_err_m": 0.0
+      },
+      {
+        "a": 3.0,
+        "b": 0.4,
+        "spacing_m": 30.0,
+        "slope_deg_engine": 71.71596449155528,
+        "slope_deg_closed_form": 71.7159644915553,
+        "relief_m_engine": 204.0,
+        "relief_m_closed_form": 204.0,
+        "two_d_tan_slope_m": 181.59295140505867,
+        "rho": 1.1233916207736527,
+        "slope_abs_err_deg": 1.4210854715202004e-14,
+        "relief_abs_err_m": 0.0
+      },
+      {
+        "a": -1.0,
+        "b": 0.5,
+        "spacing_m": 30.0,
+        "slope_deg_engine": 48.189685104221425,
+        "slope_deg_closed_form": 48.18968510422141,
+        "relief_m_engine": 90.0,
+        "relief_m_closed_form": 90.0,
+        "two_d_tan_slope_m": 67.0820393249937,
+        "rho": 1.3416407864998736,
+        "slope_abs_err_deg": 1.4210854715202004e-14,
+        "relief_abs_err_m": 0.0
+      },
+      {
+        "a": 0.02,
+        "b": 0.02,
+        "spacing_m": 30.0,
+        "slope_deg_engine": 1.6201374245654556,
+        "slope_deg_closed_form": 1.6201374245654556,
+        "relief_m_engine": 2.4000000000000004,
+        "relief_m_closed_form": 2.4,
+        "two_d_tan_slope_m": 1.697056274847714,
+        "rho": 1.414213562373095,
+        "slope_abs_err_deg": 0.0,
+        "relief_abs_err_m": 4.440892098500626e-16
+      },
+      {
+        "a": 0.5,
+        "b": -0.3,
+        "spacing_m": 30.0,
+        "slope_deg_engine": 30.24625565345471,
+        "slope_deg_closed_form": 30.246255653454714,
+        "relief_m_engine": 48.0,
+        "relief_m_closed_form": 48.0,
+        "two_d_tan_slope_m": 34.98571136907181,
+        "rho": 1.3719886811400706,
+        "slope_abs_err_deg": 3.552713678800501e-15,
+        "relief_abs_err_m": 0.0
+      }
+    ],
+    "rho_bounds_provable": [
+      1.0,
+      1.4142135623730951
+    ],
+    "rho_observed_range": [
+      1.0,
+      1.414213562373095
+    ],
+    "worst_relief_error_m": 4.440892098500626e-16,
+    "worst_slope_error_deg": 1.4210854715202004e-14,
+    "verified_against_engine": true,
+    "notes": "The identity holds to floating point in the interior of the stencil, against the engine's own slope_deg and relief. The two descriptors are therefore functions of the SAME quantity (the local gradient magnitude) and differ only by rho, which depends on the gradient's direction and cannot exceed 41%."
+  },
+  "analytic_boundary": {
+    "cases": [
+      {
+        "curvature_coef": 0.0,
+        "slope_deg": 2.8624052261117474,
+        "relief_m": 3.0,
+        "planar_prediction_m": 3.0,
+        "relief_over_prediction": 1.0
+      },
+      {
+        "curvature_coef": 1e-05,
+        "slope_deg": 3.6319460765758307,
+        "relief_m": 4.44,
+        "planar_prediction_m": 3.0,
+        "relief_over_prediction": 1.4800000000000002
+      },
+      {
+        "curvature_coef": 0.0001,
+        "slope_deg": 12.247643357258939,
+        "relief_m": 17.400000000000002,
+        "planar_prediction_m": 3.0,
+        "relief_over_prediction": 5.800000000000001
+      },
+      {
+        "curvature_coef": 0.001,
+        "slope_deg": 58.98785521047663,
+        "relief_m": 147.00000000000003,
+        "planar_prediction_m": 3.0,
+        "relief_over_prediction": 49.00000000000001
+      }
+    ],
+    "notes": "On a curved surface the planar relation degrades in a measured way, so the remaining scatter on real terrain is the non-planarity inside a 3x3 window, not evidence of two independent measurements."
+  },
+  "panel": {
+    "500": {
+      "n_units": 13,
+      "cells_per_side": 18,
+      "support_m": 500.0,
+      "footprint_m": 9000.0,
+      "axis_values": {
+        "LUNAR_Site01": {
+          "mean_slope_deg": 9.503441970448348,
+          "mean_relief3_m": 220.56428248147512,
+          "elev_std_m": 273.8608542980544
+        },
+        "LUNAR_Site04": {
+          "mean_slope_deg": 23.854542182743966,
+          "mean_relief3_m": 568.5209524308559,
+          "elev_std_m": 1032.6279942551957
+        },
+        "LUNAR_Site07": {
+          "mean_slope_deg": 10.131264805554247,
+          "mean_relief3_m": 229.21918438542716,
+          "elev_std_m": 275.0070084119054
+        },
+        "LUNAR_Site11": {
+          "mean_slope_deg": 15.201319160653641,
+          "mean_relief3_m": 343.70114582712813,
+          "elev_std_m": 403.5804772314371
+        },
+        "LUNAR_Site20": {
+          "mean_slope_deg": 11.124238511015957,
+          "mean_relief3_m": 231.18174485685256,
+          "elev_std_m": 263.45618675338466
+        },
+        "LUNAR_Site23": {
+          "mean_slope_deg": 15.079218999572648,
+          "mean_relief3_m": 310.57775458175877,
+          "elev_std_m": 386.7223664481896
+        },
+        "earth_nullarbor": {
+          "mean_slope_deg": 0.13363011538147548,
+          "mean_relief3_m": 3.1426947925631707,
+          "elev_std_m": 2.506737671419662
+        },
+        "earth_llano_estacado": {
+          "mean_slope_deg": 0.29182465553584225,
+          "mean_relief3_m": 6.907224581831629,
+          "elev_std_m": 7.856915913434528
+        },
+        "earth_deccan_traps": {
+          "mean_slope_deg": 1.0713112310719473,
+          "mean_relief3_m": 23.52537943055771,
+          "elev_std_m": 15.97429773294255
+        },
+        "earth_snake_river_plain": {
+          "mean_slope_deg": 0.3801223415592207,
+          "mean_relief3_m": 9.033444960437496,
+          "elev_std_m": 13.647367597962644
+        },
+        "earth_harrat_khaybar": {
+          "mean_slope_deg": 2.234102327195651,
+          "mean_relief3_m": 54.24157883795524,
+          "elev_std_m": 57.7023689086254
+        },
+        "earth_odadahraun": {
+          "mean_slope_deg": 1.5452749052043795,
+          "mean_relief3_m": 28.645918973564527,
+          "elev_std_m": 31.128309923559506
+        },
+        "earth_nevada_basin": {
+          "mean_slope_deg": 11.395386200045705,
+          "mean_relief3_m": 266.3459322867977,
+          "elev_std_m": 307.44444731921203
+        }
+      },
+      "pools": {
+        "candidates_only": {
+          "n_units": 7,
+          "units": [
+            "earth_nullarbor",
+            "earth_llano_estacado",
+            "earth_deccan_traps",
+            "earth_snake_river_plain",
+            "earth_harrat_khaybar",
+            "earth_odadahraun",
+            "earth_nevada_basin"
+          ],
+          "correlation": {
+            "mean_slope_deg|mean_relief3_m": {
+              "pearson": 0.9994836280080016,
+              "spearman": 1.0
+            },
+            "mean_slope_deg|elev_std_m": {
+              "pearson": 0.9985316162893939,
+              "spearman": 1.0
+            },
+            "mean_relief3_m|elev_std_m": {
+              "pearson": 0.9991291418625715,
+              "spearman": 1.0
+            }
+          },
+          "eigen_spectrum": [
+            2.998096308930254,
+            0.0015074389615513755,
+            0.00039625210819437836
+          ],
+          "effective_rank_95": 1,
+          "participation_ratio": 1.0012700657977867,
+          "condition_number": 86.98352370254206,
+          "vif": {
+            "mean_slope_deg": 972.1457074103153,
+            "mean_relief3_m": 1638.6782131393286,
+            "elev_std_m": 576.5322808252438
+          },
+          "planar_fit": {
+            "r2": 0.9989238080637977,
+            "scale_k": 1.3190886955626477,
+            "n": 7,
+            "k_inside_provable_band": true
+          }
+        },
+        "cross_body": {
+          "n_units": 13,
+          "units": [
+            "LUNAR_Site01",
+            "LUNAR_Site04",
+            "LUNAR_Site07",
+            "LUNAR_Site11",
+            "LUNAR_Site20",
+            "LUNAR_Site23",
+            "earth_nullarbor",
+            "earth_llano_estacado",
+            "earth_deccan_traps",
+            "earth_snake_river_plain",
+            "earth_harrat_khaybar",
+            "earth_odadahraun",
+            "earth_nevada_basin"
+          ],
+          "correlation": {
+            "mean_slope_deg|mean_relief3_m": {
+              "pearson": 0.9968790222223816,
+              "spearman": 1.0
+            },
+            "mean_slope_deg|elev_std_m": {
+              "pearson": 0.9518597619832737,
+              "spearman": 0.9835164835164836
+            },
+            "mean_relief3_m|elev_std_m": {
+              "pearson": 0.9673790220391673,
+              "spearman": 0.9835164835164836
+            }
+          },
+          "eigen_spectrum": [
+            2.9441986506993723,
+            0.054276206406430556,
+            0.001525142894197782
+          ],
+          "effective_rank_95": 1,
+          "participation_ratio": 1.0379121722566125,
+          "condition_number": 43.93678619954474,
+          "vif": {
+            "mean_slope_deg": 263.3285105802263,
+            "mean_relief3_m": 385.5402404868317,
+            "elev_std_m": 25.57144680412026
+          },
+          "planar_fit": {
+            "r2": 0.9957015915817774,
+            "scale_k": 1.2584253974754946,
+            "n": 13,
+            "k_inside_provable_band": true
+          }
+        }
+      }
+    },
+    "750": {
+      "n_units": 13,
+      "cells_per_side": 12,
+      "support_m": 750.0,
+      "footprint_m": 9000.0,
+      "axis_values": {
+        "LUNAR_Site01": {
+          "mean_slope_deg": 9.06059809710856,
+          "mean_relief3_m": 321.61084552708814,
+          "elev_std_m": 271.68537413730104
+        },
+        "LUNAR_Site04": {
+          "mean_slope_deg": 23.36426158276437,
+          "mean_relief3_m": 837.4711937131088,
+          "elev_std_m": 1029.7044903815272
+        },
+        "LUNAR_Site07": {
+          "mean_slope_deg": 9.80002421470933,
+          "mean_relief3_m": 335.54424822190776,
+          "elev_std_m": 273.1134185872303
+        },
+        "LUNAR_Site11": {
+          "mean_slope_deg": 14.881713581520152,
+          "mean_relief3_m": 501.3527822411283,
+          "elev_std_m": 401.16965317825327
+        },
+        "LUNAR_Site20": {
+          "mean_slope_deg": 10.663085264704462,
+          "mean_relief3_m": 320.4822322281913,
+          "elev_std_m": 260.86156404055254
+        },
+        "LUNAR_Site23": {
+          "mean_slope_deg": 14.766434303234771,
+          "mean_relief3_m": 437.52162207538163,
+          "elev_std_m": 383.68448557358465
+        },
+        "earth_nullarbor": {
+          "mean_slope_deg": 0.09827356475939816,
+          "mean_relief3_m": 3.4316950151119316,
+          "elev_std_m": 2.4093701504179106
+        },
+        "earth_llano_estacado": {
+          "mean_slope_deg": 0.23514571234991788,
+          "mean_relief3_m": 8.906248246525097,
+          "elev_std_m": 7.756993569256553
+        },
+        "earth_deccan_traps": {
+          "mean_slope_deg": 0.8840731271936441,
+          "mean_relief3_m": 29.367882871502108,
+          "elev_std_m": 15.332437223268476
+        },
+        "earth_snake_river_plain": {
+          "mean_slope_deg": 0.34076823466805156,
+          "mean_relief3_m": 12.123720530064402,
+          "elev_std_m": 13.57970036595901
+        },
+        "earth_harrat_khaybar": {
+          "mean_slope_deg": 1.8741813467710788,
+          "mean_relief3_m": 67.81780077441591,
+          "elev_std_m": 56.866076893676826
+        },
+        "earth_odadahraun": {
+          "mean_slope_deg": 1.4222168882432389,
+          "mean_relief3_m": 35.960424909055774,
+          "elev_std_m": 30.186670481565574
+        },
+        "earth_nevada_basin": {
+          "mean_slope_deg": 10.180785033518346,
+          "mean_relief3_m": 352.6013145799245,
+          "elev_std_m": 304.73902340685333
+        }
+      },
+      "pools": {
+        "candidates_only": {
+          "n_units": 7,
+          "units": [
+            "earth_nullarbor",
+            "earth_llano_estacado",
+            "earth_deccan_traps",
+            "earth_snake_river_plain",
+            "earth_harrat_khaybar",
+            "earth_odadahraun",
+            "earth_nevada_basin"
+          ],
+          "correlation": {
+            "mean_slope_deg|mean_relief3_m": {
+              "pearson": 0.9990924926542905,
+              "spearman": 1.0
+            },
+            "mean_slope_deg|elev_std_m": {
+              "pearson": 0.9983500375047083,
+              "spearman": 1.0
+            },
+            "mean_relief3_m|elev_std_m": {
+              "pearson": 0.9993015292836775,
+              "spearman": 1.0
+            }
+          },
+          "eigen_spectrum": [
+            2.9978294285791582,
+            0.0016627108732595762,
+            0.0005078605475823115
+          ],
+          "effective_rank_95": 1,
+          "participation_ratio": 1.0014482827801507,
+          "condition_number": 76.8300686067979,
+          "vif": {
+            "mean_slope_deg": 551.643326908597,
+            "mean_relief3_m": 1302.4993147267492,
+            "elev_std_m": 716.6628713362614
+          },
+          "planar_fit": {
+            "r2": 0.9981221896266819,
+            "scale_k": 1.3049024385730814,
+            "n": 7,
+            "k_inside_provable_band": true
+          }
+        },
+        "cross_body": {
+          "n_units": 13,
+          "units": [
+            "LUNAR_Site01",
+            "LUNAR_Site04",
+            "LUNAR_Site07",
+            "LUNAR_Site11",
+            "LUNAR_Site20",
+            "LUNAR_Site23",
+            "earth_nullarbor",
+            "earth_llano_estacado",
+            "earth_deccan_traps",
+            "earth_snake_river_plain",
+            "earth_harrat_khaybar",
+            "earth_odadahraun",
+            "earth_nevada_basin"
+          ],
+          "correlation": {
+            "mean_slope_deg|mean_relief3_m": {
+              "pearson": 0.9948431899269382,
+              "spearman": 0.967032967032967
+            },
+            "mean_slope_deg|elev_std_m": {
+              "pearson": 0.9533692599067717,
+              "spearman": 0.967032967032967
+            },
+            "mean_relief3_m|elev_std_m": {
+              "pearson": 0.9720300019236763,
+              "spearman": 1.0
+            }
+          },
+          "eigen_spectrum": [
+            2.9469269422824405,
+            0.050512641554378915,
+            0.0025604161631797907
+          ],
+          "effective_rank_95": 1,
+          "participation_ratio": 1.0360384255914052,
+          "condition_number": 33.92574587355198,
+          "vif": {
+            "mean_slope_deg": 144.71913047554446,
+            "mean_relief3_m": 238.9883040698378,
+            "elev_std_m": 26.99043530906639
+          },
+          "planar_fit": {
+            "r2": 0.9921309797194671,
+            "scale_k": 1.250085169328864,
+            "n": 13,
+            "k_inside_provable_band": true
+          }
+        }
+      }
+    },
+    "1000": {
+      "n_units": 13,
+      "cells_per_side": 9,
+      "support_m": 1000.0,
+      "footprint_m": 9000.0,
+      "axis_values": {
+        "LUNAR_Site01": {
+          "mean_slope_deg": 8.564013867567688,
+          "mean_relief3_m": 421.6679244362436,
+          "elev_std_m": 268.6677536472658
+        },
+        "LUNAR_Site04": {
+          "mean_slope_deg": 22.844378518573688,
+          "mean_relief3_m": 1086.310434407075,
+          "elev_std_m": 1025.5465298494091
+        },
+        "LUNAR_Site07": {
+          "mean_slope_deg": 9.512343848614808,
+          "mean_relief3_m": 439.38333569437214,
+          "elev_std_m": 270.8458281391905
+        },
+        "LUNAR_Site11": {
+          "mean_slope_deg": 14.464250901450088,
+          "mean_relief3_m": 641.5930682100778,
+          "elev_std_m": 398.00121292857057
+        },
+        "LUNAR_Site20": {
+          "mean_slope_deg": 10.236092619050059,
+          "mean_relief3_m": 396.12598515849623,
+          "elev_std_m": 256.8300750948205
+        },
+        "LUNAR_Site23": {
+          "mean_slope_deg": 14.447638156707475,
+          "mean_relief3_m": 553.2897166281282,
+          "elev_std_m": 379.45895816143064
+        },
+        "earth_nullarbor": {
+          "mean_slope_deg": 0.08655859302099221,
+          "mean_relief3_m": 3.7873653717124305,
+          "elev_std_m": 2.3675524515296638
+        },
+        "earth_llano_estacado": {
+          "mean_slope_deg": 0.19970299701208982,
+          "mean_relief3_m": 10.011978025140467,
+          "elev_std_m": 7.586693942813005
+        },
+        "earth_deccan_traps": {
+          "mean_slope_deg": 0.721825112609396,
+          "mean_relief3_m": 31.618043724424854,
+          "elev_std_m": 14.607871027687239
+        },
+        "earth_snake_river_plain": {
+          "mean_slope_deg": 0.33314026335131214,
+          "mean_relief3_m": 15.318140070422027,
+          "elev_std_m": 13.496890687666411
+        },
+        "earth_harrat_khaybar": {
+          "mean_slope_deg": 1.6602883681266245,
+          "mean_relief3_m": 77.7273278032058,
+          "elev_std_m": 55.9663196690689
+        },
+        "earth_odadahraun": {
+          "mean_slope_deg": 1.3284288919744778,
+          "mean_relief3_m": 42.6904552564361,
+          "elev_std_m": 29.83338769084534
+        },
+        "earth_nevada_basin": {
+          "mean_slope_deg": 9.305506429542987,
+          "mean_relief3_m": 420.22057958765845,
+          "elev_std_m": 301.0910996425554
+        }
+      },
+      "pools": {
+        "candidates_only": {
+          "n_units": 7,
+          "units": [
+            "earth_nullarbor",
+            "earth_llano_estacado",
+            "earth_deccan_traps",
+            "earth_snake_river_plain",
+            "earth_harrat_khaybar",
+            "earth_odadahraun",
+            "earth_nevada_basin"
+          ],
+          "correlation": {
+            "mean_slope_deg|mean_relief3_m": {
+              "pearson": 0.9989630481459569,
+              "spearman": 1.0
+            },
+            "mean_slope_deg|elev_std_m": {
+              "pearson": 0.9983894742194156,
+              "spearman": 1.0
+            },
+            "mean_relief3_m|elev_std_m": {
+              "pearson": 0.999521143224434,
+              "spearman": 1.0
+            }
+          },
+          "eigen_spectrum": [
+            2.9979158482867647,
+            0.0016954664703826864,
+            0.00038868524285236246
+          ],
+          "effective_rank_95": 1,
+          "participation_ratio": 1.0013905465912425,
+          "condition_number": 87.82349029757866,
+          "vif": {
+            "mean_slope_deg": 484.6463450713713,
+            "mean_relief3_m": 1629.0751501494785,
+            "elev_std_m": 1049.196088293703
+          },
+          "planar_fit": {
+            "r2": 0.997823916222143,
+            "scale_k": 1.2771310752443688,
+            "n": 7,
+            "k_inside_provable_band": true
+          }
+        },
+        "cross_body": {
+          "n_units": 13,
+          "units": [
+            "LUNAR_Site01",
+            "LUNAR_Site04",
+            "LUNAR_Site07",
+            "LUNAR_Site11",
+            "LUNAR_Site20",
+            "LUNAR_Site23",
+            "earth_nullarbor",
+            "earth_llano_estacado",
+            "earth_deccan_traps",
+            "earth_snake_river_plain",
+            "earth_harrat_khaybar",
+            "earth_odadahraun",
+            "earth_nevada_basin"
+          ],
+          "correlation": {
+            "mean_slope_deg|mean_relief3_m": {
+              "pearson": 0.9928974014468547,
+              "spearman": 0.9615384615384615
+            },
+            "mean_slope_deg|elev_std_m": {
+              "pearson": 0.9537919450149562,
+              "spearman": 0.9615384615384615
+            },
+            "mean_relief3_m|elev_std_m": {
+              "pearson": 0.9736332700094489,
+              "spearman": 0.9835164835164836
+            }
+          },
+          "eigen_spectrum": [
+            2.9469690115700797,
+            0.04909468007259355,
+            0.003936308357327007
+          ],
+          "effective_rank_95": 1,
+          "participation_ratio": 1.0360246327252285,
+          "condition_number": 27.3617095471038,
+          "vif": {
+            "mean_slope_deg": 91.37420547941029,
+            "mean_relief3_m": 158.5246808287863,
+            "elev_std_m": 24.854389143173954
+          },
+          "planar_fit": {
+            "r2": 0.9883372941111962,
+            "scale_k": 1.2399306446258096,
+            "n": 13,
+            "k_inside_provable_band": true
+          }
+        }
+      }
+    }
+  },
+  "within_window_pixels": {
+    "500": {
+      "n_pixels_pooled": 3248,
+      "pearson_slope_relief": 0.9853305694127354,
+      "rho_bounds_provable": [
+        1.0,
+        1.4142135623730951
+      ],
+      "rho_observed": {
+        "min": 0.7610933585805074,
+        "median": 1.2845644826254374,
+        "max": 62.140822098585915
+      },
+      "fraction_inside_provable_band": 0.6385467980295566,
+      "note": "elev_std_m is a window summary and has no per-pixel counterpart, so this covers the two axes that are genuine maps."
+    },
+    "750": {
+      "n_pixels_pooled": 1270,
+      "pearson_slope_relief": 0.9843080453772858,
+      "rho_bounds_provable": [
+        1.0,
+        1.4142135623730951
+      ],
+      "rho_observed": {
+        "min": 0.7518283644267826,
+        "median": 1.2798550425483384,
+        "max": 22.737140843129477
+      },
+      "fraction_inside_provable_band": 0.6070866141732284,
+      "note": "elev_std_m is a window summary and has no per-pixel counterpart, so this covers the two axes that are genuine maps."
+    },
+    "1000": {
+      "n_pixels_pooled": 623,
+      "pearson_slope_relief": 0.9835046149864778,
+      "rho_bounds_provable": [
+        1.0,
+        1.4142135623730951
+      ],
+      "rho_observed": {
+        "min": 0.824265581486362,
+        "median": 1.2709899519787011,
+        "max": 59.338188676693086
+      },
+      "fraction_inside_provable_band": 0.6067415730337079,
+      "note": "elev_std_m is a window summary and has no per-pixel counterpart, so this covers the two axes that are genuine maps."
+    }
+  },
+  "leave_one_axis_out": {
+    "500": {
+      "per_site": {
+        "Site01": {
+          "full": [
+            "earth_nevada_basin"
+          ],
+          "drops": {
+            "without_mean_slope_deg": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_mean_relief3_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_elev_std_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            }
+          }
+        },
+        "Site04": {
+          "full": [
+            "earth_nevada_basin"
+          ],
+          "drops": {
+            "without_mean_slope_deg": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_mean_relief3_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_elev_std_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            }
+          }
+        },
+        "Site07": {
+          "full": [
+            "earth_nevada_basin"
+          ],
+          "drops": {
+            "without_mean_slope_deg": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_mean_relief3_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_elev_std_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            }
+          }
+        },
+        "Site11": {
+          "full": [
+            "earth_nevada_basin"
+          ],
+          "drops": {
+            "without_mean_slope_deg": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_mean_relief3_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_elev_std_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            }
+          }
+        },
+        "Site20": {
+          "full": [
+            "earth_nevada_basin"
+          ],
+          "drops": {
+            "without_mean_slope_deg": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_mean_relief3_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_elev_std_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            }
+          }
+        },
+        "Site23": {
+          "full": [
+            "earth_nevada_basin"
+          ],
+          "drops": {
+            "without_mean_slope_deg": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_mean_relief3_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_elev_std_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            }
+          }
+        }
+      },
+      "frontier_invariant_to_any_single_axis_drop": true
+    },
+    "750": {
+      "per_site": {
+        "Site01": {
+          "full": [
+            "earth_nevada_basin"
+          ],
+          "drops": {
+            "without_mean_slope_deg": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_mean_relief3_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_elev_std_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            }
+          }
+        },
+        "Site04": {
+          "full": [
+            "earth_nevada_basin"
+          ],
+          "drops": {
+            "without_mean_slope_deg": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_mean_relief3_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_elev_std_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            }
+          }
+        },
+        "Site07": {
+          "full": [
+            "earth_nevada_basin"
+          ],
+          "drops": {
+            "without_mean_slope_deg": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_mean_relief3_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_elev_std_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            }
+          }
+        },
+        "Site11": {
+          "full": [
+            "earth_nevada_basin"
+          ],
+          "drops": {
+            "without_mean_slope_deg": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_mean_relief3_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_elev_std_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            }
+          }
+        },
+        "Site20": {
+          "full": [
+            "earth_nevada_basin"
+          ],
+          "drops": {
+            "without_mean_slope_deg": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_mean_relief3_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_elev_std_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            }
+          }
+        },
+        "Site23": {
+          "full": [
+            "earth_nevada_basin"
+          ],
+          "drops": {
+            "without_mean_slope_deg": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_mean_relief3_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_elev_std_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            }
+          }
+        }
+      },
+      "frontier_invariant_to_any_single_axis_drop": true
+    },
+    "1000": {
+      "per_site": {
+        "Site01": {
+          "full": [
+            "earth_nevada_basin"
+          ],
+          "drops": {
+            "without_mean_slope_deg": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_mean_relief3_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_elev_std_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            }
+          }
+        },
+        "Site04": {
+          "full": [
+            "earth_nevada_basin"
+          ],
+          "drops": {
+            "without_mean_slope_deg": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_mean_relief3_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_elev_std_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            }
+          }
+        },
+        "Site07": {
+          "full": [
+            "earth_nevada_basin"
+          ],
+          "drops": {
+            "without_mean_slope_deg": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_mean_relief3_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_elev_std_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            }
+          }
+        },
+        "Site11": {
+          "full": [
+            "earth_nevada_basin"
+          ],
+          "drops": {
+            "without_mean_slope_deg": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_mean_relief3_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_elev_std_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            }
+          }
+        },
+        "Site20": {
+          "full": [
+            "earth_nevada_basin"
+          ],
+          "drops": {
+            "without_mean_slope_deg": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_mean_relief3_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_elev_std_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            }
+          }
+        },
+        "Site23": {
+          "full": [
+            "earth_nevada_basin"
+          ],
+          "drops": {
+            "without_mean_slope_deg": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_mean_relief3_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            },
+            "without_elev_std_m": {
+              "layer1": [
+                "earth_nevada_basin"
+              ],
+              "unchanged": true
+            }
+          }
+        }
+      },
+      "frontier_invariant_to_any_single_axis_drop": true
+    }
+  },
+  "verdict": {
+    "effective_rank_by_support_candidates_only": {
+      "500": 1,
+      "750": 1,
+      "1000": 1
+    },
+    "effective_rank_by_support_cross_body": {
+      "500": 1,
+      "750": 1,
+      "1000": 1
+    },
+    "effective_rank_max": 1,
+    "three_axes_are_one_dimension": true,
+    "frontier_invariant_to_any_single_axis_drop": true,
+    "one_axis_statement": "The three declared axes span a single dimension at every support, over both the pool the frontier decides between (the seven Earth candidates) and the wider cross-body pool. Mean slope and mean 3x3 relief are mathematically the same measurement up to a direction factor bounded by 41% -- verified against the engine's own functions to floating point -- and the elevation standard deviation tracks them empirically. A Pareto frontier over these three is therefore a one-dimensional ordering and must not be reported as three lines of evidence.",
+    "what_this_does_not_mean": "It does not make the lunar result wrong. It makes it smaller and more robust: a one-dimensional ordering is far more stable than a genuine three-dimensional frontier, which is consistent with the 6/6 ensemble and the 18/18 panel agreement."
+  }
+}

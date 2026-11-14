@@ -1,0 +1,106 @@
+# Lunar panel v2 — the CORRECTED exploratory reanalysis.
+#
+# Frozen 2026-11-15, BEFORE the corrected run, so the correction is pre-specified rather than
+# fitted to whatever the rerun happens to produce. v1
+# (artifacts/lunar_sites/lunar_sites_exploratory.json) is preserved untouched: it is the record of
+# what was actually computed, defect included, and rewriting it would destroy the audit trail.
+#
+# ---------------------------------------------------------------------------------------------
+# WHY A v2 EXISTS
+#
+# v1 claimed "exact common support and matched footprint". Measured on the shipped code and data:
+#
+#   requested   Moon                       Earth                      equal?
+#   500 m       500 m / 32 cells / 16.000 km   510 m / 31 cells / 15.810 km   NO
+#   750 m       750 m / 21 cells / 15.750 km   750 m / 21 cells / 15.750 km   yes (by luck)
+#   1000 m      1000 m / 16 cells / 16.000 km  990 m / 16 cells / 15.840 km   NO
+#
+# and the written record said `cells=[32, 32], support_m=500.0` for both sides. Two independent
+# causes: each body aggregated by its own integer factor (500/5 = 100 on the Moon, round(500/30) =
+# 17 on Earth), and `centre_square()` cropped to min(n, h, w), turning a requested 32 x 32 Earth
+# grid into 31 x 31 without saying so.
+#
+# This is the same class of error the project already withdrew a Mars claim over — a comparison
+# whose footprints do not match, reported as though they did.
+#
+# ---------------------------------------------------------------------------------------------
+# WHAT IS FROZEN, AND WHY EACH CHOICE WAS MADE BEFORE SEEING THE RESULT
+#
+# footprint_m: 9000. The review proposed 15 km. That does NOT fit: the LOLA tiles are polar
+#   stereographic from the south pole, so a local ground grid centred on a site is ROTATED relative
+#   to the tile, and its corners reach half_side * sqrt(2) from the centre. The 16 km tiles permit
+#   a rotated square of at most 11.27 km (and 14.81 km on the one 21 km tile), so 15 km would run
+#   off the data at the corners. 9000 m is the largest value that (a) fits every site with warp
+#   margin and (b) is divisible by all three supports, giving exactly 18/12/9 cells per side.
+#
+# supports_m: [500, 750, 1000]. Unchanged from v1 so this is a correction, not a redesign.
+#
+# axes: unchanged from v1 (mean slope, mean 3x3 relief, window elevation std). Changing them would
+#   confound the correction with a new analysis.
+#
+# decision: unchanged — Pareto non-domination on fractional distance to the reference. No composite
+#   score, no weights.
+#
+# candidates and sites: unchanged from v1. Selecting new candidates after seeing the first result
+#   would make the panel unfalsifiable.
+#
+# ---------------------------------------------------------------------------------------------
+# THE GRID
+#
+# Both bodies are warped from their NATIVE source straight into an exact destination grid in the
+# body's local azimuthal-equidistant CRS, with area-weighted ("average") resampling. AEQD's
+# defining property — the distance from the projection centre to any projected point IS the
+# geodesic distance, validated in scripts/reproject_analytic_check.py — is what makes "500 m" mean
+# 500 m of ground on the Moon and on Earth rather than a number copied between them.
+#
+# The LOLA warp is not decoration. In the source polar stereographic projection a nominal 500 m
+# cell is up to 500.80 m of ground at Site20 (scale factor k = 1/cos^2(theta/2) at 138.75 km from
+# the pole). Aggregating in the source projection would compare 500.80 m lunar cells against
+# 500.00 m terrestrial ones.
+#
+# No intermediate grid, no per-body integer factor, and no silent resizing: common_grid.plan()
+# refuses a footprint that is not a whole number of cells, and read_exact() raises if the returned
+# shape is not exactly (n, n).
+
+panel:
+  footprint_m: 9000.0
+  supports_m: [500.0, 750.0, 1000.0]
+  cells_per_side: {500.0: 18, 750.0: 12, 1000.0: 9}
+  decision_axes: [mean_slope_deg, mean_relief3_m, elev_std_m]
+  resampling: average
+  source_floor_factor: 3.0
+  masks: none
+
+sites:                       # the six published Goddard PGDA south-polar regions
+  - {id: Site01, name: "Connecting ridge",  file: Site01_surf.tif}
+  - {id: Site04, name: "Shackleton rim",    file: Site04_surf.tif}
+  - {id: Site07, name: "Peak near Shackleton", file: Site07_surf.tif}
+  - {id: Site11, name: "de Gerlache rim",   file: Site11_surf.tif}
+  - {id: Site20, name: "Leibnitz beta plateau", file: Site20_surf.tif}
+  - {id: Site23, name: "Malapert massif",   file: Site23_surf.tif}
+
+candidates:                  # the seven Earth units, unchanged from v1
+  - {id: earth_nullarbor,             file: nullarbor_cop30.tif,          lon: 129.0,  lat: -30.3}
+  - {id: earth_llano_estacado,        file: llano_estacado_cop30.tif,     lon: -102.0, lat: 33.0}
+  - {id: earth_deccan_traps,          file: deccan_traps_cop30.tif,       lon: 76.0,   lat: 20.0}
+  - {id: earth_snake_river_plain,     file: snake_river_plain_cop30.tif,  lon: -114.05, lat: 43.05}
+  - {id: earth_harrat_khaybar,        file: harrat_khaybar_cop30.tif,     lon: 40.0,   lat: 25.5}
+  - {id: earth_odadahraun,            file: odadahraun_cop30.tif,         lon: -16.54, lat: 65.23}
+  - {id: earth_nevada_basin,          file: nevada_basin_cop30.tif,       lon: -115.6, lat: 36.2}
+
+earth_native_posting_m: 30.0   # COP30; the source is geographic, so this cannot be read off the file
+
+# ---------------------------------------------------------------------------------------------
+# FALSIFIERS, DECLARED IN ADVANCE
+#
+# The correction changes the comparison, so it may change the answer. Declared before running:
+#   * if the single surviving candidate at any support is no longer earth_nevada_basin, the v1
+#     headline was an artefact of the footprint mismatch and MUST be reported as such;
+#   * if the SURVIVOR SET differs between supports, that is a scale-dependent result and is
+#     reported as such rather than collapsed;
+#   * if no candidate is non-dominated, the honest output is the engine's INDETERMINATE path.
+# The result is NOT to be preserved because it was the previous headline.
+
+status: CORE-CTL-2
+label: CORRECTED EXPLORATORY REANALYSIS — same data, already examined. NOT independent
+       confirmation and NOT a new pre-registration.

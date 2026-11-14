@@ -39,12 +39,33 @@ TESTS = ROOT / "tests"
 # requirements.txt (core) vs pyproject [project.optional-dependencies].real.
 OPTIONAL = ("rasterio", "yaml", "requests", "scipy", "pandas", "matplotlib")
 
+# And the packages those bring in. These matter as much as the direct ones, and this list exists
+# because of a real failure: `common_grid.destination_grid` imported `affine` directly — a
+# transitive dependency of rasterio that is declared nowhere — and turned all three CI interpreters
+# red while this check stayed green, because `affine` was not blocked here and the local machine has
+# it. A guard that only simulates the dependencies you remembered is not simulating the environment.
+TRANSITIVE = ("affine", "cligj", "snuggs", "fiona", "shapely", "pyproj", "geopandas",
+              "rioxarray", "rasterstats")
+
+BLOCKED = OPTIONAL + TRANSITIVE
+
+# The suite's own skip convention (tests/harness.py). A test that cannot exercise its claim on this
+# interpreter raises this with a reason; that is the honest outcome here, not a failure, and it must
+# not be silently counted as a pass either.
+if str(TESTS) not in sys.path:
+    sys.path.insert(0, str(TESTS))
+try:
+    from harness import Skip as _Skip
+except Exception:                                            # pragma: no cover
+    class _Skip(Exception):
+        pass
+
 
 class _Blocker:
     """Make an optional package look uninstalled."""
 
     def find_spec(self, fullname, path=None, target=None):
-        if fullname.split(".")[0] in OPTIONAL:
+        if fullname.split(".")[0] in BLOCKED:
             raise ImportError(
                 f"{fullname} is not installed in the core environment "
                 f"(NumPy only), so this behaves as it does on CI")
@@ -54,7 +75,7 @@ class _Blocker:
 def _install_blocker():
     sys.meta_path.insert(0, _Blocker())
     for name in list(sys.modules):
-        if name.split(".")[0] in OPTIONAL:
+        if name.split(".")[0] in BLOCKED:
             del sys.modules[name]
 
 
@@ -97,7 +118,8 @@ def main(argv=None):
     #     an unguarded import inside a function only fails when it is called.
     modules = sorted(TESTS.glob("test_*.py"))
     selected = modules if args.all else [p for p in modules if _mentions_optional(p)]
-    passed = 0
+    passed = skipped = 0
+    skips = []
     for path in selected:
         try:
             mod = _load(path)
@@ -110,13 +132,23 @@ def main(argv=None):
             try:
                 getattr(mod, name)()
                 passed += 1
+            except _Skip as exc:
+                # A test that DECLINES to run on this interpreter, with a reason, is the desired
+                # outcome on a NumPy-only environment -- not a defect. Counting it as a failure
+                # would punish exactly the honest behaviour, and counting it as a pass would let a
+                # never-executed claim look verified. It is counted, and reported, as a skip.
+                skipped += 1
+                skips.append(f"{path.name}::{name}: {exc}")
             except BaseException as exc:
                 failures.append(f"{path.name}::{name}: {type(exc).__name__}: {exc}")
                 if args.all:
                     traceback.print_exc()
 
     print(f"ci_hygiene_check: {len(selected)}/{len(modules)} test module(s), "
-          f"{passed} test function(s) run with {', '.join(OPTIONAL)} blocked")
+          f"{passed} test function(s) run, {skipped} declined, with "
+          f"{', '.join(BLOCKED)} blocked")
+    for s in skips:
+        print(f"  skip  {s}")
     if failures:
         print(f"\nFAILED ({len(failures)}):")
         for f in failures:
