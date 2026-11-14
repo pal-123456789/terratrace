@@ -82,14 +82,22 @@ def destination_grid(lat, lon, body, support_m, n_cells):
     """The exact destination grid: ``n_cells`` x ``n_cells`` cells of ``support_m`` ground metres.
 
     Centred on the projection centre, so the window centre is the projection origin and every cell
-    is ``support_m`` of ground from its neighbours in the local east/north frame. Returns
-    ``(crs, transform, half_side_m)``.
+    is ``support_m`` of ground from its neighbours in the local east/north frame.
+
+    Returns ``(crs, coefficients, half_side_m)``, where ``coefficients`` is a plain 6-tuple
+    ``(a, b, c, d, e, f)`` — the affine transform's own coefficients, in rasterio/GDAL order.
+
+    Deliberately NOT an ``affine.Affine``. That library is a *transitive* dependency of rasterio and
+    is not declared anywhere, and importing it here turned three green CI interpreters red: this
+    module's pure half (``plan``, this function, the gates) has to run on the NumPy-only
+    interpreter, so it returns arithmetic and lets the rasterio half build the object. The first
+    version imported ``affine`` directly — an undeclared dependency invisible in a working local
+    environment, which is the exact trap this project has recorded three times.
     """
-    from affine import Affine
     crs = reproject.local_aeqd(lat, lon, body)
     half = n_cells * support_m / 2.0
-    transform = Affine(support_m, 0.0, -half, 0.0, -support_m, half)
-    return crs, transform, half
+    coefficients = (support_m, 0.0, -half, 0.0, -support_m, half)
+    return crs, coefficients, half
 
 
 def effective_floor_m(body, source_posting_m, factor=3.0):
@@ -116,12 +124,16 @@ def read_exact(path, lat, lon, body, support_m, n_cells, resampling="average",
         import rasterio
         from rasterio.warp import reproject as _reproject, transform as _transform, Resampling
         from rasterio.windows import from_bounds
+        # rasterio's own public re-export of the transform class, so this needs no dependency that
+        # rasterio does not already bring with it
+        from rasterio.transform import Affine
     except Exception as exc:                                     # pragma: no cover
         raise RuntimeError("pip install rasterio  (needed for a common metric grid)") from exc
 
     from . import masks as _masks
 
-    dst_crs, dst_transform, half = destination_grid(lat, lon, body, support_m, n_cells)
+    dst_crs, dst_coeffs, half = destination_grid(lat, lon, body, support_m, n_cells)
+    dst_transform = Affine(*dst_coeffs)
     resamp = getattr(Resampling, resampling)
 
     with rasterio.open(path) as ds:

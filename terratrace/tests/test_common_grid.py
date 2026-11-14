@@ -65,14 +65,27 @@ def test_plan_refuses_nonsense_supports():
 # ------------------------------------------------------------------ the grid itself
 
 def test_destination_grid_is_centred_exact_and_square():
-    """The transform must describe exactly n cells of the requested support, centred on the point."""
+    """The transform must describe exactly n cells of the requested support, centred on the point.
+
+    It must also be plain arithmetic: this is the pure half of the module, and it has to run on the
+    NumPy-only CI interpreter. The first version returned an ``affine.Affine`` and imported that
+    library directly — an undeclared transitive dependency of rasterio — which turned three green
+    CI interpreters red. The type assertions below are the guard, not decoration: an Affine has no
+    ``len()``, so reintroducing one fails here.
+    """
     for support in (500.0, 750.0, 1000.0):
         n = cg.plan(F, support)
-        crs, transform, half = cg.destination_grid(36.2, -115.6, "earth", support, n)
-        assert abs(transform.a - support) < 1e-9 and abs(transform.e + support) < 1e-9, \
+        crs, coefficients, half = cg.destination_grid(36.2, -115.6, "earth", support, n)
+        assert isinstance(coefficients, tuple) and len(coefficients) == 6, (
+            f"destination_grid returned {type(coefficients).__name__}, not a 6-tuple of numbers; "
+            f"the pure half of this module must not need a third-party transform class")
+        assert all(isinstance(v, float) for v in coefficients), coefficients
+        a, b, c, d, e, f = coefficients
+        assert abs(a - support) < 1e-9 and abs(e + support) < 1e-9, \
             "the cell size in the transform is not the requested support"
-        assert abs(transform.c + half) < 1e-6 and abs(transform.f - half) < 1e-6, \
+        assert abs(c + half) < 1e-6 and abs(f - half) < 1e-6, \
             "the grid is not centred on the projection origin"
+        assert b == 0.0 and d == 0.0, "the grid is rotated relative to its own east/north frame"
         assert abs(half - n * support / 2.0) < 1e-9
         assert n * support == F, "the footprint is not n * support"
         assert "aeqd" in str(crs), "the destination must be azimuthal equidistant (ground metres)"

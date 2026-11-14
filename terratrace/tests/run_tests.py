@@ -8,8 +8,10 @@ dependency, an absent dataset). Those are reported as SKIP with their reason and
 separately: a skip is not a pass, and a summary that hides the difference lets a reader mistake
 "the suite is green" for "everything was verified".
 """
+import argparse
 import importlib.util
 import pathlib
+import re
 import sys
 import traceback
 
@@ -24,6 +26,13 @@ except Exception:                       # pragma: no cover - harness is part of 
     class Skip(Exception):
         pass
 
+# A skip whose reason looks like this is a BROKEN ENVIRONMENT, not an absent dataset: the package
+# is simply not installed. The distinction matters in the scientific CI job, where the geospatial
+# stack IS installed, so a dependency skip there means the job is misconfigured -- and a suite that
+# reports it as an ordinary skip would hide a scientific path that never ran.
+DEPENDENCY_SKIP = re.compile(r"no module named|is not installed|unavailable|pip install",
+                             re.IGNORECASE)
+
 
 def load(path):
     spec = importlib.util.spec_from_file_location(path.stem, path)
@@ -32,7 +41,14 @@ def load(path):
     return mod
 
 
-def main():
+def main(argv=None):
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("--strict-skips", action="store_true",
+                    help="exit non-zero if any skip was caused by a missing PACKAGE rather than an "
+                         "absent dataset. Used by the scientific CI job, where the geospatial stack "
+                         "is installed and a dependency skip therefore means the job is wrong.")
+    args = ap.parse_args(argv)
+
     passed = failed = skipped = 0
     failures = []
     skips = []
@@ -65,6 +81,16 @@ def main():
     if failures:
         print("\n" + "\n".join(failures))
         return 1
+    if args.strict_skips:
+        offenders = [s for s in skips if DEPENDENCY_SKIP.search(s)]
+        if offenders:
+            print("\nSTRICT SKIPS: the environment is missing packages it was told to install, so "
+                  "these are broken runs rather than absent-data skips:")
+            for s in offenders:
+                print(f"  - {s}")
+            return 1
+        print(f"\nSTRICT SKIPS: all {skipped} skip(s) are absent-dataset skips; no dependency is "
+              f"missing from this environment.")
     return 0
 
 
