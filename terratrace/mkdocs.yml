@@ -35,6 +35,8 @@ nav:
   - Feature definitions & units: FEATURES.md
   - Accessibility report: ACCESSIBILITY.md
   - Event eligibility evidence: event/eligibility-evidence.md
+  - Event alignment & submission compliance: EVENT-ALIGNMENT.md
+  - SI-tool disclosure: event/SI-DISCLOSURE.md
   - Master-plan traceability: PLAN-COMPLIANCE.md
   - Demo script: DEMO.md
   - Paper: PAPER.md

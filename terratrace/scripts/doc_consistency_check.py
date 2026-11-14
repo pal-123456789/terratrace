@@ -152,6 +152,13 @@ CANONICAL = [
     ROOT / "scripts" / "build_atlas_page.py",
     ROOT / "docs" / "DISCOVERY-ATLAS.md",
     REPO / "site" / "atlas" / "index.html",
+    # The event-facing pages quote the suite's size and the official submission limits, and one of
+    # them shipped a stale test count for a release because nothing read it. A compliance page is
+    # prose the same way the deck generators are prose: the numbers on it get published.
+    ROOT / "docs" / "EVENT-ALIGNMENT.md",
+    ROOT / "docs" / "event" / "eligibility-evidence.md",
+    ROOT / "docs" / "event" / "SI-DISCLOSURE.md",
+    ROOT / "docs" / "DEMO.md",
 ]
 
 # dated records: exempt from the count checks
