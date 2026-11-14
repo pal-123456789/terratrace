@@ -106,8 +106,10 @@ this kind of check at all.
 
 It does not establish that TerraTrace's descriptors are *correct* — two of the three
 implementations could share a common misconception, and none of them is a published acceptance
-standard. It does not validate the reprojection, the support aggregation, the masks, the
-comparability gate, or any decision the engine makes from these numbers. It does not touch the
+standard. It does not validate the support aggregation, the masks, the comparability gate, or any
+decision the engine makes from these numbers. **The reprojection, listed as unvalidated in an
+earlier revision of this page, is now checked — by mathematics rather than by a second toolchain;
+see §8.** It does not touch the
 v3 verdicts. It does not constitute external review, and it is not a substitute for a second
 person running the pipeline on a second machine.
 
@@ -127,3 +129,44 @@ The script is committed as `scripts/gis_reproduction.py`. It calls the study's o
 obtain the array, then hands that array to RichDEM and to WhiteboxTools. Expected output is the
 table in §3 and §4; the alignment figure in §5(b) is reproduced by comparing whitebox's
 `range_filter` output at the same index instead of at the half-window offset.
+
+## 8. The reprojection, validated against closed-form geodesy
+
+An earlier revision listed the reprojection as *not* independently reproduced, for an honest reason:
+the two "toolchains" compared on this page are both GDAL (`rasterio.warp` and
+`gdalwarp`/WhiteboxTools). Two wrappers around one library is one implementation, and benchmarking
+1 000 rabbits is not benchmarking a rabbit and a tortoise.
+
+`scripts/reproject_analytic_check.py` closes that with a **right answer** instead of a second
+opinion. An azimuthal-equidistant projection has an exact defining property: the distance from the
+projection centre to any projected point *is* the geodesic distance between those two geographic
+points. So the projection can be tested against closed-form geodesy:
+
+| case | reference, derived from first principles | probes | worst disagreement |
+|---|---|---|---|
+| Moon (sphere, R = 1 737 400 m) | exact spherical great circle | 8, out to 15 km | **0.000029 m** |
+| Earth, meridional | Simpson quadrature of M(φ) = a(1−e²)/(1−e²sin²φ)^1.5 | 4, out to 111 km | **0.000000 m** (3.7e-14 relative) |
+| Earth, equatorial | exact `a·Δλ` | 3, out to 111 km | **0.000000 m** (1.1e-14 relative) |
+
+Two things about how this was built matter more than the numbers, because both are the reason to
+prefer mathematics over a second library:
+
+1. **It caught the author, not the code.** The first version used Lambert's formula written from
+   memory. It was wrong, and it reported the projection as **up to 107 m** in error. The projection
+   was correct — the independent meridional quadrature agrees with it to a nanometre — and the
+   *reference* was the defect. A second GDAL wrapper could never have exposed that, because it would
+   have shared the error's origin: an implementation rather than a derivation.
+2. **The uncovered cases are named, not dropped.** A general azimuthal geodesic on an ellipsoid has
+   no closed form available here, and calling a geodesic solver would swap a wrong reference for a
+   second library. Those probes are reported as *not analytically covered* rather than quietly
+   omitted, and the check fails if *every* probe for a body is uncovered.
+
+What this does **not** establish: that the *resampling* is correct (nearest/average/bilinear at
+tile boundaries), that the masks are right, or anything about the descriptors. It establishes that
+the coordinate geometry — the sphere and ellipsoid constants, the datum, the axes, and the
+distance-from-centre property the whole metric windowing depends on — is correct to floating point.
+
+```bash
+python scripts/reproject_analytic_check.py            # both bodies
+python scripts/reproject_analytic_check.py --body moon
+```

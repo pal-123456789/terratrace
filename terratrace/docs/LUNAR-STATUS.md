@@ -5,9 +5,10 @@ Permanent Moon Base Locations and Mars."* TerraTrace's headline v3 result is Mar
 records exactly where the lunar half stands, so nobody has to guess — and so nobody reads a
 capability as a result.
 
-**Summary: the data blocker is RESOLVED for one site. Real lunar terrain has been ingested and
-analysed (exploratory) — see [`LUNAR-DEMONSTRATION.md`](LUNAR-DEMONSTRATION.md). No confirmatory
-lunar finding is claimed, and no uncertainty propagation has been done yet.**
+**Summary: the data blocker is RESOLVED. Real lunar terrain has been ingested for all six published
+south-polar sites, screened against the Earth roster, and the result propagated through the archive's
+own published error realisations — all exploratory; see
+[`LUNAR-DEMONSTRATION.md`](LUNAR-DEMONSTRATION.md). No confirmatory lunar finding is claimed.**
 
 ## 1. What the engine genuinely supports (verified in code)
 
@@ -95,7 +96,7 @@ items: named first, not buried.
 |---|---|
 | Lunar body support in the engine | **IMPLEMENTED AND TESTED** (body metadata, CRS, catalog entry) |
 | Lunar data acquisition | **PARTLY RESOLVED** — the catalogued USGS LDEM endpoint still 404s; the Goddard PGDA 5 m/px products *do* serve, and Site01's elevation raster was retrieved |
-| Lunar comparison on real terrain | **DONE, EXPLORATORY** — one site, three declared axes; see [`LUNAR-DEMONSTRATION.md`](LUNAR-DEMONSTRATION.md) |
-| Lunar uncertainty propagation | **NOT STARTED** — the published uncertainty rasters were not retrieved |
+| Lunar comparison on real terrain | **DONE, EXPLORATORY** — all six published sites, three declared axes, three supports; see [`LUNAR-DEMONSTRATION.md`](LUNAR-DEMONSTRATION.md) |
+| Lunar uncertainty propagation | **DONE, PARTIALLY** — 6 of the 100 published error realisations, Site01 only |
 | Lunar confirmatory protocol | **NOT STARTED** — would require a frozen v4 |
 | Lunar claim in any published result | **exploratory only**; no confirmatory or base-suitability claim |

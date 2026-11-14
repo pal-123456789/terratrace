@@ -15,8 +15,8 @@ This repository holds two things:
 
 | Path | What it is |
 |---|---|
-| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across six robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **863 tests**, no network required. |
-| `site/` | A 3D scroll-animated website telling the project story (deployed on Vercel). |
+| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across six robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **891 tests**, no network required. |
+| `site/` | A 3D scroll-animated website telling the project story — live at **<https://terratrace.fit>**. |
 
 **Project deck — 10 slides.** [PDF](TerraTrace-deck.pdf) · [PowerPoint](TerraTrace-deck.pptx) — the whole project: the question, the pipeline across five bodies, the measurement layer, the benchmark that made us withdraw our own finding, the result, the verification evidence, the data path, the claim firewall and the open items.
 
@@ -89,7 +89,7 @@ example — are kept verbatim under `terratrace/docs/` so the audit trail is int
 ```bash
 cd terratrace
 pip install -r requirements.txt            # core (NumPy only)
-python tests/run_tests.py                   # 863 fixtures, offline
+python tests/run_tests.py                   # 891 fixtures, offline
 python scripts/run_validation.py            # scientific-correctness suite
 python -m terratrace.cli --out artifacts    # synthetic study
 python -m terratrace.build_viewer           # viewer/index.html
@@ -140,18 +140,20 @@ re-derivation of two descriptors: `terratrace/docs/INDEPENDENT-GIS-REPRODUCTION.
 
 ![The 60 km roughness of the seven Earth candidates, log scale, coloured by the class assigned before the run. The two references that support S sit where the two non-volcanic controls sit, and the basalts sit higher — they win only where the target is rough.](terratrace/docs/figures/roughness-ladder.svg)
 
-**And the lunar half is now on real lunar terrain.** Site01, the Connecting-ridge south-polar
-candidate from the NASA Goddard PGDA 5 m/pixel LOLA products, was ingested and screened against the
-same Earth roster at a declared 500-1000 m support (the published product is 16 km across, so it
-cannot share the 60 km Mars regime — and Mars is excluded here rather than forced below its source's
-resolution). The reference is rough: mean slope 10.3-11.2 deg, relief 249-452 m. Exactly **one**
-Earth candidate is non-dominated at every support — the **Nevada Basin & Range** — while the two
-smooth non-volcanic controls that answered for Martian volcanic plains are the *worst* matches. That
-contrast is the project's argument against a single "planetary similarity" score. It is
-**exploratory**: one site, three declared axes rather than the frozen lens, and the published
-elevation-uncertainty rasters are not yet propagated. Full record, caveats and provenance:
-`terratrace/docs/LUNAR-DEMONSTRATION.md`; why the previously catalogued USGS endpoint still 404s:
-`terratrace/docs/LUNAR-STATUS.md`.
+**And the lunar half is now on real lunar terrain.** All **six** published south-polar
+candidate regions from the NASA Goddard PGDA 5 m/pixel LOLA products were ingested and screened
+against the same Earth roster at a declared 500-1000 m support (each site is ~16 km across, so
+it cannot share the 60 km Mars regime — and Mars is excluded rather than forced below its
+source's resolution). Across **18 of 18** site × support cells the sole non-dominated Earth
+candidate is the same: the **Nevada Basin & Range**, while the smooth non-volcanic controls that
+answered for Martian volcanic plains are the worst matches. The membership also survives six of
+the archive's own perturbed DEM realisations (its published error model), which is the correct
+input for a propagation test — independent per-pixel noise would average away under aggregation
+and manufacture stability. Two caveats travel with it: the surviving candidate is not always
+*close* (for the roughest sites it is 44-71% away on some axis, i.e. least-dissimilar of a weak
+shortlist), and this is **exploratory** — six nearby sites are not six independent tests, the
+ensemble is 6 of 100 published realisations, and the axes are three declared ones rather than
+the frozen lens. Full record, tables, provenance and caveats: `terratrace/docs/LUNAR-DEMONSTRATION.md`; why the previously catalogued USGS endpoint still 404s: `terratrace/docs/LUNAR-STATUS.md`.
 
 **Reproduce it in three commands — no API key, no account.**
 
@@ -169,19 +171,25 @@ Mars side needs no download either: the global MOLA 463 m GeoTIFF is the only Ma
 
 ## Deploy
 
-Static site, no build step. On Vercel, import this repo; `vercel.json` serves three routes:
+**Live at <https://terratrace.fit>**, served by GitHub Pages from `site/` via
+[`.github/workflows/pages.yml`](.github/workflows/pages.yml). Static site, no build step: Pages
+resolves `site/<name>/index.html` at `/<name>/` natively, so the three routes need no rewrite table.
 
 | Route | File | What it is |
 |---|---|---|
 | `/` | `site/index.html` | The scroll landing page — the three-act story, method, descriptors, evidence |
-| `/study` | `site/study/index.html` | **The protocol-v3 results** — the confirmatory panel, with the frozen verdicts |
-| `/viewer` | `site/viewer/index.html` | The engine's **generated** study viewer (an archived real run), unmodified apart from a labelled site bar |
+| `/study/` | `site/study/index.html` | **The protocol-v3 results** — the confirmatory panel, with the frozen verdicts |
+| `/viewer/` | `site/viewer/index.html` | The engine's **generated** study viewer (an archived real run), unmodified apart from a labelled site bar |
 
 `site/study/` is hand-written; `site/viewer/` is built by `terratrace/scripts/make_site_viewer.py`
 from `terratrace/viewer/index.html`, so the generated output stays byte-faithful (the script adds
-only the title, a favicon, and the labelled header bar — it is the single place those live). The
-doc-consistency guard resolves every site `href` through the rewrite table above, so a page added
-without a route fails the build rather than 404s.
+only the title, a favicon, and the labelled header bar — it is the single place those live).
+`site/.nojekyll` must stay: without it Pages runs Jekyll and silently drops leading-underscore paths.
+
+The doc-consistency guard resolves every site `href` against the files as they exist — so a page
+added without a reachable route fails the build rather than 404s in the browser. DNS records,
+repository settings and verification steps are in [`DEPLOY.md`](DEPLOY.md); the site also deploys
+unmodified to Vercel, whose equivalent route table is `site/vercel.json`.
 
 ## License
 

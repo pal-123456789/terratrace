@@ -1,7 +1,7 @@
 /* TerraTrace deck — 10 slides, built on the same dark palette and the same real terrain
    data as the repository's cover image. Structured deck: theme + layouts + placeholders. */
 const pptxgen = require("pptxgenjs");
-const { applyTheme } = require("/sessions/intelligent-blissful-thompson/mnt/.claude/skills/pptx/scripts/apply_theme.js");
+
 
 // Repository-relative, overridable, never absolute: the previous revision hard-coded this
 // session's scratch directory, so nobody else could rebuild the deck at all. Regenerate the panels
@@ -9,6 +9,28 @@ const { applyTheme } = require("/sessions/intelligent-blissful-thompson/mnt/.cla
 const REPO_ROOT = require("path").resolve(__dirname, "..", "..");
 const ASSETS = process.env.DECK_ASSETS || require("path").join(REPO_ROOT, "assets", "deck");
 const OUT = require("path").join(__dirname, "..", "..", "TerraTrace-deck.pptx");
+
+// Theme application is a nicety: it rewrites the .pptx package's master/theme parts so PowerPoint's
+// own "Design" panel shows this palette. It lives in a tooling directory that is NOT part of this
+// repository, and the previous revision required it by an absolute path from one machine — so a
+// clone could not build the deck at all. It is now optional, and its absence costs only the Design
+// panel: the slides carry their colours explicitly, so the deck renders the same either way.
+function loadApplyTheme() {
+  const candidates = [
+    process.env.PPTX_APPLY_THEME,
+    require("path").join(__dirname, "apply_theme.js"),            // vendored beside this script
+    require("path").join(REPO_ROOT, "terratrace", "scripts", "apply_theme.js"),
+    process.env.PPTX_SKILLS_DIR                                   // a tooling install, if present
+      ? require("path").join(process.env.PPTX_SKILLS_DIR, "pptx", "scripts", "apply_theme.js")
+      : null,
+  ].filter(Boolean);
+  for (const c of candidates) {
+    try { return require(c).applyTheme; } catch (e) { /* try the next candidate */ }
+  }
+  console.warn("note: apply_theme.js not found — building without themed master parts");
+  return null;
+}
+const applyTheme = loadApplyTheme();
 
 const THEME = {
   name: "TerraTrace Dark",
@@ -268,7 +290,7 @@ s7.addText(`${BUILD_COMMIT} = the tested implementation commit; the deck is rebu
   x: M, y: 6.48, w: 12.1, h: 0.32, fontFace: "Courier New", fontSize: 11, color: ACC, margin: 0, isTextBox: true });
 lede(s7, "Every number below is produced by a command in the repository, and the documentation guard fails the build if the prose disagrees with the code.", 1.62, 0.42, 12.1);
 
-stat(s7, M, 2.26, 3.7, "863", "offline tests — no network, no fixtures downloaded, run by a dependency-free runner", ACC);
+stat(s7, M, 2.26, 3.7, "891", "offline tests — no network, no fixtures downloaded, run by a dependency-free runner", ACC);
 stat(s7, M + 3.95, 2.26, 3.7, "51", "scientific-correctness oracles over analytic surfaces with known answers", ACC);
 stat(s7, M + 7.9, 2.26, 4.2, "2", "independent runs that reproduce the canonical artifact hash", ACC);
 
@@ -309,7 +331,7 @@ s8.addText([
 panel(s8, "mars_panel.png", 9.42, 2.2, 3.3, 2.05, "Mars reference terrain · MOLA, 463 m/px nominal", WARM);
 card(s8, 9.42, 4.66, 3.3, 1.72, "101826");
 s8.addText("Independent toolchain check", { x: 9.66, y: 4.78, w: 2.9, h: 0.28, fontFace: HEAD, fontSize: 12.5, bold: true, color: INK, margin: 0, isTextBox: true });
-s8.addText("3x3 relief: within 0.0001 m\nSlope means: within 0.016 deg\nCell-size and window-anchor assumptions: documented differences\nReprojection: not independently reproduced\nExternal reviewer: none yet", { x: 9.66, y: 5.08, w: 2.9, h: 1.22, fontFace: BODY, fontSize: 9.5, color: MUTE, lineSpacing: 12, margin: 0, isTextBox: true, valign: "top" });
+s8.addText("3x3 relief: within 0.0001 m\nSlope means: within 0.016 deg\nReprojection: vs closed-form geodesy, within 0.00003 m\nCell-size and window-anchor assumptions:\ndocumented differences\nExternal reviewer: none yet", { x: 9.66, y: 5.08, w: 2.9, h: 1.22, fontFace: BODY, fontSize: 9.5, color: MUTE, lineSpacing: 12, margin: 0, isTextBox: true, valign: "top" });
 s8.addText("Five bodies, each reprojected onto its own metric grid and compared at a common effective support, never at nominal posting.", { x: 9.42, y: 6.46, w: 3.3, h: 0.46, fontFace: BODY, fontSize: 11.5, color: MUTE, lineSpacing: 15, margin: 0, isTextBox: true, valign: "top" });
 
 /* ========================================================== 9 · firewall === */
@@ -337,7 +359,7 @@ s9.addText("Open, and named rather than hidden", { x: 7.02 + 0.3, y: 2.02, w: 5.
 s9.addText([
   { text: "Two descriptors re-derived independently; no external reviewer yet.", options: { bullet: true, breakLine: true } },
   { text: "No demo video; the script for it ships in the repository.", options: { bullet: true, breakLine: true } },
-  { text: "Lunar terrain is real, but the comparison is exploratory: one site, no uncertainty propagation.", options: { bullet: true, breakLine: true } },
+  { text: "All six lunar sites screened and the answer survives the DEM error ensemble — but it is exploratory, and the roughest sites have no close match.", options: { bullet: true, breakLine: true } },
   { text: "No external user walkthrough yet; the boundary is argued, not tested.", options: { bullet: true } },
 ], { x: 7.02 + 0.3, y: 2.34, w: 5.1, h: 1.5, fontFace: BODY, fontSize: 11, color: MUTE, lineSpacing: 15, margin: 0, isTextBox: true, paraSpaceAfter: 7 });
 // 3.98, not 3.9: the bullet block above ends near 3.8" and a caption inside that footprint is
@@ -380,6 +402,6 @@ s10.addText("The engine is prior art, built weeks ahead of the event. What a tea
   x: M + 0.3, y: 4.86, w: 11.5, h: 1.3, fontFace: BODY, fontSize: 12.5, color: MUTE, lineSpacing: 17, margin: 0, isTextBox: true, valign: "top" });
 
 pres.writeFile({ fileName: OUT }).then(async () => {
-  await applyTheme(OUT, THEME);
+  if (applyTheme) await applyTheme(OUT, THEME);
   console.log("wrote", OUT);
 });

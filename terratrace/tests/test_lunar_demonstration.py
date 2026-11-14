@@ -11,6 +11,10 @@ These tests protect the two things that can rot now that a number exists:
 
 The heavy real-data assertion is gated on the 41 MB product being present, so a fresh clone runs
 green and a machine holding the data additionally verifies the headline numbers against the raster.
+The two *records* are a different matter: they are ~42 KB of JSON, they are committed, and the tests
+that read them now assert their presence. They used to return silently when absent, which meant the
+headline lunar result had no evidence check at all on a fresh clone — the one place it most needed
+one, since CI is a fresh clone.
 """
 import json
 import pathlib
@@ -20,6 +24,9 @@ import numpy as np
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DOCS = ROOT / "docs"
 ARTIFACT = ROOT / "artifacts" / "lunar_site01" / "lunar_site01_exploratory.json"
+SITES_ARTIFACT = ROOT / "artifacts" / "lunar_sites" / "lunar_sites_exploratory.json"
+SURF = {s: ROOT / "data" / "moon" / f"{s}_surf.tif"
+        for s in ("Site01", "Site04", "Site07", "Site11", "Site20", "Site23")}
 MOON_TIF = ROOT / "data" / "moon" / "Site01_surf.tif"
 
 AXES = ("mean_slope_deg", "mean_relief3_m", "elev_std_m")
@@ -113,8 +120,12 @@ def test_aggregation_reaches_the_declared_supports_with_equal_footprints():
 
 def test_artifact_pareto_membership_is_recomputable_from_its_own_numbers():
     """The published layer-1 set must follow from the stored distances — not be asserted beside them."""
-    if not ARTIFACT.exists():
-        return
+    assert ARTIFACT.exists(), (
+        "artifacts/lunar_site01/lunar_site01_exploratory.json is committed (git add -f: the "
+        "artifacts/ tree is ignored, and a small record backing a published claim is force-added on "
+        "purpose). If it is missing, this test previously returned silently — which meant the "
+        "headline lunar result had no evidence check at all on a fresh clone."
+    )
     from terratrace import decision
 
     data = json.loads(ARTIFACT.read_text(encoding="utf-8"))
@@ -129,8 +140,7 @@ def test_artifact_pareto_membership_is_recomputable_from_its_own_numbers():
 
 def test_artifact_supports_a_single_non_dominated_candidate_at_every_support():
     """The result reported in the docs: exactly one Earth candidate survives, at every support."""
-    if not ARTIFACT.exists():
-        return
+    assert ARTIFACT.exists(), "the committed lunar evidence record is missing from the tree"
     data = json.loads(ARTIFACT.read_text(encoding="utf-8"))
     assert set(data["scales"]) == {"500m", "750m", "1000m"}
     for scale, block in data["scales"].items():
@@ -143,8 +153,7 @@ def test_artifact_supports_a_single_non_dominated_candidate_at_every_support():
 
 def test_artifact_declares_itself_exploratory_and_excludes_mars():
     """The artifact must carry its own scope, so it cannot be cited as a confirmatory panel."""
-    if not ARTIFACT.exists():
-        return
+    assert ARTIFACT.exists(), "the committed lunar evidence record is missing from the tree"
     prov = json.loads(ARTIFACT.read_text(encoding="utf-8"))["provenance"]
     assert "EXPLORATORY" in prov["status"].upper()
     assert prov["supports_m"] == [500.0, 750.0, 1000.0]
@@ -159,8 +168,14 @@ def test_the_lunar_documentation_stays_honest():
     """Prose rot is the failure mode here: a page quietly upgrading the result to a finding."""
     demo = (DOCS / "LUNAR-DEMONSTRATION.md").read_text(encoding="utf-8")
     assert "EXPLORATORY" in demo, "the demonstration page must label the result exploratory"
-    low = demo.lower()
-    for label in ("one lunar site", "uncertainty"):
+    # Whitespace-collapsed before matching: these phrases wrap across lines in the source, and a
+    # caveat check that fails because an editor re-flowed a paragraph is testing formatting, not
+    # honesty. (It did exactly that on the first run.)
+    low = " ".join(demo.lower().split())
+    # the caveats that make this page honest. Each one was true when it was written and each can be
+    # lost by a later edit that only means to update numbers, so they are asserted.
+    for label in ("exploratory", "descriptive label, not a validated adequacy criterion",
+                  "not six independent tests", "no external reviewer"):
         assert label in low, f"the demonstration page dropped its {label!r} caveat"
     # it must not claim base suitability anywhere
     for banned in ("suitable for a base", "safe to land", "base suitability is supported"):
@@ -213,3 +228,96 @@ def test_real_site01_axes_reproduce_the_published_numbers():
             assert abs(got[axis] - want) <= max(0.01 * abs(want), 0.05), (
                 f"{scale}/{axis}: artifact says {want}, raster gives {got[axis]}"
             )
+
+
+def test_all_six_published_sites_were_screened_at_every_support():
+    """The multi-site artifact covers 6 sites x 3 supports, and never invents a fourth support."""
+    assert SITES_ARTIFACT.exists(), "the committed six-site lunar record is missing from the tree"
+    data = json.loads(SITES_ARTIFACT.read_text(encoding="utf-8"))
+    assert set(data["scales"]) == {"500m", "750m", "1000m"}
+    for scale, per_site in data["scales"].items():
+        assert set(per_site) == {"Site01", "Site04", "Site07", "Site11", "Site20", "Site23"}, \
+            f"{scale}: expected all six published sites, found {sorted(per_site)}"
+        for sid, block in per_site.items():
+            assert block["support_m"] >= float(scale[:-1]), f"{scale}/{sid}: support not achieved"
+            assert block["cells"][0] == block["cells"][1], "footprints must be square and equal"
+
+
+def test_the_surviving_candidate_is_recomputed_not_asserted():
+    """Layer-1 membership must follow from each block's own stored distances."""
+    assert SITES_ARTIFACT.exists(), "the committed six-site lunar record is missing from the tree"
+    from terratrace import decision
+
+    data = json.loads(SITES_ARTIFACT.read_text(encoding="utf-8"))
+    for scale, per_site in data["scales"].items():
+        for sid, block in per_site.items():
+            recomputed = sorted(decision.non_dominated(block["axis_distance_fraction"]))
+            assert recomputed == sorted(block["layer1"]), (
+                f"{scale}/{sid}: stored {block['layer1']} != recomputed {recomputed}"
+            )
+
+
+def test_the_screening_and_the_closeness_read_stay_separate():
+    """The result is 'same candidate everywhere' AND 'not close everywhere' — both are real.
+
+    This pins the finding that makes the lunar page honest: non-domination is decisive about
+    ordering at every cell, while the roughest sites have no candidate within 0.5 on every axis.
+    Collapsing the two into "all six agree" would be the overclaim the project exists to avoid.
+    """
+    assert SITES_ARTIFACT.exists(), "the committed six-site lunar record is missing from the tree"
+    data = json.loads(SITES_ARTIFACT.read_text(encoding="utf-8"))
+    survivors, far = set(), []
+    for scale, per_site in data["scales"].items():
+        for sid, block in per_site.items():
+            for uid in block["layer1"]:
+                survivors.add(uid)
+            if block["layer1"] == ["earth_nevada_basin"]:
+                worst = max(block["axis_distance_fraction"]["earth_nevada_basin"])
+                if worst > 0.5:
+                    far.append((scale, sid, round(worst, 3)))
+    assert survivors == {"earth_nevada_basin"}, (
+        f"the single-survivor statement no longer holds: {sorted(survivors)}"
+    )
+    assert far, ("every site now has a candidate within 0.5 on all axes — if that is real, the "
+                 "demonstration page's 'no close candidate' caveat must be updated with it")
+    assert {s for _, s, _ in far} == {"Site04", "Site23"}, (
+        f"the no-close-match sites changed: {sorted({s for _, s, _ in far})}"
+    )
+
+
+def test_the_error_ensemble_is_recorded_with_its_size():
+    """An ensemble result is only meaningful with its draw count, and 6 != 100."""
+    assert SITES_ARTIFACT.exists(), "the committed six-site lunar record is missing from the tree"
+    data = json.loads(SITES_ARTIFACT.read_text(encoding="utf-8"))
+    ens = data.get("ensemble")
+    assert ens, "the error-ensemble result is missing from the artifact"
+    assert ens["n_draws"] >= 1
+    assert ens["n_draws"] < 100, (
+        "the artifact claims a full published ensemble; only a subset of the 100 clones was used, "
+        "so the page's '6 of 100' caveat would be wrong"
+    )
+    for scale, block in ens["scales"].items():
+        frac = block["exact_match_fraction"]
+        assert 0.0 <= frac <= 1.0
+        freq = block["candidate_layer1_frequency"]
+        assert abs(sum(freq.values()) - len(block["point_estimate_layer1"]) * frac - 0) >= 0
+        assert all(0.0 <= v <= 1.0 for v in freq.values())
+
+
+def test_the_generalised_run_reproduces_the_published_single_site_result():
+    """The multi-site code must agree with the earlier one-site run, or the extension changed it.
+
+    This is the check the analysis script performs at runtime; it is repeated here so a regression
+    is caught by the suite even if nobody runs the script.
+    """
+    assert SITES_ARTIFACT.exists() and ARTIFACT.exists(), (
+        "both lunar records are committed; one is missing from the tree"
+    )
+    new = json.loads(SITES_ARTIFACT.read_text(encoding="utf-8"))["scales"]
+    old = json.loads(ARTIFACT.read_text(encoding="utf-8"))["scales"]
+    for scale in ("500m", "750m", "1000m"):
+        for axis in AXES:
+            a = new[scale]["Site01"]["reference_axes"][axis]
+            b = old[scale]["axes"]["LUNAR_Site01"][axis]
+            assert abs(a - b) < 1e-6, f"{scale}/{axis}: multi-site {a} vs single-site {b}"
+        assert new[scale]["Site01"]["layer1"] == old[scale]["layer1"]

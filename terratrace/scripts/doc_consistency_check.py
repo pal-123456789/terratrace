@@ -25,6 +25,10 @@ It checks, against the tree it is run in:
    target (a page can look fine in the repo and still 404 in the browser).
 5. **CLAIMS**  — the frozen benchmark verdicts quoted in the live docs still match
    ``docs/RESULTS-v3.md`` (a headline that silently loses its caveat is a defect too).
+6. **MARKUP**  — every published HTML page is tag-balanced. The link check walks ``href``\ s and
+   cannot see a stray ``</div>``, and an unbalanced page renders wrong in the browser while every
+   link in it still resolves. This was added after exactly that mistake: an edited block on
+   ``site/index.html`` closed one ``</div>`` too many and un-nested the rest of the document.
 
 Historical records (``CHANGELOG.md``, ``CLAIM-LEDGER.md``, ``RESULTS-*``, ``REAL-EXAMPLE.md``,
 ``BENCHMARK-PROTOCOL*``) are exempt from (1): they are dated records of what was true *then*,
@@ -88,6 +92,19 @@ def _readable(target: pathlib.Path) -> bool:
         return any(t.startswith(rel.rstrip("/") + "/") for t in TRACKED)
     return False
 
+def _rel(path):
+    """A repo-relative path for a message, ALWAYS with forward slashes.
+
+    ``str(Path)`` returns backslashes on Windows, so a guard that interpolates a path directly
+    prints ``site\\index.html`` there and ``site/index.html`` on Linux — the same defect
+    reported two different ways depending on the machine. A test that matches one form then
+    passes on CI and fails locally, which is exactly how this was found: the markup check
+    correctly detected a missing ``</main>`` and the assertion looking for ``site/index.html``
+    could not see the message. Repository-relative paths are POSIX wherever a reader meets
+    them; keep them that way in messages too.
+    """
+    return path.relative_to(REPO).as_posix()
+
 # --- documents that must state the current numbers --------------------------------
 CANONICAL = [
     REPO / "README.md",
@@ -101,7 +118,11 @@ CANONICAL = [
     # the deck generator is prose too: every number it prints ends up in a published slide, and
     # "200 scalar outputs" sat in a shipped slide for a release because nothing audited this file.
     ROOT / "scripts" / "build_deck.js",
+    ROOT / "scripts" / "build_submission_deck.js",
     ROOT / "scripts" / "make_cover.py",
+    # this one publishes the mirror numbers (3600x3600, 12,960,000 values, a 360-byte delta) into a
+    # page readers check, so it is prose in the same sense the deck generators are
+    ROOT / "scripts" / "verify_earth_mirror.py",
 ]
 
 # dated records: exempt from the count checks
@@ -138,6 +159,12 @@ COUNT_RES = {
     # the module and family counts drifted silently before these existed: "854 tests across 91
     # modules" was written when the tree had 92, and they were caught by a reader, not by CI.
     # (Numbers here are a dated quote about past drift, not a current count — do not update them.)
+    # "884 fixtures" as a whole phrase, checked on its own. It is matched only as a PLURAL followed by
+    # punctuation, a conjunction, or the end of a line, because "the 6 fixture tiles" is a different
+    # thing entirely — the broader form that merely allowed `fixtures?` as a noun fired on exactly
+    # that during testing. "884 fixtures and 51 oracles" is still matched; "884 fixtures with known
+    # answers" is not, which is the deliberate side of the trade: under-coverage, never a false alarm.
+    "fixture count": r"(?<![\w.])(\d+)\s+fixtures\b(?![-\s]+(?!(?:and|or)\b)[A-Za-z])",
     "module count": r"(?<![\w.])(\d+)\s+(?:test\s+)?modules?\b",
     "family count": r"(?<![\w.])(\d+)\s+(?:descriptor\s+)?families\b",
     "runner banner": r"passed=(\d+)\s",
@@ -245,15 +272,16 @@ def _probe(text):
 def check_counts(problems):
     tests, oracles, sources = _count_tests(), _count_oracles(), _count_sources()
     modules, families = _count_test_modules(), _count_families()
-    truth = {"test count": tests, "oracle count": oracles, "source count": sources,
-             "runner banner": tests, "module count": modules, "family count": families}
+    truth = {"test count": tests, "fixture count": tests, "oracle count": oracles,
+             "source count": sources, "runner banner": tests, "module count": modules,
+             "family count": families}
     pats = [(label, re.compile(rx), truth[label]) for label, rx in COUNT_RES.items()]
     for path in CANONICAL:
         if not path.exists():
-            problems.append(f"counts: canonical document is missing: {path.relative_to(REPO)}")
+            problems.append(f"counts: canonical document is missing: {_rel(path)}")
             continue
         text = _probe(path.read_text(encoding="utf-8", errors="replace"))
-        rel = path.relative_to(REPO)
+        rel = _rel(path)
         for label, pat, want in pats:
             for m in pat.finditer(text):
                 got = int(m.group(1))
@@ -268,7 +296,7 @@ def check_counts(problems):
         if not path.exists():
             continue
         text = _probe(path.read_text(encoding="utf-8", errors="replace"))
-        rel = path.relative_to(REPO)
+        rel = _rel(path)
         for label, pat in rpats:
             for m in pat.finditer(text):
                 got = int(m.group(1))
@@ -277,6 +305,53 @@ def check_counts(problems):
                         f"counts: {rel} states {label} {got}, outside the measured range "
                         f"{lo}-{hi} (...{text[max(0,m.start()-40):m.end()+15].strip()!r}...)"
                     )
+
+    # The deck generators print their counts through a helper:
+    #     stat(slide, x, y, w, "878", "offline tests across 94 modules, 0 failures", ACC)
+    # The number and its noun sit in two *different* string arguments, so every pattern above —
+    # each anchored on a number immediately followed by its noun — walks straight past them. That
+    # is the same silent-miss shape as "**14** catalogued products", and a shipped slide carried a
+    # wrong scalar count through exactly this hole. Match the call's argument shape instead.
+    stat_call = re.compile(r'"(\d{1,4})"\s*,\s*"([^"]{0,140})"')
+    nouns = [("module count", re.compile(r"\bmodules?\b", re.I)),
+             ("test count", re.compile(r"\btests?\b", re.I)),
+             ("oracle count", re.compile(r"\boracles?\b", re.I)),
+             ("source count", re.compile(r"\b(?:source|product)s?\b", re.I)),
+             ("family count", re.compile(r"\bfamilies\b", re.I))]
+    for path in CANONICAL:
+        if not path.exists() or path.suffix != ".js":
+            continue
+        raw = path.read_text(encoding="utf-8", errors="replace")
+        rel = _rel(path)
+        for m in stat_call.finditer(raw):
+            got, label = int(m.group(1)), m.group(2)
+            # the printed number labels whichever tracked noun appears first in its own caption —
+            # including "scalar", so "40", "…families (~290 scalar values)" labels *families* and
+            # the scalar range check must not capture it. (It did on the first run.)
+            found = [(n.search(label).start(), title) for title, n in nouns if n.search(label)]
+            s_pos = label.lower().find("scalar")
+            if s_pos >= 0 and (not found or s_pos < min(found)[0]):
+                if not (lo <= got <= hi):
+                    problems.append(
+                        f"counts: {rel} states scalar count {got} on a slide, outside the measured "
+                        f"range {lo}-{hi} (...{label!r}...)"
+                    )
+                continue
+            if found:
+                title = min(found)[1]
+                if got != truth[title]:
+                    problems.append(
+                        f"counts: {rel} states {title} {got} on a slide, real value is "
+                        f"{truth[title]} (...{label!r}...)"
+                    )
+            # and a second count can hide inside the caption itself: "tests across 94 modules"
+            for title, pat, want in pats:
+                for mm in pat.finditer(_probe(label)):
+                    if int(mm.group(1)) != want:
+                        problems.append(
+                            f"counts: {rel} states {title} {int(mm.group(1))} inside a slide "
+                            f"caption, real value is {want} (...{label!r}...)"
+                        )
     return tests, oracles, sources, modules, families, (lo, hi)
 
 
@@ -320,6 +395,36 @@ def check_nav(problems):
             problems.append(f"nav: docs/{rel} exists but is not in mkdocs.yml nav (a reader cannot reach it)")
 
 
+# The site is PUBLISHED from `site/`, so a URL is relative to that directory — GitHub Pages resolves
+# /study/ to site/study/index.html with no rewrite table at all. An earlier revision resolved routes
+# against the repository root instead, which only appeared to work because Vercel's rewrite table
+# happened to spell out each route; the moment the links gained their canonical trailing slash (as
+# GitHub Pages serves them) every one of them "broke". The site root is a fact about the deployment,
+# so it is named here rather than inferred from a host's configuration.
+SITE_ROOT = REPO / "site"
+
+
+def resolve_site_route(route, routes=None, root=None):
+    """Map a URL path from the site to the file that serves it. Returns a Path (maybe nonexistent).
+
+    Host-neutral on purpose: a route named by a rewrite table resolves through that table, and
+    anything else falls back to plain static-tree rules, which is what GitHub Pages implements.
+    """
+    routes = routes or {}
+    root = SITE_ROOT if root is None else root
+    for key in (route, route.rstrip("/"), route.rstrip("/") + "/"):
+        if key in routes:
+            return REPO / routes[key]
+    cand = root / route.strip("/")
+    if cand.is_dir():
+        return cand / "index.html"
+    if cand.suffix:
+        return cand
+    if (cand.parent / (cand.name + ".html")).exists():
+        return cand.parent / (cand.name + ".html")
+    return cand / "index.html"
+
+
 def check_links(problems):
     """Relative Markdown links, and the site's internal HTML links + fragments.
 
@@ -343,28 +448,17 @@ def check_links(problems):
             if not _readable(target):
                 why = ("exists here but is NOT TRACKED, so a clone will not have it"
                        if target.exists() else "does not exist")
-                problems.append(f"links: {path.relative_to(REPO)} -> {tgt!r} {why}")
+                problems.append(f"links: {_rel(path)} -> {tgt!r} {why}")
 
     # --- the website ---------------------------------------------------------
     vercel = REPO / "vercel.json"
     routes, clean = {}, False
     if vercel.exists():
         cfg = vercel.read_text(encoding="utf-8")
-        clean = '"cleanUrls": true' in cfg
+        clean = '"cleanUrls": true' in cfg     # informational: resolution no longer depends on it
         for m in re.finditer(r'"source"\s*:\s*"([^"]+)"\s*,\s*"destination"\s*:\s*"([^"]+)"', cfg):
             routes[m.group(1)] = m.group(2).lstrip("/")
 
-    def _target(route):
-        if route in routes:
-            return REPO / routes[route]
-        cand = REPO / route.lstrip("/")
-        if cand.is_dir():
-            return cand / "index.html"
-        if cand.suffix:
-            return cand
-        if clean and (cand.parent / (cand.name + ".html")).exists():
-            return cand.parent / (cand.name + ".html")
-        return cand / "index.html"
 
     pages = []
     for page in sorted(REPO.glob("site/**/*.html")):
@@ -384,16 +478,16 @@ def check_links(problems):
                 if frag and frag not in ids:
                     problems.append(f"site: {page.name} -> {href!r} has no target id in that page")
                 continue
-            tgt = _target(route)
+            tgt = resolve_site_route(route, routes)
             if not _readable(tgt):
                 problems.append(
-                    f"site: {page.relative_to(REPO)} -> {href!r} resolves to "
-                    f"{tgt.relative_to(REPO)} which a clone will not have (is the route wired?)")
+                    f"site: {_rel(page)} -> {href!r} resolves to "
+                    f"{_rel(tgt)} which a clone will not have (is the route wired?)")
             elif frag:
                 ids = set(re.findall(r'id="([^"]+)"', tgt.read_text(encoding="utf-8", errors="replace")))
                 if frag not in ids:
                     problems.append(
-                        f"site: {page.relative_to(REPO)} -> {href!r} has no target id in {tgt.name}")
+                        f"site: {_rel(page)} -> {href!r} has no target id in {tgt.name}")
     return n
 
 
@@ -409,7 +503,7 @@ def check_claims(problems):
         if "NOT SUPPORTED" in text and "volcanic" in text.lower():
             if "pre-specified" not in text and "pre-registered" not in text:
                 problems.append(
-                    f"claims: {path.relative_to(REPO)} states a v3 verdict without the "
+                    f"claims: {_rel(path)} states a v3 verdict without the "
                     f"pre-specification caveat"
                 )
 
@@ -426,10 +520,57 @@ def check_lens_wording(problems):
         text = _probe(path.read_text(encoding="utf-8", errors="replace"))
         for m in LENS_OVERCLAIM.finditer(text):
             problems.append(
-                f"claims: {path.relative_to(REPO)} calls lenses/axis sets "
+                f"claims: {_rel(path)} calls lenses/axis sets "
                 f"{m.group(0)!r} independent — they share the core metrics, so they are correlated "
                 f"by construction and cannot confirm each other"
             )
+
+
+def check_site_markup(problems):
+    """Every tracked HTML page must be tag-balanced.
+
+    A defect class the link check is blind to: a wrong number of closing tags still contains
+    perfectly resolvable links, so it passes `check_links` and renders as a broken page. `site/` is
+    the surface a judge actually opens, and it is edited by hand, so it is worth a parser.
+    """
+    from html.parser import HTMLParser
+
+    void = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta",
+            "param", "source", "track", "wbr"}
+
+    class Balance(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=True)
+            self.stack, self.errors = [], []
+
+        def handle_starttag(self, tag, attrs):
+            if tag not in void:
+                self.stack.append((tag, self.getpos()[0]))
+
+        def handle_endtag(self, tag):
+            if tag in void:
+                return
+            if not self.stack:
+                self.errors.append(f"</{tag}> on line {self.getpos()[0]} closes nothing")
+                return
+            top, line = self.stack.pop()
+            if top != tag:
+                self.errors.append(
+                    f"</{tag}> on line {self.getpos()[0]} closes <{top}> opened on line {line}")
+
+    n = 0
+    for page in sorted(REPO.glob("site/**/*.html")):
+        if TRACKED is not None and page.relative_to(REPO).as_posix() not in TRACKED:
+            continue
+        n += 1
+        parser = Balance()
+        parser.feed(page.read_text(encoding="utf-8", errors="replace"))
+        rel = _rel(page)
+        for e in parser.errors[:5]:
+            problems.append(f"markup: {rel}: {e}")
+        for tag, line in parser.stack[:5]:
+            problems.append(f"markup: {rel}: <{tag}> opened on line {line} is never closed")
+    return n
 
 
 def main(argv=None):
@@ -442,12 +583,14 @@ def main(argv=None):
     n_links = check_links(problems)
     check_claims(problems)
     check_lens_wording(problems)
+    n_pages = check_site_markup(problems)
 
     if not quiet:
         print(f"doc consistency: {tests} tests across {modules} modules, {oracles} oracles, "
               f"{sources} catalog sources, {families} descriptor families "
               f"({scalar_range[0]}-{scalar_range[1]} scalars), version {ver}, "
-              f"{n_links} relative links, {len(CANONICAL)} canonical documents")
+              f"{n_links} relative links, {n_pages} HTML pages, "
+              f"{len(CANONICAL)} canonical documents")
     if problems:
         print(f"\n{len(problems)} documentation-consistency problem(s):")
         for p in problems:

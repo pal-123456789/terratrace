@@ -5,7 +5,7 @@ screening**. These checks establish software/metric correctness, data handling,
 sensitivity, and provenance. They do **not** establish rover traversability,
 autonomy, geologic equivalence, site access, or mission readiness.
 
-## Test suite (863 fixtures, `tests/run_tests.py`)
+## Test suite (891 fixtures, `tests/run_tests.py`)
 
 | Area | What the fixtures prove |
 |---|---|
@@ -125,9 +125,35 @@ two-quantile call (α>0): a 96×96 study dropped from ~12 s to ~0.3 s (**~40× f
 with **bit-identical** outputs — verified by unchanged `relief` arrays and an
 unchanged study `package_hash`. Performance is now characterised, not assumed.
 
-## Independent cross-checks (recommended on real runs)
+## Independent cross-checks
 
-- Recompute slope/relief for a sample window in an independent GIS and compare.
+Two cross-checks have been **performed**, not merely recommended. Both are reproducible from
+the repository and both record what they found, including the parts that were inconvenient.
+
+**The Earth DEM from a second mirror** (`scripts/verify_earth_mirror.py`). The headline Earth
+path reads ESA Copernicus GLO-30 straight from the public AWS COG mosaic, keyless. Microsoft
+Planetary Computer — a NASA Space Apps Global Offer — publishes the same ESA product from Azure
+behind a public STAC API that needs no account. The script asks that API which item covers the
+tile, so the mirror's own index decides what is compared, then reads the same tile from both and
+compares the numbers. Result: **every one of the tile's 12,960,000 elevation values is identical**,
+and the two *files* are **not** byte-identical — they differ by 360 bytes of container metadata.
+Both halves matter. A check that compared file sizes would have called this a data disagreement; a
+check that compared filenames would have called it a match without looking. The record is
+`artifacts/mirror_check/earth_cop30_mirror.json`, and `tests/test_earth_mirror.py` holds the
+decision rule that separates the two cases, including that a network failure is reported as
+BLOCKED and never as agreement. This is a provenance fact — a second host for one product — and
+**not** independent corroboration: the Azure copy is the same ESA product, and the record says so.
+
+**The reprojection against closed-form geodesy** (`scripts/reproject_analytic_check.py`). An
+azimuthal-equidistant projection has an exact defining property — the distance from the projection
+centre to any projected point *is* the geodesic distance — so the engine's reprojection is compared
+against mathematics rather than against a second wrapper around the same GDAL library. See
+[INDEPENDENT-GIS-REPRODUCTION.md](INDEPENDENT-GIS-REPRODUCTION.md), which also records that this
+exercise caught the author's own arithmetic and not the code's.
+
+Recommended on real runs, and not yet done:
+
+- Re-derive slope/relief for a sample window in an independent GIS and compare.
 - Confirm each product's CRS/bounds against its label (captured in `sources.lock.yml`).
 - Inspect `scripts/inspect_study.py` output for degeneracy (zero-fraction, valid
   fraction, non-finite or all-zero vectors).

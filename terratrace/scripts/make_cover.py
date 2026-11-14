@@ -187,7 +187,7 @@ fig.add_artist(plt.Line2D([0.045, 0.955], [0.145, 0.145], color=RULE, linewidth=
 
 # ---------------------------------------------------------------- footer
 fig.text(0.045, 0.108, "roughness tracks the class; volcanic origin does not", color=INK, fontsize=15, fontweight="bold", ha="left", va="center", family="DejaVu Sans")
-fig.text(0.045, 0.062, "863 offline tests  ·  51 scientific-correctness oracles  ·  15 cited sources  ·  MIT", color=MUTE, fontsize=11.5, ha="left", va="center", family="DejaVu Sans")
+fig.text(0.045, 0.062, "891 offline tests  ·  51 scientific-correctness oracles  ·  15 cited sources  ·  MIT", color=MUTE, fontsize=11.5, ha="left", va="center", family="DejaVu Sans")
 fig.text(0.955, 0.062, "Morphology only. No traversability, site-access, geologic-equivalence or mission-readiness claim.",
          color=WARM, fontsize=11, ha="right", va="center", family="DejaVu Sans")
 
