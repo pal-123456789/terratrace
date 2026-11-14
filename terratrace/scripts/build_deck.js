@@ -359,7 +359,7 @@ s9.addText("Open, and named rather than hidden", { x: 7.02 + 0.3, y: 2.02, w: 5.
 s9.addText([
   { text: "Two descriptors re-derived independently; no external reviewer yet.", options: { bullet: true, breakLine: true } },
   { text: "No demo video; the script for it ships in the repository.", options: { bullet: true, breakLine: true } },
-  { text: "All six lunar sites screened and the answer survives the DEM error ensemble — but it is exploratory, and the roughest sites have no close match.", options: { bullet: true, breakLine: true } },
+  { text: "Lunar screening is exploratory and its three declared axes correlate at r ≈ 1.0, so it is a one-dimensional roughness screen, not three independent lines of evidence.", options: { bullet: true, breakLine: true } },
   { text: "No external user walkthrough yet; the boundary is argued, not tested.", options: { bullet: true } },
 ], { x: 7.02 + 0.3, y: 2.34, w: 5.1, h: 1.5, fontFace: BODY, fontSize: 11, color: MUTE, lineSpacing: 15, margin: 0, isTextBox: true, paraSpaceAfter: 7 });
 // 3.98, not 3.9: the bullet block above ends near 3.8" and a caption inside that footprint is

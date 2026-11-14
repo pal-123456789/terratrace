@@ -85,8 +85,14 @@ def test_the_count_patterns_catch_stale_prose_and_ignore_commands():
 
     assert src_pat.search("a 13-product catalog").group(1) == "13"
     assert src_pat.search("13-source registry").group(1) == "13"
+    assert src_pat.search("14 catalogued products").group(1) == "14"
     assert src_pat.search("COP30 product") is None
     assert src_pat.search("GLO-30 tiles") is None
+    # a UNIT is not an adjective: these are measurements, not counts of sources. The pattern read
+    # them as counts the first time such a phrase was written in this repository's own prose.
+    for measured in ("a 40 MB product", "30 m resolution products", "1 km products",
+                     "40 MB of raster products"):
+        assert src_pat.search(measured) is None, f"{measured!r} was read as a source count"
 
     # "# 891 fixtures" is how two canonical pages stated the test count, and the pattern above —
     # which needs the word `tests` to follow the number — never saw either, so both sat stale.

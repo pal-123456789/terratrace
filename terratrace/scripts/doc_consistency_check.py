@@ -155,7 +155,11 @@ COUNT_RES = {
     # one optional adjective is allowed ("15 cited sources", "14 catalogued products"): the old
     # pattern only matched the bare form, so a slide shipped saying "14 catalogued products" while
     # the registry held 15, and the guard that exists to catch exactly that did not fire.
-    "source count": r"\b(\d+)[-\s](?:[\w'-]+\s+)?(?:source|product)s?\b",
+    # ...but a UNIT is not an adjective. "a 40 MB product", "30 m resolution products" and
+    # "1 km products" are measurements, not counts of sources, and the widened pattern read them as
+    # counts -- it fired on this repository's own prose the first time such a phrase was written.
+    "source count": r"\b(\d+)[-\s](?!(?i:MB|GB|KB|TB|MiB|GiB|KiB|px|deg|ha|kg|m|km|cm|mm|s|min|h)\b)"
+                    r"(?:[\w'-]+\s+)?(?:source|product)s?\b",
     # the module and family counts drifted silently before these existed: "854 tests across 91
     # modules" was written when the tree had 92, and they were caught by a reader, not by CI.
     # (Numbers here are a dated quote about past drift, not a current count — do not update them.)
