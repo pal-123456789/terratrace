@@ -152,6 +152,7 @@ CANONICAL = [
     ROOT / "scripts" / "build_atlas_page.py",
     ROOT / "docs" / "DISCOVERY-ATLAS.md",
     ROOT / "docs" / "AXIS-PROBE.md",
+    ROOT / "docs" / "SUBMISSION.md",
     # the probe driver prints the numbers the write-up quotes, so it is prose too
     ROOT / "scripts" / "lunar_axis_probe.py",
     REPO / "site" / "atlas" / "index.html",
@@ -613,16 +614,20 @@ def check_axis_probe(problems):
          ctl["draws"], 0),
         ("random control mean changed cells", re.compile(r"mean cells changed \|\s*\*{0,2}(\d+\.\d+)"),
          ctl["mean_changed_cells"], 0.01),
+        # The submission deck quotes the same control. A wrong number THERE is the M8b failure mode --
+        # a number in a shipped artefact that nothing read -- so the deck generator is scanned too.
+        ("control mean on a slide", re.compile(r"(\d+\.\d\d) of 18 cells"),
+         ctl["mean_changed_cells"], 0.01),
         ("random control median", re.compile(r"\| median \|\s*(\d+)"), ctl["median_changed_cells"], 0),
         ("random control p05", re.compile(r"percentile \|\s*(\d+)\s*[–-]\s*(\d+)"),
          ctl["p05"], 0),
         ("NaN audit affected", re.compile(r"\*{0,2}(\d+) of the \d+\*{0,2} bank scalars hit"),
          nan["n_descriptors_affected"], 0),
     ]
-    # Scoped to the ONE document this check is about. A loose pattern like "(\d+) draws" scanned
-    # across every canonical document matched "7 of 6 draws" in VALIDATION.md and reported it as a
+    # Scoped to the documents this check is about. A loose pattern like "(\d+) draws" scanned across
+    # every canonical document matched "7 of 6 draws" in VALIDATION.md and reported it as a
     # disagreement with this record -- a false positive that would have made the check untrustworthy.
-    for path in [ROOT / "docs" / "AXIS-PROBE.md"]:
+    for path in [ROOT / "docs" / "AXIS-PROBE.md", ROOT / "scripts" / "build_submission_deck.js"]:
         if not path.exists():
             continue
         text = _probe(path.read_text(encoding="utf-8", errors="replace"))
