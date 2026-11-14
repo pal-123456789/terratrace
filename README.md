@@ -15,7 +15,7 @@ This repository holds two things:
 
 | Path | What it is |
 |---|---|
-| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across six robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **918 tests**, no network required. |
+| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across six robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **930 tests**, no network required. |
 | `site/` | A 3D scroll-animated website telling the project story — live at **<https://terratrace.fit>**. |
 
 **Project deck — 10 slides.** [PDF](TerraTrace-deck.pdf) · [PowerPoint](TerraTrace-deck.pptx) — the whole project: the question, the pipeline across five bodies, the measurement layer, the benchmark that made us withdraw our own finding, the result, the verification evidence, the data path, the claim firewall and the open items.
@@ -89,7 +89,7 @@ example — are kept verbatim under `terratrace/docs/` so the audit trail is int
 ```bash
 cd terratrace
 pip install -r requirements.txt            # core (NumPy only)
-python tests/run_tests.py                   # 918 fixtures, offline
+python tests/run_tests.py                   # 930 fixtures, offline
 python scripts/run_validation.py            # scientific-correctness suite
 python -m terratrace.cli --out artifacts    # synthetic study
 python -m terratrace.build_viewer           # viewer/index.html

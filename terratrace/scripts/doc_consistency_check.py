@@ -123,6 +123,9 @@ CANONICAL = [
     # this one publishes the mirror numbers (3600x3600, 12,960,000 values, a 360-byte delta) into a
     # page readers check, so it is prose in the same sense the deck generators are
     ROOT / "scripts" / "verify_earth_mirror.py",
+    # and this one publishes the redundancy numbers (effective rank, participation ratio, fitted
+    # rho) that the lunar pages and both decks quote, so it is audited the same way
+    ROOT / "scripts" / "dependence_audit.py",
 ]
 
 # dated records: exempt from the count checks

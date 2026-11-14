@@ -96,25 +96,65 @@ withdrawal of the Mars claim in v2.
 
 ## The redundancy finding, which is the more important result
 
-The three declared axes turn out to be **one axis measured three ways**:
+The three declared axes turn out to be **one axis measured three ways**, and this is now a derived
+result rather than a correlation. `scripts/dependence_audit.py` produces
+`artifacts/dependence/dependence_audit.json`.
 
-| pair | Pearson (500 m) | Spearman (500 m) | Pearson (1000 m) |
-|---|---|---|---|
-| mean slope · mean 3×3 relief | **+1.000** | **+1.000** | +0.998 |
-| mean slope · elevation std | +0.998 | **+1.000** | +0.999 |
-| mean 3×3 relief · elevation std | +0.998 | **+1.000** | +0.997 |
+### It has a mechanism, not just a coefficient
 
-and dropping any single axis leaves the non-dominated set unchanged at every site and every support.
+`slope_deg` is `degrees(arctan(|∇z|))` from central differences, and `relief(window=3, alpha=0)` is
+the 3×3 max-minus-min. On a locally planar surface with gradient `(a, b)` and cell spacing `d`, the
+max-minus-min over the stencil is `2d(|a| + |b|)` — the per-axis extents **add**, they do not
+compose — while `2d·tan(slope) = 2d·√(a²+b²)`. So
 
-So "non-dominated on three axes at every support" is, on this panel, a **one-dimensional** statement:
-the candidates are ordered along a single roughness/relief gradient, and the survivor is the least
+    relief = 2 d · tan(slope) · ρ,        ρ = (|a| + |b|) / √(a² + b²)  ∈ [1, √2]
+
+**ρ depends only on the gradient's direction, not its magnitude or the cell size.** The two
+descriptors are therefore functions of the same quantity and cannot be independent evidence. The
+relation was checked against the engine's own `slope_deg` and `relief` on synthetic planes at six
+gradients: worst error **4.4 × 10⁻¹⁶ m** in relief and **1.4 × 10⁻¹⁴ deg** in slope, with observed
+ρ spanning exactly **[1.0000, 1.4142]** — the provable band, attained at the axis-aligned and
+diagonal orientations respectively.
+
+### The panel agrees with the algebra
+
+Over the pool the frontier actually decides between (the seven Earth candidates), at every support:
+
+| support | effective rank | participation ratio | condition number | Pearson slope·relief | Spearman (all pairs) | planar fit R² | fitted ρ |
+|---|---|---|---|---|---|---|---|
+| 500 m | **1** | 1.036 | 43.9 | +0.9969 | **+1.000** | 0.9957 | **1.258** |
+| 750 m | **1** | 1.036 | 33.9 | +0.9948 | +0.967–1.000 | 0.9921 | **1.250** |
+| 1000 m | **1** | 1.001 | 87.8 | +0.9990 | **+1.000** | 0.9978 | **1.277** |
+
+The fitted ρ landing inside `[1, √2]` is an independent check on the derivation: a one-parameter fit
+to real terrain recovers the direction factor the algebra predicts, and it recovers it at every
+support. The cross-body pool (the six lunar references added as peer units) is rank 1 as well.
+
+At the pixel level inside the windows, Pearson(slope, relief) is **+0.9835 … +0.9853** and the
+measured ρ has median **1.27–1.285** with **61–64 %** of pixels inside the provable band. The
+remainder is curvature inside the 3×3 window, which is exactly what the derivation says should break
+it: on a paraboloid the relation degrades monotonically as the curvature coefficient rises.
+
+### And the recommendation does not depend on any of them
+
+Dropping any single axis leaves the non-dominated set **unchanged at every site and every support**
+(`leave_one_axis_out`, both in the v2 panel artifact and re-derived here). A one-dimensional ordering
+is invariant to which of its redundant names you keep.
+
+### What this means, stated plainly
+
+"Non-dominated on three axes at every support" is, on this panel, a **one-dimensional** statement:
+the candidates are ordered along a single roughness/relief gradient and the survivor is the least
 rough of the seven relative to each lunar reference. Three correlated roughness measures must not be
-read as three independent dimensions of geological evidence, and the panel's robustness is explained
-by that — a one-dimensional ordering is far more stable than a genuine three-dimensional Pareto
-front would be.
+read as three independent dimensions of geological evidence. The panel's robustness is *explained* by
+this, and explaining it makes the result **smaller, not wrong** — a one-dimensional ordering is far
+more stable than a genuine three-dimensional Pareto front would be, which is consistent with the
+6/6 ensemble and the 18/18 panel agreement rather than in tension with it.
 
-This is recorded in the artifact itself (`axis_correlations`, `leave_one_axis_out` per site per
-support), not only in prose.
+**The honest consequence for a future panel:** it needs an axis that is not a roughness restatement
+before it can claim multi-dimensional evidence. Directional fabric or anisotropy is the obvious
+candidate, and it must arrive with its own hypothesis, unit and synthetic validation — not as a
+fourth name for the same gradient.
 
 **Boundary.** An absolute adequacy statement is still not available. The 50 % worst-axis distance
 remains a descriptive label, not a validated threshold, and `LUNAR-DEMONSTRATION.md` says so.

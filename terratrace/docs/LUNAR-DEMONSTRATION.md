@@ -142,23 +142,28 @@ reference in the single-site run.
 
 ### The three axes are one axis, and this is the more important result
 
-The pairwise correlations across the panel are near-perfect:
+This is now derived, not merely measured. `slope_deg` is `degrees(arctan(|∇z|))` and
+`relief(window=3, alpha=0)` is the 3×3 max-minus-min, so on a locally planar surface
 
-| pair | Pearson (500 m) | Spearman (500 m) | Pearson (1000 m) |
-|---|---|---|---|
-| mean slope · mean 3×3 relief | **+1.000** | **+1.000** | +0.998 |
-| mean slope · elevation std | +0.998 | **+1.000** | +0.999 |
-| mean 3×3 relief · elevation std | +0.998 | **+1.000** | +0.997 |
+    relief = 2 d · tan(slope) · ρ,    ρ = (|a| + |b|) / √(a² + b²) ∈ [1, √2]
 
-and **dropping any single axis leaves the non-dominated set unchanged** at every site and support
-(`leave_one_axis_out` in the artifact).
+with ρ depending **only on the gradient's direction**. The two descriptors are functions of the same
+quantity, and their correlation is algebra rather than a discovery. Verified against the engine's own
+functions on synthetic planes: worst error **4.4 × 10⁻¹⁶ m** in relief, **1.4 × 10⁻¹⁴ deg** in
+slope, with observed ρ spanning exactly the provable **[1.0000, 1.4142]**.
+
+On this panel the axes span **one dimension at every support** (effective rank 1; participation
+ratio 1.001–1.036; Pearson up to +0.999, Spearman +1.000), the one-parameter planar fit recovers
+**ρ = 1.25–1.28 — inside the provable band** — and **dropping any single axis leaves the
+non-dominated set unchanged** at every site and support.
 
 So "non-dominated on three axes at every support" is, on this panel, a **one-dimensional** statement:
 the candidates are ordered along a single roughness/relief gradient and the survivor is the least
 rough of the seven relative to each lunar reference. Three correlated roughness measures must not be
 read as three independent dimensions of geological evidence — and the robustness reported below is
 explained by that, because a one-dimensional ordering is far more stable than a genuine
-three-dimensional Pareto front. Recorded in the artifact, not only here.
+three-dimensional Pareto front. Recorded in `artifacts/dependence/dependence_audit.json` and derived
+in [LUNAR-PROTOCOL-v2.md](LUNAR-PROTOCOL-v2.md), not only here.
 
 ### ...but "non-dominated" is still not "a good match"
 
