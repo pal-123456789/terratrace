@@ -1,0 +1,3162 @@
+{
+  "provenance": {
+    "status": "EXPLORATORY SENSITIVITY PROBE",
+    "not": "not a new panel, not a pre-registration, not independent confirmation: the same 18 cells were examined in lunar panel v2 before this probe existed",
+    "protocol": "config/lunar_axis_probe_v1.yml (committed BEFORE this run)",
+    "protocol_sha256": "df925d05ae491815e0879b5e33072caae81c3509b6dc9a24abdd18e58dc420cb",
+    "panel": "artifacts/lunar_sites_v2/lunar_sites_v2.json",
+    "panel_sha256": "fb531fa594c87d6dca09d1342e44d1c7118660ce88d5683f1be50d4f930ae195",
+    "footprint_m": 9000.0,
+    "supports_m": [
+      500.0,
+      750.0,
+      1000.0
+    ],
+    "bank": "terratrace.descriptors.descriptor_bank(z, dx=support, window=5)",
+    "bank_scalars_common_to_all_units": 184,
+    "statistic": "adjusted R2 of the descriptor on the three declared axes, per 8-unit cell",
+    "chance_level_raw_r2": 0.42857142857142855
+  },
+  "invariance": {
+    "family": "z = g*(x*cos(theta) + y*sin(theta)); g=0.30, n=18, dx=500",
+    "tolerance_absolute": 1e-09,
+    "max_abs_change": {
+      "theta_plus_90": {
+        "mean_slope_deg": 3.552713678800501e-15,
+        "mean_relief3_m": 1.1368683772161603e-13,
+        "elev_std_m": 1.1368683772161603e-13
+      },
+      "ninety_minus_theta": {
+        "mean_slope_deg": 7.105427357601002e-15,
+        "mean_relief3_m": 5.684341886080802e-14,
+        "elev_std_m": 2.2737367544323206e-13
+      },
+      "theta_plus_180": {
+        "mean_slope_deg": 3.552713678800501e-15,
+        "mean_relief3_m": 5.684341886080802e-14,
+        "elev_std_m": 2.2737367544323206e-13
+      },
+      "theta_plus_45": {
+        "mean_slope_deg": 7.105427357601002e-15,
+        "mean_relief3_m": 124.26406871192853,
+        "elev_std_m": 1.1368683772161603e-13
+      }
+    },
+    "invariant_operations": [
+      "ninety_minus_theta",
+      "theta_plus_180",
+      "theta_plus_90"
+    ],
+    "not_invariant_operations": [
+      "theta_plus_45"
+    ],
+    "claim": "the three declared axes are exactly invariant under a quarter-turn rotation and under reflection about the diagonal, and NOT under a 45-degree rotation (relief moves through the bounded rho factor)",
+    "bank_quarter_turn": {
+      "what": "of the common bank scalars, those that are NOT invariant under theta -> theta+90 on a plane, relative tolerance 1e-9",
+      "n_checked": 180,
+      "n_changed": 48,
+      "changed": {
+        "/anisotropy/orientation_deg": 90000000000000.0,
+        "/convergence/divergent_fraction": 39062500000.0,
+        "/spectral/spectral_slope": 81.22761539961674,
+        "/convergence/convergent_fraction": 0.717948717948718,
+        "/roughness_length/rms_height": 0.424104622965543,
+        "/spectral/rough_long": 0.31422602033194524,
+        "/ruggedness/p90": 0.2806494037305594,
+        "/ruggedness/mean": 0.18515232725397263,
+        "/ruggedness/p50": 0.1743703853557636,
+        "/kh_roughness/profile_loglog_slope": 0.17185550924272167,
+        "/relief/std": 0.16452134570547125,
+        "/spectral/roughness_rms": 0.15745011501817027,
+        "/ruggedness/std": 0.1182087804025859,
+        "/tpi_dispersion": 0.11605446630344605,
+        "/ruggedness/p10": 0.1016845989170083,
+        "/spectral/rough_short": 0.08863589545949932,
+        "/fractal/box_count_dimension": 0.0436073337460412,
+        "/spectral/rough_mid": 0.026331863389530048,
+        "/terrain_ruggedness_index/std": 0.024931236230458727,
+        "/kh_roughness/baseline_roughness_fine": 0.013027551975274566,
+        "/convergence/convergence_std": 0.011717213129861974,
+        "/slope/std": 0.005151367738213165,
+        "/fractal/r2": 0.004621402639291715,
+        "/kh_roughness/baseline_roughness_coarse": 0.0032568879938186415,
+        "/openness_difference/slopepos_mean": 0.002412336448568241,
+        "/convergence/convergence_mean": 0.001942890293094024,
+        "/hypsometry/skew": 0.001253757109165404,
+        "/normal_roughness/roughness_p90": 0.0007771561172376096,
+        "/fabric_eigen/eig2": 0.0002806878902098856,
+        "/normal_roughness/roughness_mean": 0.00018263854077938538,
+        "/anisotropy/isotropy": 0.00013265684553575465,
+        "/aspect_dispersion": 0.00011102230246251565,
+        "/normal_roughness/roughness_median": 0.00011102230246251565,
+        "/surface_area_ratio/std": 4.1376241988961636e-05,
+        "/vector_ruggedness/mean": 2.42861286636753e-05,
+        "/vector_ruggedness/std": 1.9549340739251083e-05,
+        "/mean_curvature/std": 2.030683508138221e-06,
+        "/mean_curvature/p10": 1.8189894035458565e-06,
+        "/mean_curvature/p90": 1.8189894035458565e-06,
+        "/plan_curvature/p10": 1.4983752377012158e-06,
+        "/plan_curvature/p90": 1.2119069332176551e-06,
+        "/plan_curvature/std": 1.1581120179645055e-06,
+        "/profile_curvature/p10": 1.0059066080607892e-06,
+        "/profile_curvature/p90": 1.0058058398089953e-06,
+        "/profile_curvature/std": 8.745884755772661e-07,
+        "/mean_curvature/mean": 1.1990408665951688e-07,
+        "/profile_curvature/mean": 7.283063041541026e-08,
+        "/plan_curvature/mean": 6.710207076595906e-08
+      },
+      "why_it_matters": "a descriptor invariant under the quarter turn cannot be shown non-redundant by this symmetry argument, so this list bounds what the analytic half can predict"
+    }
+  },
+  "nan_audit": {
+    "what": "cells where the ENGINE-STYLE fractional distance to the reference is undefined because the reference value is exactly 0",
+    "n_descriptors_affected": 12,
+    "n_descriptors_in_pool": 184,
+    "affected": {
+      "/geomorphons/composition/flat": 18,
+      "/geomorphons/composition/pit": 18,
+      "/variogram/nugget": 18,
+      "/geomorphons/composition/shoulder": 12,
+      "/landform_fraction/valley": 7,
+      "/tpi_landform/composition/flat": 7,
+      "/anisotropy/orientation_deg": 6,
+      "/iwahashi_pike/dominant_class": 5,
+      "/curvature_classes/composition/pit": 4,
+      "/geomorphons/composition/peak": 3,
+      "/geomorphons/composition/ridge": 2,
+      "/geomorphons/composition/valley": 1
+    },
+    "note": "all three declared axes are strictly positive so the published panel is unaffected; the defect is latent until a compositional fraction is added as an axis"
+  },
+  "pool": {
+    "n_scalars_common": 184,
+    "n_admissible": 142,
+    "excluded": {
+      "cells_with_undefined_spread": 59,
+      "descriptors_not_admissible_in_enough_cells": 42
+    },
+    "min_within_cell_cv": 0.1,
+    "min_admissible_cells": 16
+  },
+  "descriptors": [
+    {
+      "key": "/variogram/nugget",
+      "median_adjusted_r2": -0.5111693809092953,
+      "max_adjusted_r2": 0.8364257050679313,
+      "median_raw_r2": 0.13647463948040267,
+      "admissible_cells": 18,
+      "median_cv": 2.6457513110645903,
+      "classification": "NON_REDUNDANT"
+    },
+    {
+      "key": "/anisotropy/orientation_deg",
+      "median_adjusted_r2": -0.26185031509464507,
+      "max_adjusted_r2": 0.6949390737125261,
+      "median_raw_r2": 0.27894267708877424,
+      "admissible_cells": 18,
+      "median_cv": 0.4946758166952196,
+      "classification": "NON_REDUNDANT"
+    },
+    {
+      "key": "/tpi_landform/composition/upper_slope",
+      "median_adjusted_r2": -0.2582516709906949,
+      "max_adjusted_r2": 0.9081800954913108,
+      "median_raw_r2": 0.2809990451481743,
+      "admissible_cells": 18,
+      "median_cv": 0.2757167861862769,
+      "classification": "NON_REDUNDANT"
+    },
+    {
+      "key": "/geomorphons/composition/ridge",
+      "median_adjusted_r2": -0.1906445650944143,
+      "max_adjusted_r2": 0.601416386785387,
+      "median_raw_r2": 0.3196316770889061,
+      "admissible_cells": 18,
+      "median_cv": 0.9520458024308812,
+      "classification": "NON_REDUNDANT"
+    },
+    {
+      "key": "/curvature_classes/composition/planar",
+      "median_adjusted_r2": -0.18161366819642266,
+      "max_adjusted_r2": 0.36403184020838664,
+      "median_raw_r2": 0.3247921896020442,
+      "admissible_cells": 18,
+      "median_cv": 0.4074431582541834,
+      "classification": "NON_REDUNDANT"
+    },
+    {
+      "key": "/iwahashi_pike/composition/4",
+      "median_adjusted_r2": -0.1438701799022133,
+      "max_adjusted_r2": 0.6091423898486106,
+      "median_raw_r2": 0.3463598971987353,
+      "admissible_cells": 18,
+      "median_cv": 0.47886623822943164,
+      "classification": "NON_REDUNDANT"
+    },
+    {
+      "key": "/multiscale_tpi/composition/upper_slope",
+      "median_adjusted_r2": -0.12387299191204915,
+      "max_adjusted_r2": 0.6050897921868008,
+      "median_raw_r2": 0.35778686176454333,
+      "admissible_cells": 18,
+      "median_cv": 0.5431558621162089,
+      "classification": "NON_REDUNDANT"
+    },
+    {
+      "key": "/tpi_landform/composition/lower_slope",
+      "median_adjusted_r2": -0.10537400229955507,
+      "max_adjusted_r2": 0.6203897688931517,
+      "median_raw_r2": 0.36835771297168285,
+      "admissible_cells": 18,
+      "median_cv": 0.38727385915712254,
+      "classification": "NON_REDUNDANT"
+    },
+    {
+      "key": "/iwahashi_pike/composition/6",
+      "median_adjusted_r2": -0.09306639840278319,
+      "max_adjusted_r2": 0.6036380172545661,
+      "median_raw_r2": 0.3753906294841239,
+      "admissible_cells": 18,
+      "median_cv": 0.4256370366075347,
+      "classification": "NON_REDUNDANT"
+    },
+    {
+      "key": "/multiscale_tpi/composition/lower_slope",
+      "median_adjusted_r2": -0.08631923188900026,
+      "max_adjusted_r2": 0.528341148367107,
+      "median_raw_r2": 0.3792461532062856,
+      "admissible_cells": 18,
+      "median_cv": 0.3023078643323601,
+      "classification": "NON_REDUNDANT"
+    },
+    {
+      "key": "/iwahashi_pike/composition/5",
+      "median_adjusted_r2": -0.05029320280392202,
+      "max_adjusted_r2": 0.7191829127852353,
+      "median_raw_r2": 0.39983245554061597,
+      "admissible_cells": 18,
+      "median_cv": 0.40737584238728775,
+      "classification": "NON_REDUNDANT"
+    },
+    {
+      "key": "/tpi_landform/composition/valley",
+      "median_adjusted_r2": -0.035041669978469914,
+      "max_adjusted_r2": 0.722927936054189,
+      "median_raw_r2": 0.40854761715516,
+      "admissible_cells": 18,
+      "median_cv": 0.17760018539927935,
+      "classification": "NON_REDUNDANT"
+    },
+    {
+      "key": "/fabric_eigen/woodcock_K",
+      "median_adjusted_r2": -0.030287998133885274,
+      "max_adjusted_r2": 0.37640258824249595,
+      "median_raw_r2": 0.4112640010663513,
+      "admissible_cells": 18,
+      "median_cv": 0.8635122507020125,
+      "classification": "NON_REDUNDANT"
+    },
+    {
+      "key": "/drainage/max_acc_fraction",
+      "median_adjusted_r2": -0.013183447272587245,
+      "max_adjusted_r2": 0.5655844135212885,
+      "median_raw_r2": 0.42103803012995017,
+      "admissible_cells": 18,
+      "median_cv": 0.43374376729369063,
+      "classification": "NON_REDUNDANT"
+    },
+    {
+      "key": "/multiscale_tpi/composition/valley",
+      "median_adjusted_r2": 0.0013626412270252297,
+      "max_adjusted_r2": 0.9580038907241228,
+      "median_raw_r2": 0.42935008070115727,
+      "admissible_cells": 18,
+      "median_cv": 0.4547685639384245,
+      "classification": "PARTIALLY_INDEPENDENT"
+    },
+    {
+      "key": "/hypsometric_integral",
+      "median_adjusted_r2": 0.004377016898808539,
+      "max_adjusted_r2": 0.7189006775093423,
+      "median_raw_r2": 0.43107258108503343,
+      "admissible_cells": 18,
+      "median_cv": 0.25421352422155613,
+      "classification": "PARTIALLY_INDEPENDENT"
+    },
+    {
+      "key": "/curvature_classes/composition/pass",
+      "median_adjusted_r2": 0.01922849888860373,
+      "max_adjusted_r2": 0.9035803921078559,
+      "median_raw_r2": 0.4395591422220593,
+      "admissible_cells": 18,
+      "median_cv": 0.4409595206021752,
+      "classification": "PARTIALLY_INDEPENDENT"
+    },
+    {
+      "key": "/melton_relief/elevation_relief_ratio",
+      "median_adjusted_r2": 0.040087371852861375,
+      "max_adjusted_r2": 0.7057968986590526,
+      "median_raw_r2": 0.45147849820163505,
+      "admissible_cells": 18,
+      "median_cv": 0.28577591291198967,
+      "classification": "PARTIALLY_INDEPENDENT"
+    },
+    {
+      "key": "/hypsometry/integral",
+      "median_adjusted_r2": 0.04008737185286637,
+      "max_adjusted_r2": 0.7057968986590495,
+      "median_raw_r2": 0.45147849820163793,
+      "admissible_cells": 18,
+      "median_cv": 0.2857759129119901,
+      "classification": "PARTIALLY_INDEPENDENT"
+    },
+    {
+      "key": "/convergence/convergence_std",
+      "median_adjusted_r2": 0.059512229219654156,
+      "max_adjusted_r2": 0.778115106482292,
+      "median_raw_r2": 0.4625784166969452,
+      "admissible_cells": 18,
+      "median_cv": 0.22371537064160152,
+      "classification": "PARTIALLY_INDEPENDENT"
+    },
+    {
+      "key": "/iwahashi_pike/composition/3",
+      "median_adjusted_r2": 0.07541981344729065,
+      "max_adjusted_r2": 0.8099647441327069,
+      "median_raw_r2": 0.47166846482702324,
+      "admissible_cells": 18,
+      "median_cv": 0.35913259604158376,
+      "classification": "PARTIALLY_INDEPENDENT"
+    },
+    {
+      "key": "/curvature_classes/composition/pit",
+      "median_adjusted_r2": 0.0867194356670663,
+      "max_adjusted_r2": 0.3718558970455923,
+      "median_raw_r2": 0.47812539180975216,
+      "admissible_cells": 18,
+      "median_cv": 0.6772896066397269,
+      "classification": "PARTIALLY_INDEPENDENT"
+    },
+    {
+      "key": "/hypsometry/skew",
+      "median_adjusted_r2": 0.10172972341875497,
+      "max_adjusted_r2": 0.5577992386020356,
+      "median_raw_r2": 0.4867026990964314,
+      "admissible_cells": 18,
+      "median_cv": 3.380306378371956,
+      "classification": "PARTIALLY_INDEPENDENT"
+    },
+    {
+      "key": "/curvature_classes/composition/channel",
+      "median_adjusted_r2": 0.10232413496780418,
+      "max_adjusted_r2": 0.731793966679599,
+      "median_raw_r2": 0.48704236283874525,
+      "admissible_cells": 18,
+      "median_cv": 0.2734023410783931,
+      "classification": "PARTIALLY_INDEPENDENT"
+    },
+    {
+      "key": "/variogram/vario_loglog_slope",
+      "median_adjusted_r2": 0.1453430108013069,
+      "max_adjusted_r2": 0.41770567223257693,
+      "median_raw_r2": 0.5116245776007469,
+      "admissible_cells": 18,
+      "median_cv": 0.18957712471858462,
+      "classification": "PARTIALLY_INDEPENDENT"
+    },
+    {
+      "key": "/aspect_dispersion",
+      "median_adjusted_r2": 0.16133870338164058,
+      "max_adjusted_r2": 0.6394815496562176,
+      "median_raw_r2": 0.5207649733609374,
+      "admissible_cells": 18,
+      "median_cv": 0.32761734664188447,
+      "classification": "PARTIALLY_INDEPENDENT"
+    },
+    {
+      "key": "/iwahashi_pike/texture_mean",
+      "median_adjusted_r2": 0.17181063293140225,
+      "max_adjusted_r2": 0.40675236639973833,
+      "median_raw_r2": 0.5267489331036584,
+      "admissible_cells": 18,
+      "median_cv": 0.35310085395894486,
+      "classification": "PARTIALLY_INDEPENDENT"
+    },
+    {
+      "key": "/landform_fraction/valley",
+      "median_adjusted_r2": 0.18742374048865773,
+      "max_adjusted_r2": 0.48942732579119486,
+      "median_raw_r2": 0.5356707088506616,
+      "admissible_cells": 18,
+      "median_cv": 0.6092278327920693,
+      "classification": "PARTIALLY_INDEPENDENT"
+    },
+    {
+      "key": "/wavelet/detail_loglog_slope",
+      "median_adjusted_r2": 0.18857183190296523,
+      "max_adjusted_r2": 0.7847598391548805,
+      "median_raw_r2": 0.5363267610874087,
+      "admissible_cells": 18,
+      "median_cv": 0.960356508028446,
+      "classification": "PARTIALLY_INDEPENDENT"
+    },
+    {
+      "key": "/geomorphons/composition/footslope",
+      "median_adjusted_r2": 0.19974998145222073,
+      "max_adjusted_r2": 0.879558483429056,
+      "median_raw_r2": 0.5427142751155547,
+      "admissible_cells": 18,
+      "median_cv": 1.3314565205511308,
+      "classification": "PARTIALLY_INDEPENDENT"
+    },
+    {
+      "key": "/multiscale_tpi/composition/upper_slope_ridge",
+      "median_adjusted_r2": 0.20623275572656963,
+      "max_adjusted_r2": 0.6939137431023521,
+      "median_raw_r2": 0.5464187175580397,
+      "admissible_cells": 18,
+      "median_cv": 0.3882901373576604,
+      "classification": "PARTIALLY_INDEPENDENT"
+    },
+    {
+      "key": "/iwahashi_pike/dominant_class",
+      "median_adjusted_r2": 0.2131121692255647,
+      "max_adjusted_r2": 0.9318460045080068,
+      "median_raw_r2": 0.550349810986037,
+      "admissible_cells": 18,
+      "median_cv": 0.6587871605391751,
+      "classification": "PARTIALLY_INDEPENDENT"
+    },
+    {
+      "key": "/iwahashi_pike/composition/2",
+      "median_adjusted_r2": 0.22087541873991107,
+      "max_adjusted_r2": 0.7387378561573914,
+      "median_raw_r2": 0.5547859535656634,
+      "admissible_cells": 18,
+      "median_cv": 0.337786741283034,
+      "classification": "PARTIALLY_INDEPENDENT"
+    },
+    {
+      "key": "/iwahashi_pike/composition/0",
+      "median_adjusted_r2": 0.2336043272134628,
+      "max_adjusted_r2": 0.8199173398067654,
+      "median_raw_r2": 0.5620596155505502,
+      "admissible_cells": 18,
+      "median_cv": 0.45397369591927017,
+      "classification": "PARTIALLY_INDEPENDENT"
+    },
+    {
+      "key": "/geomorphons/composition/slope",
+      "median_adjusted_r2": 0.23801861228225085,
+      "max_adjusted_r2": 0.4884005395070331,
+      "median_raw_r2": 0.5645820641612862,
+      "admissible_cells": 18,
+      "median_cv": 0.9784602136563844,
+      "classification": "PARTIALLY_INDEPENDENT"
+    },
+    {
+      "key": "/slope_area/flint_theta",
+      "median_adjusted_r2": 0.23817878379048918,
+      "max_adjusted_r2": 0.6101174000177226,
+      "median_raw_r2": 0.5646735907374224,
+      "admissible_cells": 18,
+      "median_cv": 0.7647400370438884,
+      "classification": "PARTIALLY_INDEPENDENT"
+    },
+    {
+      "key": "/slope_area/log_ks",
+      "median_adjusted_r2": 0.2675285071524299,
+      "max_adjusted_r2": 0.4956975704533686,
+      "median_raw_r2": 0.5814448612299599,
+      "admissible_cells": 18,
+      "median_cv": 1.7936971483857125,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/iwahashi_pike/composition/7",
+      "median_adjusted_r2": 0.2679304506732023,
+      "max_adjusted_r2": 0.7793884803969865,
+      "median_raw_r2": 0.5816745432418299,
+      "admissible_cells": 18,
+      "median_cv": 0.4273700958171094,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/wavelet/dominant_level",
+      "median_adjusted_r2": 0.2776281536453565,
+      "max_adjusted_r2": 0.9403445046379911,
+      "median_raw_r2": 0.5872160877973466,
+      "admissible_cells": 18,
+      "median_cv": 0.18442777839082938,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/wavelet/energy_by_level/1",
+      "median_adjusted_r2": 0.28527892179509107,
+      "max_adjusted_r2": 0.7950094286719291,
+      "median_raw_r2": 0.5915879553114807,
+      "admissible_cells": 18,
+      "median_cv": 0.5187488567356955,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/anisotropy/isotropy",
+      "median_adjusted_r2": 0.28841744682207165,
+      "max_adjusted_r2": 0.7324619662401928,
+      "median_raw_r2": 0.593381398184041,
+      "admissible_cells": 18,
+      "median_cv": 0.2558900047425078,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/wavelet/energy_by_level/2",
+      "median_adjusted_r2": 0.3121767822186403,
+      "max_adjusted_r2": 0.9077757791081633,
+      "median_raw_r2": 0.6069581612677944,
+      "admissible_cells": 18,
+      "median_cv": 0.31934993016764246,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/wavelet/energy_by_level/3",
+      "median_adjusted_r2": 0.31724351207293666,
+      "max_adjusted_r2": 0.9125646879714837,
+      "median_raw_r2": 0.6098534354702495,
+      "admissible_cells": 18,
+      "median_cv": 0.41876609694329614,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/geomorphons/composition/flat",
+      "median_adjusted_r2": 0.31736129112484424,
+      "max_adjusted_r2": 0.5497776193834668,
+      "median_raw_r2": 0.6099207377856253,
+      "admissible_cells": 18,
+      "median_cv": 1.0520808508062254,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/curvature_classes/composition/ridge",
+      "median_adjusted_r2": 0.3208446774247307,
+      "max_adjusted_r2": 0.6609137550417586,
+      "median_raw_r2": 0.6119112442427033,
+      "admissible_cells": 18,
+      "median_cv": 0.41816250937087407,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/iwahashi_pike/composition/1",
+      "median_adjusted_r2": 0.33536681675669316,
+      "max_adjusted_r2": 0.8497149362396597,
+      "median_raw_r2": 0.6202096095752532,
+      "admissible_cells": 18,
+      "median_cv": 0.46182104882788655,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/anisotropy/strength",
+      "median_adjusted_r2": 0.3437904154816223,
+      "max_adjusted_r2": 0.7985043334863628,
+      "median_raw_r2": 0.625023094560927,
+      "admissible_cells": 18,
+      "median_cv": 0.5458285594672206,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/lacunarity/lacunarity_loglog_slope",
+      "median_adjusted_r2": 0.35545930203397685,
+      "max_adjusted_r2": 0.8593924902199759,
+      "median_raw_r2": 0.6316910297337011,
+      "admissible_cells": 18,
+      "median_cv": 0.414274705901844,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/geomorphons/composition/valley",
+      "median_adjusted_r2": 0.3770618900382023,
+      "max_adjusted_r2": 0.6818837621774816,
+      "median_raw_r2": 0.6440353657361155,
+      "admissible_cells": 18,
+      "median_cv": 1.3377001884583684,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/slope_area/r2",
+      "median_adjusted_r2": 0.3777435061792248,
+      "max_adjusted_r2": 0.8056891062866685,
+      "median_raw_r2": 0.6444248606738427,
+      "admissible_cells": 18,
+      "median_cv": 0.7457615659438532,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/multiscale_tpi/composition/hilltop",
+      "median_adjusted_r2": 0.3885827620294257,
+      "max_adjusted_r2": 0.7406791100085272,
+      "median_raw_r2": 0.6506187211596719,
+      "admissible_cells": 18,
+      "median_cv": 0.23676381454836842,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/hurst_exponent",
+      "median_adjusted_r2": 0.3979401559940838,
+      "max_adjusted_r2": 0.8585436444393687,
+      "median_raw_r2": 0.6559658034251907,
+      "admissible_cells": 18,
+      "median_cv": 0.2355127948433618,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/multiscale_tpi/composition/lower_slope_channel",
+      "median_adjusted_r2": 0.4216108451698677,
+      "max_adjusted_r2": 0.8439124749735327,
+      "median_raw_r2": 0.6694919115256387,
+      "admissible_cells": 18,
+      "median_cv": 0.4137238760289942,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/twi/twi_std",
+      "median_adjusted_r2": 0.42647001041697163,
+      "max_adjusted_r2": 0.9321702654905409,
+      "median_raw_r2": 0.6722685773811267,
+      "admissible_cells": 18,
+      "median_cv": 0.22489332705269738,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/curvature_classes/composition/peak",
+      "median_adjusted_r2": 0.4341592128029506,
+      "max_adjusted_r2": 0.916225972445601,
+      "median_raw_r2": 0.6766624073159717,
+      "admissible_cells": 18,
+      "median_cv": 0.44947113217594636,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/roughness_length/hurst_deviogram",
+      "median_adjusted_r2": 0.44571648982193657,
+      "max_adjusted_r2": 0.8284979524010734,
+      "median_raw_r2": 0.6832665656125352,
+      "admissible_cells": 18,
+      "median_cv": 0.25057480058789006,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/geomorphons/composition/peak",
+      "median_adjusted_r2": 0.4556235672167633,
+      "max_adjusted_r2": 0.6990946218389718,
+      "median_raw_r2": 0.6889277526952933,
+      "admissible_cells": 18,
+      "median_cv": 1.5094687194227583,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/variogram/aniso_ratio",
+      "median_adjusted_r2": 0.4609200792756654,
+      "max_adjusted_r2": 0.819357407440492,
+      "median_raw_r2": 0.691954331014666,
+      "admissible_cells": 18,
+      "median_cv": 0.33345703176083535,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/variogram/range_m",
+      "median_adjusted_r2": 0.5006766716919777,
+      "max_adjusted_r2": 0.9763784066731175,
+      "median_raw_r2": 0.7146723838239872,
+      "admissible_cells": 18,
+      "median_cv": 0.15713484026367724,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/convergence/convergent_fraction",
+      "median_adjusted_r2": 0.5504235958946684,
+      "max_adjusted_r2": 0.9902960325364027,
+      "median_raw_r2": 0.7430991976540963,
+      "admissible_cells": 18,
+      "median_cv": 0.260179664679392,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/convergence/divergent_fraction",
+      "median_adjusted_r2": 0.5504235958946688,
+      "max_adjusted_r2": 0.9902960325364025,
+      "median_raw_r2": 0.7430991976540965,
+      "admissible_cells": 18,
+      "median_cv": 0.24940341243300115,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/iwahashi_pike/convexity_mean",
+      "median_adjusted_r2": 0.5612328226272035,
+      "max_adjusted_r2": 0.9397122709750707,
+      "median_raw_r2": 0.7492758986441164,
+      "admissible_cells": 18,
+      "median_cv": 0.24517092876795676,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/landform_fraction/ridge",
+      "median_adjusted_r2": 0.6031846986149232,
+      "max_adjusted_r2": 0.9500856586830386,
+      "median_raw_r2": 0.7732483992085275,
+      "admissible_cells": 18,
+      "median_cv": 0.5031373677499641,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/roughness_length/roughness_length_m",
+      "median_adjusted_r2": 0.6071455399712462,
+      "max_adjusted_r2": 0.9193639865377786,
+      "median_raw_r2": 0.7755117371264264,
+      "admissible_cells": 18,
+      "median_cv": 0.31712131252506637,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/geomorphons/composition/shoulder",
+      "median_adjusted_r2": 0.6213038974663404,
+      "max_adjusted_r2": 0.8945681992767003,
+      "median_raw_r2": 0.7836022271236232,
+      "admissible_cells": 18,
+      "median_cv": 1.5182771370681638,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/spectral/rough_short",
+      "median_adjusted_r2": 0.6227054322476933,
+      "max_adjusted_r2": 0.8829086599454953,
+      "median_raw_r2": 0.7844031041415389,
+      "admissible_cells": 18,
+      "median_cv": 1.1324598998080353,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/fabric_eigen/woodcock_C",
+      "median_adjusted_r2": 0.6886908926647785,
+      "max_adjusted_r2": 0.7731844507934722,
+      "median_raw_r2": 0.8221090815227305,
+      "admissible_cells": 18,
+      "median_cv": 0.34773982004543935,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/twi/twi_p10",
+      "median_adjusted_r2": 0.6987858450428743,
+      "max_adjusted_r2": 0.7829549115726673,
+      "median_raw_r2": 0.8278776257387854,
+      "admissible_cells": 18,
+      "median_cv": 0.1575982196224213,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/plan_curvature/p50",
+      "median_adjusted_r2": 0.7056786699593813,
+      "max_adjusted_r2": 0.9905180506114859,
+      "median_raw_r2": 0.8318163828339322,
+      "admissible_cells": 17,
+      "median_cv": 2.529079130002469,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/twi/twi_median",
+      "median_adjusted_r2": 0.7168784422622068,
+      "max_adjusted_r2": 0.8283289753668468,
+      "median_raw_r2": 0.838216252721261,
+      "admissible_cells": 18,
+      "median_cv": 0.1420774564763922,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/twi/twi_mean",
+      "median_adjusted_r2": 0.7459569335905905,
+      "max_adjusted_r2": 0.8404518601996771,
+      "median_raw_r2": 0.8548325334803374,
+      "admissible_cells": 18,
+      "median_cv": 0.1407616084277139,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/geomorphons/composition/spur",
+      "median_adjusted_r2": 0.7724831430442871,
+      "max_adjusted_r2": 0.9084825021291296,
+      "median_raw_r2": 0.8699903674538783,
+      "admissible_cells": 18,
+      "median_cv": 1.1312191223842483,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/mean_curvature/mean",
+      "median_adjusted_r2": 0.7869004590493185,
+      "max_adjusted_r2": 0.9967516938306478,
+      "median_raw_r2": 0.8782288337424677,
+      "admissible_cells": 18,
+      "median_cv": 2.7872233342322223,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/twi/twi_p90",
+      "median_adjusted_r2": 0.8129670036946091,
+      "max_adjusted_r2": 0.8392719791639813,
+      "median_raw_r2": 0.8931240021112051,
+      "admissible_cells": 18,
+      "median_cv": 0.14077851939136754,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/plan_curvature/mean",
+      "median_adjusted_r2": 0.8251027894823333,
+      "max_adjusted_r2": 0.9590445413371231,
+      "median_raw_r2": 0.9000587368470476,
+      "admissible_cells": 18,
+      "median_cv": 1.4379156978822254,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/openness_difference/slopepos_mean",
+      "median_adjusted_r2": 0.8451230764977761,
+      "max_adjusted_r2": 0.9975243077228562,
+      "median_raw_r2": 0.911498900855872,
+      "admissible_cells": 18,
+      "median_cv": 3.2784794569576894,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/geomorphons/composition/hollow",
+      "median_adjusted_r2": 0.8687424983793983,
+      "max_adjusted_r2": 0.974772496528184,
+      "median_raw_r2": 0.9249957133596562,
+      "admissible_cells": 18,
+      "median_cv": 1.2231218991790365,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/spectral/rough_mid",
+      "median_adjusted_r2": 0.8955626780866103,
+      "max_adjusted_r2": 0.9887543392295703,
+      "median_raw_r2": 0.9403215303352059,
+      "admissible_cells": 18,
+      "median_cv": 1.1457042950546805,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/tpi_landform/composition/flat",
+      "median_adjusted_r2": 0.9030094317448312,
+      "max_adjusted_r2": 0.9792077864145541,
+      "median_raw_r2": 0.9445768181399036,
+      "admissible_cells": 18,
+      "median_cv": 0.5480292466027668,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/profile_curvature/p10",
+      "median_adjusted_r2": 0.9264115658951212,
+      "max_adjusted_r2": 0.9955484506572083,
+      "median_raw_r2": 0.9579494662257835,
+      "admissible_cells": 18,
+      "median_cv": 1.1643625297824423,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/openness_difference/valley_fraction",
+      "median_adjusted_r2": 0.9394574100665779,
+      "max_adjusted_r2": 0.9574990957543069,
+      "median_raw_r2": 0.9654042343237588,
+      "admissible_cells": 18,
+      "median_cv": 1.8275729858094882,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/mean_curvature/p10",
+      "median_adjusted_r2": 0.9421079629337479,
+      "max_adjusted_r2": 0.9916566847020825,
+      "median_raw_r2": 0.9669188359621417,
+      "admissible_cells": 18,
+      "median_cv": 1.3415986319582356,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/vector_ruggedness/p10",
+      "median_adjusted_r2": 0.9463070462007965,
+      "max_adjusted_r2": 0.9787267901775557,
+      "median_raw_r2": 0.9693183121147408,
+      "admissible_cells": 18,
+      "median_cv": 1.7619266123962252,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/vector_ruggedness/p50",
+      "median_adjusted_r2": 0.9473651946906914,
+      "max_adjusted_r2": 0.9776941673650142,
+      "median_raw_r2": 0.9699229683946808,
+      "admissible_cells": 18,
+      "median_cv": 1.7778682042355913,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/vector_ruggedness/std",
+      "median_adjusted_r2": 0.9543186318664909,
+      "max_adjusted_r2": 0.9977874552757412,
+      "median_raw_r2": 0.9738963610665663,
+      "admissible_cells": 18,
+      "median_cv": 1.7926364513580546,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/normal_roughness/roughness_median",
+      "median_adjusted_r2": 0.9546748198080356,
+      "max_adjusted_r2": 0.9825614190671926,
+      "median_raw_r2": 0.9740998970331631,
+      "admissible_cells": 18,
+      "median_cv": 1.7464233416190638,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/vector_ruggedness/p90",
+      "median_adjusted_r2": 0.9580316024332537,
+      "max_adjusted_r2": 0.9962180274949859,
+      "median_raw_r2": 0.9760180585332878,
+      "admissible_cells": 18,
+      "median_cv": 1.7697865270028856,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/vector_ruggedness/mean",
+      "median_adjusted_r2": 0.9590206106198005,
+      "max_adjusted_r2": 0.9920015633144244,
+      "median_raw_r2": 0.9765832060684574,
+      "admissible_cells": 18,
+      "median_cv": 1.7604767397775667,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/plan_curvature/p90",
+      "median_adjusted_r2": 0.9609315416506481,
+      "max_adjusted_r2": 0.988036904232847,
+      "median_raw_r2": 0.9776751666575132,
+      "admissible_cells": 18,
+      "median_cv": 1.458217187434533,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/openness_difference/ridge_fraction",
+      "median_adjusted_r2": 0.9634065486493376,
+      "max_adjusted_r2": 0.9986131203823925,
+      "median_raw_r2": 0.97908945637105,
+      "admissible_cells": 18,
+      "median_cv": 1.9026587758375042,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/profile_curvature/std",
+      "median_adjusted_r2": 0.9659208798513188,
+      "max_adjusted_r2": 0.9924397010280221,
+      "median_raw_r2": 0.9805262170578964,
+      "admissible_cells": 18,
+      "median_cv": 1.175529859363461,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/normal_roughness/roughness_mean",
+      "median_adjusted_r2": 0.9664123994077755,
+      "max_adjusted_r2": 0.9959325921689439,
+      "median_raw_r2": 0.9808070853758717,
+      "admissible_cells": 18,
+      "median_cv": 1.7134363921414892,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/mean_curvature/std",
+      "median_adjusted_r2": 0.9673814758130257,
+      "max_adjusted_r2": 0.9970708129144766,
+      "median_raw_r2": 0.9813608433217289,
+      "admissible_cells": 18,
+      "median_cv": 1.2343765505222555,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/normal_roughness/roughness_p90",
+      "median_adjusted_r2": 0.9710233991511336,
+      "max_adjusted_r2": 0.9983168990699407,
+      "median_raw_r2": 0.9834419423720764,
+      "admissible_cells": 18,
+      "median_cv": 1.7051166162961158,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/spectral/total_power",
+      "median_adjusted_r2": 0.9719586581924914,
+      "max_adjusted_r2": 0.9983772376444644,
+      "median_raw_r2": 0.9839763761099951,
+      "admissible_cells": 18,
+      "median_cv": 1.8530258965230357,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/tpi_landform/composition/middle_slope",
+      "median_adjusted_r2": 0.9728085084092396,
+      "max_adjusted_r2": 0.9866434327197161,
+      "median_raw_r2": 0.9844620048052798,
+      "admissible_cells": 18,
+      "median_cv": 1.6016112270848823,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/plan_curvature/std",
+      "median_adjusted_r2": 0.9739453305758932,
+      "max_adjusted_r2": 0.999178545991641,
+      "median_raw_r2": 0.985111617471939,
+      "admissible_cells": 18,
+      "median_cv": 1.2777991649422096,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/wavelet/total_detail_energy",
+      "median_adjusted_r2": 0.9774086593268605,
+      "max_adjusted_r2": 0.9991176195187812,
+      "median_raw_r2": 0.9870906624724917,
+      "admissible_cells": 18,
+      "median_cv": 1.7901600834905604,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/variogram/sill",
+      "median_adjusted_r2": 0.9777589086803089,
+      "max_adjusted_r2": 0.9991661997651677,
+      "median_raw_r2": 0.9872908049601765,
+      "admissible_cells": 18,
+      "median_cv": 1.7205767823359857,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/fabric_eigen/eig2",
+      "median_adjusted_r2": 0.9790465341326144,
+      "max_adjusted_r2": 0.9986083117080775,
+      "median_raw_r2": 0.9880265909329226,
+      "admissible_cells": 18,
+      "median_cv": 1.7719124966943844,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/fabric_eigen/eig3",
+      "median_adjusted_r2": 0.9795804930708958,
+      "max_adjusted_r2": 0.9975282079433518,
+      "median_raw_r2": 0.9883317103262261,
+      "admissible_cells": 18,
+      "median_cv": 1.6873923156255837,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/fabric_eigen/isotropy",
+      "median_adjusted_r2": 0.9795804930708958,
+      "max_adjusted_r2": 0.9975282079433518,
+      "median_raw_r2": 0.9883317103262261,
+      "admissible_cells": 18,
+      "median_cv": 1.687392315625584,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/plan_curvature/p10",
+      "median_adjusted_r2": 0.9802225476576633,
+      "max_adjusted_r2": 0.9985733518758044,
+      "median_raw_r2": 0.9886985986615219,
+      "admissible_cells": 18,
+      "median_cv": 1.332234239860204,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/tpi_dispersion",
+      "median_adjusted_r2": 0.9804291853783411,
+      "max_adjusted_r2": 0.9996146184286014,
+      "median_raw_r2": 0.9888166773590521,
+      "admissible_cells": 18,
+      "median_cv": 1.2550258906906366,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/ruggedness/std",
+      "median_adjusted_r2": 0.9815952792580334,
+      "max_adjusted_r2": 0.9993357404074827,
+      "median_raw_r2": 0.9894830167188762,
+      "admissible_cells": 18,
+      "median_cv": 1.230959707036959,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/openness_difference/midslope_fraction",
+      "median_adjusted_r2": 0.9816365481055815,
+      "max_adjusted_r2": 0.992042579392034,
+      "median_raw_r2": 0.9895065989174752,
+      "admissible_cells": 18,
+      "median_cv": 0.263844590671294,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/mean_curvature/p90",
+      "median_adjusted_r2": 0.9830875545441616,
+      "max_adjusted_r2": 0.9993070344394314,
+      "median_raw_r2": 0.9903357454538066,
+      "admissible_cells": 18,
+      "median_cv": 1.3559364209525389,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/kh_roughness/baseline_roughness_fine",
+      "median_adjusted_r2": 0.9859042384168766,
+      "max_adjusted_r2": 0.9993738876524507,
+      "median_raw_r2": 0.991945279095358,
+      "admissible_cells": 18,
+      "median_cv": 1.290422353447414,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/ruggedness/p90",
+      "median_adjusted_r2": 0.9860541164986891,
+      "max_adjusted_r2": 0.9999406185286452,
+      "median_raw_r2": 0.9920309237135366,
+      "admissible_cells": 18,
+      "median_cv": 1.2642379966736765,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/surface_area_ratio/std",
+      "median_adjusted_r2": 0.9866371826918127,
+      "max_adjusted_r2": 0.9985317557429573,
+      "median_raw_r2": 0.9923641043953215,
+      "admissible_cells": 18,
+      "median_cv": 1.6620589116228741,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/ruggedness/p10",
+      "median_adjusted_r2": 0.9891247052320432,
+      "max_adjusted_r2": 0.9984221013643366,
+      "median_raw_r2": 0.9937855458468818,
+      "admissible_cells": 18,
+      "median_cv": 1.302556805179658,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/ruggedness/mean",
+      "median_adjusted_r2": 0.9898866856814631,
+      "max_adjusted_r2": 0.9997819399773324,
+      "median_raw_r2": 0.9942209632465504,
+      "admissible_cells": 18,
+      "median_cv": 1.2889896694002143,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/profile_curvature/p90",
+      "median_adjusted_r2": 0.9910631929624399,
+      "max_adjusted_r2": 0.9995553299315101,
+      "median_raw_r2": 0.9948932531213943,
+      "admissible_cells": 18,
+      "median_cv": 1.3491443032522152,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/ruggedness/p50",
+      "median_adjusted_r2": 0.9919817781928886,
+      "max_adjusted_r2": 0.9996049159489646,
+      "median_raw_r2": 0.995418158967365,
+      "admissible_cells": 18,
+      "median_cv": 1.3241347902204832,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/kh_roughness/baseline_roughness_coarse",
+      "median_adjusted_r2": 0.9928900606089615,
+      "max_adjusted_r2": 0.9998363530482719,
+      "median_raw_r2": 0.9959371774908351,
+      "admissible_cells": 18,
+      "median_cv": 1.491301868402842,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/spectral/rough_long",
+      "median_adjusted_r2": 0.9933345066666568,
+      "max_adjusted_r2": 0.9995910930350874,
+      "median_raw_r2": 0.9961911466666611,
+      "admissible_cells": 18,
+      "median_cv": 1.4362296970285275,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/openness_difference/slopepos_p10",
+      "median_adjusted_r2": 0.9940353769777427,
+      "max_adjusted_r2": 0.9992397751445158,
+      "median_raw_r2": 0.9965916439872815,
+      "admissible_cells": 18,
+      "median_cv": 1.2942455759753178,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/slope/std",
+      "median_adjusted_r2": 0.995293033844918,
+      "max_adjusted_r2": 0.9996134252300649,
+      "median_raw_r2": 0.9973103050542389,
+      "admissible_cells": 18,
+      "median_cv": 1.2416712498938953,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/terrain_ruggedness_index/std",
+      "median_adjusted_r2": 0.9953392099464399,
+      "max_adjusted_r2": 0.9997088237527249,
+      "median_raw_r2": 0.9973366913979657,
+      "admissible_cells": 18,
+      "median_cv": 1.3757569020525566,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/spectral/roughness_rms",
+      "median_adjusted_r2": 0.9953522437372947,
+      "max_adjusted_r2": 0.9998756121419742,
+      "median_raw_r2": 0.9973441392784541,
+      "admissible_cells": 18,
+      "median_cv": 1.4588579634849017,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/roughness_length/rms_height",
+      "median_adjusted_r2": 0.996113702001278,
+      "max_adjusted_r2": 0.9998337568828413,
+      "median_raw_r2": 0.9977792582864446,
+      "admissible_cells": 18,
+      "median_cv": 1.4513340563778954,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/relief/std",
+      "median_adjusted_r2": 0.9962776417509278,
+      "max_adjusted_r2": 0.999528068034111,
+      "median_raw_r2": 0.9978729381433873,
+      "admissible_cells": 18,
+      "median_cv": 1.4370824532460627,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/slope/p10",
+      "median_adjusted_r2": 0.9971716101737009,
+      "max_adjusted_r2": 0.9988716114633177,
+      "median_raw_r2": 0.9983837772421148,
+      "admissible_cells": 18,
+      "median_cv": 1.4396063403485766,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/relief/p10",
+      "median_adjusted_r2": 0.9983369785797251,
+      "max_adjusted_r2": 0.9997301367730094,
+      "median_raw_r2": 0.9990497020455573,
+      "admissible_cells": 18,
+      "median_cv": 1.329328862713922,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/openness_difference/slopepos_std",
+      "median_adjusted_r2": 0.9984989848005112,
+      "max_adjusted_r2": 0.9999155340837829,
+      "median_raw_r2": 0.9991422770288636,
+      "admissible_cells": 18,
+      "median_cv": 1.2635489589892777,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/relief/p90",
+      "median_adjusted_r2": 0.998787702806426,
+      "max_adjusted_r2": 0.9999844685209243,
+      "median_raw_r2": 0.9993072587465291,
+      "admissible_cells": 18,
+      "median_cv": 1.3533088487178089,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/terrain_ruggedness_index/p10",
+      "median_adjusted_r2": 0.9989624504245976,
+      "max_adjusted_r2": 0.9998430052585319,
+      "median_raw_r2": 0.9994071145283415,
+      "admissible_cells": 18,
+      "median_cv": 1.3368532077150164,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/slope/p90",
+      "median_adjusted_r2": 0.9991636880850123,
+      "max_adjusted_r2": 0.9999671814469294,
+      "median_raw_r2": 0.9995221074771499,
+      "admissible_cells": 18,
+      "median_cv": 1.3172791712904797,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/terrain_ruggedness_index/p90",
+      "median_adjusted_r2": 0.9991672302743655,
+      "max_adjusted_r2": 0.9999793870179917,
+      "median_raw_r2": 0.9995241315853517,
+      "admissible_cells": 18,
+      "median_cv": 1.3560787611579634,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/terrain_ruggedness_index/mean",
+      "median_adjusted_r2": 0.9992031430755709,
+      "max_adjusted_r2": 0.9999873748496093,
+      "median_raw_r2": 0.9995446531860406,
+      "admissible_cells": 18,
+      "median_cv": 1.331277633002697,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/terrain_ruggedness_index/p50",
+      "median_adjusted_r2": 0.9992262441768317,
+      "max_adjusted_r2": 0.999998198600627,
+      "median_raw_r2": 0.9995578538153325,
+      "admissible_cells": 18,
+      "median_cv": 1.3580886904940965,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/melton_relief/melton_ruggedness",
+      "median_adjusted_r2": 0.9993660211255293,
+      "max_adjusted_r2": 0.9999546589159458,
+      "median_raw_r2": 0.9996377263574454,
+      "admissible_cells": 18,
+      "median_cv": 1.357067359758597,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/melton_relief/relief_ratio",
+      "median_adjusted_r2": 0.9993660211255293,
+      "max_adjusted_r2": 0.9999546589159458,
+      "median_raw_r2": 0.9996377263574454,
+      "admissible_cells": 18,
+      "median_cv": 1.357067359758597,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/melton_relief/total_relief_m",
+      "median_adjusted_r2": 0.9995081433421494,
+      "max_adjusted_r2": 0.9999428897769416,
+      "median_raw_r2": 0.9997189390526569,
+      "admissible_cells": 18,
+      "median_cv": 1.3693787183048116,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/relief/p50",
+      "median_adjusted_r2": 0.9995120399599244,
+      "max_adjusted_r2": 0.9999636519759385,
+      "median_raw_r2": 0.9997211656913854,
+      "admissible_cells": 18,
+      "median_cv": 1.348764457387707,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/slope/p50",
+      "median_adjusted_r2": 0.9995590599675791,
+      "max_adjusted_r2": 0.9999850620263282,
+      "median_raw_r2": 0.9997480342671881,
+      "admissible_cells": 18,
+      "median_cv": 1.364434727401043,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/relief/mean",
+      "median_adjusted_r2": 0.9996738581624166,
+      "max_adjusted_r2": 0.9999910994400534,
+      "median_raw_r2": 0.9998136332356666,
+      "admissible_cells": 18,
+      "median_cv": 1.3368688448345432,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/anisotropy/mean_roughness",
+      "median_adjusted_r2": 0.9997369061738468,
+      "max_adjusted_r2": 0.9999956242628423,
+      "median_raw_r2": 0.9998496606707696,
+      "admissible_cells": 18,
+      "median_cv": 1.3465673965716816,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/openness_difference/slopepos_p90",
+      "median_adjusted_r2": 0.999747688193239,
+      "max_adjusted_r2": 0.9999769185600388,
+      "median_raw_r2": 0.999855821824708,
+      "admissible_cells": 18,
+      "median_cv": 1.3465622916365179,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/roughness_length/rms_slope",
+      "median_adjusted_r2": 0.9999051100731873,
+      "max_adjusted_r2": 0.9999909502720903,
+      "median_raw_r2": 0.9999457771846785,
+      "admissible_cells": 18,
+      "median_cv": 1.3279595517199358,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/iwahashi_pike/slope_mean",
+      "median_adjusted_r2": 1.0,
+      "max_adjusted_r2": 1.0,
+      "median_raw_r2": 1.0,
+      "admissible_cells": 18,
+      "median_cv": 1.3407880049992549,
+      "classification": "REDUNDANT"
+    },
+    {
+      "key": "/slope/mean",
+      "median_adjusted_r2": 1.0,
+      "max_adjusted_r2": 1.0,
+      "median_raw_r2": 1.0,
+      "admissible_cells": 18,
+      "median_cv": 1.3407880049992549,
+      "classification": "REDUNDANT"
+    }
+  ],
+  "circular_excluded": [
+    {
+      "key": "/anisotropy/orientation_deg",
+      "reason": "circular quantity in degrees; a Euclidean Pareto distance on it is meaningless (359 deg and 1 deg are adjacent) and it is therefore reportable as a finding but not admissible as an axis"
+    }
+  ],
+  "frontier": {
+    "baseline_frontier_size_counts": {
+      "1": 18
+    },
+    "baseline_mismatches": [],
+    "per_descriptor": [
+      {
+        "key": "/variogram/nugget",
+        "median_adjusted_r2": -0.5111693809092953,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/tpi_landform/composition/upper_slope",
+        "median_adjusted_r2": -0.2582516709906949,
+        "changed_cells": 15,
+        "promoted_unit_cells": 30,
+        "promoted": {
+          "earth_harrat_khaybar": 6,
+          "earth_odadahraun": 15,
+          "earth_llano_estacado": 5,
+          "earth_snake_river_plain": 3,
+          "earth_nullarbor": 1
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/geomorphons/composition/ridge",
+        "median_adjusted_r2": -0.1906445650944143,
+        "changed_cells": 10,
+        "promoted_unit_cells": 11,
+        "promoted": {
+          "earth_snake_river_plain": 6,
+          "earth_odadahraun": 3,
+          "earth_deccan_traps": 1,
+          "earth_harrat_khaybar": 1
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/curvature_classes/composition/planar",
+        "median_adjusted_r2": -0.18161366819642266,
+        "changed_cells": 15,
+        "promoted_unit_cells": 27,
+        "promoted": {
+          "earth_deccan_traps": 6,
+          "earth_harrat_khaybar": 4,
+          "earth_snake_river_plain": 10,
+          "earth_nullarbor": 5,
+          "earth_llano_estacado": 1,
+          "earth_odadahraun": 1
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/iwahashi_pike/composition/4",
+        "median_adjusted_r2": -0.1438701799022133,
+        "changed_cells": 17,
+        "promoted_unit_cells": 22,
+        "promoted": {
+          "earth_harrat_khaybar": 11,
+          "earth_deccan_traps": 1,
+          "earth_snake_river_plain": 2,
+          "earth_odadahraun": 3,
+          "earth_llano_estacado": 5
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/multiscale_tpi/composition/upper_slope",
+        "median_adjusted_r2": -0.12387299191204915,
+        "changed_cells": 14,
+        "promoted_unit_cells": 21,
+        "promoted": {
+          "earth_deccan_traps": 6,
+          "earth_harrat_khaybar": 4,
+          "earth_odadahraun": 5,
+          "earth_llano_estacado": 4,
+          "earth_nullarbor": 1,
+          "earth_snake_river_plain": 1
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/tpi_landform/composition/lower_slope",
+        "median_adjusted_r2": -0.10537400229955507,
+        "changed_cells": 14,
+        "promoted_unit_cells": 29,
+        "promoted": {
+          "earth_llano_estacado": 3,
+          "earth_nullarbor": 8,
+          "earth_snake_river_plain": 13,
+          "earth_deccan_traps": 5
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/iwahashi_pike/composition/6",
+        "median_adjusted_r2": -0.09306639840278319,
+        "changed_cells": 16,
+        "promoted_unit_cells": 23,
+        "promoted": {
+          "earth_harrat_khaybar": 11,
+          "earth_nullarbor": 2,
+          "earth_snake_river_plain": 2,
+          "earth_odadahraun": 1,
+          "earth_deccan_traps": 4,
+          "earth_llano_estacado": 3
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/multiscale_tpi/composition/lower_slope",
+        "median_adjusted_r2": -0.08631923188900026,
+        "changed_cells": 17,
+        "promoted_unit_cells": 21,
+        "promoted": {
+          "earth_deccan_traps": 5,
+          "earth_harrat_khaybar": 5,
+          "earth_odadahraun": 5,
+          "earth_nullarbor": 1,
+          "earth_snake_river_plain": 5
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/iwahashi_pike/composition/5",
+        "median_adjusted_r2": -0.05029320280392202,
+        "changed_cells": 17,
+        "promoted_unit_cells": 27,
+        "promoted": {
+          "earth_harrat_khaybar": 5,
+          "earth_snake_river_plain": 1,
+          "earth_llano_estacado": 7,
+          "earth_odadahraun": 7,
+          "earth_deccan_traps": 7
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/tpi_landform/composition/valley",
+        "median_adjusted_r2": -0.035041669978469914,
+        "changed_cells": 16,
+        "promoted_unit_cells": 20,
+        "promoted": {
+          "earth_llano_estacado": 7,
+          "earth_snake_river_plain": 6,
+          "earth_nullarbor": 1,
+          "earth_harrat_khaybar": 2,
+          "earth_odadahraun": 4
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/fabric_eigen/woodcock_K",
+        "median_adjusted_r2": -0.030287998133885274,
+        "changed_cells": 5,
+        "promoted_unit_cells": 7,
+        "promoted": {
+          "earth_odadahraun": 2,
+          "earth_harrat_khaybar": 3,
+          "earth_snake_river_plain": 2
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/drainage/max_acc_fraction",
+        "median_adjusted_r2": -0.013183447272587245,
+        "changed_cells": 17,
+        "promoted_unit_cells": 22,
+        "promoted": {
+          "earth_harrat_khaybar": 15,
+          "earth_llano_estacado": 2,
+          "earth_snake_river_plain": 5
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/multiscale_tpi/composition/valley",
+        "median_adjusted_r2": 0.0013626412270252297,
+        "changed_cells": 17,
+        "promoted_unit_cells": 22,
+        "promoted": {
+          "earth_snake_river_plain": 10,
+          "earth_nullarbor": 5,
+          "earth_odadahraun": 1,
+          "earth_deccan_traps": 1,
+          "earth_harrat_khaybar": 5
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/hypsometric_integral",
+        "median_adjusted_r2": 0.004377016898808539,
+        "changed_cells": 18,
+        "promoted_unit_cells": 54,
+        "promoted": {
+          "earth_harrat_khaybar": 18,
+          "earth_llano_estacado": 18,
+          "earth_nullarbor": 6,
+          "earth_snake_river_plain": 12
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/curvature_classes/composition/pass",
+        "median_adjusted_r2": 0.01922849888860373,
+        "changed_cells": 15,
+        "promoted_unit_cells": 20,
+        "promoted": {
+          "earth_harrat_khaybar": 13,
+          "earth_odadahraun": 5,
+          "earth_llano_estacado": 2
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/melton_relief/elevation_relief_ratio",
+        "median_adjusted_r2": 0.040087371852861375,
+        "changed_cells": 18,
+        "promoted_unit_cells": 50,
+        "promoted": {
+          "earth_harrat_khaybar": 18,
+          "earth_llano_estacado": 17,
+          "earth_nullarbor": 9,
+          "earth_snake_river_plain": 6
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/hypsometry/integral",
+        "median_adjusted_r2": 0.04008737185286637,
+        "changed_cells": 18,
+        "promoted_unit_cells": 50,
+        "promoted": {
+          "earth_harrat_khaybar": 18,
+          "earth_llano_estacado": 17,
+          "earth_nullarbor": 9,
+          "earth_snake_river_plain": 6
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/convergence/convergence_std",
+        "median_adjusted_r2": 0.059512229219654156,
+        "changed_cells": 18,
+        "promoted_unit_cells": 36,
+        "promoted": {
+          "earth_harrat_khaybar": 18,
+          "earth_odadahraun": 15,
+          "earth_snake_river_plain": 3
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/iwahashi_pike/composition/3",
+        "median_adjusted_r2": 0.07541981344729065,
+        "changed_cells": 17,
+        "promoted_unit_cells": 32,
+        "promoted": {
+          "earth_deccan_traps": 8,
+          "earth_harrat_khaybar": 8,
+          "earth_llano_estacado": 5,
+          "earth_odadahraun": 7,
+          "earth_snake_river_plain": 2,
+          "earth_nullarbor": 2
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/curvature_classes/composition/pit",
+        "median_adjusted_r2": 0.0867194356670663,
+        "changed_cells": 16,
+        "promoted_unit_cells": 21,
+        "promoted": {
+          "earth_deccan_traps": 3,
+          "earth_odadahraun": 4,
+          "earth_harrat_khaybar": 13,
+          "earth_llano_estacado": 1
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/hypsometry/skew",
+        "median_adjusted_r2": 0.10172972341875497,
+        "changed_cells": 18,
+        "promoted_unit_cells": 56,
+        "promoted": {
+          "earth_harrat_khaybar": 18,
+          "earth_llano_estacado": 15,
+          "earth_nullarbor": 5,
+          "earth_snake_river_plain": 18
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/curvature_classes/composition/channel",
+        "median_adjusted_r2": 0.10232413496780418,
+        "changed_cells": 17,
+        "promoted_unit_cells": 42,
+        "promoted": {
+          "earth_harrat_khaybar": 17,
+          "earth_llano_estacado": 8,
+          "earth_snake_river_plain": 9,
+          "earth_nullarbor": 8
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/variogram/vario_loglog_slope",
+        "median_adjusted_r2": 0.1453430108013069,
+        "changed_cells": 18,
+        "promoted_unit_cells": 29,
+        "promoted": {
+          "earth_snake_river_plain": 14,
+          "earth_harrat_khaybar": 7,
+          "earth_llano_estacado": 2,
+          "earth_odadahraun": 3,
+          "earth_deccan_traps": 2,
+          "earth_nullarbor": 1
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/aspect_dispersion",
+        "median_adjusted_r2": 0.16133870338164058,
+        "changed_cells": 17,
+        "promoted_unit_cells": 41,
+        "promoted": {
+          "earth_harrat_khaybar": 14,
+          "earth_odadahraun": 12,
+          "earth_snake_river_plain": 1,
+          "earth_deccan_traps": 10,
+          "earth_llano_estacado": 2,
+          "earth_nullarbor": 2
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/iwahashi_pike/texture_mean",
+        "median_adjusted_r2": 0.17181063293140225,
+        "changed_cells": 17,
+        "promoted_unit_cells": 40,
+        "promoted": {
+          "earth_deccan_traps": 4,
+          "earth_harrat_khaybar": 17,
+          "earth_llano_estacado": 2,
+          "earth_odadahraun": 12,
+          "earth_snake_river_plain": 5
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/landform_fraction/valley",
+        "median_adjusted_r2": 0.18742374048865773,
+        "changed_cells": 18,
+        "promoted_unit_cells": 23,
+        "promoted": {
+          "earth_harrat_khaybar": 18,
+          "earth_deccan_traps": 3,
+          "earth_llano_estacado": 2
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/wavelet/detail_loglog_slope",
+        "median_adjusted_r2": 0.18857183190296523,
+        "changed_cells": 16,
+        "promoted_unit_cells": 29,
+        "promoted": {
+          "earth_harrat_khaybar": 9,
+          "earth_llano_estacado": 1,
+          "earth_snake_river_plain": 6,
+          "earth_odadahraun": 5,
+          "earth_deccan_traps": 4,
+          "earth_nullarbor": 4
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/geomorphons/composition/footslope",
+        "median_adjusted_r2": 0.19974998145222073,
+        "changed_cells": 1,
+        "promoted_unit_cells": 1,
+        "promoted": {
+          "earth_llano_estacado": 1
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/multiscale_tpi/composition/upper_slope_ridge",
+        "median_adjusted_r2": 0.20623275572656963,
+        "changed_cells": 12,
+        "promoted_unit_cells": 22,
+        "promoted": {
+          "earth_llano_estacado": 2,
+          "earth_nullarbor": 2,
+          "earth_harrat_khaybar": 7,
+          "earth_odadahraun": 4,
+          "earth_deccan_traps": 5,
+          "earth_snake_river_plain": 2
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/iwahashi_pike/dominant_class",
+        "median_adjusted_r2": 0.2131121692255647,
+        "changed_cells": 15,
+        "promoted_unit_cells": 21,
+        "promoted": {
+          "earth_deccan_traps": 2,
+          "earth_harrat_khaybar": 11,
+          "earth_odadahraun": 2,
+          "earth_snake_river_plain": 6
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/iwahashi_pike/composition/2",
+        "median_adjusted_r2": 0.22087541873991107,
+        "changed_cells": 11,
+        "promoted_unit_cells": 20,
+        "promoted": {
+          "earth_odadahraun": 2,
+          "earth_harrat_khaybar": 4,
+          "earth_llano_estacado": 6,
+          "earth_deccan_traps": 7,
+          "earth_snake_river_plain": 1
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/iwahashi_pike/composition/0",
+        "median_adjusted_r2": 0.2336043272134628,
+        "changed_cells": 17,
+        "promoted_unit_cells": 35,
+        "promoted": {
+          "earth_harrat_khaybar": 9,
+          "earth_odadahraun": 8,
+          "earth_deccan_traps": 8,
+          "earth_llano_estacado": 6,
+          "earth_nullarbor": 2,
+          "earth_snake_river_plain": 2
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/geomorphons/composition/slope",
+        "median_adjusted_r2": 0.23801861228225085,
+        "changed_cells": 8,
+        "promoted_unit_cells": 8,
+        "promoted": {
+          "earth_harrat_khaybar": 8
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/slope_area/flint_theta",
+        "median_adjusted_r2": 0.23817878379048918,
+        "changed_cells": 18,
+        "promoted_unit_cells": 47,
+        "promoted": {
+          "earth_llano_estacado": 11,
+          "earth_snake_river_plain": 18,
+          "earth_nullarbor": 6,
+          "earth_harrat_khaybar": 12
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/slope_area/log_ks",
+        "median_adjusted_r2": 0.2675285071524299,
+        "changed_cells": 18,
+        "promoted_unit_cells": 42,
+        "promoted": {
+          "earth_deccan_traps": 12,
+          "earth_harrat_khaybar": 18,
+          "earth_snake_river_plain": 11,
+          "earth_llano_estacado": 1
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/iwahashi_pike/composition/7",
+        "median_adjusted_r2": 0.2679304506732023,
+        "changed_cells": 16,
+        "promoted_unit_cells": 23,
+        "promoted": {
+          "earth_harrat_khaybar": 5,
+          "earth_llano_estacado": 3,
+          "earth_odadahraun": 7,
+          "earth_deccan_traps": 7,
+          "earth_snake_river_plain": 1
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/wavelet/dominant_level",
+        "median_adjusted_r2": 0.2776281536453565,
+        "changed_cells": 11,
+        "promoted_unit_cells": 11,
+        "promoted": {
+          "earth_odadahraun": 8,
+          "earth_harrat_khaybar": 3
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/wavelet/energy_by_level/1",
+        "median_adjusted_r2": 0.28527892179509107,
+        "changed_cells": 12,
+        "promoted_unit_cells": 16,
+        "promoted": {
+          "earth_snake_river_plain": 7,
+          "earth_harrat_khaybar": 5,
+          "earth_llano_estacado": 1,
+          "earth_nullarbor": 2,
+          "earth_odadahraun": 1
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/anisotropy/isotropy",
+        "median_adjusted_r2": 0.28841744682207165,
+        "changed_cells": 18,
+        "promoted_unit_cells": 37,
+        "promoted": {
+          "earth_odadahraun": 18,
+          "earth_snake_river_plain": 13,
+          "earth_deccan_traps": 1,
+          "earth_llano_estacado": 3,
+          "earth_nullarbor": 2
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/wavelet/energy_by_level/2",
+        "median_adjusted_r2": 0.3121767822186403,
+        "changed_cells": 15,
+        "promoted_unit_cells": 20,
+        "promoted": {
+          "earth_harrat_khaybar": 7,
+          "earth_nullarbor": 2,
+          "earth_snake_river_plain": 2,
+          "earth_odadahraun": 6,
+          "earth_deccan_traps": 3
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/wavelet/energy_by_level/3",
+        "median_adjusted_r2": 0.31724351207293666,
+        "changed_cells": 18,
+        "promoted_unit_cells": 21,
+        "promoted": {
+          "earth_odadahraun": 8,
+          "earth_harrat_khaybar": 6,
+          "earth_snake_river_plain": 5,
+          "earth_llano_estacado": 1,
+          "earth_deccan_traps": 1
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/geomorphons/composition/flat",
+        "median_adjusted_r2": 0.31736129112484424,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/curvature_classes/composition/ridge",
+        "median_adjusted_r2": 0.3208446774247307,
+        "changed_cells": 14,
+        "promoted_unit_cells": 25,
+        "promoted": {
+          "earth_nullarbor": 10,
+          "earth_llano_estacado": 7,
+          "earth_snake_river_plain": 8
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/iwahashi_pike/composition/1",
+        "median_adjusted_r2": 0.33536681675669316,
+        "changed_cells": 14,
+        "promoted_unit_cells": 21,
+        "promoted": {
+          "earth_odadahraun": 4,
+          "earth_harrat_khaybar": 5,
+          "earth_nullarbor": 1,
+          "earth_snake_river_plain": 4,
+          "earth_deccan_traps": 6,
+          "earth_llano_estacado": 1
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/anisotropy/strength",
+        "median_adjusted_r2": 0.3437904154816223,
+        "changed_cells": 18,
+        "promoted_unit_cells": 37,
+        "promoted": {
+          "earth_odadahraun": 18,
+          "earth_snake_river_plain": 13,
+          "earth_deccan_traps": 1,
+          "earth_llano_estacado": 3,
+          "earth_nullarbor": 2
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/lacunarity/lacunarity_loglog_slope",
+        "median_adjusted_r2": 0.35545930203397685,
+        "changed_cells": 18,
+        "promoted_unit_cells": 56,
+        "promoted": {
+          "earth_deccan_traps": 18,
+          "earth_harrat_khaybar": 18,
+          "earth_llano_estacado": 9,
+          "earth_nullarbor": 11
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/geomorphons/composition/valley",
+        "median_adjusted_r2": 0.3770618900382023,
+        "changed_cells": 11,
+        "promoted_unit_cells": 13,
+        "promoted": {
+          "earth_deccan_traps": 6,
+          "earth_llano_estacado": 1,
+          "earth_harrat_khaybar": 6
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/slope_area/r2",
+        "median_adjusted_r2": 0.3777435061792248,
+        "changed_cells": 18,
+        "promoted_unit_cells": 49,
+        "promoted": {
+          "earth_harrat_khaybar": 18,
+          "earth_llano_estacado": 6,
+          "earth_snake_river_plain": 13,
+          "earth_nullarbor": 5,
+          "earth_odadahraun": 6,
+          "earth_deccan_traps": 1
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/multiscale_tpi/composition/hilltop",
+        "median_adjusted_r2": 0.3885827620294257,
+        "changed_cells": 9,
+        "promoted_unit_cells": 15,
+        "promoted": {
+          "earth_odadahraun": 5,
+          "earth_harrat_khaybar": 4,
+          "earth_llano_estacado": 3,
+          "earth_snake_river_plain": 2,
+          "earth_nullarbor": 1
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/hurst_exponent",
+        "median_adjusted_r2": 0.3979401559940838,
+        "changed_cells": 16,
+        "promoted_unit_cells": 32,
+        "promoted": {
+          "earth_snake_river_plain": 6,
+          "earth_harrat_khaybar": 10,
+          "earth_llano_estacado": 1,
+          "earth_nullarbor": 3,
+          "earth_odadahraun": 8,
+          "earth_deccan_traps": 4
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/multiscale_tpi/composition/lower_slope_channel",
+        "median_adjusted_r2": 0.4216108451698677,
+        "changed_cells": 16,
+        "promoted_unit_cells": 26,
+        "promoted": {
+          "earth_odadahraun": 2,
+          "earth_deccan_traps": 3,
+          "earth_harrat_khaybar": 12,
+          "earth_llano_estacado": 3,
+          "earth_nullarbor": 5,
+          "earth_snake_river_plain": 1
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/twi/twi_std",
+        "median_adjusted_r2": 0.42647001041697163,
+        "changed_cells": 18,
+        "promoted_unit_cells": 36,
+        "promoted": {
+          "earth_harrat_khaybar": 18,
+          "earth_snake_river_plain": 18
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/curvature_classes/composition/peak",
+        "median_adjusted_r2": 0.4341592128029506,
+        "changed_cells": 16,
+        "promoted_unit_cells": 22,
+        "promoted": {
+          "earth_snake_river_plain": 8,
+          "earth_harrat_khaybar": 8,
+          "earth_odadahraun": 2,
+          "earth_nullarbor": 2,
+          "earth_deccan_traps": 1,
+          "earth_llano_estacado": 1
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/roughness_length/hurst_deviogram",
+        "median_adjusted_r2": 0.44571648982193657,
+        "changed_cells": 16,
+        "promoted_unit_cells": 38,
+        "promoted": {
+          "earth_snake_river_plain": 3,
+          "earth_harrat_khaybar": 13,
+          "earth_llano_estacado": 2,
+          "earth_odadahraun": 11,
+          "earth_nullarbor": 3,
+          "earth_deccan_traps": 6
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/geomorphons/composition/peak",
+        "median_adjusted_r2": 0.4556235672167633,
+        "changed_cells": 16,
+        "promoted_unit_cells": 16,
+        "promoted": {
+          "earth_harrat_khaybar": 15,
+          "earth_odadahraun": 1
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/variogram/aniso_ratio",
+        "median_adjusted_r2": 0.4609200792756654,
+        "changed_cells": 18,
+        "promoted_unit_cells": 49,
+        "promoted": {
+          "earth_deccan_traps": 16,
+          "earth_harrat_khaybar": 12,
+          "earth_odadahraun": 18,
+          "earth_llano_estacado": 3
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/variogram/range_m",
+        "median_adjusted_r2": 0.5006766716919777,
+        "changed_cells": 12,
+        "promoted_unit_cells": 17,
+        "promoted": {
+          "earth_harrat_khaybar": 8,
+          "earth_odadahraun": 9
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/convergence/convergent_fraction",
+        "median_adjusted_r2": 0.5504235958946684,
+        "changed_cells": 17,
+        "promoted_unit_cells": 17,
+        "promoted": {
+          "earth_harrat_khaybar": 14,
+          "earth_odadahraun": 1,
+          "earth_deccan_traps": 2
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/convergence/divergent_fraction",
+        "median_adjusted_r2": 0.5504235958946688,
+        "changed_cells": 17,
+        "promoted_unit_cells": 17,
+        "promoted": {
+          "earth_harrat_khaybar": 14,
+          "earth_odadahraun": 1,
+          "earth_deccan_traps": 2
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/iwahashi_pike/convexity_mean",
+        "median_adjusted_r2": 0.5612328226272035,
+        "changed_cells": 17,
+        "promoted_unit_cells": 42,
+        "promoted": {
+          "earth_nullarbor": 15,
+          "earth_snake_river_plain": 15,
+          "earth_harrat_khaybar": 12
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/landform_fraction/ridge",
+        "median_adjusted_r2": 0.6031846986149232,
+        "changed_cells": 18,
+        "promoted_unit_cells": 30,
+        "promoted": {
+          "earth_harrat_khaybar": 18,
+          "earth_snake_river_plain": 6,
+          "earth_llano_estacado": 6
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/roughness_length/roughness_length_m",
+        "median_adjusted_r2": 0.6071455399712462,
+        "changed_cells": 16,
+        "promoted_unit_cells": 26,
+        "promoted": {
+          "earth_odadahraun": 4,
+          "earth_deccan_traps": 10,
+          "earth_harrat_khaybar": 12
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/geomorphons/composition/shoulder",
+        "median_adjusted_r2": 0.6213038974663404,
+        "changed_cells": 9,
+        "promoted_unit_cells": 9,
+        "promoted": {
+          "earth_harrat_khaybar": 1,
+          "earth_snake_river_plain": 7,
+          "earth_llano_estacado": 1
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/spectral/rough_short",
+        "median_adjusted_r2": 0.6227054322476933,
+        "changed_cells": 17,
+        "promoted_unit_cells": 29,
+        "promoted": {
+          "earth_harrat_khaybar": 17,
+          "earth_odadahraun": 11,
+          "earth_deccan_traps": 1
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/fabric_eigen/woodcock_C",
+        "median_adjusted_r2": 0.6886908926647785,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/twi/twi_p10",
+        "median_adjusted_r2": 0.6987858450428743,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/plan_curvature/p50",
+        "median_adjusted_r2": 0.7056786699593813,
+        "changed_cells": 14,
+        "promoted_unit_cells": 14,
+        "promoted": {
+          "earth_harrat_khaybar": 14
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/twi/twi_median",
+        "median_adjusted_r2": 0.7168784422622068,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/twi/twi_mean",
+        "median_adjusted_r2": 0.7459569335905905,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/geomorphons/composition/spur",
+        "median_adjusted_r2": 0.7724831430442871,
+        "changed_cells": 4,
+        "promoted_unit_cells": 4,
+        "promoted": {
+          "earth_harrat_khaybar": 4
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/mean_curvature/mean",
+        "median_adjusted_r2": 0.7869004590493185,
+        "changed_cells": 12,
+        "promoted_unit_cells": 12,
+        "promoted": {
+          "earth_harrat_khaybar": 12
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/twi/twi_p90",
+        "median_adjusted_r2": 0.8129670036946091,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/plan_curvature/mean",
+        "median_adjusted_r2": 0.8251027894823333,
+        "changed_cells": 12,
+        "promoted_unit_cells": 21,
+        "promoted": {
+          "earth_harrat_khaybar": 10,
+          "earth_llano_estacado": 2,
+          "earth_odadahraun": 5,
+          "earth_snake_river_plain": 2,
+          "earth_deccan_traps": 1,
+          "earth_nullarbor": 1
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/openness_difference/slopepos_mean",
+        "median_adjusted_r2": 0.8451230764977761,
+        "changed_cells": 18,
+        "promoted_unit_cells": 18,
+        "promoted": {
+          "earth_harrat_khaybar": 18
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/geomorphons/composition/hollow",
+        "median_adjusted_r2": 0.8687424983793983,
+        "changed_cells": 15,
+        "promoted_unit_cells": 19,
+        "promoted": {
+          "earth_harrat_khaybar": 14,
+          "earth_odadahraun": 5
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/spectral/rough_mid",
+        "median_adjusted_r2": 0.8955626780866103,
+        "changed_cells": 9,
+        "promoted_unit_cells": 12,
+        "promoted": {
+          "earth_harrat_khaybar": 9,
+          "earth_odadahraun": 3
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/tpi_landform/composition/flat",
+        "median_adjusted_r2": 0.9030094317448312,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/profile_curvature/p10",
+        "median_adjusted_r2": 0.9264115658951212,
+        "changed_cells": 16,
+        "promoted_unit_cells": 28,
+        "promoted": {
+          "earth_harrat_khaybar": 16,
+          "earth_odadahraun": 6,
+          "earth_deccan_traps": 2,
+          "earth_llano_estacado": 2,
+          "earth_snake_river_plain": 2
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/openness_difference/valley_fraction",
+        "median_adjusted_r2": 0.9394574100665779,
+        "changed_cells": 4,
+        "promoted_unit_cells": 8,
+        "promoted": {
+          "earth_harrat_khaybar": 4,
+          "earth_odadahraun": 4
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/mean_curvature/p10",
+        "median_adjusted_r2": 0.9421079629337479,
+        "changed_cells": 18,
+        "promoted_unit_cells": 18,
+        "promoted": {
+          "earth_harrat_khaybar": 18
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/vector_ruggedness/p10",
+        "median_adjusted_r2": 0.9463070462007965,
+        "changed_cells": 9,
+        "promoted_unit_cells": 9,
+        "promoted": {
+          "earth_harrat_khaybar": 9
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/vector_ruggedness/p50",
+        "median_adjusted_r2": 0.9473651946906914,
+        "changed_cells": 12,
+        "promoted_unit_cells": 12,
+        "promoted": {
+          "earth_harrat_khaybar": 12
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/vector_ruggedness/std",
+        "median_adjusted_r2": 0.9543186318664909,
+        "changed_cells": 9,
+        "promoted_unit_cells": 9,
+        "promoted": {
+          "earth_harrat_khaybar": 9
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/normal_roughness/roughness_median",
+        "median_adjusted_r2": 0.9546748198080356,
+        "changed_cells": 9,
+        "promoted_unit_cells": 9,
+        "promoted": {
+          "earth_harrat_khaybar": 9
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/vector_ruggedness/p90",
+        "median_adjusted_r2": 0.9580316024332537,
+        "changed_cells": 9,
+        "promoted_unit_cells": 9,
+        "promoted": {
+          "earth_harrat_khaybar": 9
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/vector_ruggedness/mean",
+        "median_adjusted_r2": 0.9590206106198005,
+        "changed_cells": 9,
+        "promoted_unit_cells": 9,
+        "promoted": {
+          "earth_harrat_khaybar": 9
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/plan_curvature/p90",
+        "median_adjusted_r2": 0.9609315416506481,
+        "changed_cells": 17,
+        "promoted_unit_cells": 17,
+        "promoted": {
+          "earth_harrat_khaybar": 17
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/openness_difference/ridge_fraction",
+        "median_adjusted_r2": 0.9634065486493376,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/profile_curvature/std",
+        "median_adjusted_r2": 0.9659208798513188,
+        "changed_cells": 9,
+        "promoted_unit_cells": 9,
+        "promoted": {
+          "earth_harrat_khaybar": 9
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/normal_roughness/roughness_mean",
+        "median_adjusted_r2": 0.9664123994077755,
+        "changed_cells": 4,
+        "promoted_unit_cells": 4,
+        "promoted": {
+          "earth_harrat_khaybar": 4
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/mean_curvature/std",
+        "median_adjusted_r2": 0.9673814758130257,
+        "changed_cells": 14,
+        "promoted_unit_cells": 14,
+        "promoted": {
+          "earth_harrat_khaybar": 14
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/normal_roughness/roughness_p90",
+        "median_adjusted_r2": 0.9710233991511336,
+        "changed_cells": 5,
+        "promoted_unit_cells": 6,
+        "promoted": {
+          "earth_harrat_khaybar": 5,
+          "earth_odadahraun": 1
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/spectral/total_power",
+        "median_adjusted_r2": 0.9719586581924914,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/tpi_landform/composition/middle_slope",
+        "median_adjusted_r2": 0.9728085084092396,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/plan_curvature/std",
+        "median_adjusted_r2": 0.9739453305758932,
+        "changed_cells": 16,
+        "promoted_unit_cells": 16,
+        "promoted": {
+          "earth_harrat_khaybar": 16
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/wavelet/total_detail_energy",
+        "median_adjusted_r2": 0.9774086593268605,
+        "changed_cells": 3,
+        "promoted_unit_cells": 3,
+        "promoted": {
+          "earth_harrat_khaybar": 3
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/variogram/sill",
+        "median_adjusted_r2": 0.9777589086803089,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/fabric_eigen/eig2",
+        "median_adjusted_r2": 0.9790465341326144,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/fabric_eigen/eig3",
+        "median_adjusted_r2": 0.9795804930708958,
+        "changed_cells": 2,
+        "promoted_unit_cells": 2,
+        "promoted": {
+          "earth_harrat_khaybar": 2
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/fabric_eigen/isotropy",
+        "median_adjusted_r2": 0.9795804930708958,
+        "changed_cells": 2,
+        "promoted_unit_cells": 2,
+        "promoted": {
+          "earth_harrat_khaybar": 2
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/plan_curvature/p10",
+        "median_adjusted_r2": 0.9802225476576633,
+        "changed_cells": 9,
+        "promoted_unit_cells": 9,
+        "promoted": {
+          "earth_harrat_khaybar": 9
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/tpi_dispersion",
+        "median_adjusted_r2": 0.9804291853783411,
+        "changed_cells": 7,
+        "promoted_unit_cells": 7,
+        "promoted": {
+          "earth_harrat_khaybar": 7
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/ruggedness/std",
+        "median_adjusted_r2": 0.9815952792580334,
+        "changed_cells": 4,
+        "promoted_unit_cells": 4,
+        "promoted": {
+          "earth_harrat_khaybar": 4
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/openness_difference/midslope_fraction",
+        "median_adjusted_r2": 0.9816365481055815,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/mean_curvature/p90",
+        "median_adjusted_r2": 0.9830875545441616,
+        "changed_cells": 9,
+        "promoted_unit_cells": 9,
+        "promoted": {
+          "earth_harrat_khaybar": 9
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/kh_roughness/baseline_roughness_fine",
+        "median_adjusted_r2": 0.9859042384168766,
+        "changed_cells": 7,
+        "promoted_unit_cells": 7,
+        "promoted": {
+          "earth_harrat_khaybar": 7
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/ruggedness/p90",
+        "median_adjusted_r2": 0.9860541164986891,
+        "changed_cells": 3,
+        "promoted_unit_cells": 3,
+        "promoted": {
+          "earth_harrat_khaybar": 3
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/surface_area_ratio/std",
+        "median_adjusted_r2": 0.9866371826918127,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/ruggedness/p10",
+        "median_adjusted_r2": 0.9891247052320432,
+        "changed_cells": 4,
+        "promoted_unit_cells": 4,
+        "promoted": {
+          "earth_harrat_khaybar": 4
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/ruggedness/mean",
+        "median_adjusted_r2": 0.9898866856814631,
+        "changed_cells": 3,
+        "promoted_unit_cells": 3,
+        "promoted": {
+          "earth_harrat_khaybar": 3
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/profile_curvature/p90",
+        "median_adjusted_r2": 0.9910631929624399,
+        "changed_cells": 2,
+        "promoted_unit_cells": 2,
+        "promoted": {
+          "earth_harrat_khaybar": 2
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/ruggedness/p50",
+        "median_adjusted_r2": 0.9919817781928886,
+        "changed_cells": 5,
+        "promoted_unit_cells": 5,
+        "promoted": {
+          "earth_harrat_khaybar": 5
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/kh_roughness/baseline_roughness_coarse",
+        "median_adjusted_r2": 0.9928900606089615,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/spectral/rough_long",
+        "median_adjusted_r2": 0.9933345066666568,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/openness_difference/slopepos_p10",
+        "median_adjusted_r2": 0.9940353769777427,
+        "changed_cells": 1,
+        "promoted_unit_cells": 1,
+        "promoted": {
+          "earth_harrat_khaybar": 1
+        },
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/slope/std",
+        "median_adjusted_r2": 0.995293033844918,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/terrain_ruggedness_index/std",
+        "median_adjusted_r2": 0.9953392099464399,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/spectral/roughness_rms",
+        "median_adjusted_r2": 0.9953522437372947,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/roughness_length/rms_height",
+        "median_adjusted_r2": 0.996113702001278,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/relief/std",
+        "median_adjusted_r2": 0.9962776417509278,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/slope/p10",
+        "median_adjusted_r2": 0.9971716101737009,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/relief/p10",
+        "median_adjusted_r2": 0.9983369785797251,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/openness_difference/slopepos_std",
+        "median_adjusted_r2": 0.9984989848005112,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/relief/p90",
+        "median_adjusted_r2": 0.998787702806426,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/terrain_ruggedness_index/p10",
+        "median_adjusted_r2": 0.9989624504245976,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/slope/p90",
+        "median_adjusted_r2": 0.9991636880850123,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/terrain_ruggedness_index/p90",
+        "median_adjusted_r2": 0.9991672302743655,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/terrain_ruggedness_index/mean",
+        "median_adjusted_r2": 0.9992031430755709,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/terrain_ruggedness_index/p50",
+        "median_adjusted_r2": 0.9992262441768317,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/melton_relief/melton_ruggedness",
+        "median_adjusted_r2": 0.9993660211255293,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/melton_relief/relief_ratio",
+        "median_adjusted_r2": 0.9993660211255293,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/melton_relief/total_relief_m",
+        "median_adjusted_r2": 0.9995081433421494,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/relief/p50",
+        "median_adjusted_r2": 0.9995120399599244,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/slope/p50",
+        "median_adjusted_r2": 0.9995590599675791,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/relief/mean",
+        "median_adjusted_r2": 0.9996738581624166,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/anisotropy/mean_roughness",
+        "median_adjusted_r2": 0.9997369061738468,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/openness_difference/slopepos_p90",
+        "median_adjusted_r2": 0.999747688193239,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/roughness_length/rms_slope",
+        "median_adjusted_r2": 0.9999051100731873,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/iwahashi_pike/slope_mean",
+        "median_adjusted_r2": 1.0,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      },
+      {
+        "key": "/slope/mean",
+        "median_adjusted_r2": 1.0,
+        "changed_cells": 0,
+        "promoted_unit_cells": 0,
+        "promoted": {},
+        "removal_alarms": [],
+        "beats_the_random_control": false
+      }
+    ],
+    "assert_no_removals": true,
+    "removals_detected": 0
+  },
+  "random_control": {
+    "construction": "uniformly random 4th coordinate per unit, same range normalisation",
+    "draws": 300,
+    "seed0": 20000,
+    "mean_changed_cells": 15.9,
+    "median_changed_cells": 18,
+    "p05": 0.0,
+    "p95": 18.0,
+    "fraction_changing_at_least_10": 0.8833333333333333,
+    "fraction_unchanged": 0.11666666666666667,
+    "n_cells": 18
+  },
+  "verdict": {
+    "declared_axes_are_one_dimension": null,
+    "most_independent_admissible_descriptor": {
+      "key": "/variogram/nugget",
+      "median_adjusted_r2": -0.5111693809092953,
+      "max_adjusted_r2": 0.8364257050679313,
+      "median_raw_r2": 0.13647463948040267,
+      "admissible_cells": 18,
+      "median_cv": 2.6457513110645903,
+      "classification": "NON_REDUNDANT"
+    },
+    "n_descriptors_beating_the_random_control": 0,
+    "reading": "The analytic half establishes that the three declared axes are exactly blind to a quarter-turn rotation of a planar surface, so a descriptor not invariant under it must carry information they do not -- and one does: the variogram nugget has a median adjusted R2 below zero, i.e. the three axes predict it no better than three random numbers would. The consequence half then shows that this axis changes the decision at ZERO of the 18 cells, while a uniformly random 4th coordinate changes it at about 15. The frontier is therefore not fragile to a BAD axis or robust to a GOOD one -- it is fragile to the NUMBER of axes, which is a property of running a Pareto rule over 8 units in 3 dimensions and not a property of any candidate. The published lunar sole-winner property must not be read as evidence about candidates; what the panel supports is the ranking it states, provisional, and nothing stronger.",
+    "what_this_does_not_show": "It does not show that the declared axes are the wrong axes, nor that any Earth candidate is a better analog. Adding dimensions promotes co-winners without discriminating between them, so this experiment bounds a CLAIM, not a candidate."
+  },
+  "controls": {
+    "expected": "an exact identity must be fully explained (1.000000); a different estimator of the same idea should be very high but not exact",
+    "exact_identity": {
+      "/slope/mean": 1.0,
+      "/iwahashi_pike/slope_mean": 1.0
+    },
+    "near_identity": {
+      "/relief/mean": 0.9996738581624166,
+      "/roughness_length/rms_slope": 0.9999051100731873
+    },
+    "pass": true
+  }
+}

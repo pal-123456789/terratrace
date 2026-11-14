@@ -168,7 +168,7 @@ s3.addText("Five worlds, one method, no black box", { placeholder: "title" });
 
 stat(s3, M, 1.9, 2.8, "5", "planetary bodies: Earth, Mars, the Moon, Mercury, Ceres", ACC);
 stat(s3, M + 3.02, 1.9, 2.8, "40", "cited descriptor families (~290 scalar values)", ACC);
-stat(s3, M + 6.04, 1.9, 2.8, "1017", "offline tests, 0 network required to run them", ACC);
+stat(s3, M + 6.04, 1.9, 2.8, "1037", "offline tests, 0 network required to run them", ACC);
 stat(s3, M + 9.06, 1.9, 3.04, "51", "scientific-correctness oracles over the operators", ACC);
 
 card(s3, M, 3.66, 5.95, 2.18);
@@ -237,7 +237,7 @@ const s6 = pres.addSlide({ masterName: "MAIN" });
 kicker(s6, "Evidence & reproducibility");
 s6.addText("Every number has a receipt", { placeholder: "title" });
 
-stat(s6, M, 1.9, 2.8, "1017", "offline tests across 105 modules, 0 failures", ACC);
+stat(s6, M, 1.9, 2.8, "1037", "offline tests across 106 modules, 0 failures", ACC);
 stat(s6, M + 3.02, 1.9, 2.8, "51", "scientific-correctness oracles, stable hash", ACC);
 stat(s6, M + 6.04, 1.9, 2.8, "4", "frozen artifact hashes, re-asserted after every change", ACC);
 stat(s6, M + 9.06, 1.9, 3.04, "0", "credentials needed for the headline Earth data path", WARM);
@@ -269,10 +269,10 @@ s7.addText("Named first, not buried", { placeholder: "title" });
 card(s7, M, 1.86, 5.95, 2.9);
 s7.addText("Open, and stated plainly", { x: M + 0.28, y: 2.0, w: 5.4, h: 0.3, fontFace: HEAD, fontSize: 15, bold: true, color: WARM, margin: 0, isTextBox: true });
 s7.addText([
+  { text: "The lunar sole-winner is a property of the Pareto rule, not of a candidate: a uniformly random fourth coordinate moves it in 15.90 of 18 cells on average, and no candidate axis beats that.", options: { bullet: true, breakLine: true } },
   { text: "The lunar work is exploratory: six nearby sites are not six independent tests.", options: { bullet: true, breakLine: true } },
-  { text: "The error-ensemble check uses 6 of the 100 published realisations.", options: { bullet: true, breakLine: true } },
-  { text: "No external reviewer has examined the independent reproduction.", options: { bullet: true, breakLine: true } },
-  { text: "No demo video; the shot-by-shot script is in the repository.", options: { bullet: true } },
+  { text: "The error ensemble uses 6 of the 100 published realisations.", options: { bullet: true, breakLine: true } },
+  { text: "The reprojection reproduction is internally prepared; no external reviewer has examined it.", options: { bullet: true } },
 ], { x: M + 0.28, y: 2.34, w: 5.4, h: 2.2, fontFace: BODY, fontSize: 11, color: MUTE, lineSpacing: 14, margin: 0, isTextBox: true, paraSpaceAfter: 6 });
 
 card(s7, 6.77, 1.86, 5.95, 2.9);

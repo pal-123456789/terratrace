@@ -151,6 +151,10 @@ CANONICAL = [
     # and this one BUILDS the published evidence page from that atlas
     ROOT / "scripts" / "build_atlas_page.py",
     ROOT / "docs" / "DISCOVERY-ATLAS.md",
+    ROOT / "docs" / "AXIS-PROBE.md",
+    ROOT / "docs" / "SUBMISSION.md",
+    # the probe driver prints the numbers the write-up quotes, so it is prose too
+    ROOT / "scripts" / "lunar_axis_probe.py",
     REPO / "site" / "atlas" / "index.html",
     # The event-facing pages quote the suite's size and the official submission limits, and one of
     # them shipped a stale test count for a release because nothing read it. A compliance page is
@@ -561,6 +565,90 @@ def _pdf_text(path):
     return out.stdout.decode("utf-8", "replace")
 
 
+def check_axis_probe(problems):
+    """The probe write-up must quote the probe's record, and every pattern must be able to mismatch.
+
+    The numbers here are the ones a reader would act on -- how many descriptors were admissible, what
+    the most independent one scored, and above all the random control that decides how the frontier
+    result may be read. Losing the control from the prose would make the whole experiment read as
+    "the frontier is fragile", which is the misreading the control exists to prevent, so its numbers
+    are checked here too.
+    """
+    import json
+    art = ROOT / "artifacts" / "lunar_axis_probe" / "lunar_axis_probe.json"
+    if not art.exists():
+        return
+    a = json.loads(art.read_text(encoding="utf-8"))
+    pool = a["pool"]
+    ctl = a["random_control"]
+    best = a["verdict"]["most_independent_admissible_descriptor"]
+    nug = [t for t in a["frontier"]["per_descriptor"] if t["key"] == "/variogram/nugget"]
+    if not nug:
+        problems.append("axis probe: the nugget is not in the decision test, so the headline claim "
+                        "in docs/AXIS-PROBE.md has no record behind it")
+        return
+    inv = a["invariance"]["bank_quarter_turn"]
+    nan = a["nan_audit"]
+
+    def close(got, want, tol):
+        return abs(got - want) <= tol * max(1.0, abs(want))
+
+    # (label, pattern, expected, tolerance)
+    pats = [
+        ("admissible descriptors", re.compile(r"(?<![\w.])(\d+)\s+admissible"), pool["n_admissible"], 0),
+        ("decision-tested descriptors", re.compile(r"(?<![\w.])(\d+)\s+decision-tested"),
+         len(a["frontier"]["per_descriptor"]), 0),
+        ("bank scalars checked for symmetry", re.compile(r"Of the (\d+) bank scalars"),
+         inv["n_checked"], 0),
+        ("bank scalars not quarter-turn invariant", re.compile(r"(?<![\w.])(\d+)\s+are not quarter-turn invariant"),
+         inv["n_changed"], 0),
+        ("chance-level raw R2", re.compile(r"chance level of p/\(n.1\) = \*{0,2}(\d+\.\d+)"),
+         a["provenance"]["chance_level_raw_r2"], 0.01),
+        ("nugget median adjusted R2", re.compile(r"median adjusted R\S* \*{0,2}[−-]?(\d+\.\d+)"),
+         abs(best["median_adjusted_r2"]), 0.01),
+        ("nugget median raw R2", re.compile(r"median raw R\S* \*{0,2}(\d+\.\d+)"),
+         best["median_raw_r2"], 0.01),
+        ("nugget changed cells", re.compile(r"`variogram/nugget`\s*\|\s*\*{0,2}(\d+)\*{0,2}\s*\|"),
+         nug[0]["changed_cells"], 0),
+        ("random control draws", re.compile(r"(?<![\w.])(\d+)\s+draws"),
+         ctl["draws"], 0),
+        ("random control mean changed cells", re.compile(r"mean cells changed \|\s*\*{0,2}(\d+\.\d+)"),
+         ctl["mean_changed_cells"], 0.01),
+        # The submission deck quotes the same control. A wrong number THERE is the M8b failure mode --
+        # a number in a shipped artefact that nothing read -- so the deck generator is scanned too.
+        ("control mean on a slide", re.compile(r"(\d+\.\d\d) of 18 cells"),
+         ctl["mean_changed_cells"], 0.01),
+        ("random control median", re.compile(r"\| median \|\s*(\d+)"), ctl["median_changed_cells"], 0),
+        ("random control p05", re.compile(r"percentile \|\s*(\d+)\s*[–-]\s*(\d+)"),
+         ctl["p05"], 0),
+        ("NaN audit affected", re.compile(r"\*{0,2}(\d+) of the \d+\*{0,2} bank scalars hit"),
+         nan["n_descriptors_affected"], 0),
+    ]
+    # Scoped to the documents this check is about. A loose pattern like "(\d+) draws" scanned across
+    # every canonical document matched "7 of 6 draws" in VALIDATION.md and reported it as a
+    # disagreement with this record -- a false positive that would have made the check untrustworthy.
+    for path in [ROOT / "docs" / "AXIS-PROBE.md", ROOT / "scripts" / "build_submission_deck.js"]:
+        if not path.exists():
+            continue
+        text = _probe(path.read_text(encoding="utf-8", errors="replace"))
+        rel = _rel(path)
+        for label, pat, want, tol in pats:
+            for m in pat.finditer(text):
+                groups = [g for g in m.groups() if g is not None]
+                # a two-group pattern compares the SECOND group as the value where it is a range end
+                got = float(groups[0])
+                if not close(got, float(want), tol):
+                    problems.append(
+                        f"axis probe: {rel} states {label} {got}, the record says {want} "
+                        f"(...{text[max(0, m.start() - 40):m.end() + 10].strip()!r}...)")
+        # the two-record check: the doc must name the control at all
+        if rel.endswith("AXIS-PROBE.md"):
+            for needed in ("random", "control", "pre-registration"):
+                if needed.lower() not in text.lower():
+                    problems.append(f"axis probe: {rel} no longer mentions {needed!r}, so the "
+                                    f"artifact's reading has been dropped from the write-up")
+
+
 def check_generated_exports(problems, notes, tests=None, decks=None, pdfs=None):
     """The exports must be regenerated when the counts change -- three shipped ones were not.
 
@@ -859,6 +947,7 @@ def main(argv=None):
     check_lunar_stress(problems)
     check_lunar_adequacy(problems)
     check_discovery_atlas(problems)
+    check_axis_probe(problems)
     check_generated_exports(problems, notes)
     n_pages = check_site_markup(problems)
 
