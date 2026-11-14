@@ -268,3 +268,51 @@ def test_a_stale_count_in_a_slide_caption_is_caught():
     g.check_counts(problems)
     assert not problems, ("the guard reports problems with the generator back in place:\n"
                           + "\n".join(problems))
+
+
+def test_the_export_check_fires_on_a_stale_deck_and_is_quiet_on_a_fresh_one():
+    """Both directions, on doctored copies -- nothing in the real tree is renamed or moved aside.
+
+    This check was wrong once, in BOTH directions, and that is why it has a test. Its first version
+    decompressed the PDF streams and searched them for the test count; it reported two *correct*
+    exports as stale, and the one file it accepted only contained the digits by coincidence,
+    because deck text is drawn as subsetted-font hex glyph runs rather than ASCII. A check that
+    fails on a correct tree gets switched off, so it was replaced with ``pdftotext`` plus an explicit
+    "not verified" note. The deck half needs no external tool, and it is the half tested here.
+    """
+    import shutil
+    import tempfile
+    import zipfile
+
+    g = _load_guard()
+    tmp = pathlib.Path(tempfile.mkdtemp(prefix="terratrace_exports_"))
+
+    def fake_deck(path, body):
+        with zipfile.ZipFile(path, "w") as z:
+            z.writestr("ppt/slides/slide1.xml", f"<a:t>{body}</a:t>")
+            z.writestr("ppt/slides/slide2.xml", "<a:t>the rest</a:t>")
+
+    try:
+        n = g._count_tests()
+        fresh, stale = tmp / "fresh.pptx", tmp / "stale.pptx"
+        fake_deck(fresh, f"{n} offline tests, 0 failures")
+        fake_deck(stale, "offline tests, 0 failures")
+
+        problems, notes = [], []
+        g.check_generated_exports(problems, notes, tests=n, decks=(fresh,), pdfs=())
+        assert problems == [], f"a deck carrying the current count was called stale: {problems}"
+
+        problems, notes = [], []
+        g.check_generated_exports(problems, notes, tests=n, decks=(stale,), pdfs=())
+        assert len(problems) == 1, f"a deck without the current count was accepted: {problems}"
+        assert "stale.pptx" in problems[0] and str(n) in problems[0], (
+            "the refusal has to name the file and the count it expected, or nobody can act on it:\n"
+            + problems[0])
+
+        # and the real tree passes with its own defaults, so the check is not vacuous in CI
+        problems, notes = [], []
+        g.check_generated_exports(problems, notes)
+        assert problems == [], ("the exports in the real tree disagree with the suite:\n"
+                                + "\n".join(problems))
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
