@@ -156,10 +156,31 @@ def test_the_markup_check_reproduces_the_defect_it_was_written_for():
     rest of the document while leaving every link perfectly resolvable — so the link check passed
     and the page rendered wrong. This builds a temporarily unbalanced copy and asserts the new check
     names the file, then restores it.
+
+    It also pins how the check NAMES the file, which is a second defect this test found later and on
+    one platform only. On Windows `str(Path)` yields backslashes, so the guard printed
+    ``markup: site\\index.html`` and the assertion below — looking for ``site/index.html`` — failed
+    on the developer's machine while passing on Linux CI, where the separator happens to be the one
+    the test wants. A message whose text depends on the OS is a defect in the guard, not in the
+    test: on Linux it is invisible, which is precisely why it needs a structural assertion as well.
     """
     g = _load_guard()
     page = g.REPO / "site" / "index.html"
     original = page.read_text(encoding="utf-8")
+
+    # the guard must format every repo-relative path through _rel(), on every platform
+    guard_src = (_ROOT / "scripts" / "doc_consistency_check.py").read_text(encoding="utf-8")
+    raw = re.findall(r"\{[A-Za-z_]+\.relative_to\(REPO\)\}", guard_src)
+    assert not raw, (
+        "a repo-relative path is interpolated into a message without .as_posix(), so the message "
+        f"will use backslashes on Windows: {raw}. Format it through _rel() instead."
+    )
+    rel_fn = getattr(g, "_rel", None)
+    assert rel_fn is not None, "_rel() is gone; messages are back to platform-dependent paths"
+    assert rel_fn(g.REPO / "site" / "index.html") == "site/index.html", (
+        "a repo-relative path is reported as "
+        f"{rel_fn(g.REPO / 'site' / 'index.html')!r}, not 'site/index.html'"
+    )
 
     # a genuinely unbalanced copy: drop one closing tag from the document
     marker = "</main>"
@@ -171,6 +192,10 @@ def test_the_markup_check_reproduces_the_defect_it_was_written_for():
         g.check_site_markup(problems)
         assert problems, "the markup check did not notice a missing </main>"
         assert any("site/index.html" in p for p in problems), problems
+        assert all("\\" not in p for p in problems), (
+            "a markup problem message uses a backslash-separated path, which only happens on "
+            f"Windows — the message text must not depend on the OS: {problems}"
+        )
     finally:
         page.write_text(original, encoding="utf-8")   # always restore, even if the assert fires
 

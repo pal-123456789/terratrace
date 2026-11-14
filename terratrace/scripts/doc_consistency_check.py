@@ -92,6 +92,19 @@ def _readable(target: pathlib.Path) -> bool:
         return any(t.startswith(rel.rstrip("/") + "/") for t in TRACKED)
     return False
 
+def _rel(path):
+    """A repo-relative path for a message, ALWAYS with forward slashes.
+
+    ``str(Path)`` returns backslashes on Windows, so a guard that interpolates a path directly
+    prints ``site\\index.html`` there and ``site/index.html`` on Linux — the same defect
+    reported two different ways depending on the machine. A test that matches one form then
+    passes on CI and fails locally, which is exactly how this was found: the markup check
+    correctly detected a missing ``</main>`` and the assertion looking for ``site/index.html``
+    could not see the message. Repository-relative paths are POSIX wherever a reader meets
+    them; keep them that way in messages too.
+    """
+    return path.relative_to(REPO).as_posix()
+
 # --- documents that must state the current numbers --------------------------------
 CANONICAL = [
     REPO / "README.md",
@@ -265,10 +278,10 @@ def check_counts(problems):
     pats = [(label, re.compile(rx), truth[label]) for label, rx in COUNT_RES.items()]
     for path in CANONICAL:
         if not path.exists():
-            problems.append(f"counts: canonical document is missing: {path.relative_to(REPO)}")
+            problems.append(f"counts: canonical document is missing: {_rel(path)}")
             continue
         text = _probe(path.read_text(encoding="utf-8", errors="replace"))
-        rel = path.relative_to(REPO)
+        rel = _rel(path)
         for label, pat, want in pats:
             for m in pat.finditer(text):
                 got = int(m.group(1))
@@ -283,7 +296,7 @@ def check_counts(problems):
         if not path.exists():
             continue
         text = _probe(path.read_text(encoding="utf-8", errors="replace"))
-        rel = path.relative_to(REPO)
+        rel = _rel(path)
         for label, pat in rpats:
             for m in pat.finditer(text):
                 got = int(m.group(1))
@@ -309,7 +322,7 @@ def check_counts(problems):
         if not path.exists() or path.suffix != ".js":
             continue
         raw = path.read_text(encoding="utf-8", errors="replace")
-        rel = path.relative_to(REPO)
+        rel = _rel(path)
         for m in stat_call.finditer(raw):
             got, label = int(m.group(1)), m.group(2)
             # the printed number labels whichever tracked noun appears first in its own caption —
@@ -435,7 +448,7 @@ def check_links(problems):
             if not _readable(target):
                 why = ("exists here but is NOT TRACKED, so a clone will not have it"
                        if target.exists() else "does not exist")
-                problems.append(f"links: {path.relative_to(REPO)} -> {tgt!r} {why}")
+                problems.append(f"links: {_rel(path)} -> {tgt!r} {why}")
 
     # --- the website ---------------------------------------------------------
     vercel = REPO / "vercel.json"
@@ -468,13 +481,13 @@ def check_links(problems):
             tgt = resolve_site_route(route, routes)
             if not _readable(tgt):
                 problems.append(
-                    f"site: {page.relative_to(REPO)} -> {href!r} resolves to "
-                    f"{tgt.relative_to(REPO)} which a clone will not have (is the route wired?)")
+                    f"site: {_rel(page)} -> {href!r} resolves to "
+                    f"{_rel(tgt)} which a clone will not have (is the route wired?)")
             elif frag:
                 ids = set(re.findall(r'id="([^"]+)"', tgt.read_text(encoding="utf-8", errors="replace")))
                 if frag not in ids:
                     problems.append(
-                        f"site: {page.relative_to(REPO)} -> {href!r} has no target id in {tgt.name}")
+                        f"site: {_rel(page)} -> {href!r} has no target id in {tgt.name}")
     return n
 
 
@@ -490,7 +503,7 @@ def check_claims(problems):
         if "NOT SUPPORTED" in text and "volcanic" in text.lower():
             if "pre-specified" not in text and "pre-registered" not in text:
                 problems.append(
-                    f"claims: {path.relative_to(REPO)} states a v3 verdict without the "
+                    f"claims: {_rel(path)} states a v3 verdict without the "
                     f"pre-specification caveat"
                 )
 
@@ -507,7 +520,7 @@ def check_lens_wording(problems):
         text = _probe(path.read_text(encoding="utf-8", errors="replace"))
         for m in LENS_OVERCLAIM.finditer(text):
             problems.append(
-                f"claims: {path.relative_to(REPO)} calls lenses/axis sets "
+                f"claims: {_rel(path)} calls lenses/axis sets "
                 f"{m.group(0)!r} independent — they share the core metrics, so they are correlated "
                 f"by construction and cannot confirm each other"
             )
@@ -552,7 +565,7 @@ def check_site_markup(problems):
         n += 1
         parser = Balance()
         parser.feed(page.read_text(encoding="utf-8", errors="replace"))
-        rel = page.relative_to(REPO)
+        rel = _rel(page)
         for e in parser.errors[:5]:
             problems.append(f"markup: {rel}: {e}")
         for tag, line in parser.stack[:5]:
