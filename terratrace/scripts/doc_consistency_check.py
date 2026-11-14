@@ -146,6 +146,9 @@ CANONICAL = [
     # and this one prints the three-verdict numbers (ranking definite, adequacy not established,
     # sibling-nearest) that the lunar pages quote
     ROOT / "scripts" / "lunar_adequacy.py",
+    # and this one assembles the atlas whose numbers the atlas page quotes
+    ROOT / "scripts" / "run_discovery_atlas.py",
+    ROOT / "docs" / "DISCOVERY-ATLAS.md",
 ]
 
 # dated records: exempt from the count checks
@@ -478,6 +481,47 @@ def check_lunar_adequacy(problems):
                         f"(...{text[max(0, m.start() - 40):m.end() + 15].strip()!r}...)")
 
 
+def check_discovery_atlas(problems):
+    """The atlas page's numbers must be the atlas's numbers.
+
+    The atlas reconciles ten pairs of records and refuses to publish on any disagreement; this is
+    the matching check in the other direction, so the PAGE cannot drift away from the atlas it is
+    describing. A page that quotes a stale abstention count is the same defect as a stale test
+    count, and harder to notice because it looks like a finding.
+    """
+    import json
+    art = ROOT / "artifacts" / "discovery_atlas" / "discovery_atlas.json"
+    if not art.exists():
+        return
+    a = json.loads(art.read_text(encoding="utf-8"))
+    h = a["headline"]
+    pats = [
+        ("reconciliations", re.compile(r"(?<![\w.])(\d+)\s+cross-artifact reconciliations?", re.I),
+         len(a["reconciliations"])),
+        ("abstention rows", re.compile(r"abstention rows?[:\s*]+(\d+)", re.I), h["abstention_rows"]),
+        ("ranking cells", re.compile(r"definite at\s+(\d+)\s+of\s+(\d+)\s+lunar cells"),
+         (h["ranking_definite_cells"], h["ranking_cells"])),
+        ("sibling nearest",
+         re.compile(r"(?<![\w.])(\d+)\s+of\s+(\d+)\*{0,2}\s*(?:site\s*[x×]\s*descriptor)"),
+         (h["sibling_nearest"]["count"], h["sibling_nearest"]["of"])),
+        ("stable perturbations", re.compile(r"untouched\s*\|\s*\*{0,2}(\d+)\*{0,2}\s*\|"),
+         h["stress_stable_of_counted"][0]),
+    ]
+    for path in CANONICAL:
+        if not path.exists() or path.suffix not in (".md", ".html", ".js"):
+            continue
+        text = _probe(path.read_text(encoding="utf-8", errors="replace"))
+        rel = _rel(path)
+        for label, pat, want in pats:
+            for m in pat.finditer(text):
+                got = tuple(int(g) for g in m.groups())
+                want_t = want if isinstance(want, tuple) else (want,)
+                if got != want_t:
+                    problems.append(
+                        f"atlas: {rel} states {label} {got}, the atlas says {want_t} "
+                        f"(...{text[max(0, m.start() - 40):m.end() + 15].strip()!r}...)")
+
+
 def check_versions(problems):
     src = (ROOT / "terratrace" / "__init__.py").read_text(encoding="utf-8")
     m = re.search(r'^__version__\s*=\s*["\']([^"\']+)["\']', src, re.M)
@@ -708,6 +752,7 @@ def main(argv=None):
     check_lens_wording(problems)
     check_lunar_stress(problems)
     check_lunar_adequacy(problems)
+    check_discovery_atlas(problems)
     n_pages = check_site_markup(problems)
 
     if not quiet:

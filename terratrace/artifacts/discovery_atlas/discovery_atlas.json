@@ -1,0 +1,1862 @@
+{
+  "provenance": {
+    "what": "the scale-resolved planetary morphology evidence atlas",
+    "assembled_from": [
+      "artifacts/mf_panel_v3/matched_panel_v3_real.json",
+      "artifacts/lunar_sites_v2/lunar_sites_v2.json",
+      "artifacts/dependence/dependence_audit.json",
+      "artifacts/lunar_adversarial/lunar_adversarial.json",
+      "artifacts/lunar_adequacy/lunar_adequacy.json",
+      "artifacts/scale_profile/scale_profile.json"
+    ],
+    "principle": "Every number that appears in more than one record is read from both and reconciled here. One disagreement and this file is not written.",
+    "regimes_are_not_pooled": true,
+    "score_firewall": "no composite analog score; distances and band memberships only",
+    "scope": "map-scale terrain-MORPHOLOGY screening only"
+  },
+  "regimes": {
+    "mars_panel_v3": {
+      "body": "mars",
+      "source": "MOLA 463 m/pixel (USGS)",
+      "footprint_m": 60000.0,
+      "supports_m": [
+        1500.0,
+        2000.0,
+        3000.0
+      ],
+      "cells_per_side": [
+        40,
+        30,
+        20
+      ],
+      "status": "CONFIRMATORY",
+      "note": "the frozen benchmark; pre-specified, NOT pre-registered",
+      "cross_regime_comparable": false
+    },
+    "lunar_panel_v2": {
+      "body": "moon",
+      "source": "LOLA 5 m/pixel (NASA Goddard PGDA)",
+      "footprint_m": 9000.0,
+      "supports_m": [
+        500.0,
+        750.0,
+        1000.0
+      ],
+      "cells_per_side": [
+        18,
+        12,
+        9
+      ],
+      "status": "CORRECTED EXPLORATORY REANALYSIS",
+      "note": "same data was examined in v1 before the correction existed",
+      "cross_regime_comparable": false
+    },
+    "_note": "The two regimes are NOT comparable to each other: different footprint, different supports, different bodies and different source resolutions. Nothing in this atlas pools across them."
+  },
+  "windows": [
+    {
+      "regime": "lunar_panel_v2",
+      "reference": "LUNAR_Site01",
+      "body": "moon",
+      "footprint_m": 9000.0,
+      "support_m": 1000.0,
+      "cells": [
+        9,
+        9
+      ],
+      "valid_fraction": 1.0,
+      "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "source_posting_m": 5.0,
+      "source_floor_m": 15.0,
+      "resampling": "average",
+      "reference_axes": {
+        "mean_slope_deg": 8.564013867567688,
+        "mean_relief3_m": 421.6679244362436,
+        "elev_std_m": 268.6677536472658
+      }
+    },
+    {
+      "regime": "lunar_panel_v2",
+      "reference": "LUNAR_Site04",
+      "body": "moon",
+      "footprint_m": 9000.0,
+      "support_m": 1000.0,
+      "cells": [
+        9,
+        9
+      ],
+      "valid_fraction": 1.0,
+      "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "source_posting_m": 5.0,
+      "source_floor_m": 15.0,
+      "resampling": "average",
+      "reference_axes": {
+        "mean_slope_deg": 22.844378518573688,
+        "mean_relief3_m": 1086.310434407075,
+        "elev_std_m": 1025.5465298494091
+      }
+    },
+    {
+      "regime": "lunar_panel_v2",
+      "reference": "LUNAR_Site07",
+      "body": "moon",
+      "footprint_m": 9000.0,
+      "support_m": 1000.0,
+      "cells": [
+        9,
+        9
+      ],
+      "valid_fraction": 1.0,
+      "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "source_posting_m": 5.0,
+      "source_floor_m": 15.0,
+      "resampling": "average",
+      "reference_axes": {
+        "mean_slope_deg": 9.512343848614808,
+        "mean_relief3_m": 439.38333569437214,
+        "elev_std_m": 270.8458281391905
+      }
+    },
+    {
+      "regime": "lunar_panel_v2",
+      "reference": "LUNAR_Site11",
+      "body": "moon",
+      "footprint_m": 9000.0,
+      "support_m": 1000.0,
+      "cells": [
+        9,
+        9
+      ],
+      "valid_fraction": 1.0,
+      "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "source_posting_m": 5.0,
+      "source_floor_m": 15.0,
+      "resampling": "average",
+      "reference_axes": {
+        "mean_slope_deg": 14.464250901450088,
+        "mean_relief3_m": 641.5930682100778,
+        "elev_std_m": 398.00121292857057
+      }
+    },
+    {
+      "regime": "lunar_panel_v2",
+      "reference": "LUNAR_Site20",
+      "body": "moon",
+      "footprint_m": 9000.0,
+      "support_m": 1000.0,
+      "cells": [
+        9,
+        9
+      ],
+      "valid_fraction": 1.0,
+      "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "source_posting_m": 5.0,
+      "source_floor_m": 15.0,
+      "resampling": "average",
+      "reference_axes": {
+        "mean_slope_deg": 10.236092619050059,
+        "mean_relief3_m": 396.12598515849623,
+        "elev_std_m": 256.8300750948205
+      }
+    },
+    {
+      "regime": "lunar_panel_v2",
+      "reference": "LUNAR_Site23",
+      "body": "moon",
+      "footprint_m": 9000.0,
+      "support_m": 1000.0,
+      "cells": [
+        9,
+        9
+      ],
+      "valid_fraction": 1.0,
+      "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "source_posting_m": 5.0,
+      "source_floor_m": 15.0,
+      "resampling": "average",
+      "reference_axes": {
+        "mean_slope_deg": 14.447638156707475,
+        "mean_relief3_m": 553.2897166281282,
+        "elev_std_m": 379.45895816143064
+      }
+    },
+    {
+      "regime": "lunar_panel_v2",
+      "reference": "LUNAR_Site01",
+      "body": "moon",
+      "footprint_m": 9000.0,
+      "support_m": 500.0,
+      "cells": [
+        18,
+        18
+      ],
+      "valid_fraction": 1.0,
+      "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "source_posting_m": 5.0,
+      "source_floor_m": 15.0,
+      "resampling": "average",
+      "reference_axes": {
+        "mean_slope_deg": 9.503441970448348,
+        "mean_relief3_m": 220.56428248147512,
+        "elev_std_m": 273.8608542980544
+      }
+    },
+    {
+      "regime": "lunar_panel_v2",
+      "reference": "LUNAR_Site04",
+      "body": "moon",
+      "footprint_m": 9000.0,
+      "support_m": 500.0,
+      "cells": [
+        18,
+        18
+      ],
+      "valid_fraction": 1.0,
+      "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "source_posting_m": 5.0,
+      "source_floor_m": 15.0,
+      "resampling": "average",
+      "reference_axes": {
+        "mean_slope_deg": 23.854542182743966,
+        "mean_relief3_m": 568.5209524308559,
+        "elev_std_m": 1032.6279942551957
+      }
+    },
+    {
+      "regime": "lunar_panel_v2",
+      "reference": "LUNAR_Site07",
+      "body": "moon",
+      "footprint_m": 9000.0,
+      "support_m": 500.0,
+      "cells": [
+        18,
+        18
+      ],
+      "valid_fraction": 1.0,
+      "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "source_posting_m": 5.0,
+      "source_floor_m": 15.0,
+      "resampling": "average",
+      "reference_axes": {
+        "mean_slope_deg": 10.131264805554247,
+        "mean_relief3_m": 229.21918438542716,
+        "elev_std_m": 275.0070084119054
+      }
+    },
+    {
+      "regime": "lunar_panel_v2",
+      "reference": "LUNAR_Site11",
+      "body": "moon",
+      "footprint_m": 9000.0,
+      "support_m": 500.0,
+      "cells": [
+        18,
+        18
+      ],
+      "valid_fraction": 1.0,
+      "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "source_posting_m": 5.0,
+      "source_floor_m": 15.0,
+      "resampling": "average",
+      "reference_axes": {
+        "mean_slope_deg": 15.201319160653641,
+        "mean_relief3_m": 343.70114582712813,
+        "elev_std_m": 403.5804772314371
+      }
+    },
+    {
+      "regime": "lunar_panel_v2",
+      "reference": "LUNAR_Site20",
+      "body": "moon",
+      "footprint_m": 9000.0,
+      "support_m": 500.0,
+      "cells": [
+        18,
+        18
+      ],
+      "valid_fraction": 1.0,
+      "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "source_posting_m": 5.0,
+      "source_floor_m": 15.0,
+      "resampling": "average",
+      "reference_axes": {
+        "mean_slope_deg": 11.124238511015957,
+        "mean_relief3_m": 231.18174485685256,
+        "elev_std_m": 263.45618675338466
+      }
+    },
+    {
+      "regime": "lunar_panel_v2",
+      "reference": "LUNAR_Site23",
+      "body": "moon",
+      "footprint_m": 9000.0,
+      "support_m": 500.0,
+      "cells": [
+        18,
+        18
+      ],
+      "valid_fraction": 1.0,
+      "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "source_posting_m": 5.0,
+      "source_floor_m": 15.0,
+      "resampling": "average",
+      "reference_axes": {
+        "mean_slope_deg": 15.079218999572648,
+        "mean_relief3_m": 310.57775458175877,
+        "elev_std_m": 386.7223664481896
+      }
+    },
+    {
+      "regime": "lunar_panel_v2",
+      "reference": "LUNAR_Site01",
+      "body": "moon",
+      "footprint_m": 9000.0,
+      "support_m": 750.0,
+      "cells": [
+        12,
+        12
+      ],
+      "valid_fraction": 1.0,
+      "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "source_posting_m": 5.0,
+      "source_floor_m": 15.0,
+      "resampling": "average",
+      "reference_axes": {
+        "mean_slope_deg": 9.06059809710856,
+        "mean_relief3_m": 321.61084552708814,
+        "elev_std_m": 271.68537413730104
+      }
+    },
+    {
+      "regime": "lunar_panel_v2",
+      "reference": "LUNAR_Site04",
+      "body": "moon",
+      "footprint_m": 9000.0,
+      "support_m": 750.0,
+      "cells": [
+        12,
+        12
+      ],
+      "valid_fraction": 1.0,
+      "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "source_posting_m": 5.0,
+      "source_floor_m": 15.0,
+      "resampling": "average",
+      "reference_axes": {
+        "mean_slope_deg": 23.36426158276437,
+        "mean_relief3_m": 837.4711937131088,
+        "elev_std_m": 1029.7044903815272
+      }
+    },
+    {
+      "regime": "lunar_panel_v2",
+      "reference": "LUNAR_Site07",
+      "body": "moon",
+      "footprint_m": 9000.0,
+      "support_m": 750.0,
+      "cells": [
+        12,
+        12
+      ],
+      "valid_fraction": 1.0,
+      "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "source_posting_m": 5.0,
+      "source_floor_m": 15.0,
+      "resampling": "average",
+      "reference_axes": {
+        "mean_slope_deg": 9.80002421470933,
+        "mean_relief3_m": 335.54424822190776,
+        "elev_std_m": 273.1134185872303
+      }
+    },
+    {
+      "regime": "lunar_panel_v2",
+      "reference": "LUNAR_Site11",
+      "body": "moon",
+      "footprint_m": 9000.0,
+      "support_m": 750.0,
+      "cells": [
+        12,
+        12
+      ],
+      "valid_fraction": 1.0,
+      "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "source_posting_m": 5.0,
+      "source_floor_m": 15.0,
+      "resampling": "average",
+      "reference_axes": {
+        "mean_slope_deg": 14.881713581520152,
+        "mean_relief3_m": 501.3527822411283,
+        "elev_std_m": 401.16965317825327
+      }
+    },
+    {
+      "regime": "lunar_panel_v2",
+      "reference": "LUNAR_Site20",
+      "body": "moon",
+      "footprint_m": 9000.0,
+      "support_m": 750.0,
+      "cells": [
+        12,
+        12
+      ],
+      "valid_fraction": 1.0,
+      "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "source_posting_m": 5.0,
+      "source_floor_m": 15.0,
+      "resampling": "average",
+      "reference_axes": {
+        "mean_slope_deg": 10.663085264704462,
+        "mean_relief3_m": 320.4822322281913,
+        "elev_std_m": 260.86156404055254
+      }
+    },
+    {
+      "regime": "lunar_panel_v2",
+      "reference": "LUNAR_Site23",
+      "body": "moon",
+      "footprint_m": 9000.0,
+      "support_m": 750.0,
+      "cells": [
+        12,
+        12
+      ],
+      "valid_fraction": 1.0,
+      "source_crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+      "source_posting_m": 5.0,
+      "source_floor_m": 15.0,
+      "resampling": "average",
+      "reference_axes": {
+        "mean_slope_deg": 14.766434303234771,
+        "mean_relief3_m": 437.52162207538163,
+        "elev_std_m": 383.68448557358465
+      }
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_daedalia",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 1500.0,
+      "cells": 40,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_daedalia",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 2000.0,
+      "cells": 30,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_daedalia",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 3000.0,
+      "cells": 20,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_elysium",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 1500.0,
+      "cells": 40,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_elysium",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 2000.0,
+      "cells": 30,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_elysium",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 3000.0,
+      "cells": 20,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_amazonis",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 1500.0,
+      "cells": 40,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_amazonis",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 2000.0,
+      "cells": 30,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_amazonis",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 3000.0,
+      "cells": 20,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_syria",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 1500.0,
+      "cells": 40,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_syria",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 2000.0,
+      "cells": 30,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_syria",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 3000.0,
+      "cells": 20,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_hesperia",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 1500.0,
+      "cells": 40,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_hesperia",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 2000.0,
+      "cells": 30,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_hesperia",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 3000.0,
+      "cells": 20,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_noachis",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 1500.0,
+      "cells": 40,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_noachis",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 2000.0,
+      "cells": 30,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_noachis",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 3000.0,
+      "cells": 20,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_coprates",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 1500.0,
+      "cells": 40,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_coprates",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 2000.0,
+      "cells": 30,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_coprates",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 3000.0,
+      "cells": 20,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_arcadia",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 1500.0,
+      "cells": 40,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_arcadia",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 2000.0,
+      "cells": 30,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_arcadia",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 3000.0,
+      "cells": 20,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_cerberus",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 1500.0,
+      "cells": 40,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_cerberus",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 2000.0,
+      "cells": 30,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_cerberus",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 3000.0,
+      "cells": 20,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_solis",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 1500.0,
+      "cells": 40,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_solis",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 2000.0,
+      "cells": 30,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_solis",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 3000.0,
+      "cells": 20,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_terra_sabaea",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 1500.0,
+      "cells": 40,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_terra_sabaea",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 2000.0,
+      "cells": 30,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_terra_sabaea",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 3000.0,
+      "cells": 20,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_terra_sirenum",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 1500.0,
+      "cells": 40,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_terra_sirenum",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 2000.0,
+      "cells": 30,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    },
+    {
+      "regime": "mars_panel_v3",
+      "reference": "mars_terra_sirenum",
+      "body": "mars",
+      "footprint_m": 60000.0,
+      "support_m": 3000.0,
+      "cells": 20,
+      "source_posting_m": 463.0,
+      "source_floor_m": 1389.0,
+      "resampling": "average (declared by the v3 protocol)"
+    }
+  ],
+  "scale_evidence": {
+    "lunar_panel_v2": {
+      "500m": {
+        "Site01": {
+          "mean_slope_deg": 9.503441970448348,
+          "mean_relief3_m": 220.56428248147512,
+          "elev_std_m": 273.8608542980544
+        },
+        "Site04": {
+          "mean_slope_deg": 23.854542182743966,
+          "mean_relief3_m": 568.5209524308559,
+          "elev_std_m": 1032.6279942551957
+        },
+        "Site07": {
+          "mean_slope_deg": 10.131264805554247,
+          "mean_relief3_m": 229.21918438542716,
+          "elev_std_m": 275.0070084119054
+        },
+        "Site11": {
+          "mean_slope_deg": 15.201319160653641,
+          "mean_relief3_m": 343.70114582712813,
+          "elev_std_m": 403.5804772314371
+        },
+        "Site20": {
+          "mean_slope_deg": 11.124238511015957,
+          "mean_relief3_m": 231.18174485685256,
+          "elev_std_m": 263.45618675338466
+        },
+        "Site23": {
+          "mean_slope_deg": 15.079218999572648,
+          "mean_relief3_m": 310.57775458175877,
+          "elev_std_m": 386.7223664481896
+        }
+      },
+      "750m": {
+        "Site01": {
+          "mean_slope_deg": 9.06059809710856,
+          "mean_relief3_m": 321.61084552708814,
+          "elev_std_m": 271.68537413730104
+        },
+        "Site04": {
+          "mean_slope_deg": 23.36426158276437,
+          "mean_relief3_m": 837.4711937131088,
+          "elev_std_m": 1029.7044903815272
+        },
+        "Site07": {
+          "mean_slope_deg": 9.80002421470933,
+          "mean_relief3_m": 335.54424822190776,
+          "elev_std_m": 273.1134185872303
+        },
+        "Site11": {
+          "mean_slope_deg": 14.881713581520152,
+          "mean_relief3_m": 501.3527822411283,
+          "elev_std_m": 401.16965317825327
+        },
+        "Site20": {
+          "mean_slope_deg": 10.663085264704462,
+          "mean_relief3_m": 320.4822322281913,
+          "elev_std_m": 260.86156404055254
+        },
+        "Site23": {
+          "mean_slope_deg": 14.766434303234771,
+          "mean_relief3_m": 437.52162207538163,
+          "elev_std_m": 383.68448557358465
+        }
+      },
+      "1000m": {
+        "Site01": {
+          "mean_slope_deg": 8.564013867567688,
+          "mean_relief3_m": 421.6679244362436,
+          "elev_std_m": 268.6677536472658
+        },
+        "Site04": {
+          "mean_slope_deg": 22.844378518573688,
+          "mean_relief3_m": 1086.310434407075,
+          "elev_std_m": 1025.5465298494091
+        },
+        "Site07": {
+          "mean_slope_deg": 9.512343848614808,
+          "mean_relief3_m": 439.38333569437214,
+          "elev_std_m": 270.8458281391905
+        },
+        "Site11": {
+          "mean_slope_deg": 14.464250901450088,
+          "mean_relief3_m": 641.5930682100778,
+          "elev_std_m": 398.00121292857057
+        },
+        "Site20": {
+          "mean_slope_deg": 10.236092619050059,
+          "mean_relief3_m": 396.12598515849623,
+          "elev_std_m": 256.8300750948205
+        },
+        "Site23": {
+          "mean_slope_deg": 14.447638156707475,
+          "mean_relief3_m": 553.2897166281282,
+          "elev_std_m": 379.45895816143064
+        }
+      }
+    }
+  },
+  "lens_decisions": {
+    "mars_panel_v3": {
+      "reference": "mars_arcadia",
+      "support_m": 1500.0,
+      "by_lens": {
+        "core": {
+          "pareto_layer1": [
+            "earth_llano_estacado",
+            "earth_nullarbor"
+          ],
+          "recommended_unit": null,
+          "result_state": "TIE"
+        }
+      }
+    }
+  },
+  "dependence": {
+    "verdict": {
+      "effective_rank_by_support_candidates_only": {
+        "500": 1,
+        "750": 1,
+        "1000": 1
+      },
+      "effective_rank_by_support_cross_body": {
+        "500": 1,
+        "750": 1,
+        "1000": 1
+      },
+      "effective_rank_max": 1,
+      "three_axes_are_one_dimension": true,
+      "frontier_invariant_to_any_single_axis_drop": true,
+      "one_axis_statement": "The three declared axes span a single dimension at every support, over both the pool the frontier decides between (the seven Earth candidates) and the wider cross-body pool. Mean slope and mean 3x3 relief are mathematically the same measurement up to a direction factor bounded by 41% -- verified against the engine's own functions to floating point -- and the elevation standard deviation tracks them empirically. A Pareto frontier over these three is therefore a one-dimensional ordering and must not be reported as three lines of evidence.",
+      "what_this_does_not_mean": "It does not make the lunar result wrong. It makes it smaller and more robust: a one-dimensional ordering is far more stable than a genuine three-dimensional frontier, which is consistent with the 6/6 ensemble and the 18/18 panel agreement."
+    },
+    "analytic": {
+      "verified_against_engine": true,
+      "worst_relief_error_m": 4.440892098500626e-16,
+      "rho_bounds_provable": [
+        1.0,
+        1.4142135623730951
+      ]
+    },
+    "panel": {
+      "500": {
+        "pools": {
+          "candidates_only": {
+            "effective_rank_95": 1,
+            "participation_ratio": 1.0012700657977867,
+            "planar_fit": {
+              "r2": 0.9989238080637977,
+              "scale_k": 1.3190886955626477,
+              "n": 7,
+              "k_inside_provable_band": true
+            }
+          },
+          "cross_body": {
+            "effective_rank_95": 1,
+            "participation_ratio": 1.0379121722566125,
+            "planar_fit": {
+              "r2": 0.9957015915817774,
+              "scale_k": 1.2584253974754946,
+              "n": 13,
+              "k_inside_provable_band": true
+            }
+          }
+        }
+      },
+      "750": {
+        "pools": {
+          "candidates_only": {
+            "effective_rank_95": 1,
+            "participation_ratio": 1.0014482827801507,
+            "planar_fit": {
+              "r2": 0.9981221896266819,
+              "scale_k": 1.3049024385730814,
+              "n": 7,
+              "k_inside_provable_band": true
+            }
+          },
+          "cross_body": {
+            "effective_rank_95": 1,
+            "participation_ratio": 1.0360384255914052,
+            "planar_fit": {
+              "r2": 0.9921309797194671,
+              "scale_k": 1.250085169328864,
+              "n": 13,
+              "k_inside_provable_band": true
+            }
+          }
+        }
+      },
+      "1000": {
+        "pools": {
+          "candidates_only": {
+            "effective_rank_95": 1,
+            "participation_ratio": 1.0013905465912425,
+            "planar_fit": {
+              "r2": 0.997823916222143,
+              "scale_k": 1.2771310752443688,
+              "n": 7,
+              "k_inside_provable_band": true
+            }
+          },
+          "cross_body": {
+            "effective_rank_95": 1,
+            "participation_ratio": 1.0360246327252285,
+            "planar_fit": {
+              "r2": 0.9883372941111962,
+              "scale_k": 1.2399306446258096,
+              "n": 13,
+              "k_inside_provable_band": true
+            }
+          }
+        }
+      }
+    }
+  },
+  "uncertainty": {
+    "lunar_error_ensemble": {
+      "realisations_sampled": 6,
+      "draws_available": 100,
+      "scope": "Site01 only",
+      "exact_set_match": {
+        "500m": [
+          6,
+          6
+        ],
+        "750m": [
+          6,
+          6
+        ],
+        "1000m": [
+          6,
+          6
+        ]
+      }
+    },
+    "adequacy_bands_calibrated": 0,
+    "adequacy_bands_attempted": 18,
+    "note": "Only the lunar DEM has a published error model, and only six of its 100 realisations were retrieved. The Earth side is treated as exact, which is a stated limitation rather than a finding."
+  },
+  "adversarial": {
+    "declared_before_run": "config/lunar_adversarial_v1.yml (committed BEFORE the run)",
+    "n_counted": 30,
+    "n_stable": 28,
+    "reversing": [
+      "footprint:3000m",
+      "add_unit:earth_andean_volcano"
+    ],
+    "cell_stable_fraction": 0.9642857142857143,
+    "verdict": "robust"
+  },
+  "ranking": {
+    "Site01@1000m": {
+      "state": "RECOMMEND_FOLLOW_UP",
+      "recommended_unit": "earth_nevada_basin",
+      "layer1": [
+        "earth_nevada_basin"
+      ],
+      "provisional": true,
+      "worst_axis_distance_fraction": [
+        0.08658236353205422,
+        0.003432428137663541,
+        0.12068194100382529
+      ]
+    },
+    "Site01@500m": {
+      "state": "RECOMMEND_FOLLOW_UP",
+      "recommended_unit": "earth_nevada_basin",
+      "layer1": [
+        "earth_nevada_basin"
+      ],
+      "provisional": true,
+      "worst_axis_distance_fraction": [
+        0.1990798949980961,
+        0.2075660178985131,
+        0.12263013312814394
+      ]
+    },
+    "Site01@750m": {
+      "state": "RECOMMEND_FOLLOW_UP",
+      "recommended_unit": "earth_nevada_basin",
+      "layer1": [
+        "earth_nevada_basin"
+      ],
+      "provisional": true,
+      "worst_axis_distance_fraction": [
+        0.123632780574084,
+        0.09636014917981414,
+        0.12166149677548724
+      ]
+    },
+    "Site04@1000m": {
+      "state": "RECOMMEND_FOLLOW_UP",
+      "recommended_unit": "earth_nevada_basin",
+      "layer1": [
+        "earth_nevada_basin"
+      ],
+      "provisional": true,
+      "worst_axis_distance_fraction": [
+        0.5926566169450783,
+        0.6131671331896749,
+        0.7064091283242239
+      ]
+    },
+    "Site04@500m": {
+      "state": "RECOMMEND_FOLLOW_UP",
+      "recommended_unit": "earth_nevada_basin",
+      "layer1": [
+        "earth_nevada_basin"
+      ],
+      "provisional": true,
+      "worst_axis_distance_fraction": [
+        0.5222970068866396,
+        0.5315107892717623,
+        0.7022698890310807
+      ]
+    },
+    "Site04@750m": {
+      "state": "RECOMMEND_FOLLOW_UP",
+      "recommended_unit": "earth_nevada_basin",
+      "layer1": [
+        "earth_nevada_basin"
+      ],
+      "provisional": true,
+      "worst_axis_distance_fraction": [
+        0.5642582155890332,
+        0.5789690233802661,
+        0.7040519622343872
+      ]
+    },
+    "Site07@1000m": {
+      "state": "RECOMMEND_FOLLOW_UP",
+      "recommended_unit": "earth_nevada_basin",
+      "layer1": [
+        "earth_nevada_basin"
+      ],
+      "provisional": true,
+      "worst_axis_distance_fraction": [
+        0.021744106643279165,
+        0.04361284224953626,
+        0.11166969678344665
+      ]
+    },
+    "Site07@500m": {
+      "state": "RECOMMEND_FOLLOW_UP",
+      "recommended_unit": "earth_nevada_basin",
+      "layer1": [
+        "earth_nevada_basin"
+      ],
+      "provisional": true,
+      "worst_axis_distance_fraction": [
+        0.12477429212968852,
+        0.16197050871162114,
+        0.11795131729414629
+      ]
+    },
+    "Site07@750m": {
+      "state": "RECOMMEND_FOLLOW_UP",
+      "recommended_unit": "earth_nevada_basin",
+      "layer1": [
+        "earth_nevada_basin"
+      ],
+      "provisional": true,
+      "worst_axis_distance_fraction": [
+        0.03885304877487072,
+        0.050834029933173784,
+        0.11579659828952008
+      ]
+    },
+    "Site11@1000m": {
+      "state": "RECOMMEND_FOLLOW_UP",
+      "recommended_unit": "earth_nevada_basin",
+      "layer1": [
+        "earth_nevada_basin"
+      ],
+      "provisional": true,
+      "worst_axis_distance_fraction": [
+        0.35665479720003473,
+        0.3450356613733474,
+        0.24349200489348177
+      ]
+    },
+    "Site11@500m": {
+      "state": "RECOMMEND_FOLLOW_UP",
+      "recommended_unit": "earth_nevada_basin",
+      "layer1": [
+        "earth_nevada_basin"
+      ],
+      "provisional": true,
+      "worst_axis_distance_fraction": [
+        0.25036859764506686,
+        0.2250653350432469,
+        0.23820783049695177
+      ]
+    },
+    "Site11@750m": {
+      "state": "RECOMMEND_FOLLOW_UP",
+      "recommended_unit": "earth_nevada_basin",
+      "layer1": [
+        "earth_nevada_basin"
+      ],
+      "provisional": true,
+      "worst_axis_distance_fraction": [
+        0.3158862399985534,
+        0.29670019381613993,
+        0.24037368980288382
+      ]
+    },
+    "Site20@1000m": {
+      "state": "RECOMMEND_FOLLOW_UP",
+      "recommended_unit": "earth_nevada_basin",
+      "layer1": [
+        "earth_nevada_basin"
+      ],
+      "provisional": true,
+      "worst_axis_distance_fraction": [
+        0.09091224788013227,
+        0.060825584111887,
+        0.172335831508027
+      ]
+    },
+    "Site20@500m": {
+      "state": "RECOMMEND_FOLLOW_UP",
+      "recommended_unit": "earth_nevada_basin",
+      "layer1": [
+        "earth_nevada_basin"
+      ],
+      "provisional": true,
+      "worst_axis_distance_fraction": [
+        0.024374494376513015,
+        0.1521062463289164,
+        0.16696613242566888
+      ]
+    },
+    "Site20@750m": {
+      "state": "RECOMMEND_FOLLOW_UP",
+      "recommended_unit": "earth_nevada_basin",
+      "layer1": [
+        "earth_nevada_basin"
+      ],
+      "provisional": true,
+      "worst_axis_distance_fraction": [
+        0.045230833216964195,
+        0.10022110158314053,
+        0.16820208652693572
+      ]
+    },
+    "Site23@1000m": {
+      "state": "RECOMMEND_FOLLOW_UP",
+      "recommended_unit": "earth_nevada_basin",
+      "layer1": [
+        "earth_nevada_basin"
+      ],
+      "provisional": true,
+      "worst_axis_distance_fraction": [
+        0.35591504101846544,
+        0.2405053501652316,
+        0.20652525611356304
+      ]
+    },
+    "Site23@500m": {
+      "state": "RECOMMEND_FOLLOW_UP",
+      "recommended_unit": "earth_nevada_basin",
+      "layer1": [
+        "earth_nevada_basin"
+      ],
+      "provisional": true,
+      "worst_axis_distance_fraction": [
+        0.2442986470076033,
+        0.14241787005809903,
+        0.20499957076984493
+      ]
+    },
+    "Site23@750m": {
+      "state": "RECOMMEND_FOLLOW_UP",
+      "recommended_unit": "earth_nevada_basin",
+      "layer1": [
+        "earth_nevada_basin"
+      ],
+      "provisional": true,
+      "worst_axis_distance_fraction": [
+        0.3105454692411344,
+        0.19409396749956734,
+        0.20575620108463005
+      ]
+    }
+  },
+  "adequacy": {
+    "Site01@1000m": {
+      "state": "NOT_ESTABLISHED",
+      "discriminates": false
+    },
+    "Site01@500m": {
+      "state": "NOT_ESTABLISHED",
+      "discriminates": false
+    },
+    "Site01@750m": {
+      "state": "NOT_ESTABLISHED",
+      "discriminates": false
+    },
+    "Site04@1000m": {
+      "state": "NOT_ESTABLISHED",
+      "discriminates": false
+    },
+    "Site04@500m": {
+      "state": "NOT_ESTABLISHED",
+      "discriminates": false
+    },
+    "Site04@750m": {
+      "state": "NOT_ESTABLISHED",
+      "discriminates": false
+    },
+    "Site07@1000m": {
+      "state": "NOT_ESTABLISHED",
+      "discriminates": false
+    },
+    "Site07@500m": {
+      "state": "NOT_ESTABLISHED",
+      "discriminates": false
+    },
+    "Site07@750m": {
+      "state": "NOT_ESTABLISHED",
+      "discriminates": false
+    },
+    "Site11@1000m": {
+      "state": "NOT_ESTABLISHED",
+      "discriminates": false
+    },
+    "Site11@500m": {
+      "state": "NOT_ESTABLISHED",
+      "discriminates": false
+    },
+    "Site11@750m": {
+      "state": "NOT_ESTABLISHED",
+      "discriminates": false
+    },
+    "Site20@1000m": {
+      "state": "NOT_ESTABLISHED",
+      "discriminates": false
+    },
+    "Site20@500m": {
+      "state": "NOT_ESTABLISHED",
+      "discriminates": false
+    },
+    "Site20@750m": {
+      "state": "NOT_ESTABLISHED",
+      "discriminates": false
+    },
+    "Site23@1000m": {
+      "state": "NOT_ESTABLISHED",
+      "discriminates": false
+    },
+    "Site23@500m": {
+      "state": "NOT_ESTABLISHED",
+      "discriminates": false
+    },
+    "Site23@750m": {
+      "state": "NOT_ESTABLISHED",
+      "discriminates": false
+    }
+  },
+  "abstention": [
+    {
+      "cell": "Site01@1000m",
+      "reason": "ranking is relative; the absolute question is unanswered here",
+      "state": "ADEQUACY_NOT_ESTABLISHED"
+    },
+    {
+      "cell": "Site01@1000m",
+      "reason": "evidence sufficiency",
+      "state": "MARGINAL",
+      "because": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    {
+      "cell": "Site01@500m",
+      "reason": "ranking is relative; the absolute question is unanswered here",
+      "state": "ADEQUACY_NOT_ESTABLISHED"
+    },
+    {
+      "cell": "Site01@500m",
+      "reason": "evidence sufficiency",
+      "state": "MARGINAL",
+      "because": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    {
+      "cell": "Site01@750m",
+      "reason": "ranking is relative; the absolute question is unanswered here",
+      "state": "ADEQUACY_NOT_ESTABLISHED"
+    },
+    {
+      "cell": "Site01@750m",
+      "reason": "evidence sufficiency",
+      "state": "MARGINAL",
+      "because": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    {
+      "cell": "Site04@1000m",
+      "reason": "ranking is relative; the absolute question is unanswered here",
+      "state": "ADEQUACY_NOT_ESTABLISHED"
+    },
+    {
+      "cell": "Site04@1000m",
+      "reason": "evidence sufficiency",
+      "state": "MARGINAL",
+      "because": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    {
+      "cell": "Site04@500m",
+      "reason": "ranking is relative; the absolute question is unanswered here",
+      "state": "ADEQUACY_NOT_ESTABLISHED"
+    },
+    {
+      "cell": "Site04@500m",
+      "reason": "evidence sufficiency",
+      "state": "MARGINAL",
+      "because": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    {
+      "cell": "Site04@750m",
+      "reason": "ranking is relative; the absolute question is unanswered here",
+      "state": "ADEQUACY_NOT_ESTABLISHED"
+    },
+    {
+      "cell": "Site04@750m",
+      "reason": "evidence sufficiency",
+      "state": "MARGINAL",
+      "because": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    {
+      "cell": "Site07@1000m",
+      "reason": "ranking is relative; the absolute question is unanswered here",
+      "state": "ADEQUACY_NOT_ESTABLISHED"
+    },
+    {
+      "cell": "Site07@1000m",
+      "reason": "evidence sufficiency",
+      "state": "MARGINAL",
+      "because": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    {
+      "cell": "Site07@500m",
+      "reason": "ranking is relative; the absolute question is unanswered here",
+      "state": "ADEQUACY_NOT_ESTABLISHED"
+    },
+    {
+      "cell": "Site07@500m",
+      "reason": "evidence sufficiency",
+      "state": "MARGINAL",
+      "because": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    {
+      "cell": "Site07@750m",
+      "reason": "ranking is relative; the absolute question is unanswered here",
+      "state": "ADEQUACY_NOT_ESTABLISHED"
+    },
+    {
+      "cell": "Site07@750m",
+      "reason": "evidence sufficiency",
+      "state": "MARGINAL",
+      "because": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    {
+      "cell": "Site11@1000m",
+      "reason": "ranking is relative; the absolute question is unanswered here",
+      "state": "ADEQUACY_NOT_ESTABLISHED"
+    },
+    {
+      "cell": "Site11@1000m",
+      "reason": "evidence sufficiency",
+      "state": "MARGINAL",
+      "because": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    {
+      "cell": "Site11@500m",
+      "reason": "ranking is relative; the absolute question is unanswered here",
+      "state": "ADEQUACY_NOT_ESTABLISHED"
+    },
+    {
+      "cell": "Site11@500m",
+      "reason": "evidence sufficiency",
+      "state": "MARGINAL",
+      "because": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    {
+      "cell": "Site11@750m",
+      "reason": "ranking is relative; the absolute question is unanswered here",
+      "state": "ADEQUACY_NOT_ESTABLISHED"
+    },
+    {
+      "cell": "Site11@750m",
+      "reason": "evidence sufficiency",
+      "state": "MARGINAL",
+      "because": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    {
+      "cell": "Site20@1000m",
+      "reason": "ranking is relative; the absolute question is unanswered here",
+      "state": "ADEQUACY_NOT_ESTABLISHED"
+    },
+    {
+      "cell": "Site20@1000m",
+      "reason": "evidence sufficiency",
+      "state": "MARGINAL",
+      "because": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    {
+      "cell": "Site20@500m",
+      "reason": "ranking is relative; the absolute question is unanswered here",
+      "state": "ADEQUACY_NOT_ESTABLISHED"
+    },
+    {
+      "cell": "Site20@500m",
+      "reason": "evidence sufficiency",
+      "state": "MARGINAL",
+      "because": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    {
+      "cell": "Site20@750m",
+      "reason": "ranking is relative; the absolute question is unanswered here",
+      "state": "ADEQUACY_NOT_ESTABLISHED"
+    },
+    {
+      "cell": "Site20@750m",
+      "reason": "evidence sufficiency",
+      "state": "MARGINAL",
+      "because": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    {
+      "cell": "Site23@1000m",
+      "reason": "ranking is relative; the absolute question is unanswered here",
+      "state": "ADEQUACY_NOT_ESTABLISHED"
+    },
+    {
+      "cell": "Site23@1000m",
+      "reason": "evidence sufficiency",
+      "state": "MARGINAL",
+      "because": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    {
+      "cell": "Site23@500m",
+      "reason": "ranking is relative; the absolute question is unanswered here",
+      "state": "ADEQUACY_NOT_ESTABLISHED"
+    },
+    {
+      "cell": "Site23@500m",
+      "reason": "evidence sufficiency",
+      "state": "MARGINAL",
+      "because": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    },
+    {
+      "cell": "Site23@750m",
+      "reason": "ranking is relative; the absolute question is unanswered here",
+      "state": "ADEQUACY_NOT_ESTABLISHED"
+    },
+    {
+      "cell": "Site23@750m",
+      "reason": "evidence sufficiency",
+      "state": "MARGINAL",
+      "because": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ]
+    }
+  ],
+  "reconciliations": [
+    {
+      "check": "documented_hash:v3_bundle",
+      "claim": "the v3 bundle hash printed in the v3 protocol equals the file on disk",
+      "where": "docs/BENCHMARK-PROTOCOL-v3.md <-> artifacts/mf_panel_v3/matched_panel_v3_real.json",
+      "expected": "4a4922e3396c3531641066a4f8fa8334590ec22f16ba5df69cb11339b689b695",
+      "observed": "4a4922e3396c3531641066a4f8fa8334590ec22f16ba5df69cb11339b689b695",
+      "ok": true
+    },
+    {
+      "check": "documented_hash:v3_config",
+      "claim": "the v3 config hash printed in RESULTS-v3 equals the config on disk",
+      "where": "docs/RESULTS-v3.md <-> config/matched_footprint_v3.yml",
+      "expected": "985350769cc7d347a4d524b11cd47da04b3e36948e1eff7f40e3eaccbd324f0c",
+      "observed": "985350769cc7d347a4d524b11cd47da04b3e36948e1eff7f40e3eaccbd324f0c",
+      "ok": true
+    },
+    {
+      "check": "lunar_headline:panel",
+      "claim": "all 18 lunar cells share one single-member non-dominated set, and it is Nevada",
+      "where": "artifacts/lunar_sites_v2/lunar_sites_v2.json",
+      "expected": [
+        [
+          "earth_nevada_basin"
+        ]
+      ],
+      "observed": [
+        [
+          "earth_nevada_basin"
+        ]
+      ],
+      "ok": true
+    },
+    {
+      "check": "lunar_headline:stress_baseline",
+      "claim": "the stress test re-derived the panel's headline rather than assuming it",
+      "where": "artifacts/lunar_adversarial/lunar_adversarial.json",
+      "expected": true,
+      "observed": true,
+      "ok": true
+    },
+    {
+      "check": "ranking:adequacy_matches_panel",
+      "claim": "every cell the adequacy report ranks recommends the panel's survivor",
+      "where": "artifacts/lunar_adequacy/lunar_adequacy.json <-> artifacts/lunar_sites_v2",
+      "expected": {
+        "Site01@500m": "earth_nevada_basin",
+        "Site04@500m": "earth_nevada_basin",
+        "Site07@500m": "earth_nevada_basin",
+        "Site11@500m": "earth_nevada_basin",
+        "Site20@500m": "earth_nevada_basin",
+        "Site23@500m": "earth_nevada_basin",
+        "Site01@750m": "earth_nevada_basin",
+        "Site04@750m": "earth_nevada_basin",
+        "Site07@750m": "earth_nevada_basin",
+        "Site11@750m": "earth_nevada_basin",
+        "Site20@750m": "earth_nevada_basin",
+        "Site23@750m": "earth_nevada_basin",
+        "Site01@1000m": "earth_nevada_basin",
+        "Site04@1000m": "earth_nevada_basin",
+        "Site07@1000m": "earth_nevada_basin",
+        "Site11@1000m": "earth_nevada_basin",
+        "Site20@1000m": "earth_nevada_basin",
+        "Site23@1000m": "earth_nevada_basin"
+      },
+      "observed": {
+        "Site01@500m": "earth_nevada_basin",
+        "Site04@500m": "earth_nevada_basin",
+        "Site07@500m": "earth_nevada_basin",
+        "Site11@500m": "earth_nevada_basin",
+        "Site20@500m": "earth_nevada_basin",
+        "Site23@500m": "earth_nevada_basin",
+        "Site01@750m": "earth_nevada_basin",
+        "Site04@750m": "earth_nevada_basin",
+        "Site07@750m": "earth_nevada_basin",
+        "Site11@750m": "earth_nevada_basin",
+        "Site20@750m": "earth_nevada_basin",
+        "Site23@750m": "earth_nevada_basin",
+        "Site01@1000m": "earth_nevada_basin",
+        "Site04@1000m": "earth_nevada_basin",
+        "Site07@1000m": "earth_nevada_basin",
+        "Site11@1000m": "earth_nevada_basin",
+        "Site20@1000m": "earth_nevada_basin",
+        "Site23@1000m": "earth_nevada_basin"
+      },
+      "ok": true
+    },
+    {
+      "check": "dependence:agrees_with_stress",
+      "claim": "the audit says one axis and dropping any single axis changes nothing",
+      "where": "artifacts/dependence <-> artifacts/lunar_adversarial",
+      "expected": [
+        true,
+        {
+          "drop_axis:mean_slope_deg": 0,
+          "drop_axis:mean_relief3_m": 0,
+          "drop_axis:elev_std_m": 0
+        }
+      ],
+      "observed": [
+        true,
+        {
+          "drop_axis:mean_slope_deg": 0,
+          "drop_axis:mean_relief3_m": 0,
+          "drop_axis:elev_std_m": 0
+        }
+      ],
+      "ok": true
+    },
+    {
+      "check": "stress:summary_matches_rows",
+      "claim": "stable + reversing perturbations equal the counted total",
+      "where": "artifacts/lunar_adversarial/lunar_adversarial.json",
+      "expected": 30,
+      "observed": 30,
+      "ok": true
+    },
+    {
+      "check": "adequacy:summary_matches_cells",
+      "claim": "the summary's sibling-nearest count is what the cells say",
+      "where": "artifacts/lunar_adequacy/lunar_adequacy.json",
+      "expected": {
+        "of": 24,
+        "count": 18
+      },
+      "observed": {
+        "of": 24,
+        "count": 18
+      },
+      "ok": true
+    },
+    {
+      "check": "regimes:disjoint_supports",
+      "claim": "the two regimes share no support, so nothing may be pooled across them",
+      "where": "the two declared regimes",
+      "expected": [],
+      "observed": [],
+      "ok": true
+    },
+    {
+      "check": "v3:hypothesis_counts_sum",
+      "claim": "the R-rule change counts sum to the number of cells they classify",
+      "where": "artifacts/mf_panel_v3/matched_panel_v3_real.json",
+      "expected": 15,
+      "observed": 15,
+      "ok": true
+    }
+  ],
+  "verdict": {
+    "questions": {
+      "relative_ranking": "Which candidate is closest, among the candidates tested?",
+      "absolute_adequacy": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+      "evidence_sufficiency": "Is the evidence enough to answer either of the other two for this comparison?"
+    },
+    "relative_ranking": {
+      "question": "Which candidate is closest, among the candidates tested?",
+      "state": "RECOMMEND_FOLLOW_UP",
+      "recommended_unit": "earth_nevada_basin",
+      "layer1": [
+        "earth_nevada_basin"
+      ],
+      "runner_up": null,
+      "worst_axis_distance_fraction": null,
+      "provisional": true,
+      "note": "Relative to the candidate set tested. A unit can be closest here and still be far from the reference; that is what the adequacy part is for."
+    },
+    "absolute_adequacy": {
+      "question": "Is any candidate inside the reference's own morphological variability at this scale, on a band the data can justify?",
+      "state": "NOT_ESTABLISHED",
+      "adequate_candidates": [],
+      "band": null,
+      "discrimination": {
+        "discriminates": false,
+        "controls": 5,
+        "admitted": 4,
+        "note": "the reference's own band admits sibling lunar sites"
+      },
+      "note": "Absolute morphological adequacy has not been established."
+    },
+    "evidence_sufficiency": {
+      "question": "Is the evidence enough to answer either of the other two for this comparison?",
+      "state": "MARGINAL",
+      "reasons": [
+        "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+        "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+      ],
+      "n_candidates": 7,
+      "n_supports": 3,
+      "min_valid_fraction": 1.0,
+      "effective_rank": 1,
+      "n_realisations": 6,
+      "regimes_covered_not_pooled": 2
+    },
+    "separable": true,
+    "reading": "These are three answers to three different questions. A definite ranking with NOT_ESTABLISHED adequacy is a normal, expected outcome -- it means the shortlist is ordered and nothing on it has been shown to be a good analog."
+  },
+  "headline": {
+    "ranking_definite_cells": 18,
+    "ranking_cells": 18,
+    "adequacy_not_established_cells": 18,
+    "abstention_rows": 36,
+    "sibling_nearest": {
+      "of": 24,
+      "count": 18
+    },
+    "stress_stable_of_counted": [
+      28,
+      30
+    ],
+    "sufficiency_reasons": [
+      "6 error realisations sampled while an ensemble claim is made; fewer than 30",
+      "the axes span a single dimension, so the evidence is one-dimensional whatever the axis count suggests"
+    ]
+  }
+}
