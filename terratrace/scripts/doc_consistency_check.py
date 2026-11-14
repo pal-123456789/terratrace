@@ -25,6 +25,10 @@ It checks, against the tree it is run in:
    target (a page can look fine in the repo and still 404 in the browser).
 5. **CLAIMS**  — the frozen benchmark verdicts quoted in the live docs still match
    ``docs/RESULTS-v3.md`` (a headline that silently loses its caveat is a defect too).
+6. **MARKUP**  — every published HTML page is tag-balanced. The link check walks ``href``\ s and
+   cannot see a stray ``</div>``, and an unbalanced page renders wrong in the browser while every
+   link in it still resolves. This was added after exactly that mistake: an edited block on
+   ``site/index.html`` closed one ``</div>`` too many and un-nested the rest of the document.
 
 Historical records (``CHANGELOG.md``, ``CLAIM-LEDGER.md``, ``RESULTS-*``, ``REAL-EXAMPLE.md``,
 ``BENCHMARK-PROTOCOL*``) are exempt from (1): they are dated records of what was true *then*,
@@ -451,6 +455,53 @@ def check_lens_wording(problems):
             )
 
 
+def check_site_markup(problems):
+    """Every tracked HTML page must be tag-balanced.
+
+    A defect class the link check is blind to: a wrong number of closing tags still contains
+    perfectly resolvable links, so it passes `check_links` and renders as a broken page. `site/` is
+    the surface a judge actually opens, and it is edited by hand, so it is worth a parser.
+    """
+    from html.parser import HTMLParser
+
+    void = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta",
+            "param", "source", "track", "wbr"}
+
+    class Balance(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=True)
+            self.stack, self.errors = [], []
+
+        def handle_starttag(self, tag, attrs):
+            if tag not in void:
+                self.stack.append((tag, self.getpos()[0]))
+
+        def handle_endtag(self, tag):
+            if tag in void:
+                return
+            if not self.stack:
+                self.errors.append(f"</{tag}> on line {self.getpos()[0]} closes nothing")
+                return
+            top, line = self.stack.pop()
+            if top != tag:
+                self.errors.append(
+                    f"</{tag}> on line {self.getpos()[0]} closes <{top}> opened on line {line}")
+
+    n = 0
+    for page in sorted(REPO.glob("site/**/*.html")):
+        if TRACKED is not None and page.relative_to(REPO).as_posix() not in TRACKED:
+            continue
+        n += 1
+        parser = Balance()
+        parser.feed(page.read_text(encoding="utf-8", errors="replace"))
+        rel = page.relative_to(REPO)
+        for e in parser.errors[:5]:
+            problems.append(f"markup: {rel}: {e}")
+        for tag, line in parser.stack[:5]:
+            problems.append(f"markup: {rel}: <{tag}> opened on line {line} is never closed")
+    return n
+
+
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
     quiet = "--quiet" in argv
@@ -461,12 +512,14 @@ def main(argv=None):
     n_links = check_links(problems)
     check_claims(problems)
     check_lens_wording(problems)
+    n_pages = check_site_markup(problems)
 
     if not quiet:
         print(f"doc consistency: {tests} tests across {modules} modules, {oracles} oracles, "
               f"{sources} catalog sources, {families} descriptor families "
               f"({scalar_range[0]}-{scalar_range[1]} scalars), version {ver}, "
-              f"{n_links} relative links, {len(CANONICAL)} canonical documents")
+              f"{n_links} relative links, {n_pages} HTML pages, "
+              f"{len(CANONICAL)} canonical documents")
     if problems:
         print(f"\n{len(problems)} documentation-consistency problem(s):")
         for p in problems:

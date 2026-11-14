@@ -134,3 +134,43 @@ def test_the_deployment_shape_is_intact():
     problems = []
     g.check_links(problems)
     assert not problems, "site link problems:\n" + "\n".join(problems)
+
+
+def test_the_markup_check_reproduces_the_defect_it_was_written_for():
+    """A guard that cannot reproduce its target failure is decoration.
+
+    The defect: an edited block in site/index.html closed one </div> too many, which un-nested the
+    rest of the document while leaving every link perfectly resolvable — so the link check passed
+    and the page rendered wrong. This builds a temporarily unbalanced copy and asserts the new check
+    names the file, then restores it.
+    """
+    g = _load_guard()
+    page = g.REPO / "site" / "index.html"
+    original = page.read_text(encoding="utf-8")
+
+    # a genuinely unbalanced copy: drop one closing tag from the document
+    marker = "</main>"
+    assert marker in original
+    broken = original.replace(marker, "", 1)
+    try:
+        page.write_text(broken, encoding="utf-8")
+        problems = []
+        g.check_site_markup(problems)
+        assert problems, "the markup check did not notice a missing </main>"
+        assert any("site/index.html" in p for p in problems), problems
+    finally:
+        page.write_text(original, encoding="utf-8")   # always restore, even if the assert fires
+
+    # restored: the check is clean again
+    problems = []
+    g.check_site_markup(problems)
+    assert not problems, "the markup check reports the restored page as broken:\n" + "\n".join(problems)
+
+
+def test_the_markup_check_is_clean_on_the_published_pages():
+    """And the shipped pages pass, so the check is not vacuous."""
+    g = _load_guard()
+    problems = []
+    n = g.check_site_markup(problems)
+    assert n >= 3, f"expected the three published pages, checked {n}"
+    assert not problems, "published pages are not tag-balanced:\n" + "\n".join(problems)
