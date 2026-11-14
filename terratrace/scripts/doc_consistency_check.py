@@ -107,6 +107,9 @@ CANONICAL = [
     ROOT / "scripts" / "build_deck.js",
     ROOT / "scripts" / "build_submission_deck.js",
     ROOT / "scripts" / "make_cover.py",
+    # this one publishes the mirror numbers (3600x3600, 12,960,000 values, a 360-byte delta) into a
+    # page readers check, so it is prose in the same sense the deck generators are
+    ROOT / "scripts" / "verify_earth_mirror.py",
 ]
 
 # dated records: exempt from the count checks
@@ -143,6 +146,12 @@ COUNT_RES = {
     # the module and family counts drifted silently before these existed: "854 tests across 91
     # modules" was written when the tree had 92, and they were caught by a reader, not by CI.
     # (Numbers here are a dated quote about past drift, not a current count — do not update them.)
+    # "884 fixtures" as a whole phrase, checked on its own. It is matched only as a PLURAL followed by
+    # punctuation, a conjunction, or the end of a line, because "the 6 fixture tiles" is a different
+    # thing entirely — the broader form that merely allowed `fixtures?` as a noun fired on exactly
+    # that during testing. "884 fixtures and 51 oracles" is still matched; "884 fixtures with known
+    # answers" is not, which is the deliberate side of the trade: under-coverage, never a false alarm.
+    "fixture count": r"(?<![\w.])(\d+)\s+fixtures\b(?![-\s]+(?!(?:and|or)\b)[A-Za-z])",
     "module count": r"(?<![\w.])(\d+)\s+(?:test\s+)?modules?\b",
     "family count": r"(?<![\w.])(\d+)\s+(?:descriptor\s+)?families\b",
     "runner banner": r"passed=(\d+)\s",
@@ -250,8 +259,9 @@ def _probe(text):
 def check_counts(problems):
     tests, oracles, sources = _count_tests(), _count_oracles(), _count_sources()
     modules, families = _count_test_modules(), _count_families()
-    truth = {"test count": tests, "oracle count": oracles, "source count": sources,
-             "runner banner": tests, "module count": modules, "family count": families}
+    truth = {"test count": tests, "fixture count": tests, "oracle count": oracles,
+             "source count": sources, "runner banner": tests, "module count": modules,
+             "family count": families}
     pats = [(label, re.compile(rx), truth[label]) for label, rx in COUNT_RES.items()]
     for path in CANONICAL:
         if not path.exists():

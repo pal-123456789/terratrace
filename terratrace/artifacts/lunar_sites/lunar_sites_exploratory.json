@@ -1,0 +1,1127 @@
+{
+  "provenance": {
+    "product": "NASA Goddard PGDA 'South Pole Landing Site LOLA DEMs', 5 m/pixel",
+    "archive": "https://pgda.gsfc.nasa.gov/data/LOLA_5mpp/",
+    "citation": "Barker et al. (2021), Planet. Space Sci. 203, 105119; site numbering from Mazarico et al. (2011), Icarus 211, 1066-1081",
+    "extent_m": 16000.0,
+    "supports_m": [
+      500.0,
+      750.0,
+      1000.0
+    ],
+    "axes": [
+      "mean_slope_deg",
+      "mean_relief3_m",
+      "elev_std_m"
+    ],
+    "decision": "decision.non_dominated (Pareto, no composite score)",
+    "status": "EXPLORATORY -- not the frozen core-lens confirmatory panel; no base-suitability claim",
+    "mars_excluded_because": "MOLA effective floor 1389 m exceeds every support tested here",
+    "uncertainty_input": "author-published perturbed DEM clones (error covariance), not independent per-pixel noise",
+    "sites": {
+      "Site01": {
+        "name": "Connecting ridge",
+        "surf_sha256": "3ba7b97cb00a2bcf21189c3aeb535f65afc21207154ab9f0d43c5bdc1f7e747e",
+        "native_posting_m": 5.0,
+        "shape": [
+          3200,
+          3200
+        ],
+        "crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "extent_km": 16.0
+      },
+      "Site04": {
+        "name": "Shackleton rim",
+        "surf_sha256": "38ff70dbdf2f066c2cfa94a646c3a59d653ce7f6b4528b15fc1b43ee397ce758",
+        "native_posting_m": 5.0,
+        "shape": [
+          3200,
+          3200
+        ],
+        "crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "extent_km": 16.0
+      },
+      "Site07": {
+        "name": "Peak near Shackleton",
+        "surf_sha256": "38aaee10bb4da4d63e7427aa1ca25c79bdbc649d212079a04990e135462091f8",
+        "native_posting_m": 5.0,
+        "shape": [
+          3200,
+          3200
+        ],
+        "crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "extent_km": 16.0
+      },
+      "Site11": {
+        "name": "de Gerlache rim",
+        "surf_sha256": "58f3372c35bbd6baf38ffd5633c1c96b59bd89dbd252150581d12893a43136e5",
+        "native_posting_m": 5.0,
+        "shape": [
+          3200,
+          3200
+        ],
+        "crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "extent_km": 16.0
+      },
+      "Site20": {
+        "name": "Leibnitz beta plateau",
+        "surf_sha256": "e51451f3629ba7cd5cfc1b32c8c0ee3c5c454607488b00ea00cd06a9e301a892",
+        "native_posting_m": 5.0,
+        "shape": [
+          3200,
+          3200
+        ],
+        "crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "extent_km": 16.0
+      },
+      "Site23": {
+        "name": "Malapert massif",
+        "surf_sha256": "12d280a59cd7580415f6bada638d0abe025ce6727541fddf68d5dc371a6c94cf",
+        "native_posting_m": 5.0,
+        "shape": [
+          4200,
+          4200
+        ],
+        "crs": "PROJCS[\"unnamed\",GEOGCS[\"unnamed ellipse\",DATUM[\"unknown\",SPHEROID[\"unnamed\",1737400,0]],PRIMEM[\"Greenwich\",0],UNIT[\"degree\",0.0174532925199433,AUTHORITY[\"EPSG\",\"9122\"]]],PROJECTION[\"Polar_Stereographic\"],PARAMETER[\"latitude_of_origin\",-90],PARAMETER[\"central_meridian\",0],PARAMETER[\"false_easting\",0],PARAMETER[\"false_northing\",0],UNIT[\"metre\",1],AXIS[\"Easting\",NORTH],AXIS[\"Northing\",NORTH]]",
+        "extent_km": 21.0
+      }
+    }
+  },
+  "scales": {
+    "500m": {
+      "Site01": {
+        "support_m": 500.0,
+        "cells": [
+          32,
+          32
+        ],
+        "reference_axes": {
+          "mean_slope_deg": 11.161750322366284,
+          "mean_relief3_m": 248.81421689230206,
+          "elev_std_m": 420.8113569332889
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9883553855988236,
+            0.9868412678744156,
+            0.9921031636975075
+          ],
+          "earth_llano_estacado": [
+            0.9785276819837778,
+            0.9771140467383873,
+            0.9801387466379803
+          ],
+          "earth_deccan_traps": [
+            0.8967797978138291,
+            0.8883476932896772,
+            0.9403435785689346
+          ],
+          "earth_snake_river_plain": [
+            0.9570193606217723,
+            0.9552204199640378,
+            0.9398193098614179
+          ],
+          "earth_harrat_khaybar": [
+            0.8348327589790292,
+            0.8152112517674721,
+            0.8347828495721861
+          ],
+          "earth_odadahraun": [
+            0.6365517981797087,
+            0.6576117908686324,
+            0.666573081906563
+          ],
+          "earth_nevada_basin": [
+            0.0007790389559504472,
+            0.10242820598462896,
+            0.1319804301673436
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ]
+      },
+      "Site04": {
+        "support_m": 500.0,
+        "cells": [
+          32,
+          32
+        ],
+        "reference_axes": {
+          "mean_slope_deg": 19.768893416431183,
+          "mean_relief3_m": 494.10465736260875,
+          "elev_std_m": 1244.757432485933
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9934253134048397,
+            0.9933737122685729,
+            0.9973303405842732
+          ],
+          "earth_llano_estacado": [
+            0.9878764760631309,
+            0.9884754161820356,
+            0.993285566521201
+          ],
+          "earth_deccan_traps": [
+            0.9417206567531692,
+            0.943775714629703,
+            0.9798321351638328
+          ],
+          "earth_snake_river_plain": [
+            0.9757326242127088,
+            0.9774505340652203,
+            0.9796548972374304
+          ],
+          "earth_harrat_khaybar": [
+            0.9067446281956341,
+            0.9069467024913241,
+            0.9441455407730893
+          ],
+          "earth_odadahraun": [
+            0.7947928597531267,
+            0.8275850007508434,
+            0.8872793765442574
+          ],
+          "earth_nevada_basin": [
+            0.43494835419571165,
+            0.44485483659234076,
+            0.7065512657382282
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ]
+      },
+      "Site07": {
+        "support_m": 500.0,
+        "cells": [
+          32,
+          32
+        ],
+        "reference_axes": {
+          "mean_slope_deg": 9.832626815353859,
+          "mean_relief3_m": 223.9658081701845,
+          "elev_std_m": 452.3998435521948
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9867813270058003,
+            0.9853813416616031,
+            0.9926545544891451
+          ],
+          "earth_llano_estacado": [
+            0.9756251653764311,
+            0.9745749112994291,
+            0.9815255440584539
+          ],
+          "earth_deccan_traps": [
+            0.8828270261180716,
+            0.8759601678250886,
+            0.9445090443553736
+          ],
+          "earth_snake_river_plain": [
+            0.9512094606614868,
+            0.9502522450616757,
+            0.9440213823250875
+          ],
+          "earth_harrat_khaybar": [
+            0.812506307792398,
+            0.7947094332941752,
+            0.8463190156869311
+          ],
+          "earth_odadahraun": [
+            0.5874227548739641,
+            0.6196247327920476,
+            0.6898543714354848
+          ],
+          "earth_nevada_basin": [
+            0.13605916002436994,
+            0.22473967340416187,
+            0.19258925874542832
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ]
+      },
+      "Site11": {
+        "support_m": 500.0,
+        "cells": [
+          32,
+          32
+        ],
+        "reference_axes": {
+          "mean_slope_deg": 13.50160639410437,
+          "mean_relief3_m": 312.25088128183336,
+          "elev_std_m": 578.2697117966974
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9903734211506183,
+            0.989514586425882,
+            0.9942534109393227
+          ],
+          "earth_llano_estacado": [
+            0.9822488787227441,
+            0.9817635405375131,
+            0.9855468117953137
+          ],
+          "earth_deccan_traps": [
+            0.9146680704949827,
+            0.9110308955916969,
+            0.956587559161292
+          ],
+          "earth_snake_river_plain": [
+            0.9644679935533504,
+            0.9643178072270749,
+            0.9562060447542478
+          ],
+          "earth_harrat_khaybar": [
+            0.8634565805062144,
+            0.8527528009104768,
+            0.879770197466917
+          ],
+          "earth_odadahraun": [
+            0.6995381167679059,
+            0.7271711331015054,
+            0.7573626441456912
+          ],
+          "earth_nevada_basin": [
+            0.1726580204884581,
+            0.12154031519138717,
+            0.368335422771807
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ]
+      },
+      "Site20": {
+        "support_m": 500.0,
+        "cells": [
+          32,
+          32
+        ],
+        "reference_axes": {
+          "mean_slope_deg": 11.665672248849217,
+          "mean_relief3_m": 272.15944164043515,
+          "elev_std_m": 647.1469188348427
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.988858397889673,
+            0.9879699943188139,
+            0.9948650324938347
+          ],
+          "earth_llano_estacado": [
+            0.979455221488572,
+            0.9790771523328407,
+            0.9870850950001968
+          ],
+          "earth_deccan_traps": [
+            0.901238599846669,
+            0.8979249770248622,
+            0.9612080365036898
+          ],
+          "earth_snake_river_plain": [
+            0.9588759948675254,
+            0.9590615116188614,
+            0.9608671274770271
+          ],
+          "earth_harrat_khaybar": [
+            0.8419674866236678,
+            0.8310620149539792,
+            0.8925665081039764
+          ],
+          "earth_odadahraun": [
+            0.652251666488293,
+            0.6869810813297833,
+            0.7831870480143751
+          ],
+          "earth_nevada_basin": [
+            0.04245160309677566,
+            0.00786439411660584,
+            0.4355648116449575
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ]
+      },
+      "Site23": {
+        "support_m": 500.0,
+        "cells": [
+          32,
+          32
+        ],
+        "reference_axes": {
+          "mean_slope_deg": 17.223748209021277,
+          "mean_relief3_m": 375.6194842848307,
+          "elev_std_m": 830.1604297990154
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9924537750454292,
+            0.991283520248273,
+            0.9959970648074175
+          ],
+          "earth_llano_estacado": [
+            0.9860849886081134,
+            0.9848401087354032,
+            0.9899322580580108
+          ],
+          "earth_deccan_traps": [
+            0.9331087454922987,
+            0.9260403615343817,
+            0.9697599418725985
+          ],
+          "earth_snake_river_plain": [
+            0.972146645456407,
+            0.9703375447612155,
+            0.9694941881480309
+          ],
+          "earth_harrat_khaybar": [
+            0.8929643255731889,
+            0.8775940290490357,
+            0.9162508224139134
+          ],
+          "earth_odadahraun": [
+            0.7644694967320588,
+            0.7731985221949271,
+            0.8309846762089669
+          ],
+          "earth_nevada_basin": [
+            0.35145093709432773,
+            0.26974019658668585,
+            0.5599977065705679
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ]
+      }
+    },
+    "750m": {
+      "Site01": {
+        "support_m": 750.0,
+        "cells": [
+          21,
+          21
+        ],
+        "reference_axes": {
+          "mean_slope_deg": 10.68504271144293,
+          "mean_relief3_m": 353.2154131375276,
+          "elev_std_m": 410.72351338688145
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9909634769131204,
+            0.9898267836546721,
+            0.9920869400619956
+          ],
+          "earth_llano_estacado": [
+            0.9814717509793556,
+            0.9801586586159251,
+            0.9797991812341921
+          ],
+          "earth_deccan_traps": [
+            0.9120672094542215,
+            0.9056458511964387,
+            0.9402719438524464
+          ],
+          "earth_snake_river_plain": [
+            0.9583964144244588,
+            0.958701893751819,
+            0.9387400933451342
+          ],
+          "earth_harrat_khaybar": [
+            0.8496543607050796,
+            0.8351857929111873,
+            0.8323746498871082
+          ],
+          "earth_odadahraun": [
+            0.6238522051391222,
+            0.7047397676766224,
+            0.6655743817300281
+          ],
+          "earth_nevada_basin": [
+            0.07168551903877017,
+            0.0002806310936544751,
+            0.11640933034396013
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ]
+      },
+      "Site04": {
+        "support_m": 750.0,
+        "cells": [
+          21,
+          21
+        ],
+        "reference_axes": {
+          "mean_slope_deg": 19.526337490531407,
+          "mean_relief3_m": 737.9606914708289,
+          "elev_std_m": 1222.554837647597
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9950551077388132,
+            0.9951307205710502,
+            0.9973415672824689
+          ],
+          "earth_llano_estacado": [
+            0.9898611230984901,
+            0.9905031966130736,
+            0.9932134322311881
+          ],
+          "earth_deccan_traps": [
+            0.9518821374887318,
+            0.954838597724677,
+            0.9799340558695139
+          ],
+          "earth_snake_river_plain": [
+            0.9772340261434387,
+            0.9802331915116302,
+            0.9794194229033908
+          ],
+          "earth_harrat_khaybar": [
+            0.9177290888204503,
+            0.9211137951917454,
+            0.9436854113934491
+          ],
+          "earth_odadahraun": [
+            0.7941674799048979,
+            0.8586774795073122,
+            0.8876480132648119
+          ],
+          "earth_nevada_basin": [
+            0.4920153416619161,
+            0.521228514677359,
+            0.703153222202041
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ]
+      },
+      "Site07": {
+        "support_m": 750.0,
+        "cells": [
+          21,
+          21
+        ],
+        "reference_axes": {
+          "mean_slope_deg": 9.560829613195851,
+          "mean_relief3_m": 329.010810359933,
+          "elev_std_m": 438.55705310254217
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9899009145594455,
+            0.9890783624695451,
+            0.9925891517274988
+          ],
+          "earth_llano_estacado": [
+            0.9792931011048883,
+            0.9786989747038652,
+            0.981081249980845
+          ],
+          "earth_deccan_traps": [
+            0.9017276051629222,
+            0.8987044236800912,
+            0.944062655257408
+          ],
+          "earth_snake_river_plain": [
+            0.9535044439856682,
+            0.9556636827699045,
+            0.9426280254460853
+          ],
+          "earth_harrat_khaybar": [
+            0.8319759223479731,
+            0.823060773644116,
+            0.843013190087778
+          ],
+          "earth_odadahraun": [
+            0.5796227506913921,
+            0.6830181208055384,
+            0.6867990973336219
+          ],
+          "earth_nevada_basin": [
+            0.03747062546030604,
+            0.07386908040708788,
+            0.17248745249995762
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ]
+      },
+      "Site11": {
+        "support_m": 750.0,
+        "cells": [
+          21,
+          21
+        ],
+        "reference_axes": {
+          "mean_slope_deg": 13.20777780035184,
+          "mean_relief3_m": 457.2687092205199,
+          "elev_std_m": 568.4035270077619
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9926894867095905,
+            0.9921417391089852,
+            0.994282090759557
+          ],
+          "earth_llano_estacado": [
+            0.9850107160230571,
+            0.9846736340080533,
+            0.9854030616233826
+          ],
+          "earth_deccan_traps": [
+            0.9288627021955972,
+            0.9271165094421158,
+            0.9568410189186649
+          ],
+          "earth_snake_river_plain": [
+            0.9663428552824391,
+            0.9680994405125279,
+            0.9557341168808489
+          ],
+          "earth_harrat_khaybar": [
+            0.8783709416051334,
+            0.8726899149800897,
+            0.8788753597404527
+          ],
+          "earth_odadahraun": [
+            0.6956978445082194,
+            0.7719273966483245,
+            0.7583469166254009
+          ],
+          "earth_nevada_basin": [
+            0.24899706607287997,
+            0.22733716687615185,
+            0.3615249607132711
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ]
+      },
+      "Site20": {
+        "support_m": 750.0,
+        "cells": [
+          21,
+          21
+        ],
+        "reference_axes": {
+          "mean_slope_deg": 11.24887615148985,
+          "mean_relief3_m": 391.5193901016118,
+          "elev_std_m": 626.543641185114
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.991416419396398,
+            0.9908220718942685,
+            0.9948126841200867
+          ],
+          "earth_llano_estacado": [
+            0.9824004523218424,
+            0.9820998199032751,
+            0.9867575844499986
+          ],
+          "earth_deccan_traps": [
+            0.916474711778779,
+            0.9148769116077746,
+            0.9608459563610123
+          ],
+          "earth_snake_river_plain": [
+            0.960481733211637,
+            0.9627422599517665,
+            0.9598417692924841
+          ],
+          "earth_harrat_khaybar": [
+            0.8571902156525517,
+            0.8513102550739559,
+            0.8901151201521303
+          ],
+          "earth_odadahraun": [
+            0.6427060623855088,
+            0.7336263092458397,
+            0.7807711133375934
+          ],
+          "earth_nevada_basin": [
+            0.11821592262725815,
+            0.09758100033432422,
+            0.4207722489202107
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ]
+      },
+      "Site23": {
+        "support_m": 750.0,
+        "cells": [
+          21,
+          21
+        ],
+        "reference_axes": {
+          "mean_slope_deg": 17.656130579065092,
+          "mean_relief3_m": 571.3275598909792,
+          "elev_std_m": 835.2628490498644
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9945313252689275,
+            0.9937105487873924,
+            0.9961089137592133
+          ],
+          "earth_llano_estacado": [
+            0.9887871733125617,
+            0.9877333633344836,
+            0.9900666583384832
+          ],
+          "earth_deccan_traps": [
+            0.9467853039197583,
+            0.9416668440478364,
+            0.9706299435003033
+          ],
+          "earth_snake_river_plain": [
+            0.9748225645005754,
+            0.9744680133004046,
+            0.9698766871773836
+          ],
+          "earth_harrat_khaybar": [
+            0.9090146297824627,
+            0.8981058812235181,
+            0.9175736442613374
+          ],
+          "earth_odadahraun": [
+            0.7723648884501867,
+            0.81745941861603,
+            0.8355530057889324
+          ],
+          "earth_nevada_basin": [
+            0.4382076053241933,
+            0.38159024495049465,
+            0.565512264013875
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ]
+      }
+    },
+    "1000m": {
+      "Site01": {
+        "support_m": 1000.0,
+        "cells": [
+          16,
+          16
+        ],
+        "reference_axes": {
+          "mean_slope_deg": 10.336772328200272,
+          "mean_relief3_m": 452.17990718342,
+          "elev_std_m": 416.95903793398304
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9924146628530982,
+            0.9918313809245973,
+            0.9923893419477874
+          ],
+          "earth_llano_estacado": [
+            0.9830274045379983,
+            0.9816795354985951,
+            0.9802182253979242
+          ],
+          "earth_deccan_traps": [
+            0.9217358426481792,
+            0.9164204221659266,
+            0.9421123443395208
+          ],
+          "earth_snake_river_plain": [
+            0.9589498326333177,
+            0.9601710955461803,
+            0.9395022747164313
+          ],
+          "earth_harrat_khaybar": [
+            0.860520245872893,
+            0.8503288266622359,
+            0.8355055345215244
+          ],
+          "earth_odadahraun": [
+            0.6269547594484545,
+            0.7481497397753174,
+            0.6794364508067355
+          ],
+          "earth_nevada_basin": [
+            0.13647079901889425,
+            0.07578632017871222,
+            0.13608468469753385
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ]
+      },
+      "Site04": {
+        "support_m": 1000.0,
+        "cells": [
+          16,
+          16
+        ],
+        "reference_axes": {
+          "mean_slope_deg": 19.108566725668943,
+          "mean_relief3_m": 966.0509103931206,
+          "elev_std_m": 1240.1673903381682
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.995896714586404,
+            0.9961765106004308,
+            0.9974412061757003
+          ],
+          "earth_llano_estacado": [
+            0.9908186805620705,
+            0.9914247315036107,
+            0.9933491319228613
+          ],
+          "earth_deccan_traps": [
+            0.957663032103948,
+            0.9608788674169756,
+            0.9805374811493265
+          ],
+          "earth_snake_river_plain": [
+            0.9777939266614954,
+            0.9813572658279296,
+            0.9796599446752484
+          ],
+          "earth_harrat_khaybar": [
+            0.9245484769473318,
+            0.9299433430062573,
+            0.9446950027829165
+          ],
+          "earth_odadahraun": [
+            0.7982013106969414,
+            0.8821163294114854,
+            0.8922227191993172
+          ],
+          "earth_nevada_basin": [
+            0.5328741879262059,
+            0.5674028651459226,
+            0.7095413880970326
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ]
+      },
+      "Site07": {
+        "support_m": 1000.0,
+        "cells": [
+          16,
+          16
+        ],
+        "reference_axes": {
+          "mean_slope_deg": 9.379259938139338,
+          "mean_relief3_m": 427.0166990665224,
+          "elev_std_m": 449.8299239782563
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9916402889313974,
+            0.9913500211504448,
+            0.9929454834141971
+          ],
+          "earth_llano_estacado": [
+            0.9812947016857962,
+            0.9805999485361768,
+            0.9816637594187552
+          ],
+          "earth_deccan_traps": [
+            0.9137459904789991,
+            0.9114952510521065,
+            0.9463424287139826
+          ],
+          "earth_snake_river_plain": [
+            0.9547590921989001,
+            0.9578240608423141,
+            0.9439230874008052
+          ],
+          "earth_harrat_khaybar": [
+            0.8462809995336075,
+            0.8415090149498801,
+            0.8475258082770738
+          ],
+          "earth_odadahraun": [
+            0.5888712174379718,
+            0.7333087264702586,
+            0.7028613217052506
+          ],
+          "earth_nevada_basin": [
+            0.04831459964152032,
+            0.02132432555258656,
+            0.19921445968018364
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ]
+      },
+      "Site11": {
+        "support_m": 1000.0,
+        "cells": [
+          16,
+          16
+        ],
+        "reference_axes": {
+          "mean_slope_deg": 12.881792423799645,
+          "mean_relief3_m": 595.3650052803824,
+          "elev_std_m": 574.5525289868671
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9939132769306775,
+            0.9937959312647326,
+            0.9944768624287655
+          ],
+          "earth_llano_estacado": [
+            0.9863806332738897,
+            0.986085601497688,
+            0.9856441503768979
+          ],
+          "earth_deccan_traps": [
+            0.9371982757221305,
+            0.9365212845695516,
+            0.9579902968053965
+          ],
+          "earth_snake_river_plain": [
+            0.9670600006471186,
+            0.9697499346461186,
+            0.9560961408073312
+          ],
+          "earth_harrat_khaybar": [
+            0.8880768750673604,
+            0.8863246971729029,
+            0.880624571973753
+          ],
+          "earth_odadahraun": [
+            0.7006562757077379,
+            0.8087196488162997,
+            0.7673635354037719
+          ],
+          "earth_nevada_basin": [
+            0.3070758745651702,
+            0.2980594219466675,
+            0.3730472314513411
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ]
+      },
+      "Site20": {
+        "support_m": 1000.0,
+        "cells": [
+          16,
+          16
+        ],
+        "reference_axes": {
+          "mean_slope_deg": 10.898470284741165,
+          "mean_relief3_m": 506.5566641840097,
+          "elev_std_m": 644.2260990380785
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9928056047251015,
+            0.992708248303707,
+            0.9950741941932602
+          ],
+          "earth_llano_estacado": [
+            0.9839021577775928,
+            0.983646161380293,
+            0.9871967470442067
+          ],
+          "earth_deccan_traps": [
+            0.925769511237106,
+            0.9253923432074083,
+            0.9625336799479457
+          ],
+          "earth_snake_river_plain": [
+            0.9610655235993985,
+            0.964446563252392,
+            0.9608443784424509
+          ],
+          "earth_harrat_khaybar": [
+            0.8677089146332889,
+            0.8663954063719134,
+            0.8935351203967352
+          ],
+          "earth_odadahraun": [
+            0.6461811961721919,
+            0.7751848206834586,
+            0.7925233559026825
+          ],
+          "earth_nevada_basin": [
+            0.18097636493153252,
+            0.17499682561193514,
+            0.44085267693624064
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ]
+      },
+      "Site23": {
+        "support_m": 1000.0,
+        "cells": [
+          16,
+          16
+        ],
+        "reference_axes": {
+          "mean_slope_deg": 17.68058897030877,
+          "mean_relief3_m": 758.6600397869812,
+          "elev_std_m": 854.1906200724546
+        },
+        "axis_distance_fraction": {
+          "earth_nullarbor": [
+            0.9955653115825591,
+            0.9951313035857675,
+            0.9962849830179288
+          ],
+          "earth_llano_estacado": [
+            0.9900771487078863,
+            0.9890805558440532,
+            0.990343853569817
+          ],
+          "earth_deccan_traps": [
+            0.9542436749498122,
+            0.950184530928962,
+            0.971743097330664
+          ],
+          "earth_snake_river_plain": [
+            0.9760004468846322,
+            0.9762610004815828,
+            0.9704690349686917
+          ],
+          "earth_harrat_khaybar": [
+            0.9184546134053316,
+            0.9107923263140277,
+            0.9197047445152791
+          ],
+          "earth_odadahraun": [
+            0.7819029826339157,
+            0.8498910957212228,
+            0.8435221999312178
+          ],
+          "earth_nevada_basin": [
+            0.4951466399516383,
+            0.44914608119259947,
+            0.57829401276451
+          ]
+        },
+        "layer1": [
+          "earth_nevada_basin"
+        ]
+      }
+    }
+  },
+  "ensemble": {
+    "n_draws": 6,
+    "site": "Site01",
+    "scales": {
+      "500m": {
+        "point_estimate_layer1": [
+          "earth_nevada_basin"
+        ],
+        "exact_match_fraction": 1.0,
+        "candidate_layer1_frequency": {
+          "earth_nevada_basin": 1.0
+        },
+        "distinct_layer1_sets": 1,
+        "reference_axis_range": {
+          "mean_slope_deg": [
+            11.160540794145227,
+            11.160610419785318
+          ],
+          "mean_relief3_m": [
+            248.78967555416605,
+            248.79146841816527
+          ],
+          "elev_std_m": [
+            420.8016815841753,
+            420.8037942847921
+          ]
+        },
+        "point_estimate_reference": {
+          "mean_slope_deg": 11.161750322366284,
+          "mean_relief3_m": 248.81421689230206,
+          "elev_std_m": 420.8113569332889
+        }
+      },
+      "750m": {
+        "point_estimate_layer1": [
+          "earth_nevada_basin"
+        ],
+        "exact_match_fraction": 1.0,
+        "candidate_layer1_frequency": {
+          "earth_nevada_basin": 1.0
+        },
+        "distinct_layer1_sets": 1,
+        "reference_axis_range": {
+          "mean_slope_deg": [
+            10.68441128445582,
+            10.684475428883491
+          ],
+          "mean_relief3_m": [
+            353.19328568052975,
+            353.19583323032373
+          ],
+          "elev_std_m": [
+            410.7158373733686,
+            410.7180338619744
+          ]
+        },
+        "point_estimate_reference": {
+          "mean_slope_deg": 10.68504271144293,
+          "mean_relief3_m": 353.2154131375276,
+          "elev_std_m": 410.72351338688145
+        }
+      },
+      "1000m": {
+        "point_estimate_layer1": [
+          "earth_nevada_basin"
+        ],
+        "exact_match_fraction": 1.0,
+        "candidate_layer1_frequency": {
+          "earth_nevada_basin": 1.0
+        },
+        "distinct_layer1_sets": 1,
+        "reference_axis_range": {
+          "mean_slope_deg": [
+            10.336274538560035,
+            10.336324539105155
+          ],
+          "mean_relief3_m": [
+            452.16002965432193,
+            452.1623109546497
+          ],
+          "elev_std_m": [
+            416.950494707241,
+            416.95261346660413
+          ]
+        },
+        "point_estimate_reference": {
+          "mean_slope_deg": 10.336772328200272,
+          "mean_relief3_m": 452.17990718342,
+          "elev_std_m": 416.95903793398304
+        }
+      }
+    }
+  }
+}

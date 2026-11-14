@@ -76,6 +76,7 @@ def test_the_count_patterns_catch_stale_prose_and_ignore_commands():
     g = _load_guard()
     tests_pat = re.compile(g.COUNT_RES["test count"])
     src_pat = re.compile(g.COUNT_RES["source count"])
+    fix_pat = re.compile(g.COUNT_RES["fixture count"])
 
     assert tests_pat.search("the suite has 686 tests now").group(1) == "686"
     assert tests_pat.search("837 offline tests").group(1) == "837"
@@ -86,6 +87,18 @@ def test_the_count_patterns_catch_stale_prose_and_ignore_commands():
     assert src_pat.search("13-source registry").group(1) == "13"
     assert src_pat.search("COP30 product") is None
     assert src_pat.search("GLO-30 tiles") is None
+
+    # "# 891 fixtures" is how two canonical pages stated the test count, and the pattern above —
+    # which needs the word `tests` to follow the number — never saw either, so both sat stale.
+    assert fix_pat.search("# 891 fixtures").group(1) == "891"
+    assert fix_pat.search("(891 fixtures, `tests/run_tests.py`)").group(1) == "891"
+    assert fix_pat.search("891 fixtures and 51 oracles").group(1) == "891"
+    assert fix_pat.search("891 fixtures\n").group(1) == "891"
+    # and the two forms that are NOT the test count, each of which a looser pattern matched when it
+    # was first written (the first one is why this is a separate pattern at all)
+    assert fix_pat.search("the 6 fixture tiles") is None
+    assert fix_pat.search("a 2x2 fixture") is None
+    assert fix_pat.search("12,960,000 values") is None
 
 
 def test_site_routes_resolve_the_way_a_static_host_publishes_them():

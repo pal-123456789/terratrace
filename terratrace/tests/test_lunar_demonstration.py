@@ -11,6 +11,10 @@ These tests protect the two things that can rot now that a number exists:
 
 The heavy real-data assertion is gated on the 41 MB product being present, so a fresh clone runs
 green and a machine holding the data additionally verifies the headline numbers against the raster.
+The two *records* are a different matter: they are ~42 KB of JSON, they are committed, and the tests
+that read them now assert their presence. They used to return silently when absent, which meant the
+headline lunar result had no evidence check at all on a fresh clone — the one place it most needed
+one, since CI is a fresh clone.
 """
 import json
 import pathlib
@@ -116,8 +120,12 @@ def test_aggregation_reaches_the_declared_supports_with_equal_footprints():
 
 def test_artifact_pareto_membership_is_recomputable_from_its_own_numbers():
     """The published layer-1 set must follow from the stored distances — not be asserted beside them."""
-    if not ARTIFACT.exists():
-        return
+    assert ARTIFACT.exists(), (
+        "artifacts/lunar_site01/lunar_site01_exploratory.json is committed (git add -f: the "
+        "artifacts/ tree is ignored, and a small record backing a published claim is force-added on "
+        "purpose). If it is missing, this test previously returned silently — which meant the "
+        "headline lunar result had no evidence check at all on a fresh clone."
+    )
     from terratrace import decision
 
     data = json.loads(ARTIFACT.read_text(encoding="utf-8"))
@@ -132,8 +140,7 @@ def test_artifact_pareto_membership_is_recomputable_from_its_own_numbers():
 
 def test_artifact_supports_a_single_non_dominated_candidate_at_every_support():
     """The result reported in the docs: exactly one Earth candidate survives, at every support."""
-    if not ARTIFACT.exists():
-        return
+    assert ARTIFACT.exists(), "the committed lunar evidence record is missing from the tree"
     data = json.loads(ARTIFACT.read_text(encoding="utf-8"))
     assert set(data["scales"]) == {"500m", "750m", "1000m"}
     for scale, block in data["scales"].items():
@@ -146,8 +153,7 @@ def test_artifact_supports_a_single_non_dominated_candidate_at_every_support():
 
 def test_artifact_declares_itself_exploratory_and_excludes_mars():
     """The artifact must carry its own scope, so it cannot be cited as a confirmatory panel."""
-    if not ARTIFACT.exists():
-        return
+    assert ARTIFACT.exists(), "the committed lunar evidence record is missing from the tree"
     prov = json.loads(ARTIFACT.read_text(encoding="utf-8"))["provenance"]
     assert "EXPLORATORY" in prov["status"].upper()
     assert prov["supports_m"] == [500.0, 750.0, 1000.0]
@@ -226,8 +232,7 @@ def test_real_site01_axes_reproduce_the_published_numbers():
 
 def test_all_six_published_sites_were_screened_at_every_support():
     """The multi-site artifact covers 6 sites x 3 supports, and never invents a fourth support."""
-    if not SITES_ARTIFACT.exists():
-        return
+    assert SITES_ARTIFACT.exists(), "the committed six-site lunar record is missing from the tree"
     data = json.loads(SITES_ARTIFACT.read_text(encoding="utf-8"))
     assert set(data["scales"]) == {"500m", "750m", "1000m"}
     for scale, per_site in data["scales"].items():
@@ -240,8 +245,7 @@ def test_all_six_published_sites_were_screened_at_every_support():
 
 def test_the_surviving_candidate_is_recomputed_not_asserted():
     """Layer-1 membership must follow from each block's own stored distances."""
-    if not SITES_ARTIFACT.exists():
-        return
+    assert SITES_ARTIFACT.exists(), "the committed six-site lunar record is missing from the tree"
     from terratrace import decision
 
     data = json.loads(SITES_ARTIFACT.read_text(encoding="utf-8"))
@@ -260,8 +264,7 @@ def test_the_screening_and_the_closeness_read_stay_separate():
     ordering at every cell, while the roughest sites have no candidate within 0.5 on every axis.
     Collapsing the two into "all six agree" would be the overclaim the project exists to avoid.
     """
-    if not SITES_ARTIFACT.exists():
-        return
+    assert SITES_ARTIFACT.exists(), "the committed six-site lunar record is missing from the tree"
     data = json.loads(SITES_ARTIFACT.read_text(encoding="utf-8"))
     survivors, far = set(), []
     for scale, per_site in data["scales"].items():
@@ -284,8 +287,7 @@ def test_the_screening_and_the_closeness_read_stay_separate():
 
 def test_the_error_ensemble_is_recorded_with_its_size():
     """An ensemble result is only meaningful with its draw count, and 6 != 100."""
-    if not SITES_ARTIFACT.exists():
-        return
+    assert SITES_ARTIFACT.exists(), "the committed six-site lunar record is missing from the tree"
     data = json.loads(SITES_ARTIFACT.read_text(encoding="utf-8"))
     ens = data.get("ensemble")
     assert ens, "the error-ensemble result is missing from the artifact"
@@ -308,8 +310,9 @@ def test_the_generalised_run_reproduces_the_published_single_site_result():
     This is the check the analysis script performs at runtime; it is repeated here so a regression
     is caught by the suite even if nobody runs the script.
     """
-    if not (SITES_ARTIFACT.exists() and ARTIFACT.exists()):
-        return
+    assert SITES_ARTIFACT.exists() and ARTIFACT.exists(), (
+        "both lunar records are committed; one is missing from the tree"
+    )
     new = json.loads(SITES_ARTIFACT.read_text(encoding="utf-8"))["scales"]
     old = json.loads(ARTIFACT.read_text(encoding="utf-8"))["scales"]
     for scale in ("500m", "750m", "1000m"):

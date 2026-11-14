@@ -168,7 +168,7 @@ s3.addText("Five worlds, one method, no black box", { placeholder: "title" });
 
 stat(s3, M, 1.9, 2.8, "5", "planetary bodies: Earth, Mars, the Moon, Mercury, Ceres", ACC);
 stat(s3, M + 3.02, 1.9, 2.8, "40", "cited descriptor families (~290 scalar values)", ACC);
-stat(s3, M + 6.04, 1.9, 2.8, "884", "offline tests, 0 network required to run them", ACC);
+stat(s3, M + 6.04, 1.9, 2.8, "891", "offline tests, 0 network required to run them", ACC);
 stat(s3, M + 9.06, 1.9, 3.04, "51", "scientific-correctness oracles over the operators", ACC);
 
 card(s3, M, 3.66, 5.95, 2.18);
@@ -237,7 +237,7 @@ const s6 = pres.addSlide({ masterName: "MAIN" });
 kicker(s6, "Evidence & reproducibility");
 s6.addText("Every number has a receipt", { placeholder: "title" });
 
-stat(s6, M, 1.9, 2.8, "884", "offline tests across 95 modules, 0 failures", ACC);
+stat(s6, M, 1.9, 2.8, "891", "offline tests across 96 modules, 0 failures", ACC);
 stat(s6, M + 3.02, 1.9, 2.8, "51", "scientific-correctness oracles, stable hash", ACC);
 stat(s6, M + 6.04, 1.9, 2.8, "4", "frozen artifact hashes, re-asserted after every change", ACC);
 stat(s6, M + 9.06, 1.9, 3.04, "0", "credentials needed for the headline Earth data path", WARM);

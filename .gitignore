@@ -14,6 +14,11 @@ terratrace/data/moon/
 # Regenerable, and ~2 MB of derived raster imagery; the script is the committed artifact.
 assets/deck/
 # Generated study bundles + showcase outputs (reproducible from a run; not source).
+# Exception, by convention rather than by pattern (git cannot re-include a file whose parent
+# directory is excluded, so these are force-added): a SMALL JSON record that backs a claim
+# published in docs is committed, so a fresh clone — which is what CI is — can check the claim
+# instead of silently skipping it. Currently: artifacts/mf_panel_v3/ (the frozen v3 bundle),
+# artifacts/lunar_site01/ and artifacts/lunar_sites/ (the lunar result), artifacts/mirror_check/.
 terratrace/artifacts/
 demo/
 
