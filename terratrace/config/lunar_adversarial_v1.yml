@@ -1,0 +1,177 @@
+# Lunar panel — adversarial stress test, DECLARED RANGES (frozen BEFORE the run).
+#
+# Frozen 2026-11-15, before `scripts/lunar_adversarial_run.py` was executed, so the perturbations
+# and the pass/fail rule are pre-specified rather than chosen to protect a favourite answer.
+#
+# WHAT IS UNDER ATTACK
+# --------------------
+# The v2 lunar panel (config/lunar_panel_v2.yml, docs/LUNAR-PROTOCOL-v2.md) reports that
+# `earth_nevada_basin` is the SOLE non-dominated Earth candidate at every one of six lunar
+# references and every one of three supports -- 18 of 18 cells. A single recommendation, however
+# correct, says nothing about how far it can be trusted: a large gap and a coin-flip both surface
+# as "non-dominated". This file declares what will be done to that answer and what it must survive
+# for the claim to be stated with any confidence at all.
+#
+# STANCE: adversarial, not advocacy. A "fragile" verdict is a SUCCESS of the method. No
+# perturbation may be tuned to protect the survivor, and no perturbation may be weakened after
+# seeing the result -- that is the whole reason this file is committed before the run.
+#
+# THE BASELINE, AND A PRECONDITION
+# --------------------------------
+# The baseline is the committed v2 panel: layer-1 = {earth_nevada_basin} at all 6 sites x 3
+# supports. The stress driver RE-DERIVES it and refuses to run if it does not reproduce
+# artifacts/lunar_sites_v2/lunar_sites_v2.json exactly. A stress test against the wrong baseline
+# is worse than no stress test.
+#
+# WHAT COUNTS AS A CHANGE, AND WHO IS NOT COUNTED
+# -----------------------------------------------
+# * A cell is (perturbation, site, support). A cell CHANGES when its layer-1 SET differs from the
+#   baseline set -- a member added, removed or swapped. Layer-1 membership is what the panel's
+#   headline claim is about, so that is what is probed.
+# * PRIMARY metric is PERTURBATION-level and deliberately strict: a perturbation is STABLE only
+#   if EVERY one of its site x support cells keeps the baseline set. A single site flipping is a
+#   reversal, not a rounding error.
+# * Dropping the SURVIVOR ITSELF (earth_nevada_basin) is EXCLUDED from the denominator and
+#   reported separately: removing the winner is not a robustness probe, it asks a different
+#   question ("who is second?"). Every other candidate removal IS counted.
+#
+# VERDICT RULE, DECLARED IN ADVANCE
+# ---------------------------------
+# stable_fraction = stable perturbations / counted perturbations (30 planned).
+#   >= 0.80  -> robust     (>= 24 of 30)
+#   <  0.50  -> fragile    (< 15 of 30)
+#   otherwise-> qualified
+# The same thresholds the Mars-panel stress test uses (`terratrace/adversarial.py`), so the two
+# panels are read on one scale. The cell-level fraction (504 cells) is reported alongside and does
+# NOT drive the verdict.
+#
+# RANGES, AND WHY EACH IS DEFENSIBLE
+# ----------------------------------
+# Every range is a bounded change a reviewer would accept as a legitimate "what if". Nothing here
+# is unbounded, and nothing is chosen to be destructive for its own sake.
+#
+# 1. grid_origin -- shift the destination window centre by +/-400 m east or north.
+#    WHY: the sites are published as REGIONS, not as surveyed windows; the 9000 m window is placed
+#    on a tile centre and is therefore arbitrary to within a few hundred metres. 400 m is 0.8x the
+#    coarsest support and 4.4% of the footprint -- large enough to move the window onto different
+#    cells, small enough that it still covers the same named region. Applied identically on both
+#    bodies in ground metres, so the comparison stays on equal ground.
+#
+# 2. support_jitter -- move ONE support to its nearest valid neighbour that still divides the
+#    9000 m footprint exactly (so the grid stays exact and identical on both bodies):
+#      500 -> 450 or 600     (20 or 15 cells)
+#      750 -> 900            (10 cells)
+#      1000 -> 1500          (6 cells)
+#    WHY: the support set is a judgement call, so the answer must persist across adjacent
+#    resolutions. 375/625/1250 are NOT used because none divides 9000 m -- testing them would
+#    require abandoning the exact grid, which is the thing the v2 correction exists to guarantee.
+#
+# 3. footprint -- 6000 m and 3000 m at all three supports (12/8/6 and 6/4/3 cells), plus one
+#    single-support enlargement each: 10500 m at 500 m (21 cells), 9750 m at 750 m (13),
+#    10000 m at 1000 m (10).
+#    WHY: 9000 m was chosen by fit (the largest rotated square inside the 16 km tiles is 11.27 km)
+#    and divisibility. If the answer only holds at 9000 m it is an artefact of the window, and that
+#    has to be known. 10500 m is deliberately close to the 11.27 km geometric limit.
+#
+# 4. resampling -- bilinear and nearest, against the declared area-weighted `average`.
+#    WHY: `average` is the physically correct choice for downsampling, but a claim that depends on
+#    the interpolation kernel is weaker than one that does not. `nearest` is included as the
+#    strongest available stress: it is known to be the wrong choice, which is exactly what makes it
+#    informative. Real-data DEMs, still on the exact common grid, still identical on both bodies.
+#
+# 5. mask -- (a) drop the outermost cell ring from every unit; (b) mask the 10% of destination
+#    cells with the largest |z - window median| in every unit.
+#    WHY: (a) the window edge is where warp coverage is thinnest and where a rotated grid's corners
+#    come closest to running out of source; (b) it asks whether a handful of extreme cells is
+#    driving the ordering. Both rules are applied identically to EVERY unit, lunar and terrestrial,
+#    so no side is favoured. The published lunar uncertainty raster (`toterr`) is NOT used here:
+#    masking by it is available for 4 of 6 sites and has no terrestrial counterpart, and the
+#    DEM's own error is already probed far better by the author-published clone ensemble.
+#
+# 6. dem -- on the destination arrays, where the descriptors are actually computed:
+#    (a) spatially correlated noise at 3% of each unit's own std, seeded; (b) a 0.5 deg regional
+#    tilt; (c) a 3x3 box smoothing.
+#    WHY: identical semantics to the Mars-panel stress test, so the two are comparable. A uniform
+#    vertical offset is deliberately NOT used: slope and relief are offset-invariant, so it would
+#    be a morphology no-op dressed up as a perturbation.
+#
+# 7. descriptor_dropout -- drop one of the three declared axes at a time.
+#    WHY: the panel's own dependence audit (artifacts/dependence/dependence_audit.json) found the
+#    three axes span ONE dimension. If dropping any one of them moved the frontier, that audit and
+#    the panel would be in contradiction, and the contradiction must surface as a failed
+#    perturbation rather than as two documents quietly disagreeing.
+#
+# 8. candidate_dropout -- remove one non-survivor candidate at a time (6 of them).
+#    WHY: a winner that needs all seven competitors present is a weaker result than one that wins
+#    against any subset.
+#
+# 9. pool_change -- ADD one candidate the v2 panel never saw: earth_andean_volcano (Ecuador,
+#    bbox [-78.60, -0.20, -78.30, 0.10] centre -> lon -78.45, lat -0.05), a steep stratovolcano,
+#    declared as a CONTRAST control in the Mars panel's config.
+#    WHY: the seven v2 candidates were fixed before v2 ran and cannot be changed after the fact
+#    without making the panel unfalsifiable. Adding an eighth is the legitimate way to ask whether
+#    the survivor is sensitive to the pool it was drawn from. It is an ADDITION only; the seven
+#    remain.
+#
+# WHAT THIS TEST CANNOT DO
+# ------------------------
+# It probes the TRUST BOUNDS of a morphological ordering. A "robust" verdict means "hard to break
+# with these 30 perturbations"; it is NEVER "true", and it upgrades no claim about traversability,
+# geologic equivalence, site access or mission readiness. It is descriptive, exploratory
+# robustness analysis, not confirmation -- the same data was examined in v1 and v2 first.
+#
+# SCOPE FIREWALL, inherited and non-negotiable: map-scale terrain-MORPHOLOGY screening only.
+
+status: CORRECTED-EXPLORATORY-STRESS-1
+label: ADVERSARIAL STRESS TEST on the corrected exploratory lunar panel. Not confirmation.
+seed: 0
+
+baseline:
+  panel_artifact: artifacts/lunar_sites_v2/lunar_sites_v2.json
+  expected_layer1: [earth_nevada_basin]
+  expected_cells: 18            # 6 sites x 3 supports
+  must_reproduce_or_refuse: true
+
+thresholds:
+  robust_at: 0.80
+  fragile_below: 0.50
+  primary_metric: perturbation_level
+  cell_level_reported_only: true
+
+counted_perturbations: 30
+informational_perturbations: 1     # drop_unit:earth_nevada_basin -- excluded from the denominator
+
+declared_labels:                    # exactly the labels the driver must produce, in order
+  - grid_origin:+400m_e
+  - grid_origin:-400m_e
+  - grid_origin:+400m_n
+  - grid_origin:-400m_n
+  - support_jitter:500-to-450
+  - support_jitter:500-to-600
+  - support_jitter:750-to-900
+  - support_jitter:1000-to-1500
+  - footprint:6000m
+  - footprint:3000m
+  - footprint:10500m@500
+  - footprint:9750m@750
+  - footprint:10000m@1000
+  - resampling:bilinear
+  - resampling:nearest
+  - mask:border_ring1
+  - mask:tail10pct
+  - dem:noise3pct
+  - dem:tilt0.5deg
+  - dem:smooth3x3
+  - drop_axis:mean_slope_deg
+  - drop_axis:mean_relief3_m
+  - drop_axis:elev_std_m
+  - drop_unit:earth_nullarbor
+  - drop_unit:earth_llano_estacado
+  - drop_unit:earth_deccan_traps
+  - drop_unit:earth_snake_river_plain
+  - drop_unit:earth_harrat_khaybar
+  - drop_unit:earth_odadahraun
+  - add_unit:earth_andean_volcano
+
+informational_labels:
+  - info_drop_winner:earth_nevada_basin

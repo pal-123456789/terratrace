@@ -206,6 +206,42 @@ sampling noise at the scale of Site01's own error field; it does not establish s
 precision a 6-realisation sample cannot resolve. The recorded counts, frequencies and set counts are
 checked against each other by `terratrace/evidence.py`.
 
+### How far the ordering can be broken: 28 of the 30 perturbations leave it untouched
+
+The ensembles above probe the DEM's *error*. They say nothing about whether the ordering is an
+artifact of the **window** — its size, its placement, its support, the interpolation kernel, the
+candidate pool. So the panel was attacked directly: **30 counted perturbations** declared in
+[`config/lunar_adversarial_v1.yml`](../config/lunar_adversarial_v1.yml) *before* the run, spanning
+window origin (±400 m), support jitter (500→450/600 m, 750→900 m, 1000→1500 m), footprint (3000,
+6000, 9750, 10000, 10500 m), resampling (`bilinear`, `nearest`), masking (edge ring, extreme decile),
+DEM perturbation (3 % correlated noise, 0.5° tilt, 3×3 smoothing), descriptor dropout, candidate
+dropout, and one added candidate.
+
+**28 of the 30 perturbations** left every one of their cells unchanged — **18 of 504 site × support
+cells** moved, a cell-level stable fraction of 0.964, verdict **ROBUST** under thresholds fixed in
+advance (≥ 0.80). The baseline was re-derived from the real data and had to reproduce this page's
+18-of-18 result exactly before any perturbation was allowed to run; it did.
+
+The two reversals are the interesting part, and neither is a rounding error:
+
+| condition | cells changed | what it means |
+|---|---|---|
+| `footprint:3000m` | **11 of 18** | at a 3 km window the survivor changes to `earth_harrat_khaybar`. The answer is a property of terrain **at a scale**, not of terrain |
+| `add_unit:earth_andean_volcano` | **7 of 18** | adding an eighth candidate (a steep stratovolcano) makes Nevada a **co-winner** at 7 cells, and at none of them does it lose. The claim that breaks is "**sole** non-dominated", not "non-dominated" |
+
+Everything else held: the 6000 m window, all three single-support enlargements up to 10.5 km, both
+alternative resampling kernels including `nearest` (which is the *wrong* kernel for downsampling —
+which is what makes it informative), both masks, all three DEM perturbations, all three descriptor
+dropouts, and all six candidate removals. Dropping Nevada itself is reported but **not counted**: it
+answers "who is second?" (`earth_harrat_khaybar`, at all 18 cells) and a perturbation whose outcome
+is certain cannot be allowed to dilute a stability fraction.
+
+**What this does and does not buy.** A robust verdict means *hard to break with these 30 declared
+attacks*. It is never "true", it is not confirmation, and it upgrades no claim. The two reversals are
+reported at the same prominence as the 28 passes precisely because they are the falsifiable part: a
+future analyst who wants to disagree with this page should go after the 3 km window or the eighth
+candidate, and both are one command away.
+
 ## 5. What this does NOT establish
 
 - **Not adequacy.** Being nearest among seven candidates is not the same as being adequate, and at
@@ -219,8 +255,10 @@ checked against each other by `terratrace/evidence.py`.
 - **A small ensemble, one site.** 6 of 100 realisations, Site01 only.
 - **A corrected exploratory reanalysis, not confirmation.** The same data was examined before this
   correction existed.
-- **No adversarial stress test on this panel.** Crop origin, control removal, candidate-pool and
-  support jitter have not been run here, unlike the Mars panel.
+- **A robust stress test that is not confirmation either.** The 30 perturbations were declared before
+  the run and the ordering survived 28 of them, but a perturbation battery can only show that a
+  result is hard to break with *those* attacks. It cannot show the result is right, and the two
+  reversals — the 3 km window and the eighth candidate — are the part a critic should attack.
 - **A real transfer gap.** Earth candidates are Copernicus GLO-30 *surface* models, which can include
   vegetation and buildings; the lunar product is bare rock.
 - **No uncertainty on the Earth side.** Only the lunar DEM has a published error model; the Earth
@@ -242,12 +280,20 @@ python scripts/fetch_lola.py "Site01/Clones/Site01_final_adj_5mpp_0001_err.tif" 
 # the corrected analysis: six sites, three supports, exact common grid, plus the error ensemble
 python scripts/lunar_sites_v2.py
 
+# the adversarial stress test on that panel (declared ranges in config/lunar_adversarial_v1.yml).
+# The baseline is re-derived and checked against the v2 artifact before any perturbation runs.
+python scripts/lunar_adversarial_run.py --families baseline
+python scripts/lunar_adversarial_run.py --families footprint,resampling,grid_origin
+python scripts/lunar_adversarial_run.py --merge
+
 # and the toolchain that guards the grid itself
 python tests/run_tests.py
 ```
 
 Writes `artifacts/lunar_sites_v2/lunar_sites_v2.json`. It **self-checks** its own ensemble record
-against `terratrace/evidence.py` and refuses to publish an inconsistent one.
+against `terratrace/evidence.py` and refuses to publish an inconsistent one. The stress test writes
+`artifacts/lunar_adversarial/lunar_adversarial.json` and refuses to run at all if it cannot reproduce
+the committed v2 panel first.
 
 Verify an input against the provenance table above, e.g.
 `sha256sum data/moon/Site01_surf.tif` → `3ba7b97cb00a2bcf21189c3aeb535f65afc21207154ab9f0d43c5bdc1f7e747e`.
@@ -257,13 +303,13 @@ Verify an input against the provenance table above, e.g.
 | item | status |
 |---|---|
 | Real lunar terrain ingested, six sites | **IMPLEMENTED AND TESTED** |
-| Exact common grid, both bodies, enforced | **IMPLEMENTED AND TESTED** (`common_grid`, 15 tests) |
+| Exact common grid, both bodies, enforced | **IMPLEMENTED AND TESTED** (`common_grid`, fifteen tests) |
 | Corrected multi-site screening, 3 supports | **IMPLEMENTED AND TESTED** — 18/18 cells |
 | Ensemble record internally checked | **IMPLEMENTED AND TESTED** (`evidence`, corruption-detected) |
 | Axis-redundancy and leave-one-out analysis | **IMPLEMENTED** — result: one axis |
 | Uncertainty propagation (author clones) | **IMPLEMENTED AND TESTED** — 6 of 100, Site01 only |
+| Adversarial stress test on this panel | **IMPLEMENTED AND RUN** — 28 of the 30 perturbations stable; 2 reversals named |
 | Full 100-realisation ensemble, all six sites | **NOT STARTED** — 6 of 100 retrieved |
-| Adversarial stress test on this panel | **NOT STARTED** |
 | Confirmatory lunar protocol | **NOT STARTED** — would require held-out data and a pre-registered v3 |
 | An axis that is not a roughness restatement | **NOT STARTED** — would need a real hypothesis first |
 | Lunar base suitability, of any kind | **NOT CLAIMED** |

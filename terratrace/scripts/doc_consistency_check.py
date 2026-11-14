@@ -29,6 +29,10 @@ It checks, against the tree it is run in:
    cannot see a stray ``</div>``, and an unbalanced page renders wrong in the browser while every
    link in it still resolves. This was added after exactly that mistake: an edited block on
    ``site/index.html`` closed one ``</div>`` too many and un-nested the rest of the document.
+7. **STRESS**  — the lunar stress test's published numbers (how many perturbations were counted, how
+   many survived, how many site x support cells changed, and the verdict) must be the ones in
+   ``artifacts/lunar_adversarial/lunar_adversarial.json``. A stale stability fraction reads as
+   evidence, and these are exactly the numbers that drift when a perturbation is added.
 
 Historical records (``CHANGELOG.md``, ``CLAIM-LEDGER.md``, ``RESULTS-*``, ``REAL-EXAMPLE.md``,
 ``BENCHMARK-PROTOCOL*``) are exempt from (1): they are dated records of what was true *then*,
@@ -114,6 +118,13 @@ CANONICAL = [
     ROOT / "docs" / "VALIDATION.md",
     ROOT / "docs" / "PAPER.md",
     ROOT / "docs" / "FEATURES.md",
+    # The two lunar pages are live documents quoting current numbers (the stress-test verdict, the
+    # one-axis finding) rather than dated records, so they belong under the same discipline as the
+    # rest. They were NOT here when the stress check was written, and the check reported "OK" while
+    # four deliberately seeded contradictions sat in one of them -- a guard that does not look at a
+    # document cannot find anything in it.
+    ROOT / "docs" / "LUNAR-DEMONSTRATION.md",
+    ROOT / "docs" / "LUNAR-PROTOCOL-v2.md",
     REPO / "site" / "index.html",
     # the deck generator is prose too: every number it prints ends up in a published slide, and
     # "200 scalar outputs" sat in a shipped slide for a release because nothing audited this file.
@@ -126,6 +137,8 @@ CANONICAL = [
     # and this one publishes the redundancy numbers (effective rank, participation ratio, fitted
     # rho) that the lunar pages and both decks quote, so it is audited the same way
     ROOT / "scripts" / "dependence_audit.py",
+    # and this one prints the stress-test numbers the lunar pages quote
+    ROOT / "scripts" / "lunar_adversarial_run.py",
 ]
 
 # dated records: exempt from the count checks
@@ -362,6 +375,65 @@ def check_counts(problems):
     return tests, oracles, sources, modules, families, (lo, hi)
 
 
+def check_lunar_stress(problems):
+    """The published stress-test numbers must be the artifact's numbers.
+
+    Why this exists: the lunar stress test answers a question the project had never answered before
+    ("how far can the ordering be broken?"), and its answer is a small set of integers -- 30
+    perturbations, 28 of them stable, 18 of 504 cells changed, two named reversing conditions. Those
+    numbers are exactly the kind that drift in prose when a perturbation is added or a family is
+    re-run, and a stale stability fraction reads as evidence. So they are read from the record and
+    matched against the documents, rather than trusted.
+
+    The patterns are deliberately narrow and phrased the way the documents actually say them; an
+    under-covered check that never lies beats a broad one that fires on ordinary prose (this repo has
+    been bitten by the broad version twice).
+    """
+    import json
+    art = ROOT / "artifacts" / "lunar_adversarial" / "lunar_adversarial.json"
+    if not art.exists():
+        return                          # nothing published, so nothing to contradict
+    a = json.loads(art.read_text(encoding="utf-8"))
+    s = a["summary"]
+    n_stable, n_counted = s["n_stable_perturbations"], s["n_counted_perturbations"]
+    n_cells, n_changed = s["n_cells"], s["n_changed_cells"]
+    verdict = s["verdict"].upper()
+    cell_frac = s["cell_stable_fraction"]
+    pats = [
+        ("counted perturbations", re.compile(r"(?<![\w.])(\d+)\s+counted perturbations?\b"), n_counted),
+        ("stable perturbations", re.compile(r"(?<![\w.])(\d+)\s+of the\s+(\d+)\s+perturbations\b"),
+         (n_stable, n_counted)),
+        # "cells ... moved|changed" and not the bare phrase: the PANEL's prose says "18 of 18
+        # site x support cells", which is a different number about a different thing. The first
+        # version of this pattern matched that and reported a phantom contradiction in README.md --
+        # the same too-broad-prose failure this guard has hit twice before.
+        ("changed cells", re.compile(r"(?<![\w.])(\d+)\s+of\s+(\d+)\s+site\s*[x×]\s*support\s+"
+                                     r"cells?\s+(?:moved|changed)\b"), (n_changed, n_cells)),
+    ]
+    for path in CANONICAL:
+        if not path.exists() or path.suffix not in (".md", ".html", ".js"):
+            continue
+        text = _probe(path.read_text(encoding="utf-8", errors="replace"))
+        rel = _rel(path)
+        for label, pat, want in pats:
+            for m in pat.finditer(text):
+                got = tuple(int(g) for g in m.groups())
+                want_t = want if isinstance(want, tuple) else (want,)
+                if got != want_t:
+                    problems.append(
+                        f"stress: {rel} states {label} {got}, the record says {want_t} "
+                        f"(...{text[max(0, m.start() - 40):m.end() + 15].strip()!r}...)")
+        for m in re.finditer(r"(?<![\w.])cell-level stable fraction(?:\s+(?:of|is|:))?\s*(\d\.\d+)", text):
+            if abs(float(m.group(1)) - cell_frac) > 0.0005:
+                problems.append(
+                    f"stress: {rel} states a cell-level stable fraction {m.group(1)}, the record "
+                    f"says {cell_frac:.3f}")
+        for m in re.finditer(r"verdict[:\s]+(ROBUST|FRAGILE|QUALIFIED)\b", text, re.I):
+            if m.group(1).upper() != verdict:
+                problems.append(
+                    f"stress: {rel} states verdict {m.group(1).upper()}, the record says {verdict}")
+
+
 def check_versions(problems):
     src = (ROOT / "terratrace" / "__init__.py").read_text(encoding="utf-8")
     m = re.search(r'^__version__\s*=\s*["\']([^"\']+)["\']', src, re.M)
@@ -590,6 +662,7 @@ def main(argv=None):
     n_links = check_links(problems)
     check_claims(problems)
     check_lens_wording(problems)
+    check_lunar_stress(problems)
     n_pages = check_site_markup(problems)
 
     if not quiet:

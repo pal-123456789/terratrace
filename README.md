@@ -15,7 +15,7 @@ This repository holds two things:
 
 | Path | What it is |
 |---|---|
-| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across six robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **930 tests**, no network required. |
+| `terratrace/` | The working engine (pure-NumPy): real DEMs → per-body metric reprojection → morphology descriptors → Pareto decision across six robustness lenses → honest uncertainty → transfer-gap ledger → provenance, report, and viewer. **952 tests**, no network required. |
 | `site/` | A 3D scroll-animated website telling the project story — live at **<https://terratrace.fit>**. |
 
 **Project deck — 10 slides.** [PDF](TerraTrace-deck.pdf) · [PowerPoint](TerraTrace-deck.pptx) — the whole project: the question, the pipeline across five bodies, the measurement layer, the benchmark that made us withdraw our own finding, the result, the verification evidence, the data path, the claim firewall and the open items.
@@ -89,7 +89,7 @@ example — are kept verbatim under `terratrace/docs/` so the audit trail is int
 ```bash
 cd terratrace
 pip install -r requirements.txt            # core (NumPy only)
-python tests/run_tests.py                   # 930 fixtures, offline
+python tests/run_tests.py                   # 952 fixtures, offline
 python scripts/run_validation.py            # scientific-correctness suite
 python -m terratrace.cli --out artifacts    # synthetic study
 python -m terratrace.build_viewer           # viewer/index.html
@@ -149,11 +149,24 @@ candidate is the same: the **Nevada Basin & Range**, while the smooth non-volcan
 answered for Martian volcanic plains are the worst matches. The membership also survives six of
 the archive's own perturbed DEM realisations (its published error model), which is the correct
 input for a propagation test — independent per-pixel noise would average away under aggregation
-and manufacture stability. Two caveats travel with it: the surviving candidate is not always
-*close* (for the roughest sites it is 44-71% away on some axis, i.e. least-dissimilar of a weak
-shortlist), and this is **exploratory** — six nearby sites are not six independent tests, the
-ensemble is 6 of 100 published realisations, and the axes are three declared ones rather than
-the frozen lens. Full record, tables, provenance and caveats: `terratrace/docs/LUNAR-DEMONSTRATION.md`; why the previously catalogued USGS endpoint still 404s: `terratrace/docs/LUNAR-STATUS.md`.
+and manufacture stability.
+
+Four caveats travel with it, and the second is the important one. The surviving candidate is not
+always *close* (its worst axis is 12-71% away, i.e. least-dissimilar of a weak shortlist, and at
+Shackleton rim no candidate is close at all). The three declared axes are **one axis**: `slope_deg`
+and 3×3 `relief` are the same gradient measured two ways — `relief = 2 d tan(slope) · ρ` with ρ
+bounded in `[1, √2]` and dependent only on the gradient's direction — verified against the engine's
+own functions to 4.4e-16 m. A stress test declared in advance then attacked the panel with **30
+counted perturbations** (window origin, support jitter, footprint 3-10.5 km, both alternative
+resampling kernels, masking, DEM noise/tilt/smoothing, descriptor and candidate dropout, one added
+candidate): **28 of the 30 perturbations** left it untouched and only **18 of 504 site × support
+cells moved** — a cell-level stable fraction of 0.964, verdict **ROBUST** — with the two reversals
+named rather than buried (a 3 km window changes the survivor; an added eighth candidate makes
+Nevada a co-winner). And it is **exploratory** — six nearby sites are not six independent tests
+and the ensemble is 6 of 100 published realisations. Full record, tables, provenance and caveats:
+`terratrace/docs/LUNAR-DEMONSTRATION.md` and its pre-run fault line
+`terratrace/docs/LUNAR-PROTOCOL-v2.md`; why the previously catalogued USGS endpoint still 404s:
+`terratrace/docs/LUNAR-STATUS.md`.
 
 **Reproduce it in three commands — no API key, no account.**
 

@@ -309,16 +309,29 @@ pre.cmd .p{color:var(--mut)}
       <p>Three things stop that reading as a finding. The candidate is not always <em>close</em>: at
         Shackleton rim even the survivor is <b>70%</b> away on its worst axis, so it is the
         least-dissimilar of a weak shortlist — the exact failure mode this project withdrew a claim
-        over on the Mars side. The three declared axes <b>correlate at r&nbsp;≈&nbsp;1.0</b>, so this
-        is one roughness gradient measured three ways rather than three independent lines of
-        evidence. And an earlier version of this comparison <b>did not put both bodies on the same
-        ground at all</b>; that is corrected and rerun, the ordering held, and the distances moved.
-        It stays <b>exploratory, not confirmatory</b>: six nearby sites are not six independent tests,
+        over on the Mars side. The three declared axes are <b>not three axes</b>: mean slope and 3×3
+        relief are the same gradient measured two ways — <code>relief = 2 d·tan(slope)·ρ</code>, with
+        ρ provably confined to <code>[1, √2]</code> and depending only on the gradient's direction —
+        checked against the engine's own functions to <b>4.4e-16&nbsp;m</b> and confirmed on the panel
+        at effective rank <b>1 of 3</b>. And an earlier version of this comparison <b>did not put both
+        bodies on the same ground at all</b>; that is corrected and rerun, the ordering held, and the
+        distances moved.</p>
+      <p>So the conclusion was then <b>attacked rather than defended</b>: <b>30 counted
+        perturbations</b> — window origin, support jitter, footprints from 3 to 10.5&nbsp;km, both
+        alternative resampling kernels, edge and extreme-cell masking, DEM noise, tilt and smoothing,
+        descriptor dropout, candidate dropout, one added candidate — declared in a config committed
+        <em>before</em> the run, with the pass rule fixed in advance. It survived <b>28 of the 30
+        perturbations</b>: only <b>18 of 504 site × support cells moved</b>, a cell-level stable
+        fraction of <b>0.964</b>, verdict <b>ROBUST</b>. The two that reverse are the falsifiable
+        part and are named: a <b>3&nbsp;km</b> window changes the survivor, and adding an eighth
+        candidate makes Nevada a <em>co-winner</em> rather than the sole one.</p>
+      <p>It stays <b>exploratory, not confirmatory</b>: six nearby sites are not six independent tests,
         and the error-ensemble check is 6 of the 100 published realisations. No base suitability of
         any kind is claimed — morphology only.</p>
       <div class="mini">
         <span>LOLA 5 m/px · all six sites</span><span>exact 9 km grid · 500 / 750 / 1000 m</span>
-        <span>18 / 18 cells: one non-dominated candidate</span><span>axes correlate r ≈ 1.0</span>
+        <span>18 / 18 cells: one non-dominated candidate</span><span>30 perturbations · 28 stable</span>
+        <span>axes: effective rank 1 of 3</span>
       </div>
     </div>
   </section>
@@ -349,7 +362,7 @@ python scripts/run_matched_benchmark.py --config config/matched_footprint_v3.yml
   <section id="open" class="reveal">
     <div class="idx">06 — OPEN &amp; REPRODUCIBLE</div>
     <h2>Every number<br>has a receipt.</h2>
-    <p class="sub">930 offline tests and 51 scientific-correctness oracles, deterministic study hashes, a
+    <p class="sub">952 offline tests and 51 scientific-correctness oracles, deterministic study hashes, a
       source lock with SHA-256 and citations, and an evidence graph from source to claim. The Earth data
       path is keyless. Open the live study, read the method, or clone the repository.</p>
     <div class="btnrow">

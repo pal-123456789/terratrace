@@ -158,3 +158,21 @@ fourth name for the same gradient.
 
 **Boundary.** An absolute adequacy statement is still not available. The 50 % worst-axis distance
 remains a descriptive label, not a validated threshold, and `LUNAR-DEMONSTRATION.md` says so.
+
+## How far the ordering can be broken
+
+The panel's own result was then attacked rather than defended: **30 counted perturbations** declared
+in advance in [`config/lunar_adversarial_v1.yml`](../config/lunar_adversarial_v1.yml) — window
+origin, support jitter, footprint, resampling kernel, masking, DEM noise/tilt/smoothing, descriptor
+dropout, candidate dropout, and one added candidate — with the pass/fail rule fixed before the run.
+
+**28 of the 30 perturbations** left the ordering untouched, a cell-level stable fraction of 0.964.
+The verdict is **ROBUST**, and the baseline had to reproduce this document's 18-of-18 result exactly
+before any perturbation was allowed to run. Two conditions reverse and are the falsifiable part: a
+3 km footprint (the survivor becomes `earth_harrat_khaybar`) and the addition of an eighth candidate
+(Nevada becomes a co-winner, and loses at no cell). Full detail, including why dropping the survivor
+is reported but not counted, is in [LUNAR-DEMONSTRATION.md](LUNAR-DEMONSTRATION.md) and
+`artifacts/lunar_adversarial/lunar_adversarial.json`.
+
+A robust verdict means *hard to break with these 30 declared attacks*. It is not confirmation, and
+the same data was examined before any of it.
