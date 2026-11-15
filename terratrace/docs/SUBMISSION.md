@@ -76,6 +76,20 @@ readiness. Nothing here says any Earth terrain is a mission-relevant Mars or lun
 atmosphere, regolith mechanics, radiation, thermal cycling) are listed as **unassessed** rather than
 folded into a score.
 
+## Which link goes in which portal field
+
+The submission form has two link fields and they are not interchangeable. Getting them the wrong way
+round is the one mistake on this page that can cost eligibility, so the mapping is recorded here.
+
+| Portal field | What it accepts | What goes in it |
+|---|---|---|
+| **Project Demonstration** | a slide presentation of **no more than 7 slides, including the title and introduction**, *or* a video of **30 seconds or less**, on a public host | `TerraTrace-submission.pdf` — the 7-slide deck, linked from this repository. **Not the live site**: a website is neither a slide presentation nor a video, and the Global Award rule is about the demo's form as well as its public accessibility |
+| **Project** | a website you created to showcase the project, a hosting service, or a code repository | the live site, <https://terratrace.fit> — the repository is one click from it, and either would be accepted |
+
+The link must be the whole URL, must resolve without a password, permission or registration, and must
+be reachable by anyone. Both of the above were checked that way; the repository is public and
+MIT-licensed, and the deck's slide count is asserted by a test rather than counted by eye.
+
 ## Compliance
 
 | requirement | status |
