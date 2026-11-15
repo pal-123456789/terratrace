@@ -18,17 +18,16 @@ to 14 November stretch can be, which is why the submitted artefact has to come f
 
 ## The challenge this addresses
 
-The project addresses the NASA Space Apps Challenge 2026 challenge **“Identify Earth Locations that
-Analog the Permanent Moon Base Locations and Mars”**, as recorded in the project's master plan
+The project addresses the NASA Space Apps Challenge 2026 challenge **“Identify Earth Locations that Analog the Permanent Moon Base Locations and Mars”** — confirmed
+from the submission portal on 2026-11-15, matching the wording recorded in the project's master plan
 (`PLANETARY-ANALOG-OS-MASTER-PLAN.md`, header line, which cites the 2026 challenge and find-a-team
 pages).
 
 Two honesty notes attached to that sentence. First, the official 2026 site confirms there are **14
 challenges**, but its challenge list is client-rendered behind `api.spaceappschallenge.org/graphql`,
-so the list could not be read directly to re-confirm the exact wording — the challenge title used
-above is therefore **UNVERIFIED**, and it is flagged as unverified wherever it is quoted (including
-in the deck). **Re-confirm the title against the official page at the event**, and correct this line
-and the deck if it differs. Second, the challenge
+so the list could not be read directly from here. The title was therefore carried as **UNVERIFIED**
+until it was **confirmed from the submission portal on 2026-11-15**, and it matches the wording above
+unchanged. Second, the challenge
 spans Moon *and* Mars; this engine supports a Moon reference as well as Mars (five body radii in
 `reproject.py`), so the Moon half is not a stretch goal — but the confirmatory study in
 `docs/RESULTS-v3.md` is Mars-only, which is where the evidence is strongest.
@@ -54,17 +53,32 @@ official Participant FAQ and Judging & Awards Guide. They are hard limits, not p
 
 ## Decision record
 
-Before any submission that reuses this work, record here **which path is taken** (options are in
-`CLEAN-ROOM-NOTE.md`):
+Recorded here because it is a decision that had to be taken rather than derived. The options are in
+`CLEAN-ROOM-NOTE.md`.
 
-- [ ] **Option 1 — fresh build.** During Nov 14–15 a new event project is built within the window, and
-      this repository is relied upon as public prior work (cited by name and commit), as one would rely
-      on any public library or paper.
-- [ ] **Option 2 — written clarification.** The organizer has been asked whether continuing a public
-      project is eligible, and the written answer is kept here (paste it below) before submitting.
+- [x] **Option 1 — extend in the window, disclosed.** The repository is relied upon as **published
+      prior art**, cited by name and commit, and the artefact submitted is the in-window work that
+      extends it. The pre-event state and the in-window commits are **both** listed, with dates, in
+      [`EVENT-WINDOW-CONTRIBUTION.md`](../EVENT-WINDOW-CONTRIBUTION.md) §2–§3.
+- [ ] **Option 2 — written clarification.** Not taken. The organizer has **not** been asked, and no
+      written answer exists. The draft inquiry in `CLEAN-ROOM-NOTE.md` remains **unsent**.
 
-**Recorded:** *(date and decision — to be filled in at the event)*
-**Evidence attached:** *(link or quote of the organizer's written answer, if option 2)*
+**Recorded:** 2026-11-15, by the submitter, on the second day of the event window.
+**Basis:** the official rule quoted at the top of this page — teams "are not allowed to begin working
+on the challenges prior to the hackathon" — read against the git history: pre-window tip `73db823`
+(2026-11-13 22:34), then **29 commits dated inside 2026-11-14/15** whose content is classified
+(eight of them new experimental work, not re-rendering) in `EVENT-WINDOW-CONTRIBUTION.md` §3.
+**Evidence attached:** none required for option 1 — the evidence *is* the public commit history.
+
+**What this decision does not assert.** It does not assert that the organizer has approved this
+reading, and it does not upgrade "eligibility" from its documented status. It records which path the
+submitter is taking and the facts the choice was made on, so that a reviewer can check the reasoning
+rather than take it on trust.
+
+**Demo format decided:** the **7-slide deck** (`TerraTrace-submission.pptx`, counted out of the
+archive and asserted by `tests/test_event_alignment.py`), not a 30-second video. The 2½-minute script
+in [`../DEMO.md`](../DEMO.md) is explicitly **not** the submission demo and says so at the top.
+
 
 ## What this repository is, and is not
 
