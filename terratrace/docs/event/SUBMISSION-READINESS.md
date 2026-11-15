@@ -352,15 +352,17 @@ sole non-dominated candidate, and the Mars panel's front is named.
 
 1. **Starting commit:** `d50b346` — the merge tip of PR #18, pushed to `main` as `be28069` on
    2026-11-15 01:13 IST.
-2. **Final commit:** the commit that adds this page; reported in the hand-over message with its hash,
-   because a document cannot contain the hash of the commit that creates it.
+2. **Final commit:** `b3107b8` adds this page. Commits after it in this series correct this page's own
+   bookkeeping and nothing else; the branch tip is given in the hand-over message, because a page
+   cannot name the commit that creates it.
 3. **Branch:** `improvement/scientific-consistency`, local. Nothing here has been pushed.
-4. **Every changed file** (relative to `d50b346`, 15 files changed by the three commits made during
-   this audit): `README.md`; `TerraTrace-submission.pptx/.pdf` and `TerraTrace-deck.pptx/.pdf`;
-   `terratrace/docs/EVENT-ALIGNMENT.md`, `EVENT-WINDOW-CONTRIBUTION.md`, `SUBMISSION.md`,
-   `CLAIM-LEDGER.md`, `event/SI-DISCLOSURE.md`, `event/eligibility-evidence.md`;
-   `terratrace/scripts/build_submission_deck.js`, `build_deck.js`, `doc_consistency_check.py`;
-   `terratrace/tests/test_event_alignment.py`. This page adds one file and one nav entry.
+4. **Every changed file**, relative to `d50b346` and as of `b3107b8` — four commits, **17 files**,
+   +862/−175. Documentation and records: `README.md`; `terratrace/docs/EVENT-ALIGNMENT.md`,
+   `EVENT-WINDOW-CONTRIBUTION.md`, `SUBMISSION.md`, `CLAIM-LEDGER.md`; `terratrace/docs/event/`
+   `SI-DISCLOSURE.md`, `eligibility-evidence.md`, and this page. Code and configuration:
+   `terratrace/mkdocs.yml`; `terratrace/scripts/` `build_submission_deck.js`, `build_deck.js`,
+   `doc_consistency_check.py`; `terratrace/tests/test_event_alignment.py`. Regenerated artefacts:
+   `TerraTrace-submission.pptx`/`.pdf` and `TerraTrace-deck.pptx`/`.pdf`.
 5. **Why each important change was made:** §0, §4 and §7 of this page give the reason for each.
 6. **Exact test results:** **1037 passed, 0 failed, 0 skipped** across **106 modules** — the full
    suite, run in nine slices. Slicing is a constraint of the shell (one call is capped well below the
