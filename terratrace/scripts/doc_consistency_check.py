@@ -5,10 +5,13 @@ hundreds out of date, or when a page is added to ``docs/`` and never wired into 
 when a relative link rots. Judges and users read the prose first, so prose drift is a real
 defect.
 
-This script makes that class of drift loud and mechanical. It is cheap — a few hundred
-milliseconds, no test execution: the test count is derived by AST-parsing the test modules
-exactly the way the dependency-free runner discovers them (module-level ``def test_*``), so
-the number is *computed*, never typed.
+This script makes that class of drift loud and mechanical. It executes no tests and computes every
+number it compares — the test count is derived by AST-parsing the test modules exactly the way the
+dependency-free runner discovers them (module-level ``def test_*``), so the number is *computed*, never
+typed. It is not "a few hundred milliseconds" as this docstring used to claim: reading the event-window
+record out of git history costs seconds, and the whole run is closer to a minute. The claim was
+corrected rather than left standing because a checker whose own docstring misstates its cost is the
+same defect it was written to catch.
 
 It checks, against the tree it is run in:
 
@@ -37,6 +40,9 @@ It checks, against the tree it is run in:
    leave adequacy unestablished, and how many site x descriptor statistics have a sibling lunar site
    as the nearest unit. The last is the least flattering number the project publishes, and therefore
    the one most worth pinning.
+9. **FIGURE**  — the published evidence figure must be exactly what its generator produces from the
+   adequacy artifact, must print that artifact's own band edges, must fit its canvas, and must not
+   stack two markers on top of each other. See ``check_published_figure``.
 
 Historical records (``CHANGELOG.md``, ``CLAIM-LEDGER.md``, ``RESULTS-*``, ``REAL-EXAMPLE.md``,
 ``BENCHMARK-PROTOCOL*``) are exempt from (1): they are dated records of what was true *then*,
@@ -50,6 +56,7 @@ Exits 0 when consistent, 1 with a named list of problems otherwise.
 from __future__ import annotations
 
 import ast
+import itertools
 import pathlib
 import re
 import subprocess
@@ -173,6 +180,10 @@ CANONICAL = [
     # discipline rather than being the one audit nobody audits
     ROOT / "docs" / "event" / "SUBMISSION-READINESS.md",
     ROOT / "docs" / "DEMO.md",
+    # and this one BUILDS the central evidence figure from the adequacy artifact, and prints the band
+    # edges, the control counts and the three verdicts -- every one of which ends up printed on a
+    # published picture a judge reads, which is the same reason the deck generators are on this list
+    ROOT / "scripts" / "make_adequacy_figure.py",
 ]
 
 # dated records: exempt from the count checks
@@ -226,6 +237,11 @@ COUNT_RES = {
     # whenever this very list changes belongs in the check that reads the list, not in a reader's
     # memory.
     "canonical document count": r"(?<![\w.])(\d+)\s+canonical documents?\b",
+    # The published-page count was hand-maintained in three documents and unchecked for the same
+    # reason the canonical count was: it is a number about this very guard's own coverage, quoted in
+    # prose that the guard reads. It is computed from the same tracked-page set the markup check
+    # walks, so the two cannot disagree.
+    "html page count": r"(?<![\w.])(\d+)\s+HTML pages\b",
     "runner banner": r"passed=(\d+)\s",
 }
 
@@ -253,6 +269,16 @@ def _docs_files():
             if TRACKED is not None and p.relative_to(REPO).as_posix() not in TRACKED:
                 continue
             yield p
+
+
+def _count_site_pages():
+    """Tracked HTML pages under ``site/`` -- the surface a judge actually opens."""
+    n = 0
+    for page in sorted(REPO.glob("site/**/*.html")):
+        if TRACKED is not None and page.relative_to(REPO).as_posix() not in TRACKED:
+            continue
+        n += 1
+    return n
 
 
 def _count_tests():
@@ -333,7 +359,8 @@ def check_counts(problems):
     modules, families = _count_test_modules(), _count_families()
     truth = {"test count": tests, "fixture count": tests, "oracle count": oracles,
              "source count": sources, "runner banner": tests, "module count": modules,
-             "family count": families, "canonical document count": len(CANONICAL)}
+             "family count": families, "canonical document count": len(CANONICAL),
+             "html page count": _count_site_pages()}
     pats = [(label, re.compile(rx), truth[label]) for label, rx in COUNT_RES.items()]
     for path in CANONICAL:
         if not path.exists():
@@ -480,12 +507,22 @@ def check_lunar_adequacy(problems):
     result ("the nearest unit is usually another lunar site") is the least flattering number this
     project has published, so it is exactly the one most likely to be quietly softened in prose.
     Matching it against the artifact is what makes softening it a build failure.
+
+    It also pins the **band census**. "The reference's own band admits 4 of 5 sibling sites" was
+    written for the whole panel and is a measurement of the CELLS WHERE A BAND EXISTS -- both
+    descriptor bands can be calibrated at only 6 of the 18 (the six at 500 m). At the other twelve
+    the relief band does not exist, so the verdict there rests on slope alone. That is a different
+    claim from "the band is wide", and the difference is a limitation of our own measurement rather
+    than of the Moon, which makes it exactly the kind of fact a writer tidies away. The three
+    phrasings below are the ones the corrected pages carry; the check demands that the split is
+    stated in the lunar write-up at all, and that the numbers in it are the record's.
     """
     import json
     art = ROOT / "artifacts" / "lunar_adequacy" / "lunar_adequacy.json"
     if not art.exists():
         return
-    s = json.loads(art.read_text(encoding="utf-8"))["summary"]
+    rec = json.loads(art.read_text(encoding="utf-8"))
+    s = rec["summary"]
     nn = s["nearest_unit_is_a_sibling_lunar_site"]
     pats = [
         ("sibling-nearest", re.compile(r"(?<![\w.])(\d+)\s+of\s+(\d+)\s+site\s*[x×]\s*descriptor"),
@@ -508,6 +545,65 @@ def check_lunar_adequacy(problems):
                     problems.append(
                         f"adequacy: {rel} states {label} {got}, the record says {want_t} "
                         f"(...{text[max(0, m.start() - 40):m.end() + 15].strip()!r}...)")
+
+    # --- the band census -------------------------------------------------------------------------
+    cells = rec["cells"]
+    n_cells = len(cells)
+    both = sum(1 for c in cells.values()
+               if all(bool(p["established"]) for p in c["adequacy_detail"]["per_descriptor"].values()))
+    least = min(int(c["verdict"]["absolute_adequacy"]["discrimination"]["admitted"])
+                for c in cells.values())
+    census = [
+        ("both-bands census", re.compile(r"(?<![\w.])(\d+)\s+of the\s+(\d+)\s+cells have both bands"),
+         (both, n_cells)),
+        ("missing-relief-band census",
+         re.compile(r"The other\s+(\d+)\s+cells have no relief band at all"), (n_cells - both,)),
+    ]
+    lunar = ROOT / "docs" / "LUNAR-DEMONSTRATION.md"
+    lunar_text = _probe(lunar.read_text(encoding="utf-8", errors="replace")) if lunar.exists() else ""
+    found = {}
+    for label, pat, want in census:
+        found[label] = False
+        for path in CANONICAL:
+            if not path.exists() or path.suffix not in (".md", ".html", ".js"):
+                continue
+            for m in pat.finditer(_probe(path.read_text(encoding="utf-8", errors="replace"))):
+                got = tuple(int(g) for g in m.groups())
+                found[label] = True
+                if got != want:
+                    problems.append(f"adequacy: {_rel(path)} states {label} {got}, the record says "
+                                    f"{want} -- the band census is a property of the supports tested, "
+                                    f"not of the panel as a whole")
+        if not found[label]:
+            problems.append(
+                f"adequacy: nothing states the {label} -- the adequacy verdict is a measurement of the "
+                f"cells where a band exists ({both} of {n_cells}), and prose that omits the split "
+                f"generalises a six-cell reading to the whole panel")
+
+    # The floor is the project's own claim about the WHOLE panel, so it is pinned as an equality:
+    # "at least N of the 5" must be the record's least permissive cell. Understating it (writing a
+    # smaller N) would make the band look more informative than it is -- the dangerous direction --
+    # and overstating it would be a claim no single cell supports.
+    n_controls = int(next(iter(cells.values()))["verdict"]["absolute_adequacy"]
+                     ["discrimination"]["controls"])
+    floor_pat = re.compile(r"admits (?:at least )(\d+) of (?:the )?(\d+)\b")
+    floors = []
+    for path in CANONICAL:
+        if not path.exists() or path.suffix not in (".md", ".html", ".js"):
+            continue
+        for m in floor_pat.finditer(_probe(path.read_text(encoding="utf-8", errors="replace"))):
+            got = tuple(int(g) for g in m.groups())
+            floors.append(got)
+            if got != (least, n_controls):
+                problems.append(
+                    f"adequacy: {_rel(path)} says the band admits {got[0]} of {got[1]} "
+                    f"known-different controls; the least permissive cell in the record admits "
+                    f"{least} of {n_controls}, and this sentence is a claim about the whole panel")
+    if not lunar_text or not floor_pat.search(lunar_text):
+        problems.append(
+            f"adequacy: {_rel(lunar)} no longer states the minimum the band admits anywhere "
+            f"(the record's least permissive cell admits {least} of {n_controls} known-different "
+            f"controls)")
 
 
 def check_event_window(problems, notes):
@@ -839,6 +935,145 @@ def check_generated_exports(problems, notes, tests=None, decks=None, pdfs=None):
                      + ", ".join(unverified))
 
 
+def check_published_figure(problems, notes, svg=None, artifact=None, generator=None):
+    """The published evidence figure is drawn from the committed record, and fits its own canvas.
+
+    This is the same discipline as the export check above, applied to a picture instead of a deck. The
+    figure that carries the project's central distinction -- that a definite ranking is not an
+    adequacy result -- must not be able to say something the record does not, so three things are
+    asserted and none of them is about taste:
+
+    * **it is generated, not drawn.** The committed SVG must be byte-identical to what
+      ``scripts/make_adequacy_figure.py`` produces from ``artifacts/lunar_adequacy/lunar_adequacy.json``
+      right now. A hand-edited figure, or one left behind when the artifact moved, fails here. This is
+      how the project's other authored artefacts are policed and a figure is no different.
+    * **it says the record's numbers.** The band edge printed on each panel must be the band p95 in the
+      artifact, formatted by the generator's own formatter. Without this, a generator that hard-coded a
+      number would pass the byte check perfectly.
+    * **it fits.** Every text run must lie inside the canvas, measured with the generator's own width
+      estimator, and no two markers may overlap. The first version of this figure shipped a label off
+      the left edge, a band label under the verdict cards, and a footer wider than the canvas; all
+      three were invisible to the eye and unmissable to a width check. It also drew five controls as
+      four dots while the label beside them said "4 of 5 inside" -- a picture contradicting its own
+      caption, which the overlap check below is written for.
+
+    The generator refuses to draw without the artifact instead of drawing an illustrative version, and
+    that refusal is asserted too: "no invented data" is a claim in the generator's own docstring, and a
+    claim with no check behind it is exactly what this file exists to catch.
+    """
+    import importlib.util
+    import json
+    import xml.etree.ElementTree as ET
+
+    svg = svg if svg is not None else ROOT / "docs" / "figures" / "adequacy-vs-ranking.svg"
+    artifact = artifact if artifact is not None else (
+        ROOT / "artifacts" / "lunar_adequacy" / "lunar_adequacy.json")
+    generator = generator if generator is not None else HERE / "make_adequacy_figure.py"
+    # The website serves its own copy, because a page published from ``site/`` cannot reach a file
+    # outside it. That copy is a second place the same picture can be wrong, so it is checked against
+    # the generated bytes too -- an asset mirror nobody verifies is just a second source of drift.
+    mirrors = (svg, REPO / "site" / "figures" / "adequacy-vs-ranking.svg")
+
+    def label(path):
+        try:
+            return _rel(path)
+        except ValueError:                      # a path outside the repo, e.g. a test fixture
+            return pathlib.Path(path).name
+
+    if not svg.exists():
+        problems.append(f"figure: {label(svg)} is missing -- the central evidence figure is part of "
+                        f"the submission, not an optional extra")
+        return
+    if not artifact.exists():
+        notes.append("published-figure check NOT run (the lunar adequacy artifact is absent)")
+        return
+
+    spec = importlib.util.spec_from_file_location("make_adequacy_figure", generator)
+    gen = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(gen)
+
+    try:
+        fresh = gen.build(gen.load())
+    except SystemExit as exc:                   # the generator refuses on a partial or absent record
+        problems.append(f"figure: {label(generator)} refused to draw: {exc}")
+        return
+
+    committed = svg.read_text(encoding="utf-8")
+    if committed != fresh:
+        problems.append(
+            f"figure: {label(svg)} is not what {label(generator)} produces from {label(artifact)} -- "
+            f"regenerate it (python3 scripts/make_adequacy_figure.py)")
+    for mirror in mirrors:
+        if mirror == svg:
+            continue
+        if mirror.exists():
+            if mirror.read_text(encoding="utf-8") != fresh:
+                problems.append(
+                    f"figure: {label(mirror)} is a copy of {label(svg)} and no longer matches it -- "
+                    f"copy the regenerated figure over it")
+        elif f"figures/{svg.name}" in (REPO / "site" / "index.html").read_text(
+                encoding="utf-8", errors="replace"):
+            problems.append(
+                f"figure: {label(mirror)} is referenced by the published page and does not exist -- "
+                f"the site will 404 the figure it shows")
+
+    # the band edge on each panel must be the artifact's own number in the generator's own format
+    cell = json.loads(artifact.read_text(encoding="utf-8"))["cells"][gen.CELL]
+    rec = cell["adequacy_detail"]
+    for name in gen.DESCRIPTORS:
+        want = gen.nice(float(rec["per_descriptor"][name]["band"]["p95"]))
+        if want not in fresh:
+            problems.append(f"figure: the {name} panel of {label(svg)} does not print the record's "
+                            f"band p95 ({want})")
+
+    ns = "{http://www.w3.org/2000/svg}"
+    try:
+        root = ET.fromstring(fresh)
+    except ET.ParseError as exc:
+        problems.append(f"figure: {label(svg)} is not well-formed XML: {exc}")
+        return
+
+    for t in root.iter(ns + "text"):
+        s = "".join(t.itertext())
+        size, x = float(t.get("font-size")), float(t.get("x"))
+        anchor = t.get("text-anchor", "start")
+        w = gen.est_px(s, size)
+        left, right = ((x - w / 2, x + w / 2) if anchor == "middle"
+                       else (x - w, x) if anchor == "end" else (x, x + w))
+        if left < 4 or right > gen.W - 4:
+            problems.append(f"figure: a label overflows the {gen.W} px canvas of {label(svg)} "
+                            f"(spans {left:.0f}-{right:.0f}): {s[:60]!r}")
+
+    # one marker per unit per panel, and no two markers drawn on top of each other
+    discs = [(float(c.get("cx")), float(c.get("cy"))) for c in root.iter(ns + "circle")]
+    want_discs = len(gen.DESCRIPTORS) * (len(rec["per_descriptor"]["slope"]["candidates"])
+                                        + int(cell["verdict"]["absolute_adequacy"]
+                                              ["discrimination"]["controls"]))
+    if len(discs) != want_discs:
+        problems.append(f"figure: {label(svg)} draws {len(discs)} markers, not the {want_discs} "
+                        f"units the record compares (one per unit per descriptor)")
+    for (x1, y1), (x2, y2) in itertools.combinations(discs, 2):
+        if abs(x1 - x2) < 6 and abs(y1 - y2) < 6:
+            problems.append(
+                f"figure: two markers overlap in {label(svg)} at ({x1:.0f}, {y1:.0f}) and "
+                f"({x2:.0f}, {y2:.0f}) -- the count a reader takes from the picture then contradicts "
+                f"the caption beside it")
+            break
+
+    # "no invented data" has to be enforced, not asserted in a docstring
+    real = gen.ART
+    gen.ART = pathlib.Path(str(artifact) + ".definitely-absent")
+    try:
+        gen.load()
+    except SystemExit:
+        pass
+    else:
+        problems.append(f"figure: {label(generator)} drew from something other than {label(artifact)} "
+                        f"-- it must refuse rather than invent the numbers it publishes")
+    finally:
+        gen.ART = real
+
+
 def check_versions(problems):
     src = (ROOT / "terratrace" / "__init__.py").read_text(encoding="utf-8")
     m = re.search(r'^__version__\s*=\s*["\']([^"\']+)["\']', src, re.M)
@@ -1074,6 +1309,7 @@ def main(argv=None):
     check_discovery_atlas(problems)
     check_axis_probe(problems)
     check_generated_exports(problems, notes)
+    check_published_figure(problems, notes)
     n_pages = check_site_markup(problems)
 
     if not quiet:

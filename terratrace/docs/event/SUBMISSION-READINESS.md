@@ -87,9 +87,12 @@ the others not being independent replications.
 non-dominated, and that ordering survives **28 of the 30 perturbations** declared before the run, with
 only **18 of 504 site × support cells moved**, a cell-level stable fraction of **0.964**, verdict
 **ROBUST**. Reported alongside it, on the same page: the ranking is definite at all 18 cells, but
-adequacy is **NOT_ESTABLISHED at all 18**, because the reference's own variability band admits four of
-the five other sites; and at **18 of 24 site × descriptor statistics** the unit nearest a lunar
-reference is **another lunar site**, not any Earth candidate.
+adequacy is **NOT_ESTABLISHED at all 18** — at the **6** cells where both descriptor bands can be
+calibrated (the six at 500 m) the reference's own variability band admits **at least four of the five**
+other sites, and at the other **12** there is **no relief band at all**, so the verdict there rests on
+the slope band alone, which admits at least four of the five as well; and at **18 of 24 site ×
+descriptor statistics** the unit nearest a lunar reference is **another lunar site**, not any Earth
+candidate.
 
 **The bound on our own headline.** The three declared lunar axes are one axis — mean slope and 3×3
 relief satisfy `relief = 2 d tan(slope) · ρ` with ρ provably in `[1, √2]`, verified against the
@@ -163,7 +166,8 @@ units and returned a ranking over them. A policy that invented a finite substitu
 that; the fix refuses instead. §11 F1 has the detail and the tests.
 
 No other defect was found in this pass. The suite, the oracles and the guard are green, and the guard
-now covers 30 canonical documents, 4 HTML pages and 7 generator scripts.
+now covers 31 canonical documents, 4 HTML pages, and every generator script whose output carries a
+number a reader can check.
 
 ## 7. Repository hygiene (P2)
 
@@ -362,13 +366,27 @@ sole non-dominated candidate, and the Mars panel's front is named.
 
 ## 9. Required final report
 
+**How to read this section — and the rule that replaced a claim.** Everything here about a branch's
+push state or a CI run is a fact about git and GitHub *at a moment*, not a property of this repository.
+It went stale three times while this page was being written, every time in the direction of understating
+the work, and re-typing the current value fixes it only until the next commit. So the volatile part is
+stated as an **as-of** and the durable part as a **rule**:
+
+> **CI is verified per commit, by `head_sha` — never by branch.** A branch query returns the *most
+> recent* run, which is not the run for the commit under discussion, and a short SHA returns no runs at
+> all. Both mistakes have produced a false green here, which is why the rule is written down instead of
+> the number.
+
 1. **Starting commit:** `d50b346` — the merge tip of PR #18, pushed to `main` as `be28069` on
    2026-11-15 01:13 IST.
 2. **Final commit of the audited series:** `492e71a` added this page. Commits after it in that series
    corrected this page's own bookkeeping and nothing else.
-3. **Branch:** `improvement/scientific-consistency` — **pushed and merged as PR #20 into `main` at
-   `44d2a5c`**, so this series is public and CI-verified rather than local. The follow-up series this
-   page's §9b describes is on `improvement/final-audit` and is local until the submitter pushes it.
+3. **Branch:** `improvement/scientific-consistency` — pushed and merged as PR #20 into `main` (merge
+   commit `44d2a5c`), so that series is public and CI-verified. The follow-up series that §9b describes
+   was merged as PR #21 (`d75886a`). **As of this page's last edit**, the evidence-figure series in §9c
+   is the only unpushed work. Which branches are actually pushed is a fact about git, not a claim this
+   page can keep current — read it from `git log origin/main` — so it is listed here for the sequence,
+   not for the state.
 4. **Every changed file in the audited series**, relative to `d50b346` and as of `492e71a` — four
    commits, **17 files**, +862/−175. Documentation and records: `README.md`;
    `terratrace/docs/EVENT-ALIGNMENT.md`, `EVENT-WINDOW-CONTRIBUTION.md`, `SUBMISSION.md`,
@@ -383,18 +401,22 @@ sole non-dominated candidate, and the Mars panel's front is named.
    suite's wall time), not a reduction in coverage; the slice totals sum to the documented count.
 7. **Exact scientific-validation results:** **51/51 oracles passed**, aggregate hash
    `0e2c6a2e15069728…`, unchanged from the pinned value.
-8. **CI status: verified on the merged commit, not on an older one.** `main` is `44d2a5c` (the merge
-   of PR #20) and CI run **#65** on that exact commit **succeeded**, alongside a successful site
-   deploy and a successful Vercel deployment. The earlier wording of this item — that the audited
-   commits were local-only and therefore unverified — was true when written and is superseded by the
-   merge; it is left here rather than deleted so the sequence is legible. **The follow-up series on
-   `improvement/final-audit` is local-only and has not been CI-verified**; its local equivalents of
-   both CI jobs were run instead.
+8. **CI status: verified per commit, by `head_sha`.** Every series audited on this page was checked
+   that way, and the run for the merge commit of each succeeded, alongside a successful site deploy and
+   a successful Vercel deployment. The earlier wording of this item — that the audited commits were
+   local-only and therefore unverified — was true when written and was superseded by the merge; it is
+   left legible rather than deleted so the sequence can be followed. **What this item will not do is
+   assert a run number**: a run number that is current today is wrong tomorrow, which is the defect this
+   page was corrected for three times (F3, F12). Unpushed work has no run to check, and the local
+   equivalents of both CI jobs are the stated substitute for it.
 9. **Presentation slide count:** the submission deck is **exactly 7**, counted out of the archive by
    test; the project deck is a separate 10.
 10. **Demo verification:** site fetched and returned HTTP 200 with current content; all four routes,
-    all 124 relative links and every site fragment verified by the guard; the one-command
-    reproduction path checked. Browser console errors were **not** verified (§5).
+    every relative link and every site fragment verified by the guard; the one-command reproduction
+    path checked. Browser console errors were **not** verified (§5). The link *count* is deliberately
+    no longer quoted here: it changes with every added link, and the "124" that used to sit in this line
+    was wrong the moment one was added — a hand-maintained number about an artefact that is itself
+    growing. The claim that matters is that the guard checks all of them, and that one is mechanical.
 11. **Eligibility status and evidence:** **disclosed, not organizer-confirmed.** Option 1
     (extend-in-window, disclosed) was taken by the submitter on 2026-11-15; the basis is the git
     history, and the record states plainly what the decision does not assert.
@@ -405,9 +427,10 @@ sole non-dominated candidate, and the Mars panel's front is named.
     inference. **It has not been pasted into the portal — that is a required field and remains open.**
 14. **Remaining blockers:** the SI field is unfilled in the portal; the challenge selection and the
     registration threshold need confirming by the submitter; the eligibility reading is unconfirmed by
-    the organizer; the follow-up series on `improvement/final-audit` is unpushed and so unverified by
-    CI. The three items here that a repository cannot close are the first three — they are portal or
-    organizer actions, not defects.
+    the organizer. All three are portal or organizer actions — not defects a repository can close, and
+    not things this page can verify. Whether a given branch has been pushed is **not** a blocker but a
+    git fact: read `git log origin/main`, and verify CI for that commit **by `head_sha`** per the rule
+    at the head of this section.
 15. **Five-judge scorecard:** §8 — overall **4.2/5**, per-judge means 4.3 / 4.0 / 4.5 / 4.1 / 3.9.
 16. **Readiness: READY WITH CAVEATS.**
 17. **The exact files and links to submit:** the presentation — `TerraTrace-submission.pptx`
@@ -473,6 +496,66 @@ were regenerated rather than the number being softened anywhere. That cascade is
 is recorded because a reader comparing this page against an older deck will otherwise find a
 discrepancy and no explanation.
 
+## 9c. The evidence figure, and the disclosure defect that drawing it surfaced
+
+**Why a figure at all.** The distinction this project is built on — that a definite ranking is not an
+adequacy result — was carried in prose everywhere and in a picture nowhere. Prose is a poor carrier for
+it: it takes a paragraph, and a reader who skims comes away with "Nevada is the Moon analog", which is
+the opposite of the finding. There is now one figure, drawn from the committed record and nothing else:
+`docs/figures/adequacy-vs-ranking.svg`, generated by `scripts/make_adequacy_figure.py` from
+`artifacts/lunar_adequacy/lunar_adequacy.json`, published at the top of the repository README and on the
+live site.
+
+**It cannot lie in the ways a figure usually lies.** The generator **refuses to run** when the artifact
+is absent, rather than drawing an illustrative version. The guard re-generates it on every run and fails
+if the committed SVG and the record have drifted; if the band edge printed on a panel is not the
+record's band p95; if any text run leaves the canvas; if two markers overlap; or if the website's copy
+of the file diverges from the repository's. The last four are there because the *first* version of the
+figure had three layout defects a human eye missed — a label off the left edge, a band label under the
+verdict cards, a footer sentence wider than the canvas — and drew five controls as four dots while the
+label beside it said "4 of 5 inside", a picture contradicting its own caption. Layout is measured with
+the generator's own width estimator now, not inspected.
+
+**Drawing it surfaced a real defect in the written result, and this is the part that matters.** The
+published sentence was: adequacy is NOT_ESTABLISHED at all 18 cells *because the reference's own
+variability band is so wide that it admits four of the five other lunar sites*. That sentence is true
+**at six cells and false as a generalisation of eighteen**, and nothing in the tree could see it. The
+band is calibrated per descriptor from held-out sub-windows; at **6 of the 18 cells — exactly the six at
+the 500 m support — both descriptor bands exist**, and each admits at least four of the five sibling
+sites. At the **other 12, every 750 m and 1000 m cell, there is no relief band at all**: the held-out
+sub-windows do not supply one at those supports, so the verdict there rests on the **slope band alone**
+— which also admits at least four of the five. The verdict is unchanged, and it in fact rests on a
+*weaker* test at those twelve. What was wrong was the *picture of why*: those twelve cells fail for
+want of a yardstick, not because the yardstick is permissive, and a reader is owed the difference. The
+`established` flag that distinguishes the two cases was in the artifact all along and no page read it.
+
+That sentence has been corrected everywhere it appeared — the repository README, the live site, the
+lunar write-up and its summary table, `CLAIM-LEDGER.md` entry 28 (with an inline correction marker
+rather than a silent rewrite), the generated atlas page, this page, and the figure itself, which now
+states the census in its own header. **Two mechanical checks were added** to
+`check_lunar_adequacy` so the census cannot be generalised away again: the split must be stated in the
+lunar write-up at all, and the numbers in it must be the record's, including the floor ("at least four
+of five") pinned as an equality, because understating that floor would make the band look more
+informative than the measurement supports. Both were verified to fire on a doctored copy and to be
+quiet on the real tree.
+
+**Why the deck did not get the figure, stated plainly.** The submission deck is capped by the official
+rules at **7 slides including the title**, and every one of its 7 is full. Its slide 5 already carries
+the adequacy number as a card (`0 / 18`), and its phrasing — "the reference's own band admitting four
+of the other five sites" — is true at every cell because a calibrated band exists at every cell. A
+figure squeezed into that slide would be about 3.7 inches wide, which renders this figure's 10.5 px
+labels at roughly 2.4 pt: unreadable, and an unreadable figure is worse than no figure. So the figure
+went where it can be read at full width — the README and the site — and the deck keeps its verified
+seven-slide structure.
+
+**The suite's size did not change, and that is a deliberate choice rather than an omission.** The
+figure's invariants live in the guard (`check_published_figure`) and are exercised in both directions
+by the existing export test, so they run as their own CI step as well as inside the suite. The test
+count is quoted in 19 prose sites and 5 generated exports, so each *added test function* costs a full
+regeneration cascade of both decks, both deck PDFs, the paper PDF and the cover; a mechanical invariant
+belongs in the guard, which is where it also runs on a push. The count cascade described in §9b is the
+reason that trade-off is visible instead of invisible.
+
 ## 10. Why not READY
 
 The audit's rule was explicit: do not say READY if a mandatory requirement is unresolved. Two are, and
@@ -498,13 +581,15 @@ find. `Status` is `fixed` only where a test or a regenerated artefact proves it.
 | F1 | **P0** | `lunar_adversarial.fractional_distance` | Axial normalisation returned NaN when the reference descriptor was 0, and `decision.non_dominated` silently excludes non-finite units | `non_dominated` excludes NaN vectors; the probe's own audit now records 13 of 184 bank scalars hitting an undefined normalisation — 12 from a zero reference and 1 from a non-finite input, a cause the first version of that audit could not see | A ranking computed over fewer units than were passed in, with nothing in the output to say a unit was dropped | One policy in `decision.axial_fractional_distance`: both-zero is `0.0`, zero-against-non-zero raises `UndefinedNormalisation`, so does any non-finite input | 7 new tests, including one that demonstrates the silent-drop consequence directly; `test_decision`, `test_axis_probe`, `test_lunar_adversarial`, `test_adversarial`, `test_adequacy` = 68/68 | **fixed** |
 | F2 | **P0** | `docs/SUBMISSION.md` compliance table | Said the challenge title was **OPEN** and that eligibility was to be "decide[d] at the event", contradicting the root README and the decision record | README and `SUBMISSION.md` line 30 both say confirmed 2026-11-15; the decision record is `[x] Option 1` | The submission page a judge reads first would understate its own compliance and imply an unmade decision | Both rows corrected; the prior-art row now says the artefact **extends** the prior art rather than "must be built inside the window" | `test_event_alignment` 12/12; guard green | **fixed** |
 | F3 | **P1** | `docs/event/SUBMISSION-READINESS.md` §9 | Described the audited series as local-only and unpushed, and quoted CI run #62 on an older commit | The series is merged as PR #20 at `44d2a5c`; CI run #65 on that commit succeeded | A reader would take a verified submission for an unverified one, and check the wrong CI run | Items 2, 3, 4 and 8 rewritten against the actual merged state, with the superseded wording left legible rather than deleted | CI queried per-commit (`head_sha=44d2a5c…`), not by branch | **fixed** |
-| F4 | **P1** | 19 prose sites + 5 generated artefacts | Published test count 1037 while the suite reached 1044 | The guard listed all 23 as problems on the first run after the tests were added | Every reader, deck and PDF quotes a count the code no longer produces — the exact defect the guard exists for | All 19 replaced; cover, both decks, both deck PDFs and the paper PDF regenerated | Guard green over 30 canonical documents; slide counts 7 and 10 | **fixed** |
+| F4 | **P1** | 19 prose sites + 5 generated artefacts | Published test count 1037 while the suite reached 1044 | The guard listed all 23 as problems on the first run after the tests were added | Every reader, deck and PDF quotes a count the code no longer produces — the exact defect the guard exists for | All 19 replaced; cover, both decks, both deck PDFs and the paper PDF regenerated | Guard green over 31 canonical documents; slide counts 7 and 10 | **fixed** |
 | F5 | **P1** | the submission portal | The SI disclosure is written but **not pasted into a required field** | `SI-DISCLOSURE.md` exists and is complete; portal state is not programmatically readable | A required field left empty is a submission failure, not a style issue | None available in-repo — this is a portal action by the submitter | §13 and §14 name it as the first checklist item | **open — submitter** |
 | F6 | **P1** | event eligibility | Eligibility is the submitter's reading of the official rule, not the organizer's ruling, and the team-registration threshold is unchecked | Organizer has not been asked; draft inquiry unsent | The submission's basis could change if the reading is rejected | None available in-repo; the reading and its limits are recorded | `eligibility-evidence.md` decision record; alignment §9 keeps this row deliberately not-met | **open — submitter** |
 | F7 | P2 | five commits dated 2026-11-14 | Authored as `<pal@example.com>`, which GitHub cannot link to the account, so they display as an unattributed contributor | `git log` over the branch; the five are on `main` | A cosmetic attribution defect on public, already-merged history | **Deliberately not fixed**: re-attributing them rewrites merged public history, and three are cited by hash in the event-window record | The cost/benefit is recorded in the commit message that fixed the five *unmerged* commits instead | **open — won't fix** |
-| F8 | P2 | `scripts/doc_consistency_check.py` | Its docstring says the guard is "a few hundred milliseconds, no test execution"; it now takes ~57 s on this tree | Measured twice: 57.7 s and 56.7 s, of which ~10 s is the new git-backed check | A reader budgets the wrong amount of time, and CI pays it four times per push | Left unfixed as a code change and recorded here; the honest fix is to re-measure and restate the number | Timed with `/usr/bin/time`; the git sub-calls timed individually | **open — documented** |
-| F9 | P3 | both decks | No figure that **is** the headline result — a judge must open the paper or the site for the Pareto front or the roughness ladder | §4 of this page | Presentation is weaker than the evidence; the strongest idea takes a paragraph to convey | Assessed and deferred. **Correction to the first version of this row:** it said the panel data needed to draw one is absent, which is wrong — `docs/figures/roughness-ladder.svg` is a committed figure built from the real panel. The honest reason is that rasterising it onto a slide restyles a deck that is verified and that CI has already accepted, on the last day, for a P3 gain | — | **open — deferred, reason corrected** |
+| F8 | P2 | `scripts/doc_consistency_check.py` | Its docstring said the guard is "a few hundred milliseconds, no test execution"; it takes ~57 s on this tree | Measured twice: 57.7 s and 56.7 s, of which ~10 s is the git-backed event-window check | A reader budgets the wrong amount of time, and CI pays it on every push | The docstring now states what the guard actually costs and why it is not milliseconds (it reads git history, unlike every other check in the file), on the ground that a checker whose own docstring misstates its cost is the defect it exists to catch | Re-measured after the figure check was added; the claim is qualitative with the reason attached, not a single number that ages | **fixed** |
+| F9 | P3 | the publication surfaces | No figure that **is** the headline result — a reader met the project's central distinction only as a paragraph | §4 of this page | Presentation weaker than the evidence; the strongest idea takes a paragraph to land | **Delivered, not deferred** — `docs/figures/adequacy-vs-ranking.svg`, generated from the adequacy artifact and refused when it is absent, at the top of the repository README and on the live site; both copies are checked for drift, canvas fit and marker overlap by the guard. **Correction to the first two versions of this row:** v1 said the panel data needed to draw it is absent (wrong — the artifact has it); v2 gave the cost of restyling a verified deck as the reason. The real reason the *deck* still has no figure is the official **7-slide cap** with every slide full, and a figure at the only width available would render its labels at ~2.4 pt | Drawing it surfaced the band-census defect in §9c, which is worth more than the figure | **fixed** |
 | F10 | P3 | `docs/limitations.md` | The readiness page's own §6 asserted the zero-reference case "is recorded in `docs/limitations.md`" — **and no such entry existed** | `grep` over `limitations.md` returned nothing; the claim was the page's own invention | A reader following the pointer finds nothing, and an audit page that misdescribes its own evidence is worse than one that omits it | The entry now exists, stating the policy and the refusal rather than the hazard; §6 records the correction instead of deleting it | Guard green; the section is now greppable by the phrase the page quotes | **fixed** |
+| F11 | **P1** | README, live site, `LUNAR-DEMONSTRATION.md`, `CLAIM-LEDGER.md`, the generated atlas page, this page | The adequacy verdict's *reason* was generalised from 6 cells to 18: "the band is so wide that it admits four of the five other sites" | Both descriptor bands can be calibrated at **6 of the 18** cells (the six at 500 m); the other **12** have no relief band at all, so the verdict there rests on slope alone. The `established` flag was in the artifact and no page read it | A reader is told the yardstick is permissive when at two thirds of the cells there is no second yardstick — a different claim, and a limitation of our own measurement rather than of the Moon | Corrected in all seven places, with the split stated where the reasoning is given; two mechanical checks added to `check_lunar_adequacy`, both verified to fire on a doctored copy | Found by drawing the result rather than by reading it; the figure states the census in its own header | **fixed** |
+| F12 | P2 | `docs/event/SUBMISSION-READINESS.md` §9 | The same volatile-claim defect as F3, for the third time: a branch's push state and a CI run number, both of which age the moment anyone commits | `main` moved from `44d2a5c` to `d75886a` during this pass, and the page's quoted run number aged with it | Re-typing the current value fixes it only until the next commit, and each wrong one understates verified work | **Fixed durably rather than again**: the volatile parts are now stated as an as-of, and the durable part is the rule — *CI is verified per commit by `head_sha`, never by branch*. The link count was removed from the demo-verification item for the same reason | The rule is what a reader can act on; F3's and F12's rows both point at it | **fixed — by removing the claim, not by updating it** |
 
 **Checked and found clean** (recorded so that silence is not mistaken for coverage): v3 is never
 described as fully pre-registered anywhere; the lunar half is labelled exploratory on every page that
@@ -536,10 +621,33 @@ a withdrawal, in every document that mentions it.
   finite-invariant on a well-formed panel, and the exact-agreement case.
 - **Tests run:** the full suite, and the science oracles, and the guard.
 - **Exact results:** **1044 passed, 0 failed, 0 skipped** across **106 modules**; **51/51** oracles at
-  hash `0e2c6a2e15069728…`; guard green over 30 canonical documents, 4 HTML pages and 7 generator
-  scripts.
-- **Unresolved:** F5 and F6 are submitter actions; F7 is a deliberate no-fix; F8 and F9 are recorded
-  above with their reasons.
+  hash `0e2c6a2e15069728…`; guard green over 31 canonical documents, 4 HTML pages and every
+  generator script whose output carries a checkable number, the evidence figure included.
+- **Unresolved:** F5 and F6 are submitter actions; F7 is a deliberate no-fix; everything else F1–F12,
+  including the two P1 defects found in the *last* pass (F11 the band census, F12 the volatile claim),
+  is fixed and verified above.
+
+**12b. The evidence-figure pass (§9c).** Against `d75886a`, the merged `main`: **13 files** — the full
+change list is the table below. *The inserted/deleted line totals are deliberately not quoted here.* A
+report row that quotes the diff it is itself part of is off by one by construction — editing the row to
+make the number right changes the number — which is the same self-reference that made the event-window
+commit count unmaintainable (§9, F12). `git diff d75886a HEAD --shortstat` reproduces them for anyone
+who wants the figure. No test count changed, so no deck, PDF or cover needed regenerating — and the
+guard enforces that claim rather than trusting it.
+
+| File(s) | Change | Why |
+|---|---|---|
+| `terratrace/scripts/make_adequacy_figure.py` | new: the figure generator | F9, and the width estimator that makes its layout checkable instead of eyeballed |
+| `terratrace/docs/figures/adequacy-vs-ranking.svg` | new: the figure, generated from the adequacy artifact | F9 |
+| `site/figures/adequacy-vs-ranking.svg` | new: the website's copy | A page served from `site/` cannot reach a file outside it; both copies are checked against the generated bytes so a mirror cannot drift |
+| `README.md` | the figure at the top of the lunar result, plus the census correction | F9 and F11 |
+| `site/index.html` | the figure in the evidence section, plus the census correction and one `<p>` split | F9 and F11 |
+| `terratrace/scripts/doc_consistency_check.py` | `check_published_figure`; the HTML-page count added to `COUNT_RES`; the band-census and floor checks in `check_lunar_adequacy`; the corrected runtime docstring; the generator registered in `CANONICAL` (30 → 31) | F8, F11, F12 and F9's mechanical backing |
+| `terratrace/tests/test_doc_consistency.py` | the export test extended to exercise the figure check in both directions (and renamed to say so) | A check that is never run in its failing direction gets switched off |
+| `terratrace/docs/LUNAR-DEMONSTRATION.md` | the adequacy reason split into the two cases, in the prose, the bullet list and the summary table | F11 |
+| `terratrace/docs/CLAIM-LEDGER.md` | entry 28 corrected with an inline *(Corrected …)* marker rather than a silent rewrite | F11; the ledger's own convention |
+| `terratrace/scripts/build_atlas_page.py`, `site/atlas/index.html` | the atlas's adequacy note now states the census, read from the record | F11; the page is generated prose and was over-general too |
+| `terratrace/docs/EVENT-ALIGNMENT.md`, `docs/event/SUBMISSION-READINESS.md` | the canonical-document and page counts, and the withdrawal of an unguarded generator count | The guard reads its own list, so registering a document moves a number in prose; the generator-script count was quoted in three documents and checked nowhere, so it was removed rather than maintained |
 
 ## 13. Scientific result report
 
@@ -563,6 +671,15 @@ audited hard, **by its own machinery and by model-assisted passes, and by no one
 answers three separate questions — which candidate is least dissimilar, whether any lies inside the
 reference's own variability, and whether the evidence is strong enough to say either — and it refuses
 to answer when it is not.
+
+**One figure, and it is the argument.** `terratrace/docs/figures/adequacy-vs-ranking.svg`, at the top of
+the repository README and on the live site: on each descriptor, the pale band is the lunar reference's
+distance from *itself*, and every Earth candidate sits inside it — as do at least four of the five
+sibling lunar sites that a geologist would call different terrain. A yardstick that says *adequate* to
+terrain from demonstrably different places has established nothing, and that is visible in one look
+instead of one paragraph. The figure is generated from the committed record, refuses to be drawn when
+that record is absent, and states its own census (it is one of the six of eighteen cells where both
+descriptor bands can be calibrated).
 
 **Thirty seconds** (from §8, unchanged): the engine caught its own false analog, withdrew it under a
 protocol frozen before the data, measured why, and publishes both the bound on its own headline and a
@@ -591,10 +708,10 @@ is the ≤30-second script, timed:
 | Criterion | Score | Strongest evidence | Biggest weakness | The one improvement |
 |---|---|---|---|---|
 | **Impact** | 4 | A false analog is expensive to build on; this refuses one and shows its work | Screening only — no traversability, hazard, access or readiness claim | State the cost of a false analog in one concrete sentence on slide 1 |
-| **Creativity** | 5 | The refusal machinery: publishing the bound on its own headline, and an atlas that will not write a file if two of its records disagree | Under-sold; the idea takes a paragraph to land | The deferred chart (F9): one figure showing a candidate that ranks first and still fails the absolute test |
+| **Creativity** | 5 | The refusal machinery: publishing the bound on its own headline, and an atlas that will not write a file if two of its records disagree | Under-sold on the page a judge opens first — the idea took a paragraph to land | Delivered: the figure now lands it in one look on the README and the live site (F9), and drawing it surfaced a real disclosure defect of its own (§9c) |
 | **Validity** | 4 | 51 correctness oracles, five-body geometry against closed-form geodesy, a pre-registered withdrawal, deterministic hashes | Confirmation is single-lens, and v3 is pre-specified rather than pre-registered | A replicated confirmatory panel on fresh held-out terrains |
 | **Relevance** | 5 | Directly answers the challenge's question, on real lunar terrain, with the Moon half not a stretch goal | The *geographic* answer is a screening candidate, not a named analog site | Label the leading candidate explicitly as a screening candidate on the slide that names it |
-| **Presentation** | 4 | Unusually clear prose; a README usable in 30 seconds; limits named first; live site | Seven slides cannot carry this much caveat without reading as cautious | The ≤30-second video above, as a companion to the deck |
+| **Presentation** | 4 | Unusually clear prose; a README usable in 30 seconds; limits named first; a live site; one figure that carries the central distinction | Seven slides cannot carry this much caveat without reading as cautious | The ≤30-second video above, as a companion to the deck |
 
 **Likely difficult questions, with accurate answers.**
 
@@ -645,6 +762,15 @@ pre-specified rather than pre-registered.
 project identifier by its own audit is not "many features" — it is that it publishes the bound on its
 own headline, withdraws its own attractive finding, and fails the build when its prose drifts. Those are
 quality signals, and they earn Excellent.
+
+**What the last pass changed, and why it does not change this.** The evidence figure, the census
+correction it surfaced (F11) and the guard extensions improve the *presentation* and the *machinery*.
+None of them adds evidence, and the census correction in particular moves a published claim in the
+direction of **less** support, not more: at twelve of the eighteen cells the adequacy verdict rests on
+one band instead of two. A project that treats its own disclosure as a score-improvement would be
+doing the thing this whole audit exists to prevent, so the classification is unchanged at **Excellent**
+— with two P1-class defects found and fixed inside this pass rather than carried into the submission,
+which is what the classification was already paying for.
 
 **What would move it up, in order of value.** One: an **external reproduction** — anyone outside this
 project re-deriving one published number from the raw data, which is the single largest gap in the
