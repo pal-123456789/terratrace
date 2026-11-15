@@ -150,7 +150,7 @@ s2.addText("Challenge", { x: M + 0.28, y: 3.58, w: 2.0, h: 0.26, fontFace: BODY,
 s2.addText("“Identify Earth Locations that Analog the Permanent Moon Base Locations and Mars”", {
   x: M + 0.28, y: 3.86, w: 6.95, h: 0.7, fontFace: HEAD, fontSize: 14.5, italic: true, color: INK, lineSpacing: 19, margin: 0, isTextBox: true });
 
-lede(s2, "Published as open prior art, deliberately, weeks ahead of the event — stated openly rather than dressed up as event work.", 4.88, 0.6, 7.5);
+lede(s2, "Prior art published openly ahead of the event, then extended inside the window — both halves disclosed, neither dressed up as event work.", 4.88, 0.6, 7.5);
 
 panel(s2, "khaybar.png", 8.5, 1.72, 4.22, 4.22, "Harrat Khaybar, Saudi Arabia · σ 102 m · real Copernicus GLO-30 terrain", ACC);
 
