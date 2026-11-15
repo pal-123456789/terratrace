@@ -352,11 +352,11 @@ sole non-dominated candidate, and the Mars panel's front is named.
 
 1. **Starting commit:** `d50b346` — the merge tip of PR #18, pushed to `main` as `be28069` on
    2026-11-15 01:13 IST.
-2. **Final commit:** `b3107b8` adds this page. Commits after it in this series correct this page's own
+2. **Final commit:** `492e71a` adds this page. Commits after it in this series correct this page's own
    bookkeeping and nothing else; the branch tip is given in the hand-over message, because a page
    cannot name the commit that creates it.
 3. **Branch:** `improvement/scientific-consistency`, local. Nothing here has been pushed.
-4. **Every changed file**, relative to `d50b346` and as of `b3107b8` — four commits, **17 files**,
+4. **Every changed file**, relative to `d50b346` and as of `492e71a` — four commits, **17 files**,
    +862/−175. Documentation and records: `README.md`; `terratrace/docs/EVENT-ALIGNMENT.md`,
    `EVENT-WINDOW-CONTRIBUTION.md`, `SUBMISSION.md`, `CLAIM-LEDGER.md`; `terratrace/docs/event/`
    `SI-DISCLOSURE.md`, `eligibility-evidence.md`, and this page. Code and configuration:

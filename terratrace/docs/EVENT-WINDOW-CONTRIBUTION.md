@@ -33,9 +33,9 @@ The event window is 2026-11-14 to 2026-11-15. The last commit **before** it, by 
 | fact | value |
 |---|---|
 | Pre-window tip | `73db823`, **2026-11-13 22:34** (merge of PR #13) |
-| Commits inside the window | **30** — 28 ordinary commits and 2 merge commits *(as of `e828ffa`, 2026-11-15 10:20)* |
+| Commits inside the window | **30** — 28 ordinary commits and 2 merge commits *(as of `86b50d4`, 2026-11-15 10:20)* |
 | First in-window commit | `d6ef3a2`, **2026-11-14 00:45** |
-| Last in-window commit at the time of writing | `e828ffa`, **2026-11-15 10:20** |
+| Last in-window commit at the time of writing | `86b50d4`, **2026-11-15 10:20** |
 | Window diffstat | **105 files changed, +36,042 / −265** |
 
 Every one of those 30 commits is dated, public, and reachable
@@ -73,7 +73,7 @@ disagreement) · `d3e55de` the offline evidence page · `e8b823e` a second Earth
 fresh-clone provenance check · `cc86fa3` one count everywhere plus a guard for the number it could not
 see · `afb0f4e` a cross-platform path-reporting fix · `9cc97e2` a check keeping the lens sets honest
 (stated as *distinct*, never *independent*) · `7458862` a submission page and a one-command
-verification · `4995477` a CI dependency defect found by CI itself and fixed · `e828ffa` the
+verification · `4995477` a CI dependency defect found by CI itself and fixed · `86b50d4` the
 event-alignment set — the official limits quoted with their source pages, the five judging criteria
 answered, the SI disclosure, and a test that counts the submission deck's slides out of the archive
 rather than trusting a number in prose.
