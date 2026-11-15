@@ -342,6 +342,10 @@ python scripts/fetch_lola.py "Site01/Clones/Site01_final_adj_5mpp_0001_err.tif" 
 # the corrected analysis: six sites, three supports, exact common grid, plus the error ensemble
 python scripts/lunar_sites_v2.py
 
+# the two committed plots of this result (docs/figures/lunar-sites.png, lunar-site01.png)
+python scripts/lunar_sites_demo.py
+python scripts/lunar_site01_demo.py
+
 # the adversarial stress test on that panel (declared ranges in config/lunar_adversarial_v1.yml).
 # The baseline is re-derived and checked against the v2 artifact before any perturbation runs.
 python scripts/lunar_adversarial_run.py --families baseline
