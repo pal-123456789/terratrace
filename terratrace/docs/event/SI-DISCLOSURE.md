@@ -56,7 +56,7 @@ one kind of defect a disclosure exists to prevent.
 > alongside its results.
 
 > **What was built inside the event window.** The toolkit pre-dates the event and is published prior
-> art; the submission is the work done during 14–15 November that extends it. Twenty-nine commits are
+> art; the submission is the work done during 14–15 November that extends it. Thirty commits are
 > dated inside the window, and the substantive ones produced, rather than re-presented, results: real
 > lunar radar terrain was ingested and compared for the first time; a **common-support defect in the
 > project's own published lunar comparison was found, corrected and re-run**, with the corrected
