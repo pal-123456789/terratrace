@@ -226,17 +226,19 @@ an adjective.
 | **Honest reporting** | Every claim maps to an experiment and a falsifier; the project's own withdrawn claim is published at the same prominence as its results | `docs/CLAIM-LEDGER.md`, `docs/DISCOVERY-ATLAS.md` | Met |
 | **Refusal behaviour** | The atlas refuses to publish when two records disagree, and every reconciliation is proven able to fail | `tests/test_discovery_atlas.py` (corruption matrix) | Met |
 | **Offline demonstration** | The evidence page loads nothing from outside itself and uses no browser storage | `tests/test_atlas_page.py` | Met |
-| **Documentation drift** | A mechanical guard fails the build when a document quotes a number the code no longer produces; it covers 28 canonical documents, 4 HTML pages and 7 generator scripts | `scripts/doc_consistency_check.py` | Met |
+| **Documentation drift** | A mechanical guard fails the build when a document quotes a number the code no longer produces; it covers 29 canonical documents, 4 HTML pages and 7 generator scripts | `scripts/doc_consistency_check.py` | Met |
 | **Submission compliance** | Slide count within the stated limit; SI disclosure written; language; required fields | §1, §3, §4, and the slide count asserted in `tests/test_event_alignment.py` | Met |
-| **Eligibility** | Prior-art position recorded; the window contribution documented from git — 29 commits, 104 files, +35,814 lines, classified into new work vs re-rendering | `EVENT-WINDOW-CONTRIBUTION.md` §2–§3; the decision record in `event/eligibility-evidence.md` | **Disclosed, and the submitter's call — the organizer has NOT been asked** |
+| **Eligibility** | Prior-art position recorded; the window contribution documented from git — 30 commits, 105 files, +36,042 lines, classified into new work vs re-rendering | `EVENT-WINDOW-CONTRIBUTION.md` §2–§3; the decision record in `event/eligibility-evidence.md` | **Disclosed, not organizer-confirmed — Option 1 taken 2026-11-15; the organizer has NOT been asked** |
 | **Challenge alignment** | Title confirmed against the official 2026 list | Submitter, from the submission portal, 2026-11-15 (§6) | **Met** |
 
 ## 10. What this page leaves for the event
 
 - [x] ~~Open `/2026/challenges/`, copy the title verbatim~~ — **done 2026-11-15**: the submitter
       confirmed it from the portal and it matched the string already in the master plan and the deck.
-- [ ] Fill the decision record in `event/eligibility-evidence.md` with the date and the path taken.
-- [ ] Fill `EVENT-WINDOW-CONTRIBUTION.md` from the event's real timestamps.
+- [x] ~~Fill the decision record in `event/eligibility-evidence.md` with the date and the path taken.~~
+      — **done 2026-11-15**: Option 1, extend-in-window and disclosed, with what it does not assert.
+- [x] ~~Fill `EVENT-WINDOW-CONTRIBUTION.md` from the event's real timestamps.~~ — **done 2026-11-15**:
+      30 in-window commits, classified, with the re-rendering explicitly not counted as contribution.
 - [ ] Paste `event/SI-DISCLOSURE.md` into the submission's SI field, adjusted to what was actually
       done inside the window.
 - [ ] Check the submission's team registration against the Local/Universal threshold in §5.
