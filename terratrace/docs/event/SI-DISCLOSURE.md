@@ -55,14 +55,32 @@ one kind of defect a disclosure exists to prevent.
 > project's most prominent finding is a claim it disproved about itself, and it publishes that
 > alongside its results.
 
-## What to adjust at the event
+> **What was built inside the event window.** The toolkit pre-dates the event and is published prior
+> art; the submission is the work done during 14–15 November that extends it. Thirty commits are
+> dated inside the window, and the substantive ones produced, rather than re-presented, results: real
+> lunar radar terrain was ingested and compared for the first time; a **common-support defect in the
+> project's own published lunar comparison was found, corrected and re-run**, with the corrected
+> result larger than the one it replaced; the three declared lunar descriptors were shown — derived
+> and then measured — to be **one axis**; a **30-perturbation adversarial stress test**, declared
+> before it ran, found the panel robust at 28 of 30; ranking, adequacy and sufficiency were separated
+> as three verdicts, which showed the lunar panel fails the absolute question at every cell; the
+> projection was validated on **all five bodies** against independently written closed-form geodesy;
+> and an **independent-axis probe** established the sharpest result of the window — that the lunar
+> panel's sole-winner property is a property of running a Pareto rule over eight units in three
+> dimensions, since a uniformly random fourth coordinate moves that frontier in 15.90 of 18 cells and
+> none of 141 candidate axes beats it. SI tools assisted with all of it, in the same roles described
+> above, and the human operator directed the work, ran every experiment and decided every claim.
+>
+> **Event-window length.** This disclosure was completed on the second day of the window; the commit
+> dates, not this paragraph, are the record of what was built when.
 
-The text above describes the work as it stands in the repository. If additional work is done inside
-the 14–15 November window (which, per
-[`../EVENT-ALIGNMENT.md`](../EVENT-ALIGNMENT.md) §2, is where the *submitted artefact* has to come
-from), add a short paragraph naming what was built during the window and noting that SI tools
-assisted with that too. The disclosure should describe the submission as submitted, not the
-repository as it stood beforehand.
+## What to adjust before pasting
+
+- The text describes the work as it stands in the repository. If more is built today, name it in the
+  first paragraph above.
+- The SI field is a **required** field. An empty one is a submission failure, not a stylistic omission.
+- The official 2026 term is **SI / Super Intelligence**. Use it.
+- Nothing in the text should be broader than the commit history supports.
 
 ## Checked before pasting
 

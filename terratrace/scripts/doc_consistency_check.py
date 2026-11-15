@@ -162,6 +162,16 @@ CANONICAL = [
     ROOT / "docs" / "EVENT-ALIGNMENT.md",
     ROOT / "docs" / "event" / "eligibility-evidence.md",
     ROOT / "docs" / "event" / "SI-DISCLOSURE.md",
+    # The event-window record is the same kind of page and was NOT here when check_event_window was
+    # written -- so the check's first version reported the tampered commit count in the OTHER
+    # documents while the record's own table row said 31 unchallenged. A check that does not read a
+    # document cannot find anything in it; this is the third time that lesson has had to be applied
+    # to this list, so the row and the check now live under the same discipline.
+    ROOT / "docs" / "EVENT-WINDOW-CONTRIBUTION.md",
+    # the final-day readiness audit quotes the same counts as the pages above, and it is the page a
+    # judge reaches if they want to know what was checked and what was not; it goes under the same
+    # discipline rather than being the one audit nobody audits
+    ROOT / "docs" / "event" / "SUBMISSION-READINESS.md",
     ROOT / "docs" / "DEMO.md",
 ]
 
@@ -211,6 +221,11 @@ COUNT_RES = {
     "fixture count": r"(?<![\w.])(\d+)\s+fixtures\b(?![-\s]+(?!(?:and|or)\b)[A-Za-z])",
     "module count": r"(?<![\w.])(\d+)\s+(?:test\s+)?modules?\b",
     "family count": r"(?<![\w.])(\d+)\s+(?:descriptor\s+)?families\b",
+    # The canonical-document count is quoted in prose on the alignment page, and registering two
+    # pages during the final-day audit moved it twice (28 -> 29 -> 30). A number that changes
+    # whenever this very list changes belongs in the check that reads the list, not in a reader's
+    # memory.
+    "canonical document count": r"(?<![\w.])(\d+)\s+canonical documents?\b",
     "runner banner": r"passed=(\d+)\s",
 }
 
@@ -318,7 +333,7 @@ def check_counts(problems):
     modules, families = _count_test_modules(), _count_families()
     truth = {"test count": tests, "fixture count": tests, "oracle count": oracles,
              "source count": sources, "runner banner": tests, "module count": modules,
-             "family count": families}
+             "family count": families, "canonical document count": len(CANONICAL)}
     pats = [(label, re.compile(rx), truth[label]) for label, rx in COUNT_RES.items()]
     for path in CANONICAL:
         if not path.exists():
@@ -493,6 +508,115 @@ def check_lunar_adequacy(problems):
                     problems.append(
                         f"adequacy: {rel} states {label} {got}, the record says {want_t} "
                         f"(...{text[max(0, m.start() - 40):m.end() + 15].strip()!r}...)")
+
+
+def check_event_window(problems, notes):
+    """The event record's in-window counts must be git's counts AT THE COMMIT IT NAMES.
+
+    Why this exists: ``EVENT-WINDOW-CONTRIBUTION.md`` was rewritten on 2026-11-15 to carry the
+    real commit history, and it said 29. The commit that rewrote it was itself the 30th. A number
+    that changes *because you edited the document quoting it* cannot be maintained by hand, and a
+    stale one reads as evidence -- the same defect class as the stale test count this script was
+    written for, in the one place where the tree itself (not a test module) is the source.
+
+    The numbers are checked against a SNAPSHOT, not against ``HEAD``, and that is the whole point.
+    The record states its own as-of commit, so "30 commits" is a fact about a fixed commit that
+    stays true forever rather than a claim about the ever-growing present. Checking against ``HEAD``
+    would make this check fail on every subsequent commit -- which is how a real check gets deleted.
+
+    It needs the repository's HISTORY rather than its files, so it is the only check here that a
+    shallow clone can defeat: CI checks out one commit and cannot see either endpoint. That
+    limitation is recorded in ``notes`` rather than hidden, because a check that silently does
+    nothing is worse than no check -- this one says out loud which machine it stood down on.
+    """
+    doc = ROOT / "docs" / "EVENT-WINDOW-CONTRIBUTION.md"
+    if not doc.exists() or not (REPO / ".git").exists():
+        return
+    PRE_WINDOW_TIP = "73db823"          # the last commit before 2026-11-14, quoted in §2
+
+    def git(*args):
+        return subprocess.run(["git", "-C", str(REPO), *args],
+                              capture_output=True, text=True, timeout=60)
+
+    doc_text = _probe(doc.read_text(encoding="utf-8"))
+    # NB: every pattern below is written against _probe()'d text, which has already lost its
+    # emphasis markers and backticks. A pattern carrying ``\*\*`` or a backtick can never match
+    # anything here -- it did not, on the first version of this check, which stood down instead.
+    m_asof = re.search(r"as of ([0-9a-f]{7,40})", doc_text)
+    if not m_asof:
+        notes.append("event-window: the record names no as-of commit, so its counts are NOT "
+                     "verifiable; state the commit they were counted at")
+        return
+    asof = m_asof.group(1)
+    try:
+        if git("rev-parse", "--is-shallow-repository").stdout.strip() != "false":
+            notes.append("event-window: this is a shallow clone, so the in-window counts are NOT "
+                         "verified here (run it on a full clone)")
+            return
+        for rev in (asof, PRE_WINDOW_TIP):
+            if git("rev-parse", "--verify", "--quiet", f"{rev}^{{commit}}").returncode != 0:
+                notes.append(f"event-window: {rev} does not resolve, so the counts are NOT verified")
+                return
+        listed = [ln for ln in git("log", "--oneline", f"{PRE_WINDOW_TIP}..{asof}").stdout.splitlines()
+                  if ln.strip()]
+        n_commits = len(listed)
+        if n_commits == 0:
+            # an unreachable window would make every comparison below vacuous agreement
+            notes.append(f"event-window: {PRE_WINDOW_TIP}..{asof} contains no commit, so the counts "
+                         f"are NOT verified (the recorded window is empty)")
+            return
+        n_merges = len([ln for ln in git("log", "--oneline", "--merges",
+                                         f"{PRE_WINDOW_TIP}..{asof}").stdout.splitlines() if ln.strip()])
+        stat = git("diff", "--shortstat", PRE_WINDOW_TIP, asof).stdout
+    except Exception as exc:                                    # pragma: no cover - git absent
+        notes.append(f"event-window: git could not be run ({exc}); the counts are NOT verified")
+        return
+    m_files = re.search(r"(\d+) files? changed", stat)
+    m_ins = re.search(r"(\d+) insertions?\(\+\)", stat)
+    m_del = re.search(r"(\d+) deletions?\(-\)", stat)
+    if not (m_files and m_ins and m_del):
+        notes.append(f"event-window: could not read a diffstat for {PRE_WINDOW_TIP}..{asof} "
+                     f"({stat.strip()!r}); the diffstat is NOT verified here")
+        return
+    n_files, n_ins, n_del = int(m_files.group(1)), int(m_ins.group(1)), int(m_del.group(1))
+
+    snapshot = f"(as of {asof})"
+    # every wanted value is a plain int, so a document's "36,042" and this module's 36042 compare
+    # equal; the thousands separators are a display choice and are re-applied only when printing
+    tally_pat = re.compile(r"(\d+) commits?,? (\d+) files?,? \+([\d,]+) lines?")
+    pats = [
+        ("the §2 table row", re.compile(r"Commits inside the window \| (\d+)"), n_commits),
+        # one entry for this shape, not two: the §7 status row and the alignment-audit row quote the
+        # same three numbers, and listing the pattern twice reported the same span twice under two
+        # labels, which reads as two defects where there is one
+        ("a commits/files/insertions tally", tally_pat, (n_commits, n_files, n_ins)),
+        ("the alignment checklist", re.compile(r"(\d+) in-window commits\b"), n_commits),
+        ("the eligibility basis", re.compile(r"(\d+) commits dated inside\b"), n_commits),
+    ]
+    for path in CANONICAL:
+        if not path.exists() or path.suffix not in (".md", ".html", ".js"):
+            continue
+        text = _probe(path.read_text(encoding="utf-8", errors="replace"))
+        rel = _rel(path)
+        for label, pat, want in pats:
+            for m in pat.finditer(text):
+                got_c = tuple(int(g.replace(",", "")) for g in m.groups())
+                want_t = want if isinstance(want, tuple) else (want,)
+                if got_c != want_t:
+                    problems.append(
+                        f"event-window: {rel} states {label} "
+                        f"{', '.join(f'{g:,}' for g in got_c)}, git says "
+                        f"{', '.join(f'{g:,}' for g in want_t)} {snapshot}"
+                        f" (...{text[max(0, m.start() - 40):m.end() + 15].strip()!r}...)")
+    for m in re.finditer(r"(\d+) files changed, \+([\d,]+) / −([\d,]+)", doc_text):
+        got = tuple(int(g.replace(",", "")) for g in m.groups())
+        if got != (n_files, n_ins, n_del):
+            problems.append(
+                f"event-window: docs/EVENT-WINDOW-CONTRIBUTION.md states a window diffstat "
+                f"{', '.join(f'{g:,}' for g in got)}, git says "
+                f"{n_files:,}, {n_ins:,}, {n_del:,} {snapshot}")
+    notes.append(f"event-window: {n_commits} commits ({n_merges} merges) in "
+                 f"{PRE_WINDOW_TIP}..{asof}, {n_files} files, +{n_ins:,}/−{n_del:,} {snapshot}")
 
 
 def check_discovery_atlas(problems):
@@ -946,6 +1070,7 @@ def main(argv=None):
     check_lens_wording(problems)
     check_lunar_stress(problems)
     check_lunar_adequacy(problems)
+    check_event_window(problems, notes)
     check_discovery_atlas(problems)
     check_axis_probe(problems)
     check_generated_exports(problems, notes)

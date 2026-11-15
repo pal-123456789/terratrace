@@ -56,6 +56,16 @@ def _text(path):
     return path.read_text(encoding="utf-8")
 
 
+def _flat(path):
+    """The same text with whitespace collapsed, for comparing a QUOTED STRING against prose.
+
+    A title or a quoted sentence can be wrapped across lines by an editor without changing what it
+    says, so a byte-for-byte search reports a missing quote that is really a line break. The first
+    version of the title test did exactly that and failed on a document whose quote was intact.
+    """
+    return re.sub(r"\s+", " ", _text(path))
+
+
 # ------------------------------------------------------------------ the demo limit
 
 def test_the_submission_deck_is_within_the_seven_slide_limit():
@@ -147,17 +157,32 @@ def test_every_official_quote_names_the_page_it_came_from():
             f"cannot be checked by a reader, which is the whole point of the page")
 
 
-def test_the_unverified_challenge_title_is_still_flagged():
-    """The blocker has to stay visible. It is the largest open item in the document."""
-    t = _text(ALIGN)
-    assert "api.spaceappschallenge.org/graphql" in t, (
-        "the alignment page no longer names the blocker that prevents reading the 14 challenge "
-        "titles, so a reader would take the challenge claim for a verified one")
-    assert "has not been re-confirmed" in t, (
-        "the page no longer states that the challenge title used in the submission deck is "
-        "unverified")
-    assert re.search(r"Unverified|unverified", _text(ELIG)), (
-        "the eligibility note stopped flagging the challenge-title uncertainty")
+def test_the_challenge_title_is_confirmed_and_sourced():
+    """The title was the one claim in the submission that tooling could not verify.
+
+    It was closed by a person reading the official portal, which is a stronger source than the page
+    fetch that failed. Pinned rather than deleted, for two reasons: the confirmation has to keep
+    saying WHERE it came from, and the string has to stay identical everywhere it is quoted — a deck
+    that names a challenge slightly differently from the submission form is a real defect, and a
+    silent drift between the five artefacts that carry it is exactly what this test exists to catch.
+
+    The dead end is kept too. If the note about the CSRF-guarded GraphQL endpoint is dropped, the next
+    person will spend the same hour rediscovering that the titles cannot be fetched from here.
+    """
+    title = "Identify Earth Locations that Analog the Permanent Moon Base Locations and Mars"
+    t = _flat(ALIGN)
+    assert title in t, "the alignment page no longer records the confirmed title"
+    assert "CONFIRMED" in t and "2026-11-15" in t, (
+        "the title's confirmation has lost its date, so it reads as an assumption again")
+    assert "submission portal" in t, (
+        "the confirmation no longer names its source; a confirmed fact with no source is weaker than "
+        "an acknowledged uncertainty")
+    assert "apollo-require-preflight" in t, (
+        "the recorded reason tooling could not read the challenge list has been dropped")
+    for path in (ELIG, _REPO / "README.md", _ROOT / "docs" / "SUBMISSION.md"):
+        assert title in _flat(path), (
+            f"{path.name} does not quote the confirmed challenge title, so a reader of that file "
+            f"alone cannot tell which challenge this is submitted to")
 
 
 def test_the_quality_audit_admits_at_least_one_open_item():
@@ -166,9 +191,11 @@ def test_the_quality_audit_admits_at_least_one_open_item():
     body = t[t.index("## 9. Quality audit"):t.index("## 10.")]
     rows = [ln for ln in body.splitlines() if ln.startswith("| **")]
     assert len(rows) >= 8, f"the quality audit has {len(rows)} dimensions; that is too few to be one"
-    assert any("**Open" in ln for ln in rows), (
-        "every quality-audit row claims to be met; the challenge-title verification is open and "
-        "must be shown, not smoothed over")
+    met = sum(1 for ln in rows if ln.rstrip().endswith("**Met** |"))
+    assert met < len(rows), (
+        f"all {len(rows)} quality-audit rows claim to be met. The eligibility position is DISCLOSED "
+        f"but not organizer-confirmed, and a green audit at this stage would be smoothing an open "
+        f"risk rather than reporting it")
 
 
 def test_the_version_strings_stay_off_the_alignment_page():

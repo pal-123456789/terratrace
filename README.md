@@ -7,9 +7,47 @@
 **Map-scale terrain-morphology analog screening across five worlds — Earth, Mars, the Moon, Mercury, and Ceres.**
 
 Built for the NASA Space Apps Challenge 2026 challenge *“Identify Earth Locations that Analog the
-Permanent Moon Base Locations and Mars”* — as **published prior art**, not as an event submission; see
-[`terratrace/CLEAN-ROOM-NOTE.md`](terratrace/CLEAN-ROOM-NOTE.md) and
-[`terratrace/docs/event/eligibility-evidence.md`](terratrace/docs/event/eligibility-evidence.md).
+Permanent Moon Base Locations and Mars”* — as **published prior art extended inside the event
+window**, with the pre-event state and the in-window commits both disclosed. See
+[`EVENT-ALIGNMENT.md`](terratrace/docs/EVENT-ALIGNMENT.md) and
+[`EVENT-WINDOW-CONTRIBUTION.md`](terratrace/docs/EVENT-WINDOW-CONTRIBUTION.md).
+
+> **Challenge title confirmed** — read from the submission portal on 2026-11-15, the second day of
+> the event. It had been the one unverifiable claim in the submission (the challenge index is
+> client-rendered and its GraphQL endpoint refuses non-browser requests); the route that failed, and
+> the confirmation that closed it, are both recorded in
+> [`EVENT-ALIGNMENT.md`](terratrace/docs/EVENT-ALIGNMENT.md) §6.
+
+## If you have 30 seconds
+
+**The problem.** Finding an Earth terrain that "looks like" Mars is easy. Designing a comparison whose
+result survives the scale it was measured at, the data it was measured from, and the descriptors it was
+measured with is hard — and a false analog is expensive, because someone eventually builds on it.
+
+**What this does.** TerraTrace compares the *shape* of landscapes at a declared common spatial support
+and answers three questions **separately**: which candidate is least dissimilar (**ranking**), whether
+any candidate lies inside the reference's own variability (**adequacy**), and whether the evidence is
+strong enough to answer either (**sufficiency**). It never collapses them into a score, and
+`verdicts.py` refuses one structurally.
+
+**What is genuinely different.** Not the similarity map — the refusal machinery. It publishes the
+analog claim it withdrew about itself, it lists every cell where it abstains, and its atlas **will not
+write a file** if two of its six committed records disagree.
+
+**The strongest result.** A pre-registered Mars test withdrew the project's own attractive finding —
+that a famous basalt field was the closest match — and protocol v3 then showed why: smoothness tracks
+the terrain class, **volcanic origin does not** (3/3 plains support smoothness; 0/3 support volcanic
+specificity). The engine's sharpest output is a claim it disproved about itself.
+
+**What it cannot establish.** Map-scale morphology only — no traversability, geologic equivalence, site
+access or mission readiness. Its lunar half is **exploratory** and is labelled that way on the same
+page as the result: the absolute question is unanswered at every lunar cell, and the lunar
+sole-winner turns out to be a property of the Pareto rule rather than of a candidate.
+
+**Demo in one command.** `bash terratrace/scripts/reproduce_all.sh` — the suite, the scientific
+oracles, the documentation guard, the atlas and the independent-axis probe. No network, no API key.
+
+📄 **[Submission page](terratrace/docs/SUBMISSION.md)** · **[7-slide submission deck](TerraTrace-submission.pdf)** ([PowerPoint](TerraTrace-submission.pptx)) · **[full 10-slide project deck](TerraTrace-deck.pdf)** · **[evidence map](https://terratrace.fit/atlas/)**
 
 This repository holds two things:
 

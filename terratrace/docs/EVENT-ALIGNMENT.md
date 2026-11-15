@@ -131,7 +131,7 @@ gives it.
 | **Impact** | "This project makes an impact by addressing either a minor or major problem, which influences the quality and quantity of its overall effect." | A screening step that exists to *stop* a mission concept from being built on a false analog. The project's own headline result is a withdrawn claim, which is the argument for the tool in one line. | The impact is methodological, not a deployed capability. Nothing in the repository claims an operational user. |
 | **Creativity** | "This project demonstrates originality and innovation. It introduces a novel concept that has not been attempted before …" | Three separable engine verdicts (ranking / adequacy / sufficiency) rather than one analog score, a scale-resolved evidence atlas, and an abstention ledger with reasons. | Morphological analog screening is not new. What is new here is the *refusal* machinery, and it is only creative insofar as the refusal is real. It is real, and it is tested. |
 | **Validity** | "This project presents a proposed solution that is grounded in scientific principles and demonstrates technical, functional, or logical feasibility." | 51 scientific-correctness oracles with a stable hash; pinning against closed-form geodesy on five bodies; a frozen protocol published before the run; a cross-artifact reconciliation layer that **refuses to publish** when two records disagree. | The lunar half of the evidence is exploratory by construction — six nearby sites are not six independent tests — and the project says so on the same slide as the result. |
-| **Relevance** | "This project fully and directly addresses the challenge for which it was submitted, demonstrating a strong alignment with the intended objectives." | Mars half: a real multi-window protocol-v3 study with a confirmatory verdict. Moon half: real LOLA terrain at the published south-polar candidate regions. Both halves of a Moon-and-Mars challenge are addressed. | **The challenge title itself could not be re-verified — see §6.** Until it is confirmed at the event, this row is the weakest of the five. |
+| **Relevance** | "This project fully and directly addresses the challenge for which it was submitted, demonstrating a strong alignment with the intended objectives." | Mars half: a real multi-window protocol-v3 study with a confirmatory verdict. Moon half: real LOLA terrain at the published south-polar candidate regions. Both halves of a Moon-and-Mars challenge are addressed. | Was the weakest of the five, because the title could not be re-verified — now **closed**: the submitter confirmed it from the portal on 2026-11-15 (§6). |
 | **Presentation** | "The team effectively communicated their project, clearly conveying the challenge, their proposed solution, and its significance." | A 7-slide submission deck within the stated limit; a live site; an offline evidence page that renders with the network off; every headline number on the page recomputed from the record it describes. | Judged by a human at the event, not by a test. The deck has been QA'd slide by slide, which is a floor, not a guarantee. |
 
 ### The judging flow
@@ -143,38 +143,42 @@ Event teams need **at least two** to be eligible for *global* judging; and a tea
 and one challenge only. If the submission is intended to reach global judging, the team must satisfy
 the Universal threshold.
 
-## 6. Documented blocker: the 14 challenge titles
+## 6. The challenge title — CONFIRMED (was a blocker)
 
-**What is verified:** that there are **14 challenges** for 2026, quoted in §1 from the challenges
-index.
+**Status: RESOLVED, 2026-11-15.** The submitter read the title from the submission portal during the
+event and supplied it verbatim:
 
-**What could not be verified:** the **titles** of those 14 challenges, and therefore the exact
-wording of the challenge this project addresses.
+> Identify Earth Locations that Analog the Permanent Moon Base Locations and Mars
 
-**Why:** the challenges are fetched by the page at run time from
-`https://api.spaceappschallenge.org/graphql`, which the page's own server payload names. The index
-page was fetched and searched; it contains the heading, the count, the search-and-filter prose, and
-no challenge entries. `sitemap.xml` lists only five top-level URLs and no challenge slugs. No
-challenge slug appears anywhere in the fetched payloads. Enumerating the titles would require
-issuing a query against that endpoint, which is outside what this environment will do.
+This **matches the title already recorded in the project's master plan**, so no artefact needed
+correcting — the deck's title line, the master plan and this page were already consistent with the
+official wording. The uncertainty was about the *source*, not the string.
 
-**Consequence, stated rather than hidden:** the submission deck's title line names the challenge in
-the form "Identify Earth Locations that Analog the Permanent Moon Base Locations and Mars", which
-comes from the project's master plan and **has not been re-confirmed against the official 2026
-list**. That line is an unverified assertion sitting in a shipped artefact. Two acceptable
-resolutions, in order of preference:
+**Why it had been flagged.** The challenge list is fetched by the page at run time from
+`https://api.spaceappschallenge.org/graphql`, which the page's own server payload names as its API.
+The index page was fetched and searched: it contains the heading, the count, the search-and-filter
+prose, and no challenge entries. `sitemap.xml` lists five top-level URLs and no challenge slugs. A
+direct GET against the GraphQL endpoint was attempted and is refused:
 
-1. **At the event, open `/2026/challenges/`, find the challenge, and copy its title verbatim** into
-   the master plan, the deck generator, and this page. Then regenerate the deck.
-2. If the title cannot be confirmed, **soften the deck's line** so it describes the subject matter
-   rather than quoting a title, and record in the master plan that the title is unconfirmed.
+```
+HTTP 400  {"errors":[{"message":"This operation has been blocked as a potential Cross-Site Request
+Forgery (CSRF). Please either specify a 'content-type' header ... or provide a non-empty value for
+one of the following headers: x-apollo-operation-name, apollo-require-preflight"}]}
+```
 
-Leaving the unverified title in the shipped deck while this page says it is unverified would be
-worse than either fix.
+The endpoint is POST-only behind an anti-CSRF guard, which a browser satisfies and a fetch tool does
+not. That is a dead end through the tooling available here, and it is recorded as such rather than
+worked around.
 
-The project has not attempted to work around the block by guessing, and a previous note in this
-repository correctly flagged the same thing. It is repeated here because it is the single largest
-open item in this document.
+**What replaced the blocker.** A human reading the portal. This is the one fact in the submission that
+tooling could not obtain and a person could, and it is now confirmed **by the submitter, from the
+official portal, on the date of the event** — a stronger source than a page fetch would have been.
+
+**Consequence for the artefacts.** None outstanding: the string was already correct everywhere.
+`tests/test_event_alignment.py` asserts that the confirmation is recorded, that it names the portal
+as its source, and that the quoted title matches the master plan — so if any of the three drifts apart
+again, the build fails rather than letting a stale title ship.
+
 
 ## 7. Eligibility position, corrected
 
@@ -222,16 +226,19 @@ an adjective.
 | **Honest reporting** | Every claim maps to an experiment and a falsifier; the project's own withdrawn claim is published at the same prominence as its results | `docs/CLAIM-LEDGER.md`, `docs/DISCOVERY-ATLAS.md` | Met |
 | **Refusal behaviour** | The atlas refuses to publish when two records disagree, and every reconciliation is proven able to fail | `tests/test_discovery_atlas.py` (corruption matrix) | Met |
 | **Offline demonstration** | The evidence page loads nothing from outside itself and uses no browser storage | `tests/test_atlas_page.py` | Met |
-| **Documentation drift** | A mechanical guard fails the build when a document quotes a number the code no longer produces; it covers 21 canonical documents, 4 HTML pages and 6 generator scripts | `scripts/doc_consistency_check.py` | Met |
-| **Submission compliance** | Slide count within the stated limit; SI disclosure written; language; required fields | §1, §3, §4, and the slide count asserted in `tests/test_event_alignment.py` | Met except §6 |
-| **Eligibility** | Prior-art position recorded; window-contribution record exists and is unfilled | §7 | Met pending the event record |
-| **Challenge alignment** | Title re-confirmed against the official 2026 list | — | **Open — §6** |
+| **Documentation drift** | A mechanical guard fails the build when a document quotes a number the code no longer produces; it covers 30 canonical documents, 4 HTML pages and 7 generator scripts | `scripts/doc_consistency_check.py` | Met |
+| **Submission compliance** | Slide count within the stated limit; SI disclosure written; language; required fields | §1, §3, §4, and the slide count asserted in `tests/test_event_alignment.py` | Met |
+| **Eligibility** | Prior-art position recorded; the window contribution documented from git — 30 commits, 105 files, +36,042 lines, classified into new work vs re-rendering | `EVENT-WINDOW-CONTRIBUTION.md` §2–§3; the decision record in `event/eligibility-evidence.md` | **Disclosed, not organizer-confirmed — Option 1 taken 2026-11-15; the organizer has NOT been asked** |
+| **Challenge alignment** | Title confirmed against the official 2026 list | Submitter, from the submission portal, 2026-11-15 (§6) | **Met** |
 
 ## 10. What this page leaves for the event
 
-- [ ] Open `/2026/challenges/`, locate the challenge, copy its title verbatim, regenerate the deck.
-- [ ] Fill the decision record in `event/eligibility-evidence.md` with the date and the path taken.
-- [ ] Fill `EVENT-WINDOW-CONTRIBUTION.md` from the event's real timestamps.
+- [x] ~~Open `/2026/challenges/`, copy the title verbatim~~ — **done 2026-11-15**: the submitter
+      confirmed it from the portal and it matched the string already in the master plan and the deck.
+- [x] ~~Fill the decision record in `event/eligibility-evidence.md` with the date and the path taken.~~
+      — **done 2026-11-15**: Option 1, extend-in-window and disclosed, with what it does not assert.
+- [x] ~~Fill `EVENT-WINDOW-CONTRIBUTION.md` from the event's real timestamps.~~ — **done 2026-11-15**:
+      30 in-window commits, classified, with the re-rendering explicitly not counted as contribution.
 - [ ] Paste `event/SI-DISCLOSURE.md` into the submission's SI field, adjusted to what was actually
       done inside the window.
 - [ ] Check the submission's team registration against the Local/Universal threshold in §5.
