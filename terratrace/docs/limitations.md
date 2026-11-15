@@ -29,6 +29,23 @@ load-bearing: the tool's credibility depends on not exceeding them.
 - No field or simulation outcome data exists yet, so no transfer-performance claim is
   made or validated.
 
+## Numerical policy at an undefined normalisation
+
+The axial fractional distance measures a candidate against the reference's own magnitude,
+`|value − reference| / |reference|`. A reference descriptor can legitimately be exactly 0 — class and
+landform fractions do — and the ratio is then undefined. The policy is fixed in
+`decision.axial_fractional_distance`, and it is deliberately **not** an epsilon: an exact both-zero
+agreement is a distance of 0.0, and a zero reference against a non-zero value **refuses**, raising
+`UndefinedNormalisation`, as does any non-finite input.
+
+The refusal exists because the Pareto rule excludes any unit carrying a non-finite distance. A NaN would
+therefore not fail here — it would compare fewer units and return a ranking over them, with nothing in
+the output to say a candidate had been dropped. Measured on the engine's own descriptor bank: **13 of
+184** scalars hit an undefined normalisation, **12** because a class or landform fraction can be zero for
+a reference window and **1** because an input is non-finite. No published comparison is affected: every
+declared lunar and Mars decision axis is strictly positive on real terrain, and the Mars study path
+normalises by the reference's robust scale (p90−p10) rather than by its value.
+
 ## Governance
 
 A terrestrial analog site is a governed place. Public remote-sensing data does not grant
@@ -38,6 +55,12 @@ not permitted.
 
 ## Event compliance
 
-NASA Space Apps 2026 runs Nov 14-15, 2026; the submitted solution must be built during the
-event. This repository is public research/prior art unless rebuilt during the event or
-confirmed eligible in writing. See `CLEAN-ROOM-NOTE.md`.
+NASA Space Apps 2026 runs 14–15 November 2026. The official rule, quoted verbatim in
+`EVENT-ALIGNMENT.md`, prohibits *beginning work on the challenges* before the hackathon. This repository
+is published prior art, and the artefact submitted is the in-window work that **extends** it — the
+pre-event state and the 30 in-window commits are both listed, with dates, in
+`EVENT-WINDOW-CONTRIBUTION.md`.
+
+That is the **submitter's reading** of the rule, taken on 2026-11-15 and recorded with an explicit
+statement of what it does not assert, in `event/eligibility-evidence.md`. The organizer has **not** been
+asked. Nothing here claims confirmed eligibility. See `CLEAN-ROOM-NOTE.md`.

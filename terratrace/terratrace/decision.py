@@ -46,11 +46,59 @@ def dominates(a, b):
     return no_worse and strictly_better
 
 
+class UndefinedNormalisation(ValueError):
+    """A reference-relative distance has no defined value at these inputs.
+
+    Raised rather than returned as a NaN, and the reason is the rule below it: ``non_dominated``
+    EXCLUDES any unit with a non-finite distance. A silent NaN therefore does not fail -- it quietly
+    compares fewer units and reports a different ranking, with nothing in the output to say a unit
+    was dropped. A refusal the caller must handle is the only shape that cannot be mistaken for a
+    result.
+    """
+
+
+def axial_fractional_distance(reference_value, value, *, axis=None):
+    """``|value - reference| / |reference|``, with the undefined cases made explicit.
+
+    This is the engine's axial normalisation: it makes declared axes commensurate by measuring each
+    candidate against the reference's OWN magnitude, so no weighting is invented and there is no
+    composite score. One case a real descriptor bank does meet is a reference value of exactly 0 --
+    a compositional descriptor (a landform or class fraction) may legitimately be 0 for the
+    reference window while being non-zero elsewhere. The policy for it is fixed here, once, instead
+    of being left to each call site:
+
+    * ``reference == 0`` and ``value == 0`` -> ``0.0``. The two agree exactly, so their distance is
+      zero, and zero is the only value that does not invent a scale.
+    * ``reference == 0`` and ``value != 0`` -> :class:`UndefinedNormalisation`. The ratio diverges as
+      the reference approaches 0; any finite substitute would be an invented scale, and returning
+      infinity is worse than refusing, because ``non_dominated`` drops non-finite units silently.
+    * either input non-finite -> :class:`UndefinedNormalisation`. A missing measurement is not a
+      distance, and this is the same rule as above: say so rather than let it remove a candidate.
+    * ``reference != 0`` -> the ratio, unchanged. Signed descriptors are fine: the magnitude of the
+      reference sets the scale in both directions, so the result is non-negative either way.
+    """
+    if not (math.isfinite(reference_value) and math.isfinite(value)):
+        raise UndefinedNormalisation(
+            f"non-finite input on axis {axis!r}: reference={reference_value!r}, value={value!r}")
+    if reference_value == 0:
+        if value == 0:
+            return 0.0
+        raise UndefinedNormalisation(
+            f"zero reference with a non-zero value on axis {axis!r} (value={value!r}): the relative "
+            f"distance diverges, and any finite substitute would invent a scale")
+    return abs(value - reference_value) / abs(reference_value)
+
+
 def non_dominated(vectors):
     """vectors: dict unit_id -> tuple of metric distances. Returns a set.
 
     Units with any non-finite distance are excluded (a NaN must not silently
     collapse the result to a tie by making every comparison False).
+
+    Note that this exclusion is itself silent: a unit dropped here leaves no trace in the returned
+    set, so a caller that wants to know a candidate vanished has to compare the sizes. That is why
+    :func:`axial_fractional_distance` refuses instead of returning a NaN -- the guard is here for
+    distances that arrive from elsewhere, not as a licence for the axial path to emit one.
     """
     units = [u for u in vectors if all(math.isfinite(x) for x in vectors[u])]
     nd = set(units)

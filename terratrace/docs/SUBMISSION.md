@@ -81,9 +81,9 @@ folded into a score.
 | demo is a **7-slide deck** (title and intro included) or a ≤30-second video | `TerraTrace-submission.pptx` is **exactly 7 slides**, asserted out of the archive by a test |
 | **SI-tool disclosure** in the submission | drafted and ready at [`event/SI-DISCLOSURE.md`](event/SI-DISCLOSURE.md) |
 | English on the submission page and linked materials | met |
-| team size / one challenge / Local-or-Universal threshold | decide at the event; the eligibility position is [`event/eligibility-evidence.md`](event/eligibility-evidence.md) |
-| prior art disclosed, not disguised | the repository is public, MIT-licensed, and its commit history is the dated record; the artefact submitted must be built inside the event window |
-| challenge title confirmed | **OPEN** — see the caveat above |
+| team size / one challenge / Local-or-Universal threshold | **the registration threshold is unchecked**; the prior-work position is decided and recorded at [`event/eligibility-evidence.md`](event/eligibility-evidence.md) (Option 1, extend-in-window and disclosed) |
+| prior art disclosed, not disguised | the repository is public, MIT-licensed, and its commit history is the dated record; the artefact submitted is the in-window work that **extends** it, with both halves listed in [`EVENT-WINDOW-CONTRIBUTION.md`](EVENT-WINDOW-CONTRIBUTION.md) |
+| challenge title confirmed | **yes** — read from the submission portal on 2026-11-15; the string is identical in every artefact that carries it and is pinned by a test |
 
 ## Where things are
 

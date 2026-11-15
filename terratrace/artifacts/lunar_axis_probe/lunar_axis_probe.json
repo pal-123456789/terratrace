@@ -109,24 +109,27 @@
     }
   },
   "nan_audit": {
-    "what": "cells where the ENGINE-STYLE fractional distance to the reference is undefined because the reference value is exactly 0",
-    "n_descriptors_affected": 12,
+    "what": "cells where the ENGINE-STYLE fractional distance to the reference is undefined -- the reference value is 0 and the candidate value is not, or an input is non-finite",
+    "n_descriptors_affected": 13,
     "n_descriptors_in_pool": 184,
+    "n_descriptors_from_zero_reference": 12,
+    "n_descriptors_from_non_finite_input": 1,
     "affected": {
       "/geomorphons/composition/flat": 18,
-      "/geomorphons/composition/pit": 18,
       "/variogram/nugget": 18,
+      "/geomorphons/composition/pit": 12,
       "/geomorphons/composition/shoulder": 12,
       "/landform_fraction/valley": 7,
       "/tpi_landform/composition/flat": 7,
       "/anisotropy/orientation_deg": 6,
+      "/spectral/spectral_slope": 6,
       "/iwahashi_pike/dominant_class": 5,
       "/curvature_classes/composition/pit": 4,
       "/geomorphons/composition/peak": 3,
       "/geomorphons/composition/ridge": 2,
       "/geomorphons/composition/valley": 1
     },
-    "note": "all three declared axes are strictly positive so the published panel is unaffected; the defect is latent until a compositional fraction is added as an axis"
+    "note": "all three declared axes are strictly positive so the published panel is unaffected; the refusal is what stops a fraction added as an axis from silently deleting candidates, because the Pareto rule excludes any unit carrying a non-finite distance"
   },
   "pool": {
     "n_scalars_common": 184,

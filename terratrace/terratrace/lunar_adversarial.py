@@ -97,17 +97,23 @@ def fractional_distance(unit_axes, ref_id, axes=AXES):
 
     Unchanged from the panel: the axes are made commensurate by dividing by the reference's own
     value, so no weighting is invented and there is no composite score.
+
+    What DID change is the undefined case. This used to return a NaN whenever the reference's value
+    on an axis was 0 -- and a NaN is not a neutral choice here, because ``decision.non_dominated``
+    drops any unit carrying one. A zero-reference axis therefore removed candidates from the
+    comparison silently and returned a ranking computed from fewer units than the caller passed in.
+    The policy now lives in :func:`decision.axial_fractional_distance` and REFUSES: an exact
+    both-zero agreement is 0.0, and a zero reference against a non-zero value raises. The three
+    declared axes are strictly positive on real lunar terrain, so no published panel result changes
+    -- the panel's own baseline-reproduction check in the stress driver is what holds that.
     """
     ref = unit_axes[ref_id]
     out = {}
     for uid, a in unit_axes.items():
         if uid == ref_id:
             continue
-        row = []
-        for k in axes:
-            denom = abs(ref[k])
-            row.append(abs(a[k] - ref[k]) / denom if denom else float("nan"))
-        out[uid] = row
+        out[uid] = [decision.axial_fractional_distance(ref[k], a[k], axis=f"{k} (unit {uid})")
+                    for k in axes]
     return out
 
 

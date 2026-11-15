@@ -121,17 +121,18 @@ def within_cell_cv(values):
 # --------------------------------------------------------------------------- the added axis
 
 def engine_fractional_distance(reference_value, value):
-    """The panel's own axial distance: ``|value - reference| / |reference|``.
+    """The panel's own axial distance, or ``None`` where it is undefined.
 
-    ``None`` when the reference value is 0, because the ratio is then undefined rather than
-    infinite. The three declared axes are strictly positive so the published panel never meets this
-    case -- but a compositional fraction that is 0 for a reference window does, and a silent NaN at
-    that point propagates into every dominance comparison at once. That is why the probe records
-    which descriptors are affected instead of reusing this normalisation for its added axis.
+    The panel path itself now REFUSES an undefined normalisation instead of emitting a NaN -- see
+    :func:`decision.axial_fractional_distance`, which owns the policy -- but this wrapper keeps the
+    ``None`` shape deliberately: the probe's job is to RECORD which descriptors cannot be
+    normalised this way against their reference, not to run a decision on them. ``None`` is that
+    record. Both-zero is not one of the undefined cases: it is an exact agreement, and it is 0.0.
     """
-    if reference_value == 0:
+    try:
+        return decision.axial_fractional_distance(reference_value, value)
+    except decision.UndefinedNormalisation:
         return None
-    return abs(value - reference_value) / abs(reference_value)
 
 
 def range_distance_vector(values, ref_index):
