@@ -168,6 +168,10 @@ CANONICAL = [
     # document cannot find anything in it; this is the third time that lesson has had to be applied
     # to this list, so the row and the check now live under the same discipline.
     ROOT / "docs" / "EVENT-WINDOW-CONTRIBUTION.md",
+    # the final-day readiness audit quotes the same counts as the pages above, and it is the page a
+    # judge reaches if they want to know what was checked and what was not; it goes under the same
+    # discipline rather than being the one audit nobody audits
+    ROOT / "docs" / "event" / "SUBMISSION-READINESS.md",
     ROOT / "docs" / "DEMO.md",
 ]
 
@@ -217,6 +221,11 @@ COUNT_RES = {
     "fixture count": r"(?<![\w.])(\d+)\s+fixtures\b(?![-\s]+(?!(?:and|or)\b)[A-Za-z])",
     "module count": r"(?<![\w.])(\d+)\s+(?:test\s+)?modules?\b",
     "family count": r"(?<![\w.])(\d+)\s+(?:descriptor\s+)?families\b",
+    # The canonical-document count is quoted in prose on the alignment page, and registering two
+    # pages during the final-day audit moved it twice (28 -> 29 -> 30). A number that changes
+    # whenever this very list changes belongs in the check that reads the list, not in a reader's
+    # memory.
+    "canonical document count": r"(?<![\w.])(\d+)\s+canonical documents?\b",
     "runner banner": r"passed=(\d+)\s",
 }
 
@@ -324,7 +333,7 @@ def check_counts(problems):
     modules, families = _count_test_modules(), _count_families()
     truth = {"test count": tests, "fixture count": tests, "oracle count": oracles,
              "source count": sources, "runner banner": tests, "module count": modules,
-             "family count": families}
+             "family count": families, "canonical document count": len(CANONICAL)}
     pats = [(label, re.compile(rx), truth[label]) for label, rx in COUNT_RES.items()]
     for path in CANONICAL:
         if not path.exists():
