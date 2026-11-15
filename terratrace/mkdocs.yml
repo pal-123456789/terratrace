@@ -12,6 +12,7 @@ theme:
 docs_dir: docs
 nav:
   - Home: index.md
+  - Submission page — start here: SUBMISSION.md
   - Method: method.md
   - Validation & ablations: VALIDATION.md
   - Benchmark protocol v3 (frozen): BENCHMARK-PROTOCOL-v3.md
@@ -35,7 +36,6 @@ nav:
   - Limitations & claim firewall: limitations.md
   - Feature definitions & units: FEATURES.md
   - Accessibility report: ACCESSIBILITY.md
-  - Submission page (start here): SUBMISSION.md
   - Event eligibility evidence: event/eligibility-evidence.md
   - Event alignment & submission compliance: EVENT-ALIGNMENT.md
   - SI-tool disclosure: event/SI-DISCLOSURE.md
