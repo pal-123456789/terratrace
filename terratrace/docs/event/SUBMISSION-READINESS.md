@@ -166,7 +166,7 @@ units and returned a ranking over them. A policy that invented a finite substitu
 that; the fix refuses instead. §11 F1 has the detail and the tests.
 
 No other defect was found in this pass. The suite, the oracles and the guard are green, and the guard
-now covers 31 canonical documents, 4 HTML pages, and every generator script whose output carries a
+now covers 32 canonical documents, 4 HTML pages, and every generator script whose output carries a
 number a reader can check.
 
 ## 7. Repository hygiene (P2)
@@ -179,9 +179,9 @@ Checked against the audit's own list:
 | Outdated documentation | The event-window record and both decks, fixed in §0 |
 | Contradictory result descriptions | The eligibility-framing contradictions in §0 |
 | Unresolved TODOs | None found in the tree |
-| Broken references | Guard resolves 124 relative links, every site href and every fragment — green |
+| Broken references | Guard resolves every relative link, every site href and every fragment — green. The count is deliberately not quoted: it changes with every added link, and a hand-maintained number about a growing artefact goes stale on the next commit (see §9's rule) |
 | Incorrect challenge names | One string, confirmed from the portal, quoted identically in all five artefacts that carry it and pinned by test |
-| Misleading badges | The CI badge points at the repository's own workflow; the last run on `main` **succeeded** (run #62, the merge of PR #18) |
+| Misleading badges | The CI badge points at the repository's own workflow, and the last run on `main` **succeeded**. The run number is deliberately not quoted, for the reason in §9: it is wrong the moment anyone commits. Verify per commit by `head_sha` |
 | Untracked important artifacts | Working tree clean; nothing untracked |
 | Missing generated files | Deck assets regenerate from a committed script; the large DEMs are git-ignored by design and fetched by a documented script |
 | Incorrect download links | Guard-checked |
@@ -381,12 +381,11 @@ stated as an **as-of** and the durable part as a **rule**:
    2026-11-15 01:13 IST.
 2. **Final commit of the audited series:** `492e71a` added this page. Commits after it in that series
    corrected this page's own bookkeeping and nothing else.
-3. **Branch:** `improvement/scientific-consistency` — pushed and merged as PR #20 into `main` (merge
-   commit `44d2a5c`), so that series is public and CI-verified. The follow-up series that §9b describes
-   was merged as PR #21 (`d75886a`). **As of this page's last edit**, the evidence-figure series in §9c
-   is the only unpushed work. Which branches are actually pushed is a fact about git, not a claim this
-   page can keep current — read it from `git log origin/main` — so it is listed here for the sequence,
-   not for the state.
+3. **Branch:** every series this page audits has been **merged into `main`**, and each was CI-verified
+   on its own merge commit: PR #20 at `44d2a5c`, PR #21 at `d75886a`, PR #22 (the evidence-figure
+   series of §9c) at `13b7f0c`. The sequence matters more than the state, because the state is a fact
+   about git that this page cannot keep current — read it from `git log origin/main` — while the rule
+   at the head of this section is the part that stays true.
 4. **Every changed file in the audited series**, relative to `d50b346` and as of `492e71a` — four
    commits, **17 files**, +862/−175. Documentation and records: `README.md`;
    `terratrace/docs/EVENT-ALIGNMENT.md`, `EVENT-WINDOW-CONTRIBUTION.md`, `SUBMISSION.md`,
@@ -581,7 +580,7 @@ find. `Status` is `fixed` only where a test or a regenerated artefact proves it.
 | F1 | **P0** | `lunar_adversarial.fractional_distance` | Axial normalisation returned NaN when the reference descriptor was 0, and `decision.non_dominated` silently excludes non-finite units | `non_dominated` excludes NaN vectors; the probe's own audit now records 13 of 184 bank scalars hitting an undefined normalisation — 12 from a zero reference and 1 from a non-finite input, a cause the first version of that audit could not see | A ranking computed over fewer units than were passed in, with nothing in the output to say a unit was dropped | One policy in `decision.axial_fractional_distance`: both-zero is `0.0`, zero-against-non-zero raises `UndefinedNormalisation`, so does any non-finite input | 7 new tests, including one that demonstrates the silent-drop consequence directly; `test_decision`, `test_axis_probe`, `test_lunar_adversarial`, `test_adversarial`, `test_adequacy` = 68/68 | **fixed** |
 | F2 | **P0** | `docs/SUBMISSION.md` compliance table | Said the challenge title was **OPEN** and that eligibility was to be "decide[d] at the event", contradicting the root README and the decision record | README and `SUBMISSION.md` line 30 both say confirmed 2026-11-15; the decision record is `[x] Option 1` | The submission page a judge reads first would understate its own compliance and imply an unmade decision | Both rows corrected; the prior-art row now says the artefact **extends** the prior art rather than "must be built inside the window" | `test_event_alignment` 12/12; guard green | **fixed** |
 | F3 | **P1** | `docs/event/SUBMISSION-READINESS.md` §9 | Described the audited series as local-only and unpushed, and quoted CI run #62 on an older commit | The series is merged as PR #20 at `44d2a5c`; CI run #65 on that commit succeeded | A reader would take a verified submission for an unverified one, and check the wrong CI run | Items 2, 3, 4 and 8 rewritten against the actual merged state, with the superseded wording left legible rather than deleted | CI queried per-commit (`head_sha=44d2a5c…`), not by branch | **fixed** |
-| F4 | **P1** | 19 prose sites + 5 generated artefacts | Published test count 1037 while the suite reached 1044 | The guard listed all 23 as problems on the first run after the tests were added | Every reader, deck and PDF quotes a count the code no longer produces — the exact defect the guard exists for | All 19 replaced; cover, both decks, both deck PDFs and the paper PDF regenerated | Guard green over 31 canonical documents; slide counts 7 and 10 | **fixed** |
+| F4 | **P1** | 19 prose sites + 5 generated artefacts | Published test count 1037 while the suite reached 1044 | The guard listed all 23 as problems on the first run after the tests were added | Every reader, deck and PDF quotes a count the code no longer produces — the exact defect the guard exists for | All 19 replaced; cover, both decks, both deck PDFs and the paper PDF regenerated | Guard green over the whole canonical set; slide counts 7 and 10 | **fixed** |
 | F5 | **P1** | the submission portal | The SI disclosure is written but **not pasted into a required field** | `SI-DISCLOSURE.md` exists and is complete; portal state is not programmatically readable | A required field left empty is a submission failure, not a style issue | None available in-repo — this is a portal action by the submitter | §13 and §14 name it as the first checklist item | **open — submitter** |
 | F6 | **P1** | event eligibility | Eligibility is the submitter's reading of the official rule, not the organizer's ruling, and the team-registration threshold is unchecked | Organizer has not been asked; draft inquiry unsent | The submission's basis could change if the reading is rejected | None available in-repo; the reading and its limits are recorded | `eligibility-evidence.md` decision record; alignment §9 keeps this row deliberately not-met | **open — submitter** |
 | F7 | P2 | five commits dated 2026-11-14 | Authored as `<pal@example.com>`, which GitHub cannot link to the account, so they display as an unattributed contributor | `git log` over the branch; the five are on `main` | A cosmetic attribution defect on public, already-merged history | **Deliberately not fixed**: re-attributing them rewrites merged public history, and three are cited by hash in the event-window record | The cost/benefit is recorded in the commit message that fixed the five *unmerged* commits instead | **open — won't fix** |
@@ -621,7 +620,7 @@ a withdrawal, in every document that mentions it.
   finite-invariant on a well-formed panel, and the exact-agreement case.
 - **Tests run:** the full suite, and the science oracles, and the guard.
 - **Exact results:** **1044 passed, 0 failed, 0 skipped** across **106 modules**; **51/51** oracles at
-  hash `0e2c6a2e15069728…`; guard green over 31 canonical documents, 4 HTML pages and every
+  hash `0e2c6a2e15069728…`; guard green over 32 canonical documents, 4 HTML pages and every
   generator script whose output carries a checkable number, the evidence figure included.
 - **Unresolved:** F5 and F6 are submitter actions; F7 is a deliberate no-fix; everything else F1–F12,
   including the two P1 defects found in the *last* pass (F11 the band census, F12 the volatile claim),
