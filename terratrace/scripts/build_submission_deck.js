@@ -116,7 +116,7 @@ s1.addText("TerraTrace", { x: M, y: 0.7, w: 8.2, h: 0.92, fontFace: HEAD, fontSi
   bold: true, color: INK, margin: 0, isTextBox: true });
 s1.addText("Earth terrains that answer to the Moon and Mars", { x: M, y: 1.56, w: 8.2, h: 0.44,
   fontFace: HEAD, fontSize: 20, color: ACC, margin: 0, isTextBox: true });
-s1.addText("Submitted to the NASA Space Apps Challenge 2026 challenge “Identify Earth Locations that\nAnalog the Permanent Moon Base Locations and Mars”. Published as open prior art, built and\ngated weeks before the event — stated openly rather than dressed up as event work.", {
+s1.addText("Submitted to the NASA Space Apps Challenge 2026 challenge “Identify Earth Locations that\nAnalog the Permanent Moon Base Locations and Mars”. Published open prior art, extended inside\nthe event window: the pre-event state and the in-window commits are both disclosed, by date.", {
   x: M, y: 2.12, w: 7.9, h: 1.2, fontFace: BODY, fontSize: 12, color: MUTE,
   lineSpacing: 16.5, margin: 0, isTextBox: true, valign: "top" });
 s1.addText("terratrace.fit", { x: M, y: 3.42, w: 5.0, h: 0.36, fontFace: "Courier New",
@@ -222,15 +222,15 @@ lede(s5, "All **six** published south-polar candidate regions from the NASA Godd
 
 const lunarStats = [
   ["18 / 18", "site × support cells where the same single Earth candidate is non-dominated"],
-  ["28 / 30", "adversarial perturbations, declared before the run, that leave the ordering untouched"],
+  ["0 / 18", "cells where absolute adequacy is established — NOT_ESTABLISHED at all 18, the reference's own band admitting four of the other five sites"],
   ["1 of 6", "sites with no candidate within 50% on every axis — screened, not matched"],
 ];
 lunarStats.forEach(([big, label], i) => stat(s5, M + i * 4.13, 2.42, 3.7, big, label, i === 2 ? WARM : ACC));
 
-card(s5, M, 4.14, 12.1, 1.7);
+card(s5, M, 4.14, 12.1, 2.05);
 s5.addText("The honest shape of it", { x: M + 0.28, y: 4.28, w: 11.5, h: 0.3, fontFace: HEAD, fontSize: 15, bold: true, color: INK, margin: 0, isTextBox: true });
-s5.addText("Ordering is decisive everywhere; closeness at five of six sites. At Shackleton rim the survivor is 70% away on its worst axis — the least-dissimilar member of a weak shortlist, the failure mode we withdrew a Mars claim over. It also survives 6 of 6 sampled realisations of the archive's own error model (of 100 published; Site01 only). Three things bound it: the three declared axes are one gradient (mean slope and 3×3 relief satisfy relief = 2·d·tan(slope)·ρ, with ρ provably in [1, √2] and checked against the engine's own functions to 4.4e-16 m); a stress test declared before the run leaves the ordering untouched in 28 of the 30 perturbations; and an earlier version of this comparison did not put both bodies on the same ground at all — now fixed and rerun, the ordering held, the distances moved.", {
-  x: M + 0.28, y: 4.6, w: 11.5, h: 1.1, fontFace: BODY, fontSize: 10.5, color: MUTE, lineSpacing: 14, margin: 0, isTextBox: true, valign: "top" });
+s5.addText("Ranking is definite at all 18 site × support cells, and the ordering survives 6 of 6 sampled realisations of the archive's own error model (of 100 published; Site01 only). Closeness is a different matter: at Shackleton rim the survivor is 70% away on its worst axis — the least-dissimilar member of a weak shortlist, the failure mode we withdrew a Mars claim over. Four things bound the result. The three declared axes are one gradient — mean slope and 3×3 relief satisfy relief = 2·d·tan(slope)·ρ, with ρ provably in [1, √2] and checked against the engine's own functions to 4.4e-16 m. A stress test declared before the run leaves the ordering untouched in 28 of the 30 perturbations. An earlier version of this comparison did not put both bodies on the same ground at all — fixed and rerun, the ordering held while the distances moved. And the least comfortable number in the project sits here: at 18 of 24 site × descriptor statistics the unit nearest a lunar reference is another lunar site, not any Earth candidate.", {
+  x: M + 0.28, y: 4.6, w: 11.5, h: 1.45, fontFace: BODY, fontSize: 10.5, color: MUTE, lineSpacing: 14, margin: 0, isTextBox: true, valign: "top" });
 
 /* ============================================================ 6 · the evidence */
 const s6 = pres.addSlide({ masterName: "MAIN" });
@@ -272,12 +272,13 @@ s7.addText([
   { text: "The lunar sole-winner is a property of the Pareto rule, not of a candidate: a uniformly random fourth coordinate moves it in 15.90 of 18 cells on average, and no candidate axis beats that.", options: { bullet: true, breakLine: true } },
   { text: "The lunar work is exploratory: six nearby sites are not six independent tests.", options: { bullet: true, breakLine: true } },
   { text: "The error ensemble uses 6 of the 100 published realisations.", options: { bullet: true, breakLine: true } },
-  { text: "The reprojection reproduction is internally prepared; no external reviewer has examined it.", options: { bullet: true } },
+  { text: "The reprojection reproduction is internally prepared; no external reviewer has examined it.", options: { bullet: true, breakLine: true } },
+  { text: "Eligibility is disclosed, not confirmed: the organizer was not asked, and this is the submitter's reading of the official rule.", options: { bullet: true } },
 ], { x: M + 0.28, y: 2.34, w: 5.4, h: 2.2, fontFace: BODY, fontSize: 11, color: MUTE, lineSpacing: 14, margin: 0, isTextBox: true, paraSpaceAfter: 6 });
 
 card(s7, 6.77, 1.86, 5.95, 2.9);
 s7.addText("The honest ask", { x: 6.77 + 0.28, y: 2.0, w: 5.4, h: 0.3, fontFace: HEAD, fontSize: 15, bold: true, color: INK, margin: 0, isTextBox: true });
-s7.addText("The engine is prior art, built weeks before the event. What a team adds from here is the part that counts: a second terrain family it has never seen, an independent re-derivation by a different GIS toolchain, or a validation set drawn by someone with planetary field experience. If you would rather find the place where this quietly overclaims than add a feature, that is the most useful thing you could do to it.", {
+s7.addText("The engine is published prior art, extended inside the event window. What a team adds from here is the part that counts: a second terrain family it has never seen, an independent re-derivation by a different GIS toolchain, or a validation set drawn by someone with planetary field experience. If you would rather find the place where this quietly overclaims than add a feature, that is the most useful thing you could do to it.", {
   x: 6.77 + 0.28, y: 2.34, w: 5.4, h: 2.3, fontFace: BODY, fontSize: 11.5, color: MUTE, lineSpacing: 15.5, margin: 0, isTextBox: true, valign: "top" });
 
 card(s7, M, 4.92, 12.1, 1.3);

@@ -6,6 +6,8 @@ stopped saying *"the window has not opened"* and started carrying actual commits
 
 Originally written 2026-11-13, the day before the window opened. Rewritten **2026-11-15** with the git
 history, because the earlier version's central table was true when written and false by the morning.
+Revised again later the same day: the commit count now carries its own as-of hash (§2) because it had
+gone stale within hours, and §5 records the decision instead of deferring it.
 
 ## 1. The rule we are working to
 
@@ -31,13 +33,16 @@ The event window is 2026-11-14 to 2026-11-15. The last commit **before** it, by 
 | fact | value |
 |---|---|
 | Pre-window tip | `73db823`, **2026-11-13 22:34** (merge of PR #13) |
-| Commits inside the window | **29** — 27 ordinary commits and 2 merge commits |
+| Commits inside the window | **30** — 28 ordinary commits and 2 merge commits *(as of `e828ffa`, 2026-11-15 10:20)* |
 | First in-window commit | `d6ef3a2`, **2026-11-14 00:45** |
-| Last in-window commit at the time of writing | `d50b346`, **2026-11-15 01:05** |
-| Window diffstat | **104 files changed, +35,814 / −166** |
+| Last in-window commit at the time of writing | `e828ffa`, **2026-11-15 10:20** |
+| Window diffstat | **105 files changed, +36,042 / −265** |
 
-Every one of those 29 commits is dated, public, and reachable
-(`git log --since="2026-11-14 00:00"`), so the boundary is auditable rather than asserted.
+Every one of those 30 commits is dated, public, and reachable
+(`git log --since="2026-11-14 00:00"`), so the boundary is auditable rather than asserted. The count
+carries its own as-of hash because it changes every time this page is edited inside the window — an
+unqualified count is a number that is wrong by the next commit, which is how the 29 in the previous
+revision of this page became stale within hours of being written.
 
 ## 3. What the window actually produced, classified
 
@@ -68,7 +73,16 @@ disagreement) · `d3e55de` the offline evidence page · `e8b823e` a second Earth
 fresh-clone provenance check · `cc86fa3` one count everywhere plus a guard for the number it could not
 see · `afb0f4e` a cross-platform path-reporting fix · `9cc97e2` a check keeping the lens sets honest
 (stated as *distinct*, never *independent*) · `7458862` a submission page and a one-command
-verification · `4995477` a CI dependency defect found by CI itself and fixed.
+verification · `4995477` a CI dependency defect found by CI itself and fixed · `e828ffa` the
+event-alignment set — the official limits quoted with their source pages, the five judging criteria
+answered, the SI disclosure, and a test that counts the submission deck's slides out of the archive
+rather than trusting a number in prose.
+
+That last entry also **corrected this page**: its previous revision carried no in-window commits at
+all, because it was written the day the window opened and its central table had gone false by the
+following morning. The correction is a documentation change rather than a scientific one, so it is
+recorded here and not among the eight in §3a — but it belongs to the same class of act as `1426d32`
+and `7d9a9e1`: a published statement that was checked against the evidence and found wrong.
 
 ### 3c. Re-rendering and re-packaging — explicitly NOT claimed as contribution
 
@@ -88,19 +102,24 @@ So the honest description of the submission is: **a pre-existing, publicly publi
 carrying a substantial and dated in-window contribution that includes the correction of one of its own
 published results and a new negative result about its own lunar claim.**
 
-## 5. The decision, and why it is still not made here
+## 5. The decision, and who made it
 
-Two acceptable paths remain, unchanged from the original note:
+Two acceptable paths were identified from the start:
 
 1. **Extend-in-window.** Submit the project as it stands, with the pre-event state disclosed and the
-   in-window commits listed — which is what §2 and §3 now do. This is the path the record supports.
+   in-window commits listed — which is what §2 and §3 now do. This is the path the evidence supports.
 2. **Written clarification.** Ask the organizer whether an operator's existing public toolkit may be
    extended rather than rebuilt, and hold the written answer **before** submitting.
 
-Path 1 is supported by evidence and by nothing else. Path 2 depends on an answer nobody has.
+**Path 1 was taken.** The submitter recorded the choice on 2026-11-15, with its basis and its limits,
+in [`event/eligibility-evidence.md`](event/eligibility-evidence.md) — this page states the facts the
+choice rests on, and that page is the decision record.
 
-> **The decision is not made, and it must be made by the submitter.** Nothing in this repository is
-> confirmation that either path has been accepted by the organizer.
+> **What the choice does not assert.** It is the submitter's reading of the quoted rule, not the
+> organizer's. The organizer has **not** been asked and no written answer exists, so nothing here is
+> confirmation that either path has been accepted. Eligibility therefore remains **disclosed and
+> unconfirmed** — which is exactly how the alignment audit at
+> [`EVENT-ALIGNMENT.md`](EVENT-ALIGNMENT.md) §9 scores it.
 
 The draft inquiry for path 2 is in `CLEAN-ROOM-NOTE.md`. **It has not been sent.**
 
@@ -118,10 +137,10 @@ The draft inquiry for path 2 is in `CLEAN-ROOM-NOTE.md`. **It has not been sent.
 |---|---|
 | Rule recorded | **DOCUMENTED** — quoted verbatim from the official FAQ in `EVENT-ALIGNMENT.md` §2 |
 | Pre-event state disclosed | **DOCUMENTED** — pre-window tip `73db823`, 2026-11-13 22:34 |
-| Event-window contribution | **DOCUMENTED — 29 commits, 104 files, +35,814 lines**, classified in §3 |
+| Event-window contribution | **DOCUMENTED — 30 commits, 105 files, +36,042 lines**, classified in §3 |
 | New experimental work in window | **8 commits**, two of which correct or supersede a pre-event result |
-| Eligibility decision | **NOT MADE — the submitter's call** |
-| Organizer clarification | **DRAFTED, NOT SENT** — needs authorization |
+| Eligibility decision | **MADE — extend-in-window, disclosed** (Option 1), recorded 2026-11-15 in [`event/eligibility-evidence.md`](event/eligibility-evidence.md) |
+| Organizer clarification | **DRAFTED, NOT SENT** — the organizer has not been asked, and this repository does not claim otherwise |
 
 ## 8. Reproducing this page
 
