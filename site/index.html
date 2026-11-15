@@ -226,6 +226,14 @@ pre.cmd .p{color:var(--mut)}
         <p>Six analytical lenses — five default, one optional hydro lens; <em>tie</em>, <em>indeterminate</em> and <em>blocked</em> are
           first-class outcomes, not failures.</p></div>
     </div>
+    <figure style="margin:1.6rem 0 0;padding:0">
+      <img src="figures/pipeline.svg" style="width:100%;height:auto;display:block"
+        alt="The TerraTrace pipeline in twelve numbered stages: declared config, fail-fast preflight, the source catalog, fetching, a per-body metric grid, masking and quality gates, the descriptor bank, a comparability gate, the Pareto decision, three separate verdicts, a hashed artifact package, and the reader-facing surfaces.">
+      <figcaption class="sub" style="margin-top:.6rem">Every box names a module or a CLI step in the
+        repository. Stage 8 is where a comparison that cannot be made honestly is refused rather than
+        fudged, and the two watchers below the stages — 51 analytic oracles and the documentation
+        guard — run on every change.</figcaption>
+    </figure>
   </section>
 
   <section class="reveal">
@@ -344,6 +352,13 @@ pre.cmd .p{color:var(--mut)}
         unit nearest a lunar reference is <b>another lunar site</b>, not any of the seven Earth
         candidates. The ranking is definite at all 18 cells and it is an ordering <em>within the Earth
         roster</em> — it is not evidence that the roster contains the Moon.</p>
+    <figure style="margin:1.6rem 0 0;padding:0">
+      <img src="figures/decision-flow.svg" style="width:100%;height:auto;display:block"
+        alt="What the engine answers, and the four places it refuses instead: a comparability gate that can block, a Pareto ranking never collapsed into a score, an adequacy band calibrated from the reference itself and demoted when it admits known-different terrain, and a sufficiency verdict reported separately.">
+      <figcaption class="sub" style="margin-top:.6rem">Three answers to three questions, and four
+        refusals. Nothing in the codebase combines them into a single number — that separation is the
+        method, not a formatting choice.</figcaption>
+    </figure>
       <p>It stays <b>exploratory, not confirmatory</b>: six nearby sites are not six independent tests,
         and the error-ensemble check is 6 of the 100 published realisations. No base suitability of
         any kind is claimed — morphology only.</p>

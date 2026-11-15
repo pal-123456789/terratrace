@@ -324,6 +324,11 @@ def test_the_export_checks_fire_on_stale_artefacts_and_are_quiet_on_the_real_tre
         assert problems == [], ("the published evidence figure disagrees with its generator or its "
                                "record:\n" + "\n".join(problems))
 
+        problems, notes = [], []
+        g.check_published_diagrams(problems)
+        assert problems == [], ("a published diagram disagrees with its generator:\n"
+                               + "\n".join(problems))
+
         # ...and a one-character edit is enough to catch a hand-drawn figure, which is the point
         doctored = tmp / "doctored.svg"
         real = g.ROOT / "docs" / "figures" / "adequacy-vs-ranking.svg"

@@ -166,7 +166,7 @@ units and returned a ranking over them. A policy that invented a finite substitu
 that; the fix refuses instead. §11 F1 has the detail and the tests.
 
 No other defect was found in this pass. The suite, the oracles and the guard are green, and the guard
-now covers 32 canonical documents, 4 HTML pages, and every generator script whose output carries a
+now covers 33 canonical documents, 4 HTML pages, and every generator script whose output carries a
 number a reader can check.
 
 ## 7. Repository hygiene (P2)
@@ -620,7 +620,7 @@ a withdrawal, in every document that mentions it.
   finite-invariant on a well-formed panel, and the exact-agreement case.
 - **Tests run:** the full suite, and the science oracles, and the guard.
 - **Exact results:** **1044 passed, 0 failed, 0 skipped** across **106 modules**; **51/51** oracles at
-  hash `0e2c6a2e15069728…`; guard green over 32 canonical documents, 4 HTML pages and every
+  hash `0e2c6a2e15069728…`; guard green over 33 canonical documents, 4 HTML pages and every
   generator script whose output carries a checkable number, the evidence figure included.
 - **Unresolved:** F5 and F6 are submitter actions; F7 is a deliberate no-fix; everything else F1–F12,
   including the two P1 defects found in the *last* pass (F11 the band census, F12 the volatile claim),

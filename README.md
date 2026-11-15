@@ -178,6 +178,8 @@ re-derivation of two descriptors: `terratrace/docs/INDEPENDENT-GIS-REPRODUCTION.
 
 ![The 60 km roughness of the seven Earth candidates, log scale, coloured by the class assigned before the run. The two references that support S sit where the two non-volcanic controls sit, and the basalts sit higher — they win only where the target is rough.](terratrace/docs/figures/roughness-ladder.svg)
 
+![The pipeline in twelve numbered stages: config and fail-fast preflight, the source catalog, fetching, a per-body metric grid, masking and quality gates, the descriptor bank, a comparability gate, the Pareto decision, three separate verdicts, a hashed package, and the reader-facing surfaces.](terratrace/docs/figures/pipeline.svg)
+
 **And the lunar half is now on real lunar terrain.** All **six** published south-polar
 candidate regions from the NASA Goddard PGDA 5 m/pixel LOLA products were ingested and screened
 against the same Earth roster at a declared 500-1000 m support (each site is ~16 km across, so
@@ -220,6 +222,8 @@ are not six independent tests and the ensemble is 6 of 100 published realisation
 tables, provenance and caveats: `terratrace/docs/LUNAR-DEMONSTRATION.md` and its pre-run fault line
 `terratrace/docs/LUNAR-PROTOCOL-v2.md`; why the previously catalogued USGS endpoint still 404s:
 `terratrace/docs/LUNAR-STATUS.md`.
+
+![What the engine answers, and the four places it refuses instead: a comparability gate, a Pareto ranking that is never collapsed into a score, an adequacy band calibrated from the reference itself and demoted when it admits known-different terrain, and a separately reported sufficiency verdict.](terratrace/docs/figures/decision-flow.svg)
 
 ![A definite ranking is not an adequacy result. On each descriptor the pale band is the lunar reference's distance from itself — the spread its own held-out sub-windows span — and all seven Earth candidates fall inside it, as do at least four of the five sibling lunar sites that are known to be different terrain. A band that admits terrain from demonstrably different places has established nothing. The panels are drawn at one of the six of eighteen site × support cells where both descriptor bands can be calibrated; at the other twelve the relief band cannot be built at all.](terratrace/docs/figures/adequacy-vs-ranking.svg)
 
