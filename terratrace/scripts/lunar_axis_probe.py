@@ -212,30 +212,58 @@ def main():
           f"quarter-turn invariant -> {sorted(bank_changed)}")
 
     # ---------------------------------------------------------------- 3. the NaN audit
+    #
+    # Two distinct causes are counted separately, because they are not the same defect and they were
+    # not the same number. A ZERO REFERENCE makes the ratio diverge; a NON-FINITE INPUT makes it
+    # undefined. The second was invisible in the first version of this audit: `is None` was tested
+    # against a distance that a NaN input turned into a NaN rather than into None, so a descriptor
+    # whose reference was fine but whose candidate value was missing did not register at all. The
+    # engine's policy now refuses both, so both are counted, and the split is recorded so a reader
+    # can tell how much of the total is the case the write-up is about.
     affected = {}
+    from_zero_reference = from_non_finite = 0
     for k in keys:
         bad = 0
+        hit_zero = hit_nonfinite = False
         for (target, sid, pool) in cells:
             ref = f"LUNAR_{sid}"
             rv = banks[target][ref].get(k)
             if rv is None:
                 bad += 1
+                hit_zero = True
                 continue
-            if any(ap.engine_fractional_distance(rv, banks[target][u][k]) is None for u in pool if u != ref):
-                bad += 1
+            for u in pool:
+                if u == ref:
+                    continue
+                cv = banks[target][u][k]
+                if cv is None or not np.isfinite(cv) or not np.isfinite(rv):
+                    bad += 1
+                    hit_nonfinite = True
+                    break
+                if rv == 0 and cv != 0:
+                    bad += 1
+                    hit_zero = True
+                    break
+                # rv == 0 and cv == 0 is DEFINED as 0.0 by the policy, so it is not a break
         if bad:
             affected[k] = bad
+            from_zero_reference += 1 if hit_zero else 0
+            from_non_finite += 1 if hit_nonfinite else 0
     results["nan_audit"] = {
-        "what": "cells where the ENGINE-STYLE fractional distance to the reference is undefined "
-                "because the reference value is exactly 0",
+        "what": "cells where the ENGINE-STYLE fractional distance to the reference is undefined -- "
+                "the reference value is 0 and the candidate value is not, or an input is non-finite",
         "n_descriptors_affected": len(affected),
         "n_descriptors_in_pool": len(keys),
+        "n_descriptors_from_zero_reference": from_zero_reference,
+        "n_descriptors_from_non_finite_input": from_non_finite,
         "affected": dict(sorted(affected.items(), key=lambda kv: -kv[1])),
         "note": "all three declared axes are strictly positive so the published panel is unaffected; "
-                "the defect is latent until a compositional fraction is added as an axis",
+                "the refusal is what stops a fraction added as an axis from silently deleting "
+                "candidates, because the Pareto rule excludes any unit carrying a non-finite distance",
     }
     print(f"[3] NaN audit: {len(affected)} of {len(keys)} descriptors break the engine normalisation "
-          f"(reference value 0); declared axes unaffected")
+          f"({from_zero_reference} from a zero reference, {from_non_finite} from a non-finite input); "
+          f"declared axes unaffected")
 
     # ---------------------------------------------------------------- 4. the measurement
     rows, exclusions = [], Counter()

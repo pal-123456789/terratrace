@@ -174,14 +174,31 @@ declared axes and being decision-relevant are different properties, and this pan
   already labelled. What this adds is a measurement of exactly how provisional: the sole-winner
   property should not be read as evidence about candidates at all.
 
-**A latent defect found in the engine, reported because it is not this probe's.** The panel
-normalises each axis by dividing by the **reference** value, which is undefined when that value is 0.
-**12 of the 184** bank scalars hit precisely that — every one of them a compositional fraction that
-can be zero for a reference window (`geomorphons/composition/flat` and `/pit` are 0 in all 18 cells).
-The three declared axes are strictly positive, so the published panel is untouched; the defect is
-latent until a fraction is added as an axis, at which point the whole dominance comparison silently
-becomes NaN. The probe works around it with a range normalisation and records the list rather than
-reusing the unsafe one.
+**A defect found in the engine by this probe, reported because it is not this probe's — since fixed.**
+The panel normalises each axis by dividing by the **reference** value, which is undefined when that
+value is 0. **13 of the 184** bank scalars hit an undefined normalisation, and they split into two
+causes that are not the same defect: **12** because a compositional fraction can be zero for a
+reference window (`geomorphons/composition/flat` and `/pit` are 0 in all 18 cells), and **1** because an
+input is non-finite — the cause the first version of this audit could not see, since a NaN candidate
+turned the distance into a NaN rather than into the `None` the audit tested for. The three declared axes
+are strictly positive, so the published panel is untouched by either.
+
+What changed is that the undefined case is no longer *silent*. The engine's policy now lives in
+`decision.axial_fractional_distance`: an exact both-zero agreement is a distance of 0.0, and a zero
+reference against a non-zero value **refuses** with `UndefinedNormalisation`, as does any non-finite
+input. The refusal is not stylistic — `decision.non_dominated` excludes any unit carrying a non-finite
+distance, so the old NaN did not fail, it quietly compared fewer units and returned a ranking over
+them. The probe still works around the normalisation with a within-cell **range** for its own added
+axis, and still records which descriptors cannot be normalised the engine's way rather than reusing it.
+
+**One number in the frozen protocol disagrees with the run, and it is left standing.** The pre-run
+rationale in `config/lunar_axis_probe_v1.yml` says the NaN audit "shows 13 of the 184 bank descriptors
+hit exactly that" — the zero-reference case. The run recorded **12** for that case, so the protocol's
+number was wrong when it was written, before any of this changed. The total is 13 **now**, but for a
+different reason: 12 zero-reference plus 1 non-finite input. The protocol is deliberately **not**
+edited. It is the record of what was declared before the run, and rewriting it to agree with a later
+result would destroy the one thing that makes a frozen protocol worth having. The disagreement is
+recorded here instead, where a reader comparing the two will find it.
 
 ## 5. Reproducing it
 

@@ -145,8 +145,11 @@ the record of what it was and why its reach was smaller than it first looked.
 
 **Division by a zero reference.** The axial fractional distance is `|value − reference| / |reference|`,
 which is undefined when the reference descriptor is exactly zero. **12 of 184** bank scalars can be zero
-in principle — class fractions that may legitimately take the value 0. Every declared lunar and Mars
-decision axis is strictly positive, so no published comparison is affected.
+in principle — class fractions that may legitimately take the value 0 — and a **13th** breaks for a
+different cause, a non-finite input, which the first measurement could not see because a NaN candidate
+made the distance a NaN rather than the `None` the audit tested for. Both causes are now recorded
+separately in the probe's own artifact. Every declared lunar and Mars decision axis is strictly
+positive, so no published comparison is affected.
 
 **Correction to the first version of this section.** It said the case "is recorded in
 `docs/limitations.md` rather than left for a user to discover". That was false: there was no such entry
@@ -456,6 +459,13 @@ said the eligibility decision was to be taken "at the event", months of phrasing
 taken. Both rows are corrected in this series. The remaining six were checked item by item and are
 recorded as clean in §11 rather than left as silence.
 
+**A number in the frozen protocol already disagreed with its own run.** The pre-run rationale in
+`config/lunar_axis_probe_v1.yml` says the NaN audit "shows 13 of the 184 bank descriptors hit exactly
+that"; the run recorded 12 for that case. The protocol is deliberately **not** edited — it is the record
+of what was declared before the run, and rewriting it to agree with a later result would destroy the
+point of freezing it. The disagreement, and the reason the total is 13 now (12 zero-reference plus 1
+non-finite input, a cause the policy change made visible), are recorded in `AXIS-PROBE.md`.
+
 **The count cascade, honestly.** Adding seven tests moved the canonical test count from 1037 to 1044,
 and the guard immediately reported **23 problems across 15 documents and 5 generated exports** — both
 decks, both deck PDFs, the paper PDF and the cover. All 19 prose occurrences and all five artefacts
@@ -485,7 +495,7 @@ find. `Status` is `fixed` only where a test or a regenerated artefact proves it.
 
 | ID | Sev | File / function | Problem | Evidence | Impact if shipped | Fix | Verification | Status |
 |---|---|---|---|---|---|---|---|---|
-| F1 | **P0** | `lunar_adversarial.fractional_distance` | Axial normalisation returned NaN when the reference descriptor was 0, and `decision.non_dominated` silently excludes non-finite units | `non_dominated` excludes NaN vectors; 12 of 184 bank scalars can legitimately be 0 (class fractions) | A ranking computed over fewer units than were passed in, with nothing in the output to say a unit was dropped | One policy in `decision.axial_fractional_distance`: both-zero is `0.0`, zero-against-non-zero raises `UndefinedNormalisation`, so does any non-finite input | 7 new tests, including one that demonstrates the silent-drop consequence directly; `test_decision`, `test_axis_probe`, `test_lunar_adversarial`, `test_adversarial`, `test_adequacy` = 68/68 | **fixed** |
+| F1 | **P0** | `lunar_adversarial.fractional_distance` | Axial normalisation returned NaN when the reference descriptor was 0, and `decision.non_dominated` silently excludes non-finite units | `non_dominated` excludes NaN vectors; the probe's own audit now records 13 of 184 bank scalars hitting an undefined normalisation — 12 from a zero reference and 1 from a non-finite input, a cause the first version of that audit could not see | A ranking computed over fewer units than were passed in, with nothing in the output to say a unit was dropped | One policy in `decision.axial_fractional_distance`: both-zero is `0.0`, zero-against-non-zero raises `UndefinedNormalisation`, so does any non-finite input | 7 new tests, including one that demonstrates the silent-drop consequence directly; `test_decision`, `test_axis_probe`, `test_lunar_adversarial`, `test_adversarial`, `test_adequacy` = 68/68 | **fixed** |
 | F2 | **P0** | `docs/SUBMISSION.md` compliance table | Said the challenge title was **OPEN** and that eligibility was to be "decide[d] at the event", contradicting the root README and the decision record | README and `SUBMISSION.md` line 30 both say confirmed 2026-11-15; the decision record is `[x] Option 1` | The submission page a judge reads first would understate its own compliance and imply an unmade decision | Both rows corrected; the prior-art row now says the artefact **extends** the prior art rather than "must be built inside the window" | `test_event_alignment` 12/12; guard green | **fixed** |
 | F3 | **P1** | `docs/event/SUBMISSION-READINESS.md` §9 | Described the audited series as local-only and unpushed, and quoted CI run #62 on an older commit | The series is merged as PR #20 at `44d2a5c`; CI run #65 on that commit succeeded | A reader would take a verified submission for an unverified one, and check the wrong CI run | Items 2, 3, 4 and 8 rewritten against the actual merged state, with the superseded wording left legible rather than deleted | CI queried per-commit (`head_sha=44d2a5c…`), not by branch | **fixed** |
 | F4 | **P1** | 19 prose sites + 5 generated artefacts | Published test count 1037 while the suite reached 1044 | The guard listed all 23 as problems on the first run after the tests were added | Every reader, deck and PDF quotes a count the code no longer produces — the exact defect the guard exists for | All 19 replaced; cover, both decks, both deck PDFs and the paper PDF regenerated | Guard green over 30 canonical documents; slide counts 7 and 10 | **fixed** |
