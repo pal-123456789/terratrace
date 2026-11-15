@@ -329,9 +329,16 @@ pre.cmd .p{color:var(--mut)}
       <p>Then the two questions that a ranking always gets mistaken for were answered
         <b>separately</b>, as first-class outputs. <em>Is any candidate inside the reference's own
         morphological variability at this scale?</em> — <b>not established</b>, at every cell, because
-        the yardstick fails: the reference's own self-distance band comes out so wide that it admits
-        <b>4 of 5</b> other lunar sites, and a band that says <em>adequate</em> to terrain from
-        demonstrably different places has established nothing. <em>Is the evidence enough?</em> —
+        the yardstick fails: where both descriptor bands can be calibrated &mdash; <b>6 of the 18
+        cells</b>, the six at 500&nbsp;m &mdash; the reference's own self-distance band comes out so
+        wide that it admits <b>at least 4 of 5</b> other lunar sites, and a band that says
+        <em>adequate</em> to terrain from demonstrably different places has established nothing. At the
+        other <b>12</b> there is <b>no relief band at all</b> &mdash; the held-out sub-windows do not
+        supply one at 750 or 1000&nbsp;m &mdash; so the verdict there rests on the slope band alone,
+        which also admits at least four of the five. The verdict is the same either way, and it rests
+        on a weaker test at those twelve; the second band is missing rather than wide, and that is
+        stated rather than folded into the sentence above.</p>
+      <p><em>Is the evidence enough?</em> —
         <b>marginal</b>, with the reasons named. And adding those sibling sites as controls produced
         the least comfortable number on this page: at <b>18 of 24</b> site × descriptor statistics the
         unit nearest a lunar reference is <b>another lunar site</b>, not any of the seven Earth
@@ -359,6 +366,17 @@ pre.cmd .p{color:var(--mut)}
       three dimensions, not evidence about a candidate: a <em>uniformly random</em> fourth axis moves
       that frontier in 15.90 of 18 cells on average, and no candidate axis in the engine's own bank
       beats it. An arbitrary coordinate does what a better descriptor does.</p>
+    <figure style="margin:1.6rem 0 0;padding:0">
+      <img src="figures/adequacy-vs-ranking.svg" style="width:100%;height:auto;display:block"
+        alt="Two panels, one per descriptor. The pale band is the lunar reference's distance from itself — the spread its own held-out sub-windows span. All seven Earth candidates fall inside that band, and so do at least four of the five sibling lunar sites that are known to be different terrain. The panels are drawn at one of the six of eighteen site × support cells where both descriptor bands can be calibrated; at the other twelve the relief band cannot be built at all.">
+      <figcaption class="sub" style="margin-top:.6rem">A definite ranking is not an adequacy result. The
+        band is the only yardstick this data can justify for “inside the reference’s variability”, and it
+        admits at least four of the five sites a lunar geologist would call different terrain — so the
+        engine answers the ranking and the adequacy questions separately and publishes nothing that
+        converts the first into the second. Drawn from the committed reanalysis record by
+        <code>scripts/make_adequacy_figure.py</code>, which refuses to run when that record is absent
+        rather than drawing an illustrative version.</figcaption>
+    </figure>
     <div class="btnrow">
       <a class="btn" href="/atlas/">The evidence map — see the bound next to the claim it bounds</a>
       <a class="btn ghost" href="/study/">The v3 results, on this site</a>

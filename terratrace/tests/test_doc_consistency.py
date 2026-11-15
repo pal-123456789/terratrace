@@ -270,7 +270,7 @@ def test_a_stale_count_in_a_slide_caption_is_caught():
                           + "\n".join(problems))
 
 
-def test_the_export_check_fires_on_a_stale_deck_and_is_quiet_on_a_fresh_one():
+def test_the_export_checks_fire_on_stale_artefacts_and_are_quiet_on_the_real_tree():
     """Both directions, on doctored copies -- nothing in the real tree is renamed or moved aside.
 
     This check was wrong once, in BOTH directions, and that is why it has a test. Its first version
@@ -279,6 +279,10 @@ def test_the_export_check_fires_on_a_stale_deck_and_is_quiet_on_a_fresh_one():
     because deck text is drawn as subsetted-font hex glyph runs rather than ASCII. A check that
     fails on a correct tree gets switched off, so it was replaced with ``pdftotext`` plus an explicit
     "not verified" note. The deck half needs no external tool, and it is the half tested here.
+
+    The published evidence figure is the same kind of artefact -- generated, committed, and read by a
+    judge -- so its check is exercised here too, in the same two directions, rather than being the one
+    generated artefact nothing tests.
     """
     import shutil
     import tempfile
@@ -309,10 +313,28 @@ def test_the_export_check_fires_on_a_stale_deck_and_is_quiet_on_a_fresh_one():
             "the refusal has to name the file and the count it expected, or nobody can act on it:\n"
             + problems[0])
 
-        # and the real tree passes with its own defaults, so the check is not vacuous in CI
+        # and the real tree passes with its own defaults, so the checks are not vacuous in CI
         problems, notes = [], []
         g.check_generated_exports(problems, notes)
         assert problems == [], ("the exports in the real tree disagree with the suite:\n"
                                 + "\n".join(problems))
+
+        problems, notes = [], []
+        g.check_published_figure(problems, notes)
+        assert problems == [], ("the published evidence figure disagrees with its generator or its "
+                               "record:\n" + "\n".join(problems))
+
+        # ...and a one-character edit is enough to catch a hand-drawn figure, which is the point
+        doctored = tmp / "doctored.svg"
+        real = g.ROOT / "docs" / "figures" / "adequacy-vs-ranking.svg"
+        doctored.write_text(real.read_text(encoding="utf-8").replace("0.926", "0.999"),
+                            encoding="utf-8")
+        problems, notes = [], []
+        g.check_published_figure(problems, notes, svg=doctored,
+                                 artifact=g.ROOT / "artifacts" / "lunar_adequacy"
+                                          / "lunar_adequacy.json",
+                                 generator=g.ROOT / "scripts" / "make_adequacy_figure.py")
+        assert any("not what" in p for p in problems), (
+            "a hand-edited figure was accepted as generated:\n" + "\n".join(problems))
     finally:
         shutil.rmtree(tmp, ignore_errors=True)

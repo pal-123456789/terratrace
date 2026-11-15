@@ -257,14 +257,27 @@ along with a third about the evidence itself
 | Is any candidate inside the reference's **own** morphological variability at this scale? | **not established at any of the 18** |
 | Is the evidence enough to answer either? | **marginal** |
 
-**The second answer is "not established", and for a checkable reason.** The yardstick is the
-reference's own held-out variability: split its window into 3×3 sub-windows and measure how far the
-reference is from itself at the same scale, with the 95th percentile as the threshold. On this panel
-that band comes out absurdly wide — at Site01 the relief band is **6×** wider than the largest
-candidate distance — and it admits **4 of the 5** other lunar sites. A yardstick that says
-"adequate" to terrain from demonstrably different places has not established similarity, so the
-verdict is *not established*, not *adequate*. The band is reported with its width so the demotion can
-be checked rather than taken on trust.
+**The second answer is "not established", and for a checkable reason — which splits in two.** The
+yardstick is the reference's own held-out variability: split its window into 3×3 sub-windows and measure
+how far the reference is from itself at the same scale, with the 95th percentile as the threshold. A
+candidate is adequate only if it is inside that band on **every descriptor whose band could be
+established**. That qualifier carries real weight on this panel:
+
+- **6 of the 18 cells have both bands**, and they are exactly the six 500 m cells. There the band comes
+  out absurdly wide — at Site01 the relief band is **6×** wider than the largest candidate distance —
+  and it admits **at least 4 of the 5** other lunar sites: four at Site01 and Site07, and all five at
+  the other four cells. A yardstick that says "adequate" to terrain from
+  demonstrably different places has not established similarity, so the
+  verdict is *not established*, not *adequate*.
+- **The other 12 cells have no relief band at all** — every 750 m and 1000 m cell. The held-out
+  sub-windows do not supply one at those supports, so adequacy there rests on the **slope band alone**,
+  which admits at least four of the five as well. The verdict is the same, and it in fact rests on a
+  *weaker* test at those cells; what is owed to a reader is that the second band is **missing** rather
+  than **wide**, and that distinction is only visible if it is written down.
+
+`established` is recorded per descriptor per cell in the artifact, so both halves of this can be
+checked rather than taken on trust, and the demotion to *not established* is applied by
+`verdicts.band_discrimination` rather than by a judgement call at write-up time.
 
 **And the result underneath it is the uncomfortable one.** Adding the five sibling lunar sites as
 controls produced a fact about this panel that the panel had only suspected:
@@ -363,7 +376,7 @@ Verify an input against the provenance table above, e.g.
 | Uncertainty propagation (author clones) | **IMPLEMENTED AND TESTED** — 6 of 100, Site01 only |
 | Adversarial stress test on this panel | **IMPLEMENTED AND RUN** — 28 of the 30 perturbations stable; 2 reversals named |
 | Ranking / adequacy / sufficiency reported separately | **IMPLEMENTED AND RUN** — 18/18 definite, 18/18 not established, marginal |
-| Absolute adequacy on this panel | **NOT ESTABLISHED** — the reference's own band admits 4 of 5 sibling sites |
+| Absolute adequacy on this panel | **NOT ESTABLISHED** — where both bands exist (6 of the 18 cells) the reference's own band admits at least 4 of 5 sibling sites; at the other 12 there is no relief band at all and the verdict rests on slope alone |
 | Full 100-realisation ensemble, all six sites | **NOT STARTED** — 6 of 100 retrieved |
 | Confirmatory lunar protocol | **NOT STARTED** — would require held-out data and a pre-registered v3 |
 | An axis that is not a roughness restatement | **NOT STARTED** — would need a real hypothesis first |

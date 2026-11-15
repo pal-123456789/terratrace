@@ -204,9 +204,14 @@ Nevada a co-winner).
 
 And the rest is reported as **three separate answers to three separate questions**, because a
 ranking is not an adequacy statement. The definitive ordering sits next to an **adequacy verdict of
-NOT_ESTABLISHED at all 18** cells — the reference's own variability band is so wide on this panel
-that it admits four of the five other lunar sites, so membership in it is not evidence of
-similarity — and an evidence-sufficiency verdict of **marginal**, with the reasons named. Adding
+NOT_ESTABLISHED at all 18** cells — and the reason splits in two, which matters. At **6 of the 18
+cells** both descriptor bands can be calibrated, and the reference's own variability band there is so
+wide that it admits at least four of the five other lunar sites, so membership in it is not evidence of
+similarity. At **the other 12** (every 750 m and 1000 m cell) there is **no relief band at all** — the
+held-out sub-windows do not supply one at those supports — so the verdict rests on the slope band
+alone, which also admits four or five. The verdict is unchanged and in fact rests on a *weaker* test at
+those twelve; what a reader is owed is that the second band is missing rather than wide. Alongside it,
+an evidence-sufficiency verdict of **marginal**, with the reasons named. Adding
 those sibling sites as controls produced the least comfortable number in the project: at **18 of 24
 site × descriptor statistics** the unit nearest a lunar reference is **another lunar site**, not any
 of the seven Earth candidates. `earth_nevada_basin` is the closest **Earth** candidate everywhere,
@@ -215,6 +220,17 @@ are not six independent tests and the ensemble is 6 of 100 published realisation
 tables, provenance and caveats: `terratrace/docs/LUNAR-DEMONSTRATION.md` and its pre-run fault line
 `terratrace/docs/LUNAR-PROTOCOL-v2.md`; why the previously catalogued USGS endpoint still 404s:
 `terratrace/docs/LUNAR-STATUS.md`.
+
+![A definite ranking is not an adequacy result. On each descriptor the pale band is the lunar reference's distance from itself — the spread its own held-out sub-windows span — and all seven Earth candidates fall inside it, as do at least four of the five sibling lunar sites that are known to be different terrain. A band that admits terrain from demonstrably different places has established nothing. The panels are drawn at one of the six of eighteen site × support cells where both descriptor bands can be calibrated; at the other twelve the relief band cannot be built at all.](terratrace/docs/figures/adequacy-vs-ranking.svg)
+
+*Read the picture before the tables.* The band is the only yardstick this data can justify for "inside
+the reference's variability", and it admits at least four of the five lunar sites a geologist would call
+different terrain — so the engine answers the ranking and the adequacy questions separately and
+publishes nothing that converts the first into the second. The figure is drawn from
+`artifacts/lunar_adequacy/lunar_adequacy.json` by `scripts/make_adequacy_figure.py`, which **refuses to
+run** when that record is absent rather than drawing an illustrative version; the guard re-generates it
+on every run and fails if the committed figure and the record have drifted, if any label no longer fits
+the canvas, or if two markers are drawn on top of each other.
 
 **Reproduce it in three commands — no API key, no account.**
 

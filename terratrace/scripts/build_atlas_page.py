@@ -42,6 +42,10 @@ sys.path.insert(0, str(ROOT))
 
 ATLAS = ROOT / "artifacts" / "discovery_atlas" / "discovery_atlas.json"
 STRESS = ROOT / "artifacts" / "lunar_adversarial" / "lunar_adversarial.json"
+# the adequacy record is read for ONE number the atlas's composed verdict does not carry: how many of
+# the panel's cells can calibrate BOTH descriptor bands. "The yardstick admits 4 of 5" is a
+# six-cell measurement, and a page that prints it beside "at all 18" reads as an eighteen-cell one.
+ADEQUACY = ROOT / "artifacts" / "lunar_adequacy" / "lunar_adequacy.json"
 OUT = REPO / "site" / "atlas" / "index.html"
 
 CSS = """
@@ -189,6 +193,12 @@ def main():
     v = a["verdict"]
     ranking_definite = h["ranking_definite_cells"]
     n_cells = h["ranking_cells"]
+    # the band census, straight out of the record rather than retyped here
+    adq = json.loads(ADEQUACY.read_text(encoding="utf-8"))["cells"]
+    both_bands = sum(1 for c in adq.values()
+                     if all(bool(p["established"])
+                            for p in c["adequacy_detail"]["per_descriptor"].values()))
+    n_adq_cells = len(adq)
 
     parts = []
     parts.append(f"""<!doctype html>
@@ -211,9 +221,13 @@ no computation on load.</p>
                  f'<div class="note">a relative answer; well defined however weak the field</div></div>')
     parts.append(f'<div class="card"><div class="q">Is any candidate inside the reference\'s own '
                  f'variability?</div><div class="a bad">not established, at all {n_cells}</div>'
-                 f'<div class="note">the yardstick admits {_e(a["verdict"]["absolute_adequacy"]["discrimination"]["admitted"])} '
-                 f'of {_e(a["verdict"]["absolute_adequacy"]["discrimination"]["controls"])} known-different controls, so '
-                 f'membership in it is not evidence of similarity</div></div>')
+                 f'<div class="note">where both descriptor bands exist &mdash; {both_bands} of the '
+                 f'{n_adq_cells} cells, the six at 500 m &mdash; the yardstick admits <b>at least '
+                 f'{_e(a["verdict"]["absolute_adequacy"]["discrimination"]["admitted"])} of '
+                 f'{_e(a["verdict"]["absolute_adequacy"]["discrimination"]["controls"])}</b> '
+                 f'known-different controls, so membership in it is not evidence of similarity; at the '
+                 f'other {n_adq_cells - both_bands} there is no relief band to admit anything, and the '
+                 f'verdict rests on slope alone</div></div>')
     parts.append(f'<div class="card"><div class="q">Is the evidence enough to answer either?</div>'
                  f'<div class="a warn">{_e(v["evidence_sufficiency"]["state"].lower())}</div>'
                  f'<div class="note">{_e("; ".join(v["evidence_sufficiency"]["reasons"])[:180])}</div></div>')
