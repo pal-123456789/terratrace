@@ -189,6 +189,10 @@ CANONICAL = [
     # is not yet done" about work that *is* done understates the project in exactly the direction a
     # judge would believe, so it is audited like every other page that carries a status claim.
     ROOT / "docs" / "PLAN-COMPLIANCE.md",
+    # and this one DRAWS the pipeline and the refusal logic -- the two figures that are
+    # transcriptions of the code rather than plots of data, which is exactly why a reader
+    # diffs them against the modules they name
+    ROOT / "scripts" / "make_diagrams.py",
 ]
 
 # dated records: exempt from the count checks
@@ -1079,6 +1083,43 @@ def check_published_figure(problems, notes, svg=None, artifact=None, generator=N
         gen.ART = real
 
 
+
+def check_published_diagrams(problems, generator=None, out_dir=None, mirror_dir=None):
+    """The two code-transcription diagrams must be what their generator draws, in both copies.
+
+    Same discipline as the evidence figure: `docs/figures/pipeline.svg` and `decision-flow.svg` are
+    generated, committed, mirrored into the site, and read by a judge. A figure that is a transcription
+    of the code has one specific failure mode -- it keeps describing a pipeline that no longer exists
+    -- so the check regenerates both from `scripts/make_diagrams.py` and fails on any difference,
+    including between the repository copy and the published one.
+    """
+    import importlib.util
+    generator = generator if generator is not None else HERE / "make_diagrams.py"
+    out_dir = out_dir if out_dir is not None else ROOT / "docs" / "figures"
+    mirror_dir = mirror_dir if mirror_dir is not None else REPO / "site" / "figures"
+    spec = importlib.util.spec_from_file_location("make_diagrams", generator)
+    gen = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(gen)
+    for name, fresh in (("pipeline.svg", gen.pipeline()), ("decision-flow.svg", gen.decision_flow())):
+        for d, label in ((out_dir, "the repository copy"), (mirror_dir, "the published copy")):
+            path = pathlib.Path(d) / name
+            if not path.exists():
+                problems.append(f"diagram: {path.name} is missing from {d} ({label})")
+            elif path.read_text(encoding="utf-8") != fresh:
+                problems.append(
+                    f"diagram: {_rel(path) if _in_repo(path) else path.name} does not match what "
+                    f"{generator.name} draws -- regenerate it (python3 scripts/make_diagrams.py) and "
+                    f"copy it over {label}")
+
+
+def _in_repo(path):
+    try:
+        path.relative_to(REPO)
+        return True
+    except ValueError:
+        return False
+
+
 def check_versions(problems):
     src = (ROOT / "terratrace" / "__init__.py").read_text(encoding="utf-8")
     m = re.search(r'^__version__\s*=\s*["\']([^"\']+)["\']', src, re.M)
@@ -1315,6 +1356,7 @@ def main(argv=None):
     check_axis_probe(problems)
     check_generated_exports(problems, notes)
     check_published_figure(problems, notes)
+    check_published_diagrams(problems)
     n_pages = check_site_markup(problems)
 
     if not quiet:

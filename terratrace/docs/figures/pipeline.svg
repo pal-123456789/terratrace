@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 470" width="1120" height="470" role="img" aria-label="The TerraTrace pipeline in twelve numbered stages: config and fail-fast preflight, fetching through the source catalog, a per-body metric grid, masking and quality gates, the descriptor bank, a comparability gate, Pareto decision over the declared axes, three separate verdicts, a hashed artifact package, and the reader-facing surfaces.">
+<rect width="1120" height="470" fill="#FFFFFF"/>
+<text x="30.0" y="34.0" font-family="Helvetica,Arial,sans-serif" font-size="14" fill="#24292F" text-anchor="start" font-weight="700">The pipeline — every box names a module or a CLI step in this repository</text>
+<text x="30.0" y="52.0" font-family="Helvetica,Arial,sans-serif" font-size="10.5" fill="#57606A" text-anchor="start">read 1 → 12, left to right, top to bottom</text>
+<rect x="30" y="78" width="250" height="60" rx="7" fill="#F6F8FA" stroke="#D0D7DE" stroke-width="1.4"/>
+<text x="155.0" y="100.0" font-family="Helvetica,Arial,sans-serif" font-size="12.5" font-weight="700" fill="#24292F" text-anchor="middle">1 · Config</text>
+<text x="155.0" y="117.0" font-family="Helvetica,Arial,sans-serif" font-size="10.5" fill="#57606A" text-anchor="middle">declared reference, candidates, support</text>
+<line x1="280.0" y1="108.0" x2="298.0" y2="108.0" stroke="#D0D7DE" stroke-width="1.3"/><path d="M298.0,108.0 l-5,-3.2 l0,6.4 z" fill="#D0D7DE"/>
+<rect x="300" y="78" width="250" height="60" rx="7" fill="#F6F8FA" stroke="#D0D7DE" stroke-width="1.4"/>
+<text x="425.0" y="100.0" font-family="Helvetica,Arial,sans-serif" font-size="12.5" font-weight="700" fill="#24292F" text-anchor="middle">2 · Preflight</text>
+<text x="425.0" y="117.0" font-family="Helvetica,Arial,sans-serif" font-size="10.5" fill="#57606A" text-anchor="middle">fail-fast, no network, sizes the request</text>
+<line x1="550.0" y1="108.0" x2="568.0" y2="108.0" stroke="#D0D7DE" stroke-width="1.3"/><path d="M568.0,108.0 l-5,-3.2 l0,6.4 z" fill="#D0D7DE"/>
+<rect x="570" y="78" width="250" height="60" rx="7" fill="#F6F8FA" stroke="#D0D7DE" stroke-width="1.4"/>
+<text x="695.0" y="100.0" font-family="Helvetica,Arial,sans-serif" font-size="12.5" font-weight="700" fill="#24292F" text-anchor="middle">3 · Source catalog</text>
+<text x="695.0" y="117.0" font-family="Helvetica,Arial,sans-serif" font-size="10.5" fill="#57606A" text-anchor="middle">coverage-checked product choice</text>
+<line x1="820.0" y1="108.0" x2="838.0" y2="108.0" stroke="#D0D7DE" stroke-width="1.3"/><path d="M838.0,108.0 l-5,-3.2 l0,6.4 z" fill="#D0D7DE"/>
+<rect x="840" y="78" width="250" height="60" rx="7" fill="#F6F8FA" stroke="#D0D7DE" stroke-width="1.4"/>
+<text x="965.0" y="100.0" font-family="Helvetica,Arial,sans-serif" font-size="12.5" font-weight="700" fill="#24292F" text-anchor="middle">4 · Fetch</text>
+<text x="965.0" y="117.0" font-family="Helvetica,Arial,sans-serif" font-size="10.5" fill="#57606A" text-anchor="middle">MOLA keyless · Copernicus COG keyless</text>
+<rect x="30" y="168" width="250" height="60" rx="7" fill="#F6F8FA" stroke="#D0D7DE" stroke-width="1.4"/>
+<text x="155.0" y="190.0" font-family="Helvetica,Arial,sans-serif" font-size="12.5" font-weight="700" fill="#24292F" text-anchor="middle">5 · Metric grid</text>
+<text x="155.0" y="207.0" font-family="Helvetica,Arial,sans-serif" font-size="10.5" fill="#57606A" text-anchor="middle">local AEQD, WGS84 / IAU spheres</text>
+<line x1="280.0" y1="198.0" x2="298.0" y2="198.0" stroke="#D0D7DE" stroke-width="1.3"/><path d="M298.0,198.0 l-5,-3.2 l0,6.4 z" fill="#D0D7DE"/>
+<rect x="300" y="168" width="250" height="60" rx="7" fill="#F6F8FA" stroke="#D0D7DE" stroke-width="1.4"/>
+<text x="425.0" y="190.0" font-family="Helvetica,Arial,sans-serif" font-size="12.5" font-weight="700" fill="#24292F" text-anchor="middle">6 · Mask + QA</text>
+<text x="425.0" y="207.0" font-family="Helvetica,Arial,sans-serif" font-size="10.5" fill="#57606A" text-anchor="middle">water, sentinel, flat-run, valid fraction</text>
+<line x1="550.0" y1="198.0" x2="568.0" y2="198.0" stroke="#D0D7DE" stroke-width="1.3"/><path d="M568.0,198.0 l-5,-3.2 l0,6.4 z" fill="#D0D7DE"/>
+<rect x="570" y="168" width="250" height="60" rx="7" fill="#F6F8FA" stroke="#D0D7DE" stroke-width="1.4"/>
+<text x="695.0" y="190.0" font-family="Helvetica,Arial,sans-serif" font-size="12.5" font-weight="700" fill="#24292F" text-anchor="middle">7 · Descriptor bank</text>
+<text x="695.0" y="207.0" font-family="Helvetica,Arial,sans-serif" font-size="10.5" fill="#57606A" text-anchor="middle">40 families, ~290 scalar values</text>
+<line x1="820.0" y1="198.0" x2="838.0" y2="198.0" stroke="#D0D7DE" stroke-width="1.3"/><path d="M838.0,198.0 l-5,-3.2 l0,6.4 z" fill="#D0D7DE"/>
+<rect x="840" y="168" width="250" height="60" rx="7" fill="#F6F8FA" stroke="#8250DF" stroke-width="1.4"/>
+<text x="965.0" y="190.0" font-family="Helvetica,Arial,sans-serif" font-size="12.5" font-weight="700" fill="#24292F" text-anchor="middle">8 · Comparability gate</text>
+<text x="965.0" y="207.0" font-family="Helvetica,Arial,sans-serif" font-size="10.5" fill="#57606A" text-anchor="middle">same support, or it refuses</text>
+<rect x="30" y="258" width="250" height="60" rx="7" fill="#F6F8FA" stroke="#D0D7DE" stroke-width="1.4"/>
+<text x="155.0" y="280.0" font-family="Helvetica,Arial,sans-serif" font-size="12.5" font-weight="700" fill="#24292F" text-anchor="middle">9 · Pareto decision</text>
+<text x="155.0" y="297.0" font-family="Helvetica,Arial,sans-serif" font-size="10.5" fill="#57606A" text-anchor="middle">dominance only — no composite score</text>
+<line x1="280.0" y1="288.0" x2="298.0" y2="288.0" stroke="#D0D7DE" stroke-width="1.3"/><path d="M298.0,288.0 l-5,-3.2 l0,6.4 z" fill="#D0D7DE"/>
+<rect x="300" y="258" width="250" height="60" rx="7" fill="#F6F8FA" stroke="#D0D7DE" stroke-width="1.4"/>
+<text x="425.0" y="280.0" font-family="Helvetica,Arial,sans-serif" font-size="12.5" font-weight="700" fill="#24292F" text-anchor="middle">10 · Three verdicts</text>
+<text x="425.0" y="297.0" font-family="Helvetica,Arial,sans-serif" font-size="10.5" fill="#57606A" text-anchor="middle">ranking · adequacy · sufficiency</text>
+<line x1="550.0" y1="288.0" x2="568.0" y2="288.0" stroke="#D0D7DE" stroke-width="1.3"/><path d="M568.0,288.0 l-5,-3.2 l0,6.4 z" fill="#D0D7DE"/>
+<rect x="570" y="258" width="250" height="60" rx="7" fill="#F6F8FA" stroke="#D0D7DE" stroke-width="1.4"/>
+<text x="695.0" y="280.0" font-family="Helvetica,Arial,sans-serif" font-size="12.5" font-weight="700" fill="#24292F" text-anchor="middle">11 · Hashed package</text>
+<text x="695.0" y="297.0" font-family="Helvetica,Arial,sans-serif" font-size="10.5" fill="#57606A" text-anchor="middle">study.json · manifest · checksums</text>
+<line x1="820.0" y1="288.0" x2="838.0" y2="288.0" stroke="#D0D7DE" stroke-width="1.3"/><path d="M838.0,288.0 l-5,-3.2 l0,6.4 z" fill="#D0D7DE"/>
+<rect x="840" y="258" width="250" height="60" rx="7" fill="#F6F8FA" stroke="#D0D7DE" stroke-width="1.4"/>
+<text x="965.0" y="280.0" font-family="Helvetica,Arial,sans-serif" font-size="12.5" font-weight="700" fill="#24292F" text-anchor="middle">12 · Surfaces</text>
+<text x="965.0" y="297.0" font-family="Helvetica,Arial,sans-serif" font-size="10.5" fill="#57606A" text-anchor="middle">viewer · site · decks · paper</text>
+<rect x="30" y="344" width="545" height="46" rx="7" fill="#F2FAF9" stroke="#0B7A75" stroke-width="1.4"/>
+<text x="302.5" y="366.0" font-family="Helvetica,Arial,sans-serif" font-size="12.5" font-weight="700" fill="#0B7A75" text-anchor="middle">Validation — 51 analytic oracles</text>
+<text x="302.5" y="383.0" font-family="Helvetica,Arial,sans-serif" font-size="10.5" fill="#57606A" text-anchor="middle">closed-form answers, re-run on every change</text>
+<rect x="595" y="344" width="495" height="46" rx="7" fill="#F2FAF9" stroke="#0B7A75" stroke-width="1.4"/>
+<text x="842.5" y="366.0" font-family="Helvetica,Arial,sans-serif" font-size="12.5" font-weight="700" fill="#0B7A75" text-anchor="middle">Documentation guard</text>
+<text x="842.5" y="383.0" font-family="Helvetica,Arial,sans-serif" font-size="10.5" fill="#57606A" text-anchor="middle">fails the build when prose drifts from the code</text>
+<text x="30.0" y="458.0" font-family="Helvetica,Arial,sans-serif" font-size="10.5" fill="#57606A" text-anchor="start">Nothing here estimates traversability, autonomy, geological equivalence, site access or mission readiness; stage 8 is where a comparison that cannot be made honestly is refused rather than fudged.</text>
+</svg>

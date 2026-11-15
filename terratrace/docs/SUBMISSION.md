@@ -36,6 +36,8 @@ which refuses a plain GET with an anti-CSRF guard. It was closed by a person rea
 the whole episode — including the failed route, so nobody repeats it — is recorded in
 [`EVENT-ALIGNMENT.md`](EVENT-ALIGNMENT.md) §6.
 
+![The pipeline in twelve numbered stages, from the declared config and the fail-fast preflight through the per-body metric grid, the descriptor bank, the comparability gate, the Pareto decision, the three separate verdicts and the hashed package to the published surfaces.](figures/pipeline.svg)
+
 ## Verify it in one command
 
 ```
