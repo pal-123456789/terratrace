@@ -184,6 +184,11 @@ CANONICAL = [
     # edges, the control counts and the three verdicts -- every one of which ends up printed on a
     # published picture a judge reads, which is the same reason the deck generators are on this list
     ROOT / "scripts" / "make_adequacy_figure.py",
+    # The plan-traceability page listed an open item (an independent GIS re-derivation) that had been
+    # closed a day earlier, and nothing read it -- because it was not here. A document that says "this
+    # is not yet done" about work that *is* done understates the project in exactly the direction a
+    # judge would believe, so it is audited like every other page that carries a status claim.
+    ROOT / "docs" / "PLAN-COMPLIANCE.md",
 ]
 
 # dated records: exempt from the count checks
