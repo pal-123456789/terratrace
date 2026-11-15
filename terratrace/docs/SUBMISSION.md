@@ -27,12 +27,14 @@ publishes the claim it withdrew about itself, it lists every cell where it absta
 
 ## The challenge, and one honest caveat
 
-The official 2026 site confirms there are **14 challenges**; the project addresses a Moon-and-Mars
-analog challenge. **The exact challenge title could not be read** from this environment: the list is
-client-rendered behind `api.spaceappschallenge.org/graphql`, which blocks GET requests with a CSRF
-guard, and the titles appear in neither the page payload nor `sitemap.xml`. The title is therefore
-marked **UNVERIFIED** wherever it appears, including the deck, and the fix is one looked-up line at
-the event. See [`EVENT-ALIGNMENT.md`](EVENT-ALIGNMENT.md) §6.
+**Identify Earth Locations that Analog the Permanent Moon Base Locations and Mars** — the official 2026 challenge this project is submitted to, **confirmed from the
+submission portal on 2026-11-15**. The list carries **14 challenges** in total.
+
+That title was, until today, the one claim in this submission that tooling could not verify: the
+challenge index is client-rendered and its titles are fetched from `api.spaceappschallenge.org/graphql`,
+which refuses a plain GET with an anti-CSRF guard. It was closed by a person reading the portal, and
+the whole episode — including the failed route, so nobody repeats it — is recorded in
+[`EVENT-ALIGNMENT.md`](EVENT-ALIGNMENT.md) §6.
 
 ## Verify it in one command
 
