@@ -66,7 +66,7 @@ Recorded here because it is a decision that had to be taken rather than derived.
 **Recorded:** 2026-11-15, by the submitter, on the second day of the event window.
 **Basis:** the official rule quoted at the top of this page — teams "are not allowed to begin working
 on the challenges prior to the hackathon" — read against the git history: pre-window tip `73db823`
-(2026-11-13 22:34), then **29 commits dated inside 2026-11-14/15** whose content is classified
+(2026-11-13 22:34), then **30 commits dated inside 2026-11-14/15** whose content is classified
 (eight of them new experimental work, not re-rendering) in `EVENT-WINDOW-CONTRIBUTION.md` §3.
 **Evidence attached:** none required for option 1 — the evidence *is* the public commit history.
 
